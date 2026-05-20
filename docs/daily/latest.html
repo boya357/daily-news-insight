@@ -3,197 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>每日新闻洞察 - 报告列表</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>每日新闻洞察</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(135deg, #f8f9fc 0%, #f0f2f8 100%); color: #2d3748; line-height: 1.8; min-height: 100vh; padding: 40px 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 40px; }
-        .header-icon { font-size: 48px; margin-bottom: 15px; }
-        .header h1 { font-size: 32px; font-weight: 700; color: #1a202c; margin-bottom: 10px; }
-        .header p { color: #718096; }
-        .report-list { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .report-item { display: flex; align-items: center; padding: 20px; border-radius: 12px; margin-bottom: 15px; text-decoration: none; color: inherit; transition: all 0.2s ease; background: linear-gradient(135deg, #f8f9fc 0%, #f5f7fb 100%); border: 1px solid #e8ecf4; }
-        .report-item:first-child { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; }
-        .report-item:hover { transform: translateX(5px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15); }
-        .report-icon { font-size: 28px; margin-right: 18px; }
-        .report-info { flex: 1; }
-        .report-title { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
-        .report-date { font-size: 13px; opacity: 0.7; }
-        .report-tag { background: rgba(255,255,255,0.25); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
-        .report-tag.gray { background: rgba(102, 126, 234, 0.1); color: #667eea; }
-        .footer { text-align: center; padding: 30px; color: #a0aec0; font-size: 13px; }
-        .nav-bar { background: white; border-radius: 16px; padding: 15px 25px; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
-        .nav-item { padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: 500; transition: all 0.3s; }
-        .nav-item:not(.current) { background: #f5f7fa; color: #667eea; }
-        .nav-item:not(.current):hover { background: #667eea; color: white; }
-        .nav-item.current { background: white; color: #667eea; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        @media (max-width: 768px) { .header h1 { font-size: 24px; } .report-item { padding: 15px; } }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: #f8fafc; color: #334155; line-height: 1.6; min-height: 100vh; }
+        .header { position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.06); z-index: 100; padding: 0 24px; }
+        .header-inner { max-width: 600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+        .header-title { font-size: 17px; font-weight: 700; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header-date { font-size: 13px; color: #94a3b8; }
+        .nav-bar { background: white; border-radius: 16px; padding: 12px 16px; margin: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; }
+        .nav-item { padding: 8px 14px; border-radius: 20px; text-decoration: none; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+        .nav-item:not(.current) { background: #f5f7fa; color: #64748b; }
+        .nav-item:not(.current):hover { background: #6366f1; color: white; }
+        .nav-item.current { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+        .container { max-width: 600px; margin: 0 auto; padding: 0 20px 100px; }
+        .page-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: #1e293b; }
+        .page-subtitle { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+        .card { display: flex; align-items: center; gap: 14px; padding: 16px 18px; background: #fff; border: 1px solid rgba(0,0,0,0.06); border-radius: 16px; text-decoration: none; color: inherit; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 12px; }
+        .card:hover { border-color: #6366f1; box-shadow: 0 4px 12px rgba(99,102,241,0.12); transform: translateY(-1px); }
+        .card-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+        .card-content { flex: 1; }
+        .card-title { font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 2px; }
+        .card-subtitle { font-size: 13px; color: #94a3b8; }
+        .card-tag { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; background: rgba(99,102,241,0.1); color: #6366f1; }
+        .card-arrow { color: #cbd5e1; font-size: 20px; font-weight: 300; }
+        footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 12px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="nav-bar">
-            <a href="https://boya357.github.io/daily-news-insight/" class="nav-item">📊 市场洞察中心</a>
-            <a href="https://boya357.github.io/daily-news-insight/daily/latest.html" class="nav-item current">📰 每日新闻洞察</a>
-            <a href="https://boya357.github.io/daily-news-insight/intraday/latest.html" class="nav-item">⚡ 盘中快报</a>
-            <a href="https://boya357.github.io/daily-news-insight/aftermarket/latest.html" class="nav-item">📈 盘后速递</a>
+    <header class="header">
+        <div class="header-inner">
+            <a href="/daily-news-insight/" style="text-decoration: none;">
+                <span class="header-title">📊 市场洞察中心</span>
+            </a>
+            <span class="header-date" id="today"></span>
         </div>
-        <div class="header">
-            <div class="header-icon">📰</div>
-            <h1>每日新闻洞察</h1>
-            <p>每日盘前重要催化与市场热点分析</p>
-        </div>
-        <div class="report-list">
-            <a href="20260519_每日新闻洞察.html" class="report-item">
-                <div class="report-icon">🆕</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月19日</div>
-                    <div class="report-date">六大部委联合维稳，万亿长期资金入市</div>
-                </div>
-                <div class="report-tag">今日</div>
-            </a>
-            <a href="20260518_每日新闻洞察.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月18日</div>
-                    <div class="report-date">六大重磅催化密集落地</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-            <a href="20260517_每日新闻洞察.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月17日</div>
-                    <div class="report-date">非交易日，周一关键变盘节点</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-            <a href="20260516.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月16日</div>
-                    <div class="report-date">稀土管控、关税豁免等政策催化</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-            <a href="20260515.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月15日</div>
-                    <div class="report-date">关税谈判与政策预期</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-            <a href="20260514.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月14日</div>
-                    <div class="report-date">中俄联合声明、中美谈判进展</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-            <a href="20260513.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月13日</div>
-                    <div class="report-date">市场震荡期关键催化</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-            <a href="20260512.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月12日</div>
-                    <div class="report-date">市场情绪与技术修复</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-            <a href="20260511.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月11日</div>
-                    <div class="report-date">非交易日</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-            <a href="20260510.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月10日</div>
-                    <div class="report-date">关税缓和与市场反弹</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-            <a href="20260509.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月9日</div>
-                    <div class="report-date">关税90天暂停期关键窗口</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-            <a href="20260508.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月8日</div>
-                    <div class="report-date">关税博弈与科技股走势</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-            <a href="20260507.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月7日</div>
-                    <div class="report-date">关税90天暂停期</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-            <a href="20260506.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月6日</div>
-                    <div class="report-date">美股暴跌后的A股走向</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-            <a href="20260505.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月5日</div>
-                    <div class="report-date">非交易日</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-            <a href="20260504.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月4日</div>
-                    <div class="report-date">非交易日</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-            <a href="20260503.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年5月3日</div>
-                    <div class="report-date">非交易日</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-            <a href="20260430.html" class="report-item">
-                <div class="report-icon">📅</div>
-                <div class="report-info">
-                    <div class="report-title">每日新闻洞察 - 2026年4月30日</div>
-                    <div class="report-date">月末行情与节前布局</div>
-                </div>
-                <div class="report-tag gray">历史</div>
-            </a>
-        </div>
-        <div class="footer">
-            <p>📊 每日新闻洞察报告列表 - 共18份报告</p>
-        </div>
+    </header>
+    <div class="nav-bar">
+        <a href="/daily-news-insight/" class="nav-item">首页</a>
+        <a href="/daily-news-insight/daily/latest.html" class="nav-item current">每日新闻洞察</a>
+        <a href="/daily-news-insight/intraday/latest.html" class="nav-item">盘中快报</a>
+        <a href="/daily-news-insight/aftermarket/latest.html" class="nav-item">盘后速递</a>
+        <a href="/daily-news-insight/industry_chain/latest.html" class="nav-item">产业链</a>
+        <a href="/daily-news-insight/weekly_review/latest.html" class="nav-item">前瞻催化</a>
     </div>
+    <div class="container">
+        <h1 class="page-title">📰 每日新闻洞察</h1>
+        <p class="page-subtitle">每日盘前重要催化与市场热点分析</p>
+        
+        <a href="/daily-news-insight/daily/20260520_每日新闻洞察.html" class="card">
+            <div class="card-icon">🆕</div>
+            <div class="card-content">
+                <div class="card-title">每日新闻洞察 - 2026年5月20日</div>
+                <div class="card-subtitle">英伟达Q1财报明日公布，三星罢工叠加催化</div>
+            </div>
+            <span class="card-tag">今日</span>
+            <span class="card-arrow">›</span>
+        </a>
+        
+        <a href="/daily-news-insight/daily/20260519_每日新闻洞察.html" class="card">
+            <div class="card-icon">📅</div>
+            <div class="card-content">
+                <div class="card-title">每日新闻洞察 - 2026年5月19日</div>
+                <div class="card-subtitle">六大部委联合维稳，万亿长期资金入市</div>
+            </div>
+            <span class="card-arrow">›</span>
+        </a>
+        
+        <a href="/daily-news-insight/daily/20260518_每日新闻洞察.html" class="card">
+            <div class="card-icon">📅</div>
+            <div class="card-content">
+                <div class="card-title">每日新闻洞察 - 2026年5月18日</div>
+                <div class="card-subtitle">AI算力板块持续发酵</div>
+            </div>
+            <span class="card-arrow">›</span>
+        </a>
+        
+        <footer><p>仅供参考，不构成投资建议</p></footer>
+    </div>
+    <script>
+        const now = new Date();
+        const weekDay = ['周日','周一','周二','周三','周四','周五','周六'][now.getDay()];
+        document.getElementById('today').textContent = `${now.getMonth()+1}月${now.getDate()}日 ${weekDay}`;
+    </script>
 </body>
 </html>
