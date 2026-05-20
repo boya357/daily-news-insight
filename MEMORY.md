@@ -1,56 +1,52 @@
 # MEMORY.md - 核心知识库
 
-## 系统架构规范（2026-05-20制定，详见TOOLS.md）
+## 报告命名规范（2026-05-20最终版）
 
-### 核心规则
-- **工作目录**：`docs/`（唯一正确路径）
-- **Git仓库**：`~/daily-news-insight-git/docs/`
-- **命名规范**：`YYYYMMDD_类型.html`（日期在前，类型在后）
-- **MD必须保留**：每份日报同时保存.md和.html
-- **删除前必备份**：任何删除操作前先备份
+| 报告类型 | 格式 | 示例 |
+|---------|------|------|
+| 每日新闻洞察 | `YYYYMMDD_每日新闻洞察.html` | `20260520_每日新闻洞察.html` |
+| 盘中快报 | `YYYYMMDD_盘中快报.html` | `20260520_盘中快报.html` |
+| 盘后速递 | `YYYYMMDD_盘后速递.html` | `20260520_盘后速递.html` |
+| 周三前瞻 | `YYYYMMDD_周三前瞻.html` | `20260521_周三前瞻.html` |
+| 周末前瞻 | `YYYYMMDD_周末前瞻.html` | `20260525_周末前瞻.html` |
+| 周复盘 | `YYYYMMDD_周复盘.html` | `20260517_周复盘.html` |
+| S级催化扫描 | `YYYYMMDD_S级催化扫描.html` | `20260518_S级催化扫描.html` |
+| 产业链日报 | `YYYYMMDD_产业链名日报.html` | `20260520_存储产业链日报.html` |
+
+**⚠️ 注意**：
+- 日期在前，类型在后
+- 产业链日报只放在 `docs/reports/产业链名/` 目录
+- weekly_review目录不放产业链日报
+
+### UI设计规范（2026-05-20用户确认）
+
+**两种风格**：
+| 页面类型 | 风格 | 示例 |
+|---------|------|------|
+| 列表页（latest.html） | 简洁卡片式 | 浅色背景 + 白色卡片 + 毛玻璃导航栏 |
+| 内容页 | **沉浸光影风格** | 紫色渐变背景 + 大图标 + 脉冲动画 |
+
+**沉浸光影UI特征**（参考 `docs/daily/20260518.html`）：
+- 紫色渐变背景：`linear-gradient(135deg, #667eea 0%, #764ba2 100%)`
+- 大图标+脉冲动画：`animation: pulse 3s ease-in-out infinite`
+- 深阴影：`box-shadow: 0 15px 40px rgba(118, 75, 162, 0.35)`
+- 渐变文字标题：`-webkit-background-clip: text`
+- 导航栏毛玻璃效果：`backdrop-filter: blur(20px)`
+
+**⚠️ HTML响应式必须项**：
+- 表格：`.card-body { overflow-x: auto; }` + `min-width: 500px`
+- 列表：统一`padding-left: 20px` + `line-height`
+- 网格：`minmax(150px, 1fr)` 更紧凑
+- 移动端：添加`@media`适配
 
 ### 禁止操作
 - ❌ 删除目录前未列出内容
 - ❌ 删除目录前未备份
 - ❌ 在旧目录操作
-- ❌ MD源文件只保存一份
-
-### 内容页UI规范（2026-05-20制定）
-
-**模板位置**：`docs/_templates/内容页标准模板.md`
-
-#### 导航栏结构（必须）
-```html
-<header class="header">
-    <div class="header-inner">
-        <a href="/daily-news-insight/" style="text-decoration: none;">
-            <span class="header-title">📊 市场洞察中心</span>
-        </a>
-    </div>
-</header>
-<div class="nav-bar">
-    <a href="/daily-news-insight/" class="nav-item">首页</a>
-    <a href="/daily-news-insight/daily/latest.html" class="nav-item">每日新闻洞察</a>
-    <a href="/daily-news-insight/intraday/latest.html" class="nav-item">盘中快报</a>
-    <a href="/daily-news-insight/aftermarket/latest.html" class="nav-item">盘后速递</a>
-    <a href="/daily-news-insight/industry_chain/latest.html" class="nav-item">产业链</a>
-    <a href="/daily-news-insight/weekly_review/latest.html" class="nav-item current">前瞻催化</a>
-</div>
-```
-**注意**：当前页添加 `class="current"`
-
-#### 响应式表格（必须）
-```html
-<div style="overflow-x: auto;">
-    <table class="data-table" style="min-width: 600px;">
-        ...
-    </table>
-</div>
-```
-
-#### 禁止使用的旧样式
-- ❌ `class="nav"` 老式导航
-- ❌ 表格外层无 `overflow-x: auto`
+- ❌ 写文件到Git仓库时用相对路径（必须用`~/daily-news-insight-git/...`完整路径）
+- ❌ HTML表格不加响应式处理（必须`overflow-x: auto`）
+- ❌ 产业链日报放错目录（应放在 `reports/产业链名/`，不是 `weekly_review/`）
+- ❌ 命名不规范（必须用 `YYYYMMDD_类型.html` 格式）
 
 ## 用户持仓标的
 
@@ -60,16 +56,41 @@
 
 **操作建议**：持有/逢低加仓
 
-## 核心日程
+## 核心日程（2026-05-20更新）
 
-| 任务 | 时间 |
-|------|------|
-| 每日新闻洞察 | 8:30 |
-| 盘中快报 | 12:30 |
-| S级催化扫描 | 16:30 |
-| 盘后速递 | 20:30 |
-| 周复盘 | 周六9:00 |
-| 英伟达Q1财报 | 5月21日04:20 |
+| 任务 | 时间 | 触发方式 | UI规范 |
+|------|------|----------|--------|
+| 每日新闻洞察 | 08:30 | 自动（日历） | 沉浸光影 |
+| 盘中快报 | 12:30 | 自动（日历） | 沉浸光影 |
+| 盘后速递 | 20:30（工作日） | 自动（日历） | 沉浸光影 |
+| S级催化扫描 | 16:30 | 自动（S级事件触发） | 沉浸光影 |
+| 产业链日报 | - | **手动触发** | - |
+| 周复盘 | 每周六09:00 | 自动（日历） | 沉浸光影 |
+| 周三前瞻汇总 | 每周三20:00 | 自动（日历） | 沉浸光影 |
+| 月度报告 | 每月1日09:00 | 自动（日历） | 沉浸光影 |
+
+### 定时任务UID（用于查询和修改）
+- 每日新闻洞察：`11dc83c5-2874-4419-92d0-27ecc9cc87f9`
+- 盘中快报：`b0e48f06-9c3f-4040-9b03-8b23c30331a9`
+- 盘后速递：`0e2ff3d7-e147-49ed-9343-4a7d0bf7f555`
+- 周复盘：`5d210aaa-38ec-45c9-8b1a-317cf5af0d15`
+- 周三前瞻：`6798d85d-1686-4544-b297-db934f2488ff`
+- 月度报告：`c65e2531-455a-4310-a3ad-1b58371dd074`
+
+### 重要日程节点
+- 英伟达Q1财报：5月21日04:20（明日凌晨）
+
+## 系统架构已稳定（2026-05-20确认）
+- ✅ 命名规范确定
+- ✅ 目录结构确定  
+- ✅ Git同步流程确定
+- ✅ 新UI设计规范确定
+- ✅ 深度广度标准确定
+
+## 下一步改进方向（2026-05-20用户确认）
+1. **报告质量提升**：深度广度、实用度
+2. **数据可靠性提升**：建立数据源库和验证流程
+3. **报告缺失补全**：周复盘、盘后速递等
 
 ## 英伟达产业链核心标的
 
@@ -116,7 +137,47 @@
 
 **关键规则**：T+0不追脉冲、T+3~T+5龙头生死窗口、二板定龙头、不买3-4板中位股
 
-## 页面归属规范（2026-05-20更新）
+## 目录结构（2026-05-20最终版）
+
+```
+docs/
+├── daily/                    # 每日新闻洞察
+│   ├── 20260520_每日新闻洞察.html
+│   └── latest.html
+├── intraday/                 # 盘中快报
+│   ├── 20260520_盘中快报.html
+│   └── latest.html
+├── aftermarket/              # 盘后速递
+│   ├── 20260520_盘后速递.html
+│   └── latest.html
+├── s级催化扫描/               # 明日催化剂
+│   ├── 20260521_S级催化扫描.html
+│   └── latest.html
+├── weekly_review/             # 前瞻催化（导航名：前瞻催化）
+│   ├── 20260521_周三前瞻.html    # 周三20:00发
+│   ├── 20260525_周末前瞻.html    # 周日20:00发
+│   ├── 20260517_周复盘.html      # 周六09:00发
+│   ├── 20260518_S级催化扫描.html
+│   └── latest.html              # 统一列表页
+├── industry_chain/            # 产业链总览（导航名：产业链）
+│   └── latest.html
+├── reports/                   # 各产业链日报
+│   ├── 存储产业链/
+│   │   └── 20260520_存储产业链日报.html
+│   ├── CPO产业链/
+│   ├── 具身智能日报/
+│   └── ...其他产业链
+├── monthly/                   # 月度报告
+│   └── latest.html
+└── 系统架构规范文档.md
+```
+
+**目录用途说明**：
+- `weekly_review/`：只放前瞻催化相关（周三前瞻、周末前瞻、周复盘、S级催化扫描）
+- `reports/`：只放各产业链日报
+- `industry_chain/`：产业链总览入口页
+
+## 页面归属规范
 
 | 报告类型 | 触发方式 | 存放页面 |
 |----------|----------|----------|
@@ -134,6 +195,74 @@
 **配色要求**：浅色清新（避免深色）
 - 背景：`#f8fafc` 或 `#fefefe`
 - 卡片背景：`#ffffff`
+
+## 企业微信推送规范（2026-05-20简化版）
+
+**推送脚本**：`~/daily-news-insight-git/src/simple_push.py`
+
+**使用方法**：
+```bash
+python3 ~/daily-news-insight-git/src/simple_push.py "标题" "链接"
+```
+
+**推送类型**：news卡片，只推送链接，不生成摘要（省积分）
+
+**各报告推送命令**：
+| 报告类型 | 推送命令 |
+|---------|---------|
+| 每日新闻洞察 | `simple_push.py "每日新闻洞察" "https://boya357.github.io/daily-news-insight/daily/latest.html"` |
+| 盘中快报 | `simple_push.py "盘中快报" "https://boya357.github.io/daily-news-insight/intraday/latest.html"` |
+| 盘后速递 | `simple_push.py "盘后速递" "https://boya357.github.io/daily-news-insight/aftermarket/latest.html"` |
+| S级催化扫描 | `simple_push.py "明日催化剂" "https://boya357.github.io/daily-news-insight/s级催化扫描/latest.html"` |
+| 周三前瞻 | `simple_push.py "周三前瞻" "https://boya357.github.io/daily-news-insight/weekly_review/latest.html"` |
+| 周复盘 | `simple_push.py "周复盘" "https://boya357.github.io/daily-news-insight/weekly_review/latest.html"` |
+| 月度报告 | `simple_push.py "月度报告" "https://boya357.github.io/daily-news-insight/monthly/latest.html"` |
+
+## 内容页标准规范（2026-05-20制定）
+
+**模板位置**：`docs/_templates/内容页标准模板.md`
+
+### 导航栏结构（必须）
+
+```html
+<header class="header">
+    <div class="header-inner">
+        <a href="/daily-news-insight/" style="text-decoration: none;">
+            <span class="header-title">📊 市场洞察中心</span>
+        </a>
+    </div>
+</header>
+<div class="nav-bar">
+    <a href="/daily-news-insight/" class="nav-item">首页</a>
+    <a href="/daily-news-insight/daily/latest.html" class="nav-item">每日新闻洞察</a>
+    <a href="/daily-news-insight/intraday/latest.html" class="nav-item">盘中快报</a>
+    <a href="/daily-news-insight/aftermarket/latest.html" class="nav-item">盘后速递</a>
+    <a href="/daily-news-insight/industry_chain/latest.html" class="nav-item">产业链</a>
+    <a href="/daily-news-insight/weekly_review/latest.html" class="nav-item current">前瞻催化</a>
+</div>
+```
+
+**关键规则**：
+- 6项导航固定不变
+- 当前页添加 `class="nav-item current"`
+- 导航名：前瞻催化（不是周复盘）
+
+### 响应式表格（必须）
+
+```html
+<div style="overflow-x: auto;">
+    <table class="data-table" style="min-width: 600px;">
+        ...
+    </table>
+</div>
+```
+
+### 禁止使用的旧样式
+- ❌ `class="nav"` 老式导航栏
+- ❌ 表格外层无 `overflow-x: auto`
+- ❌ 导航项写成"周复盘"（应统一叫"前瞻催化"）
+
+---
 
 ## Git submodule问题总结（2026-05-20）
 
@@ -158,18 +287,6 @@
 **英伟达报告已恢复**：
 - 2026-05-20 重新生成HTML
 - 已添加到产业链总览专题报告区域
-
-## 推理模型
-
-| IMPS强度 | 预期涨幅 |
-|----------|----------|
-| I-5 | +50-200% |
-| I-4 | +25-100% |
-| I-3 | +15-50% |
-| I-2 | +8-25% |
-| I-1 | +3-15% |
-
-**关键规则**：T+0不追脉冲、T+3~T+5龙头生死窗口、二板定龙头、不买3-4板中位股
 
 ## 访问地址
 
