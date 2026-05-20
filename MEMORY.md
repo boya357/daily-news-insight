@@ -35,3 +35,30 @@
 - 每日洞察: https://boya357.github.io/daily-news-insight/daily/latest.html
 - 盘中快报: https://boya357.github.io/daily-news-insight/intraday/latest.html
 - 盘后速递: https://boya357.github.io/daily-news-insight/aftermarket/latest.html
+
+
+## 页面结构规范（重要！2026-05-20更新）
+
+### 首页链接（已验证正确）
+- 首页标题: `<a href="/">📊 市场洞察中心</a>`
+- 产业链4个卡片:
+  - 人形机器人 → `reports/具身智能日报/具身智能产业链标准日报.html`
+  - 存储芯片 → `reports/存储产业链/存储产业链核心标的深度研究.html`
+  - 光纤光模块 → `reports/CPO产业链/CPO产业链标准日报.html`
+  - 铜箔 → `reports/铜箔产业链/铜箔产业链标准日报.html`
+
+### 各页面性质
+| 页面 | latest.html 性质 | 内容页命名 |
+|------|----------------|-----------|
+| 首页 | 直接内容页 | - |
+| 每日洞察 | 报告列表页 ✅ | daily/YYYYMMDD_标题.html |
+| 盘中快报 | 报告列表页 ✅ | intraday/YYYYMMDD.html |
+| 盘后速递 | 报告列表页 ✅ | aftermarket/YYYY-MM-DD.html |
+| 产业链总览 | 直接内容页 | industry_chain/latest.html |
+
+### 盘中快报特殊规则
+- **intraday/latest.html** = 报告列表页（展示所有历史报告）
+- **intraday/intraday_latest.html** = 今日盘中快报内容页
+
+### 导航栏链接规范（相对路径）
+子目录页面使用相对路径: `../daily/latest.html`
