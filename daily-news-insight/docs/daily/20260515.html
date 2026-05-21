@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 每日新闻洞察报告</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; 
+            background: linear-gradient(135deg, #f8fafc 0%, #eef1f8 50%, #f0f4ff 100%);
+            color: #334155; 
+            line-height: 1.7; 
+            min-height: 100vh;
+        }
+        
+        /* 沉浸光影效果 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 400px;
+            background: linear-gradient(180deg, 
+                rgba(99, 102, 241, 0.08) 0%, 
+                rgba(139, 92, 246, 0.05) 40%,
+                transparent 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle at center, 
+                rgba(34, 197, 94, 0.06) 0%, 
+                rgba(16, 185, 129, 0.03) 40%,
+                transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .header {
+            position: sticky; 
+            top: 0; 
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+            z-index: 100; 
+            padding: 0 24px;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
+        }
+        
+        .header-inner { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            height: 56px; 
+        }
+        
+        .header-title { 
+            font-size: 17px; 
+            font-weight: 700; 
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header-date { font-size: 13px; color: #94a3b8; }
+        
+        .nav-bar { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 12px 16px; 
+            margin: 16px 20px; 
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
+            display: flex; 
+            justify-content: center; 
+            flex-wrap: wrap; 
+            gap: 6px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .nav-item { 
+            padding: 8px 14px; 
+            border-radius: 20px; 
+            text-decoration: none; 
+            font-size: 13px; 
+            font-weight: 500; 
+            transition: all 0.25s ease;
+        }
+        
+        .nav-item:not(.current) { 
+            background: #f5f7fa; 
+            color: #64748b; 
+        }
+        
+        .nav-item:not(.current):hover { 
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .nav-item.current { 
+            background: linear-gradient(135deg, #6366f1, #8b5cf6); 
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+        }
+        
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 0 20px 60px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .report-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 40px 20px;
+            position: relative;
+        }
+        
+        .report-header::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border-radius: 50%;
+            filter: blur(40px);
+            z-index: -1;
+        }
+        
+        .report-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        .report-title {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .report-meta {
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        /* 内容样式 */
+        .content {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 4px 24px rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.06);
+        }
+        
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 24px 0 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #6366f1;
+        }
+        
+        h1:first-child {
+            margin-top: 0;
+        }
+        
+        h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 28px 0 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        h2::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, #6366f1, #8b5cf6);
+            border-radius: 2px;
+        }
+        
+        h3 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #334155;
+            margin: 20px 0 12px;
+        }
+        
+        h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #475569;
+            margin: 16px 0 10px;
+        }
+        
+        p {
+            margin: 12px 0;
+            color: #475569;
+        }
+        
+        /* 表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 14px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .data-table th {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .data-table tr:nth-child(even) td {
+            background: #fafbff;
+        }
+        
+        .data-table tr:hover td {
+            background: #f0f4ff;
+        }
+        
+        /* 列表样式 */
+        .item-list {
+            margin: 12px 0;
+            padding-left: 20px;
+        }
+        
+        .item-list li {
+            margin: 8px 0;
+            color: #475569;
+            position: relative;
+        }
+        
+        .item-list li::marker {
+            color: #6366f1;
+        }
+        
+        .item-list.numbered li::marker {
+            color: #6366f1;
+            font-weight: 600;
+        }
+        
+        /* 引用/提示框 */
+        blockquote {
+            background: linear-gradient(135deg, #f8faff, #f0f4ff);
+            border-left: 4px solid #6366f1;
+            padding: 16px 20px;
+            margin: 16px 0;
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .alert {
+            padding: 16px 20px;
+            margin: 16px 0;
+            border-radius: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .alert-warning {
+            background: linear-gradient(135deg, #fff7ed, #ffedd5);
+            border: 1px solid #fb923c;
+        }
+        
+        .alert-warning .alert-icon {
+            font-size: 20px;
+        }
+        
+        .alert-warning .alert-text {
+            color: #c2410c;
+        }
+        
+        .alert-info {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 1px solid #38bdf8;
+        }
+        
+        .alert-icon { font-size: 20px; }
+        
+        .alert-text {
+            flex: 1;
+            color: #334155;
+        }
+        
+        strong { color: #1e293b; font-weight: 600; }
+        
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Consolas, monospace;
+            font-size: 13px;
+            color: #6366f1;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+            margin: 24px 0;
+        }
+        
+        hr.bold {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #6366f1, transparent);
+        }
+        
+        /* 风险提示 */
+        .disclaimer {
+            margin-top: 32px;
+            padding: 20px;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 12px;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .disclaimer-title {
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .disclaimer-text {
+            font-size: 13px;
+            color: #a16207;
+        }
+        
+        footer {
+            text-align: center; 
+            padding: 40px 20px; 
+            color: #94a3b8; 
+            font-size: 12px;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: white;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #6366f1;
+            font-weight: 500;
+            margin-top: 24px;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
+        }
+        
+        .back-link:hover {
+            transform: translateX(-4px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+        
+        /* 响应式 */
+        @media (max-width: 640px) {
+            .container { padding: 0 12px 40px; }
+            .content { padding: 20px; border-radius: 16px; }
+            .report-title { font-size: 22px; }
+            h1 { font-size: 20px; }
+            h2 { font-size: 17px; }
+            .data-table { font-size: 12px; }
+            .data-table th, .data-table td { padding: 10px 8px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="/daily-news-insight/" style="text-decoration: none;">
+                <span class="header-title">📊 市场洞察中心</span>
+            </a>
+            <span class="header-date">5月20日 周二</span>
+        </div>
+    </header>
+
+    <div class="nav-bar">
+        <a href="/daily-news-insight/" class="nav-item">首页</a>
+            <a href="/daily-news-insight/daily/latest.html" class="nav-item current">每日洞察</a>
+            <a href="/daily-news-insight/intraday/latest.html" class="nav-item">盘中快报</a>
+            <a href="/daily-news-insight/aftermarket/latest.html" class="nav-item">盘后速递</a>
+            <a href="/daily-news-insight/industry_chain/latest.html" class="nav-item">产业链</a>
+            <a href="/daily-news-insight/weekly_review/latest.html" class="nav-item">前瞻催化</a>
+            
+    </div>
+
+    <div class="container">
+        <div class="report-header">
+            <div class="report-icon">📰</div>
+            <h1 class="report-title">📊 每日新闻洞察报告</h1>
+            <p class="report-meta">数据来源：公开市场信息整理</p>
+        </div>
+        
+        <div class="content">
+            <h1>📊 每日新闻洞察报告</h1>
+<h2>2026年5月15日 星期五 | 精简版</h2>
+<hr>
+<h2>📈 盘面回顾</h2>
+<table class="data-table"><thead><tr><th>指数</th><th>收盘</th><th>涨跌幅</th></tr></thead><tbody><tr><td>上证指数</td><td>4177.92</td><td>-1.52%</td></tr><tr><td>深证成指</td><td>15745.74</td><td>-2.14%</td></tr><tr><td>创业板指</td><td>3951.14</td><td>-2.16%</td></tr><tr><td>科创50</td><td>1725.09</td><td>-2.55%</td></tr></tbody></table>
+<strong>市场特征</strong>：放量调整，全市场成交3.36万亿，约4300只个股下跌。资金高低切换明显，银行、消费、猪肉等防守板块逆势活跃。
+<hr>
+<h2>🌙 隔夜外盘</h2>
+<table class="data-table"><thead><tr><th>指数</th><th>收盘</th><th>涨跌幅</th></tr></thead><tbody><tr><td>道指</td><td>50063.46</td><td>+0.75%</td></tr><tr><td>标普500</td><td>7501.24</td><td>+0.77%</td></tr><tr><td>纳指</td><td>26635.22</td><td>+0.88%</td></tr></tbody></table>
+<strong>亮点</strong>：
+<ul class="item-list"><li>英伟达七连涨，市值突破<strong>5.7万亿美元</strong></li><li>博通涨超5%，台积电涨超4%</li><li>中概股涨跌分化，世纪互联暴涨25%+</li></ul>
+<hr>
+<h2>🔥 重大财经要闻</h2>
+<h3>1️⃣ 特朗普访华 + 中美经贸磋商</h3>
+<ul class="item-list"><li>美国总统特朗普5月13日晚抵达北京进行国事访问</li><li>中美经贸牵头人在韩国举行磋商，基调积极</li></ul>
+<h3>2️⃣ 阿里腾讯财报炸裂</h3>
+<ul class="item-list"><li><strong>阿里</strong>：Q4营收2434亿，AI相关收入大增40%，吴泳铭称未来五年AI投入将远超3800亿</li><li><strong>腾讯</strong>：Q1营收1964亿，资本开支同比增16%至319亿，AI相关投入370亿</li><li><strong>字节跳动</strong>：2026年AI基建预算提高25%至2000亿</li></ul>
+<h3>3️⃣ 科创再贷款1.2万亿到账</h3>
+<ul class="item-list"><li>央行定向支持硬科技领域，重点倾斜半导体设备、先进封装、AI芯片</li></ul>
+<h3>4️⃣ 朱雀二号改进型首飞成功</h3>
+<ul class="item-list"><li>5月14日11时，蓝箭航天朱雀二号改进型遥五运载火箭发射成功</li><li>标志着我国商业液氧甲烷火箭进入<strong>规模化应用阶段</strong></li></ul>
+<h3>5️⃣ CME推出算力期货</h3>
+<ul class="item-list"><li>全球首个算力期货合约即将上线，AI基础设施进入金融资本时代</li></ul>
+<hr>
+<h2>🎯 题材动态追踪</h2>
+<h3>【CPO/光模块】⭐ 重点关注</h3>
+<ul class="item-list"><li><strong>中际旭创突破1000元</strong>，成为创业板史上第二只千元股</li><li>CPO板块逆势抗跌，天孚通信涨3.65%、光迅科技涨2.94%</li><li>英伟达CPO交换机目标从1万台大幅上调至5万台以上</li><li>剑桥科技1.6T光模块样品已送交Meta验证</li></ul>
+<h3>【PCB/覆铜板】⭐ 涨价持续</h3>
+<ul class="item-list"><li>4月PCB价格较3月暴涨40%，高端BT/ABF载板缺口超40%</li><li>AI服务器用PCB价值量是普通服务器的5-10倍</li><li>原材料全面涨价：覆铜板、铜箔、电子布持续提价</li></ul>
+<h3>【AI算力/铜箔】</h3>
+<ul class="item-list"><li><strong>德福科技</strong>高位回调8.10%，成交45.95亿（注意高位风险）</li><li>高端HVLP铜箔缺口2027年预计扩大至30%</li><li>铜冠铜箔Q1净利润同比增超20倍</li></ul>
+<h3>【法拉第旋片】⭐ 隐形冠军</h3>
+<ul class="item-list"><li>供需缺口达40%，高端旋片价格从120美元涨至175美元（涨幅46%）</li><li>光迅科技澄清未生产法拉第旋片，国产替代空间巨大</li><li>光电股份预计2026Q4完成样品送测，2027年量产</li></ul>
+<h3>【商业航天】</h3>
+<ul class="item-list"><li>朱雀二号改进型首飞成功，实现大重量载荷发射能力</li><li>2026年商业发射计划超100次，同比增长超60%</li><li>蓝箭朱雀三号计划今年开展回收试验</li></ul>
+<hr>
+<h2>📋 持仓标的技术面</h2>
+<table class="data-table"><thead><tr><th>股票</th><th>代码</th><th>最新参考价</th><th>状态</th></tr></thead><tbody><tr><td>铜冠铜箔</td><td>301217</td><td>~89元</td><td>AI铜箔龙头，等待买点区间60-70</td></tr><tr><td>英维克</td><td>002837</td><td>~103元</td><td>液冷龙头，止损95元</td></tr></tbody></table>
+<hr>
+<h2>📌 今日操作建议</h2>
+<h3>关注方向</h3>
+<ol class="item-list numbered"><li><strong>CPO光模块</strong>：中际旭创、天孚通信、光迅科技逢低关注</li><li><strong>PCB涨价链</strong>：生益科技、华正新材（覆铜板）</li><li><strong>法拉第旋片</strong>：关注国产替代进展</li></ol>
+<h3>风险提示</h3>
+<ul class="item-list"><li>⚠️ 德福科技高位回调，注意追高风险</li><li>⚠️ 商业航天昨日大跌超4%，短期承压</li><li>⚠️ 大盘失守4200点，控制仓位</li></ul>
+<hr>
+<p><strong>报告生成时间</strong>：2026-05-15 08:15  <br><strong>数据来源</strong>：东方财富、新浪财经、同花顺、Wind  <br><strong>免责声明</strong>：本报告仅供参考，不构成投资建议</p>
+<hr>
+<blockquote>🌟 风险提示：市场有风险，投资需谨慎。本文内容仅供参考，不构成任何投资建议。股票投资需根据自身风险承受能力谨慎决策。</blockquote>
+        </div>
+        
+        <footer>
+            <p>⚠️ 仅供参考，不构成投资建议</p>
+            <a href="/daily-news-insight/" class="back-link">← 返回首页</a>
+        </footer>
+    </div>
+</body>
+</html>

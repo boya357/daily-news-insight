@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>持仓风险仪表盘</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .header { position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.06); z-index: 100; padding: 0 24px; }
+        .header-inner { max-width: 600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+        .header-title { font-size: 17px; font-weight: 700; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header-date { font-size: 13px; color: #94a3b8; }
+        .nav-bar { background: white; border-radius: 16px; padding: 12px 16px; margin: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; }
+        .nav-item { padding: 8px 14px; border-radius: 20px; text-decoration: none; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+        .nav-item:not(.current) { background: #f5f7fa; color: #64748b; }
+        .nav-item:not(.current):hover { background: #6366f1; color: white; }
+        .nav-item.current { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+        .container { max-width: 600px; margin: 0 auto; padding: 0 20px 100px; }
+        .update-banner { background: linear-gradient(135deg, rgba(99,102,241,0.9), rgba(139,92,246,0.9)); color: white; padding: 12px 20px; border-radius: 12px; margin: 16px 0; text-align: center; font-size: 14px; }
+        .card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .card-title { font-size: 18px; font-weight: 700; color: #1e293b; }
+        .card-subtitle { font-size: 13px; color: #64748b; margin-top: 2px; }
+        .tag { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .tag-red { background: rgba(239,68,68,0.1); color: #dc2626; }
+        .tag-green { background: rgba(34,197,94,0.1); color: #16a34a; }
+        .tag-yellow { background: rgba(234,179,8,0.1); color: #ca8a04; }
+        .tag-blue { background: rgba(59,130,246,0.1); color: #2563eb; }
+        .stock-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .stock-table th { text-align: left; padding: 10px 8px; color: #64748b; font-weight: 500; border-bottom: 1px solid #f1f5f9; }
+        .stock-table td { padding: 12px 8px; border-bottom: 1px solid #f1f5f9; }
+        .stock-table tr:last-child td { border-bottom: none; }
+        .price-main { font-size: 20px; font-weight: 700; color: #1e293b; }
+        .price-change { font-size: 13px; color: #64748b; margin-top: 2px; }
+        .alert-box { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px; padding: 16px; margin-top: 12px; }
+        .alert-title { color: #dc2626; font-weight: 600; font-size: 15px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .alert-text { color: #64748b; font-size: 13px; line-height: 1.6; }
+        .info-box { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: 16px; margin-top: 12px; }
+        .info-title { color: #16a34a; font-weight: 600; font-size: 15px; margin-bottom: 8px; }
+        .price-list { display: flex; flex-direction: column; gap: 8px; }
+        .price-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #f8fafc; border-radius: 8px; }
+        .price-label { font-size: 13px; color: #64748b; }
+        .price-value { font-size: 14px; font-weight: 600; color: #334155; }
+        .chain-section { background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.2); border-radius: 12px; padding: 16px; margin-top: 12px; }
+        .chain-title { color: #7c3aed; font-weight: 600; font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .chain-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(139,92,246,0.1); }
+        .chain-item:last-child { border-bottom: none; }
+        .chain-icon { font-size: 20px; }
+        .chain-info { flex: 1; }
+        .chain-name { font-size: 14px; font-weight: 600; color: #1e293b; }
+        .chain-status { font-size: 12px; color: #64748b; margin-top: 2px; }
+        footer { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.6); font-size: 12px; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <span class="header-title">📊 持仓风险仪表盘</span>
+            <span class="header-date" id="today"></span>
+        </div>
+    </header>
+    <div class="nav-bar">
+        <a href="/daily-news-insight/" class="nav-item">首页</a>
+        <a href="/daily-news-insight/daily/latest.html" class="nav-item">每日新闻</a>
+        <a href="/daily-news-insight/industry_chain/latest.html" class="nav-item">产业链</a>
+        <a href="/daily-news-insight/aftermarket/latest.html" class="nav-item">盘后速递</a>
+    </div>
+    <div class="container">
+        <div class="update-banner">📅 更新日期: 2026-05-21 | 收盘数据</div>
+        
+        <!-- 持仓概览 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">📊</div>
+                <div>
+                    <div class="card-title">持仓概览</div>
+                    <div class="card-subtitle">实时监控 · 自动预警</div>
+                </div>
+            </div>
+            <table class="stock-table">
+                <thead>
+                    <tr>
+                        <th>标的</th>
+                        <th>成本</th>
+                        <th>现价</th>
+                        <th>偏离度</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>英维克</strong><br><span style="font-size:12px;color:#64748b;">002837</span></td>
+                        <td>104.23</td>
+                        <td>108.41</td>
+                        <td style="color:#16a34a;font-weight:600;">+4.01%</td>
+                        <td><span class="tag tag-green">盈利</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>铜冠铜箔</strong><br><span style="font-size:12px;color:#64748b;">301217</span></td>
+                        <td>87.16</td>
+                        <td>87.99</td>
+                        <td style="color:#16a34a;font-weight:600;">+0.95%</td>
+                        <td><span class="tag tag-green">微盈</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>*ST建艺</strong><br><span style="font-size:12px;color:#64748b;">002789</span></td>
+                        <td>~13.45</td>
+                        <td>13.47</td>
+                        <td style="color:#ca8a04;font-weight:600;">+0.15%</td>
+                        <td><span class="tag tag-red">清仓</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- *ST建艺预警 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon" style="background: rgba(239,68,68,0.1);">🔴</div>
+                <div>
+                    <div class="card-title">高风险标的</div>
+                    <div class="card-subtitle">*ST建艺 002789</div>
+                </div>
+                <span class="tag tag-red">立即清仓</span>
+            </div>
+            <div class="alert-box">
+                <div class="alert-title">⚠️ 退市风险极高</div>
+                <div class="alert-text">
+                    • *ST退市新规趋严，2024年报非标<br>
+                    • 基本面无改善预期<br>
+                    • 盈利可持续性存疑<br><br>
+                    <strong>建议：</strong>无论盈亏，立即清仓出局
+                </div>
+            </div>
+        </div>
+        
+        <!-- 英维克详情 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon" style="background: rgba(34,197,94,0.1);">✅</div>
+                <div>
+                    <div class="card-title">英维克 002837</div>
+                    <div class="card-subtitle">液冷温控龙头</div>
+                </div>
+                <span class="tag tag-green">盈利中</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px;">
+                <div>
+                    <div class="price-main">108.41元</div>
+                    <div class="price-change">成本 104.23 | 偏离 +4.01% | 5/20收盘</div>
+                </div>
+                <span class="tag tag-yellow">目标 110</span>
+            </div>
+            <div class="info-box">
+                <div class="info-title">🔥 英伟达Q1财报催化（5/21）</div>
+                <div style="font-size:13px;color:#64748b;line-height:1.6;">
+                    ✅ 英伟达Q1营收816亿美元(+85%)，数据中心752亿美元(+92%)<br>
+                    ✅ 液冷板块5/20已大涨5.87%，英维克受益<br>
+                    ⚠️ 注意"利好兑现"风险
+                </div>
+            </div>
+            <div class="price-list" style="margin-top:12px;">
+                <div class="price-item">
+                    <span class="price-label">成本线</span>
+                    <span class="price-value" style="color:#16a34a;">104.23 ✅ 已脱离</span>
+                </div>
+                <div class="price-item">
+                    <span class="price-label">目标下</span>
+                    <span class="price-value" style="color:#ca8a04;">110 (+5.5%) ⚠️接近</span>
+                </div>
+                <div class="price-item">
+                    <span class="price-label">目标上</span>
+                    <span class="price-value">115 (+10.3%)</span>
+                </div>
+                <div class="price-item">
+                    <span class="price-label">止损线</span>
+                    <span class="price-value">100 (-4.1%)</span>
+                </div>
+            </div>
+            <div style="font-size:13px;color:#64748b;margin-top:12px;line-height:1.6;">
+                <strong>操作建议：</strong><br>
+                • 持有为主，108-110区间可考虑部分止盈<br>
+                • 突破110继续持有，目标115-120<br>
+                • 跌破100止损
+            </div>
+        </div>
+        
+        <!-- 铜冠铜箔详情 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon" style="background: rgba(59,130,246,0.1);">📊</div>
+                <div>
+                    <div class="card-title">铜冠铜箔 301217</div>
+                    <div class="card-subtitle">锂电铜箔</div>
+                </div>
+                <span class="tag tag-blue">Q2观察</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px;">
+                <div>
+                    <div class="price-main">87.99元</div>
+                    <div class="price-change">成本 87.16 | 偏离 +0.95% | 5/20收盘</div>
+                </div>
+            </div>
+            <div class="info-box" style="background:rgba(59,130,246,0.08);border-color:rgba(59,130,246,0.2);">
+                <div class="info-title" style="color:#2563eb;">📈 今日催化</div>
+                <div style="font-size:13px;color:#64748b;line-height:1.6;">
+                    六氟磷酸锂涨价21%至12万元/吨，锂电上游景气
+                </div>
+            </div>
+            <div class="price-list" style="margin-top:12px;">
+                <div class="price-item">
+                    <span class="price-label">成本线</span>
+                    <span class="price-value" style="color:#16a34a;">87.16 ✅ 已脱离</span>
+                </div>
+                <div class="price-item">
+                    <span class="price-label">压力位</span>
+                    <span class="price-value">90 (+3.3%)</span>
+                </div>
+                <div class="price-item">
+                    <span class="price-label">支撑位</span>
+                    <span class="price-value">85 (-2.5%)</span>
+                </div>
+                <div class="price-item">
+                    <span class="price-label">止损线</span>
+                    <span class="price-value">82 (-5.9%)</span>
+                </div>
+            </div>
+            <div style="font-size:13px;color:#64748b;margin-top:12px;line-height:1.6;">
+                <strong>关注催化：</strong>锂电排产、铜价走势、新能源车销量<br>
+                <strong>操作建议：</strong>轻仓持有，跌破85减仓，突破90加仓
+            </div>
+        </div>
+        
+        <!-- 产业链异动监控 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon" style="background: rgba(139,92,246,0.1);">🔔</div>
+                <div>
+                    <div class="card-title">产业链异动监控</div>
+                    <div class="card-subtitle">持仓板块利好时主动推送</div>
+                </div>
+            </div>
+            <div class="chain-section">
+                <div class="chain-title">📡 监控中的板块</div>
+                <div class="chain-item">
+                    <div class="chain-icon">🔥</div>
+                    <div class="chain-info">
+                        <div class="chain-name">液冷温控 / AI算力</div>
+                        <div class="chain-status">关联：英维克 | 关键词：英伟达、液冷、AI服务器</div>
+                    </div>
+                    <span class="tag tag-green">已启用</span>
+                </div>
+                <div class="chain-item">
+                    <div class="chain-icon">⚡</div>
+                    <div class="chain-info">
+                        <div class="chain-name">锂电铜箔</div>
+                        <div class="chain-status">关联：铜冠铜箔 | 关键词：锂电、铜价、储能</div>
+                    </div>
+                    <span class="tag tag-green">已启用</span>
+                </div>
+                <div class="chain-item">
+                    <div class="chain-icon">🔴</div>
+                    <div class="chain-info">
+                        <div class="chain-name">ST板块</div>
+                        <div class="chain-status">关联：*ST建艺 | 优先级：清仓</div>
+                    </div>
+                    <span class="tag tag-red">监控中</span>
+                </div>
+            </div>
+            <div style="font-size:13px;color:#64748b;margin-top:12px;line-height:1.6;">
+                <strong>监控机制：</strong><br>
+                • 每日 8:30 / 12:30 / 20:30 新闻扫描时自动检查<br>
+                • 发现相关板块重大利好 → 立即推送卡片提醒<br>
+                • 利好类型：政策文件、业绩公告、大单采购、巨头合作
+            </div>
+        </div>
+        
+        <!-- 预警规则 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon" style="background: rgba(234,179,8,0.1);">⚠️</div>
+                <div>
+                    <div class="card-title">自动预警规则</div>
+                    <div class="card-subtitle">关键价位触发提醒</div>
+                </div>
+            </div>
+            <table class="stock-table">
+                <thead>
+                    <tr>
+                        <th>标的</th>
+                        <th>预警条件</th>
+                        <th>动作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>英维克</td>
+                        <td>跌破100</td>
+                        <td><span class="tag tag-red">止损提醒</span></td>
+                    </tr>
+                    <tr>
+                        <td>英维克</td>
+                        <td>突破110</td>
+                        <td><span class="tag tag-yellow">部分止盈</span></td>
+                    </tr>
+                    <tr>
+                        <td>英维克</td>
+                        <td>液冷利好</td>
+                        <td><span class="tag tag-green">持仓关联</span></td>
+                    </tr>
+                    <tr>
+                        <td>铜冠铜箔</td>
+                        <td>跌破85</td>
+                        <td><span class="tag tag-red">减仓提醒</span></td>
+                    </tr>
+                    <tr>
+                        <td>铜冠铜箔</td>
+                        <td>突破90</td>
+                        <td><span class="tag tag-blue">加仓机会</span></td>
+                    </tr>
+                    <tr>
+                        <td>铜冠铜箔</td>
+                        <td>锂电利好</td>
+                        <td><span class="tag tag-green">持仓关联</span></td>
+                    </tr>
+                    <tr>
+                        <td>*ST建艺</td>
+                        <td>任何价格</td>
+                        <td><span class="tag tag-red">持续清仓</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <footer>
+        <p>仅供参考，不构成投资建议</p>
+        <p style="margin-top:4px;">产业链异动监控已启用 | 最后更新: 2026-05-21 10:45</p>
+    </footer>
+    <script>
+        const now = new Date();
+        const weekDay = ['周日','周一','周二','周三','周四','周五','周六'][now.getDay()];
+        document.getElementById('today').textContent = `${now.getMonth()+1}月${now.getDate()}日 ${weekDay}`;
+    </script>
+</body>
+</html>
