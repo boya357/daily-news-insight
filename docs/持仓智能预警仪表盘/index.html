@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>持仓智能预警仪表盘</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: #e2e8f0; line-height: 1.6; min-height: 100vh; }
+        .header { position: sticky; top: 0; background: rgba(15,23,42,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(148,163,184,0.1); z-index: 100; padding: 0 24px; }
+        .header-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+        .header-title { font-size: 17px; font-weight: 700; background: linear-gradient(135deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px 20px 100px; }
+        .section { margin-bottom: 28px; }
+        .section-title { font-size: 16px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .risk-overview { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+        .risk-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; text-align: center; }
+        .risk-score { font-size: 48px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+        .risk-green { color: #22c55e; }
+        .risk-yellow { color: #eab308; }
+        .risk-red { color: #ef4444; }
+        .risk-label { font-size: 13px; color: #94a3b8; font-weight: 600; }
+        .stock-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 18px; margin-bottom: 12px; }
+        .stock-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .stock-name { font-size: 18px; font-weight: 700; }
+        .stock-code { font-size: 13px; color: #64748b; }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-green { background: rgba(34,197,94,0.2); color: #86efac; }
+        .status-yellow { background: rgba(234,179,8,0.2); color: #fde047; }
+        .status-red { background: rgba(239,68,68,0.2); color: #fca5a5; }
+        .stock-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+        .metric { text-align: center; }
+        .metric-value { font-size: 16px; font-weight: 700; }
+        .metric-label { font-size: 11px; color: #64748b; }
+        .metric-red { color: #ef4444; }
+        .metric-green { color: #22c55e; }
+        .warning-section { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
+        .warning-title { font-size: 13px; font-weight: 600; color: #fca5a5; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .warning-content { font-size: 13px; color: #fecaca; line-height: 1.5; }
+        .catalyst-section { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
+        .catalyst-title { font-size: 13px; font-weight: 600; color: #86efac; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .catalyst-content { font-size: 13px; color: #bbf7d0; line-height: 1.5; }
+        .action-box { background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.3); border-radius: 12px; padding: 14px; border-left: 4px solid #6366f1; }
+        .action-title { font-size: 14px; font-weight: 700; color: #a5b4fc; margin-bottom: 8px; }
+        .action-content { font-size: 13px; color: #c7d2fe; line-height: 1.6; }
+        .signal-bar { display: flex; gap: 4px; margin-top: 10px; }
+        .signal-item { flex: 1; height: 6px; border-radius: 3px; }
+        .signal-active { background: #22c55e; }
+        .signal-inactive { background: rgba(255,255,255,0.1); }
+        .signal-warning { background: #ef4444; }
+        footer { text-align: center; padding: 40px 20px; color: #64748b; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <span class="header-title">📊 持仓智能预警仪表盘</span>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- 整体风险概览 -->
+        <section class="section">
+            <div class="section-title">🎯 组合风险概览</div>
+            <div class="risk-overview">
+                <div class="risk-card">
+                    <div class="risk-score risk-yellow">68</div>
+                    <div class="risk-label">整体风险评分</div>
+                </div>
+                <div class="risk-card">
+                    <div class="risk-score risk-red">-4.1%</div>
+                    <div class="risk-label">今日回撤</div>
+                </div>
+                <div class="risk-card">
+                    <div class="risk-score risk-yellow">3</div>
+                    <div class="risk-label">预警信号</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 英维克 -->
+        <section class="section">
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div>
+                        <span class="stock-name">英维克</span>
+                        <span class="stock-code">002837</span>
+                    </div>
+                    <span class="status-badge status-yellow">⚠️ 关注</span>
+                </div>
+                
+                <div class="stock-metrics">
+                    <div class="metric">
+                        <div class="metric-value metric-red">-3.55%</div>
+                        <div class="metric-label">持仓浮亏</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">100.53</div>
+                        <div class="metric-label">当前价</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value metric-red">98.00</div>
+                        <div class="metric-label">止损位</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value metric-red">-2.5%</div>
+                        <div class="metric-label">距止损</div>
+                    </div>
+                </div>
+
+                <div class="signal-bar">
+                    <div class="signal-item signal-warning"></div>
+                    <div class="signal-item signal-warning"></div>
+                    <div class="signal-item signal-inactive"></div>
+                    <div class="signal-item signal-inactive"></div>
+                    <div class="signal-item signal-inactive"></div>
+                    <div class="signal-item signal-inactive"></div>
+                </div>
+
+                <div class="warning-section">
+                    <div class="warning-title">🔴 监管风险预警</div>
+                    <div class="warning-content">
+                        半导体/AI板块监管核查已启动，液冷温控作为AI算力产业链会受到情绪拖累。<br>
+                        <strong>5月22日关键点位：跌破98元立即止损，不要抱有侥幸心理。</strong>
+                    </div>
+                </div>
+
+                <div class="catalyst-section">
+                    <div class="catalyst-title">🟢 利好催化</div>
+                    <div class="catalyst-content">
+                        英伟达Q1财报超预期（816亿+85%），数据中心液冷需求持续增长。<br>
+                        <strong>产业逻辑未破，只是短期情绪影响。</strong>
+                    </div>
+                </div>
+
+                <div class="action-box">
+                    <div class="action-title">📋 明日操作建议</div>
+                    <div class="action-content">
+                        1. 集合竞价挂98元止损单，触发即无条件卖出<br>
+                        2. 若开盘在100元以上且半小时不跌破，可持有观察<br>
+                        3. 若跌破98元后快速收回，可考虑接回做T
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 铜冠铜箔 -->
+        <section class="section">
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div>
+                        <span class="stock-name">铜冠铜箔</span>
+                        <span class="stock-code">301217</span>
+                    </div>
+                    <span class="status-badge status-yellow">⚠️ 被错杀</span>
+                </div>
+                
+                <div class="stock-metrics">
+                    <div class="metric">
+                        <div class="metric-value metric-red">-4.85%</div>
+                        <div class="metric-label">持仓浮亏</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">82.93</div>
+                        <div class="metric-label">当前价</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value metric-green">78.00</div>
+                        <div class="metric-label">加仓点</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value metric-red">-5.9%</div>
+                        <div class="metric-label">距加仓</div>
+                    </div>
+                </div>
+
+                <div class="signal-bar">
+                    <div class="signal-item signal-warning"></div>
+                    <div class="signal-item signal-inactive"></div>
+                    <div class="signal-item signal-active"></div>
+                    <div class="signal-item signal-inactive"></div>
+                    <div class="signal-item signal-inactive"></div>
+                    <div class="signal-item signal-inactive"></div>
+                </div>
+
+                <div class="warning-section">
+                    <div class="warning-title">🔴 短期风险</div>
+                    <div class="warning-content">
+                        存储板块集体暴跌，情绪传导带动铜冠铜箔下跌。属于<strong>"被错杀"</strong>标的。<br>
+                        产业逻辑：AI服务器PCB需求 + 存储芯片扩产 + 铜箔国产替代
+                    </div>
+                </div>
+
+                <div class="catalyst-section">
+                    <div class="catalyst-title">🟢 利好催化</div>
+                    <div class="catalyst-content">
+                        长江存储IPO辅导启动 + 长鑫存储业绩爆表 + 英伟达数据中心大超预期。<br>
+                        <strong>存储产业链是AI算力的核心，回调是机会。</strong>
+                    </div>
+                </div>
+
+                <div class="action-box">
+                    <div class="action-title">📋 明日操作建议</div>
+                    <div class="action-content">
+                        1. 若跌到78元以下，加仓1/3仓位做T<br>
+                        2. 75元以下可以重仓（如果能到的话）<br>
+                        3. 中线持有逻辑不变，存储超级周期才刚开始
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- *ST建艺 -->
+        <section class="section">
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div>
+                        <span class="stock-name">*ST建艺</span>
+                        <span class="stock-code">002789</span>
+                    </div>
+                    <span class="status-badge status-green">✅ 安全</span>
+                </div>
+                
+                <div class="stock-metrics">
+                    <div class="metric">
+                        <div class="metric-value metric-red">-3.49%</div>
+                        <div class="metric-label">持仓浮亏</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">12.98</div>
+                        <div class="metric-label">当前价</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value metric-green">--</div>
+                        <div class="metric-label">止损位</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value metric-green">0</div>
+                        <div class="metric-label">预警信号</div>
+                    </div>
+                </div>
+
+                <div class="signal-bar">
+                    <div class="signal-item signal-active"></div>
+                    <div class="signal-item signal-active"></div>
+                    <div class="signal-item signal-active"></div>
+                    <div class="signal-item signal-active"></div>
+                    <div class="signal-item signal-active"></div>
+                    <div class="signal-item signal-active"></div>
+                </div>
+
+                <div class="catalyst-section">
+                    <div class="catalyst-title">🟢 完全免疫监管风险</div>
+                    <div class="catalyst-content">
+                        与半导体/AI题材完全无关，摘星脱帽独立逻辑。<br>
+                        今日ST板块逆势走强，成为资金避风港。<br>
+                        <strong>持有等待摘星公告，不受大盘情绪影响。</strong>
+                    </div>
+                </div>
+
+                <div class="action-box">
+                    <div class="action-title">📋 操作建议</div>
+                    <div class="action-content">
+                        继续持有，等待摘星公告。<br>
+                        若跌破12元可考虑加仓，摘星目标价18-20元。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 预警系统关联 -->
+        <section class="section">
+            <div class="section-title">🔗 与智能预警系统关联</div>
+            <div class="stock-card" style="background: rgba(168,85,247,0.1); border-color: rgba(168,85,247,0.3);">
+                <div style="font-size: 14px; line-height: 1.8; color: #d8b4fe;">
+                    <strong>✅ 6大预警维度已与持仓深度绑定：</strong><br>
+                    • 监管风险 → 实时计算对每只持仓的影响程度<br>
+                    • 业绩地雷 → 提前3天预警持仓标的财报风险<br>
+                    • 流动性风险 → 北向资金流出对持仓的冲击评估<br>
+                    • 产业催化 → 利好事件与持仓的关联度评分<br>
+                    • 地缘政治 → 风险传导路径分析<br>
+                    • 技术面破位 → 关键支撑位实时监控与止损提醒<br>
+                    <br>
+                    <strong>📡 预警推送机制：</strong><br>
+                    红色预警 → 微信/短信立即推送<br>
+                    黄色预警 → 每日盘前汇总推送<br>
+                    绿色信号 → 仅在报告中记录
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>最后更新：2026-05-21 21:30</p>
+            <p>预警系统V2.0 · 持续优化中</p>
+        </footer>
+    </div>
+</body>
+</html>
