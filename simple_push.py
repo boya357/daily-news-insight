@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
 简单推送脚本 - 推送到企业微信
+只用news卡片推送链接，不生成摘要
 """
 
 import sys
-import os
 import requests
 
 
 def push_to_wechat_work(title: str, url: str) -> bool:
     """
-    推送到企业微信
+    推送到企业微信 - news卡片格式
     
     Args:
         title: 报告标题
@@ -20,25 +20,19 @@ def push_to_wechat_work(title: str, url: str) -> bool:
         是否推送成功
     """
     try:
-        webhook_url = os.getenv('WECHAT_WORK_WEBHOOK')
-        if not webhook_url:
-            print("企业微信Webhook URL未设置")
-            return False
-        
-        content = f"""## 📊 {title}
-
-**报告已生成并推送至GitHub Pages**
-
-🔗 [点击查看完整报告]({url})
-
----
-*由投资助手自动推送*
-"""
+        webhook_url = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=e03b424c-69ae-4ea7-b099-3003d8f4dd52"
         
         payload = {
-            "msgtype": "markdown",
-            "markdown": {
-                "content": content
+            "msgtype": "news",
+            "news": {
+                "articles": [
+                    {
+                        "title": title,
+                        "description": "点击查看完整报告",
+                        "url": url,
+                        "picurl": ""
+                    }
+                ]
             }
         }
         
@@ -47,14 +41,14 @@ def push_to_wechat_work(title: str, url: str) -> bool:
         
         result = response.json()
         if result.get('errcode') == 0:
-            print(f"成功推送{title}到企业微信")
+            print(f"✅ 成功推送{title}到企业微信")
             return True
         else:
-            print(f"推送失败: {result}")
+            print(f"❌ 推送失败: {result}")
             return False
             
     except Exception as e:
-        print(f"推送异常: {str(e)}")
+        print(f"❌ 推送异常: {str(e)}")
         return False
 
 
