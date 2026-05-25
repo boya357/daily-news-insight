@@ -36,15 +36,43 @@ REPORT_TYPES = {
         'title': '盘后速递',
         'subtitle': '收盘总结与明日策略',
     },
+    'weekly_review': {
+        'pattern': '*.html',
+        'exclude': ['latest.html'],
+        'title': '周复盘',
+        'subtitle': '每周市场回顾与下周展望',
+        'dir': 'weekly_review',
+    },
+    '催化日历': {
+        'pattern': '*.html',
+        'exclude': ['latest.html'],
+        'title': '催化日历',
+        'subtitle': 'S级/A级催化事件深度分析',
+        'dir': '催化日历',
+    },
+    '周末速递': {
+        'pattern': '*_周末速递*.html',
+        'title': '周末速递',
+        'subtitle': '周末政策汇总与下周前瞻',
+        'dir': '周末速递',
+    },
+    'industry_chain': {
+        'pattern': '*_产业链*.html',
+        'title': '产业链深度',
+        'subtitle': '行业产业链分析与投资机会',
+        'dir': 'industry_chain',
+    },
 }
 
 NAV_ITEMS = [
     ('首页', '/daily-news-insight/'),
-    ('每日新闻洞察', '/daily-news-insight/daily/latest.html'),
-    ('盘中快报', '/daily-news-insight/intraday/latest.html'),
-    ('盘后速递', '/daily-news-insight/aftermarket/latest.html'),
+    ('日报', '/daily-news-insight/daily/latest.html'),
+    ('盘中', '/daily-news-insight/intraday/latest.html'),
+    ('盘后', '/daily-news-insight/aftermarket/latest.html'),
     ('产业链', '/daily-news-insight/industry_chain/latest.html'),
     ('催化日历', '/daily-news-insight/催化日历/latest.html'),
+    ('周复盘', '/daily-news-insight/weekly_review/latest.html'),
+    ('周末速递', '/daily-news-insight/周末速递/latest.html'),
 ]
 
 
@@ -71,6 +99,7 @@ def extract_report_info(html_path, report_type):
 def generate_list_page(report_type, reports):
     """生成列表页面HTML"""
     config = REPORT_TYPES[report_type]
+    dir_name = config.get('dir', report_type)
     
     # 按日期排序（最新的在前面）
     reports.sort(key=lambda x: x['filename'], reverse=True)
@@ -78,12 +107,12 @@ def generate_list_page(report_type, reports):
     # 生成报告卡片HTML
     cards_html = ""
     for i, report in enumerate(reports):
-        tag_html = '<span class="card-tag">今日</span>' if i == 0 else ''
-        icon = '🆕' if i == 0 else '📅'
-        subtitle = '市场分析与操作策略'
+        tag_html = '<span class="card-tag card-tag-new">🆕 最新</span>' if i == 0 else ''
+        icon = '📰'
+        subtitle = config.get('subtitle', '市场分析与操作策略')
         
         card_html = f'''
-        <a href="/daily-news-insight/{report_type}/{report['filename']}" class="card">
+        <a href="/daily-news-insight/{dir_name}/{report['filename']}" class="card">
             <div class="card-icon">{icon}</div>
             <div class="card-content">
                 <div class="card-title">{report['title']}</div>
@@ -97,7 +126,7 @@ def generate_list_page(report_type, reports):
     # 生成导航HTML
     nav_html = ''
     for name, href in NAV_ITEMS:
-        is_current = href.endswith(f'{report_type}/latest.html')
+        is_current = href.endswith(f'{dir_name}/latest.html')
         active_class = 'nav-item current' if is_current else 'nav-item'
         nav_html += f'        <a href="{href}" class="{active_class}">{name}</a>\n'
     
@@ -130,6 +159,7 @@ def generate_list_page(report_type, reports):
         .card-title {{ font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 2px; }}
         .card-subtitle {{ font-size: 13px; color: #94a3b8; }}
         .card-tag {{ padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; background: rgba(99,102,241,0.1); color: #6366f1; }}
+        .card-tag-new {{ background: rgba(239,68,68,0.1); color: #ef4444; }}
         .card-arrow {{ color: #cbd5e1; font-size: 20px; font-weight: 300; }}
         footer {{ text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 12px; }}
     </style>
@@ -169,11 +199,20 @@ def generate_list_page(report_type, reports):
 def update_report_type(base_dir, report_type):
     """更新指定类型的报告列表"""
     config = REPORT_TYPES[report_type]
-    dir_path = os.path.join(base_dir, report_type)
+    # 支持dir字段，目录名和类型名不一致的情况
+    dir_name = config.get('dir', report_type)
+    dir_path = os.path.join(base_dir, dir_name)
     
     # 扫描所有HTML报告文件
     pattern = os.path.join(dir_path, config['pattern'])
     html_files = glob.glob(pattern)
+    
+    # 过滤排除列表中的文件（如latest.html）
+    exclude_list = config.get('exclude', [])
+    html_files = [
+        f for f in html_files 
+        if os.path.basename(f) not in exclude_list
+    ]
     
     if not html_files:
         print(f"⚠️  {report_type}: 未找到任何报告文件")
