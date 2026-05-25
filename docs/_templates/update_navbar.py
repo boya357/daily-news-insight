@@ -22,7 +22,10 @@ NAV_PATTERN = re.compile(r'    <div class="nav-bar">.*?    </div>', re.DOTALL)
 
 def get_prefix(filepath):
     """根据文件路径计算相对路径前缀"""
-    # 计算文件相对于当前目录（docs）的深度
+    # 路径格式: ./intraday/xxx.html 或 intraday/xxx.html
+    # 去掉开头的 ./ 后计算深度
+    if filepath.startswith('./'):
+        filepath = filepath[2:]
     depth = filepath.count(os.sep)
     if depth == 0:
         return ''
