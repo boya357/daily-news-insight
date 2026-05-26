@@ -135,53 +135,44 @@ def generate_html(title, content_html, nav_type='daily'):
         html, body {{ height: 100%; }}
         body {{ 
             font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; 
-            background: linear-gradient(135deg, #f8fafc 0%, #eef1f8 50%, #f0f4ff 100%);
-            color: #334155; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4a1a6b 100%);
+            color: #ffffff; 
             line-height: 1.7; 
             min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
         }}
         
-        /* 沉浸光影效果 */
+        /* 光影动画背景 */
         body::before {{
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 400px;
-            background: linear-gradient(180deg, 
-                rgba(99, 102, 241, 0.08) 0%, 
-                rgba(139, 92, 246, 0.05) 40%,
-                transparent 100%);
-            pointer-events: none;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(118,75,162,0.3) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
             z-index: 0;
         }}
         
-        body::after {{
-            content: '';
-            position: fixed;
-            bottom: 0;
-            right: 0;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle at center, 
-                rgba(34, 197, 94, 0.06) 0%, 
-                rgba(16, 185, 129, 0.03) 40%,
-                transparent 70%);
-            pointer-events: none;
-            z-index: 0;
+        @keyframes float {{
+            0%, 100% {{ transform: translate(0, 0) rotate(0deg); }}
+            25% {{ transform: translate(2%, 2%) rotate(1deg); }}
+            50% {{ transform: translate(0, 4%) rotate(0deg); }}
+            75% {{ transform: translate(-2%, 2%) rotate(-1deg); }}
         }}
         
         .header {{
             position: sticky; 
             top: 0; 
-            background: rgba(255,255,255,0.92);
+            background: rgba(255,255,255,0.1);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
             z-index: 100; 
             padding: 0 24px;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
         }}
         
         .header-inner {{ 
@@ -196,20 +187,17 @@ def generate_html(title, content_html, nav_type='daily'):
         .header-title {{ 
             font-size: 17px; 
             font-weight: 700; 
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: white;
         }}
         
-        .header-date {{ font-size: 13px; color: #94a3b8; }}
+        .header-date {{ font-size: 13px; color: rgba(255,255,255,0.8); }}
         
         .nav-bar {{ 
-            background: white; 
+            background: rgba(255,255,255,0.1); 
             border-radius: 16px; 
             padding: 12px 16px; 
             margin: 16px 20px; 
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
+            backdrop-filter: blur(20px);
             display: flex; 
             justify-content: center; 
             flex-wrap: wrap; 
@@ -228,21 +216,19 @@ def generate_html(title, content_html, nav_type='daily'):
         }}
         
         .nav-item:not(.current) {{ 
-            background: #f5f7fa; 
-            color: #64748b; 
+            background: rgba(255,255,255,0.1); 
+            color: rgba(255,255,255,0.8); 
         }}
         
         .nav-item:not(.current):hover {{ 
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            background: rgba(255,255,255,0.25);
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }}
         
         .nav-item.current {{ 
-            background: linear-gradient(135deg, #6366f1, #8b5cf6); 
+            background: rgba(255,255,255,0.25); 
             color: white;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
         }}
         
         .container {{ 
@@ -289,25 +275,23 @@ def generate_html(title, content_html, nav_type='daily'):
         .report-title {{
             font-size: 28px;
             font-weight: 800;
-            background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
             margin-bottom: 8px;
         }}
         
         .report-meta {{
             font-size: 14px;
-            color: #64748b;
+            color: rgba(255,255,255,0.8);
         }}
         
         /* 内容样式 */
         .content {{
-            background: white;
+            background: rgba(255,255,255,0.95);
+            color: #1e293b;
             border-radius: 20px;
             padding: 32px;
-            box-shadow: 0 4px 24px rgba(99, 102, 241, 0.08);
-            border: 1px solid rgba(99, 102, 241, 0.06);
+            box-shadow: 0 15px 40px rgba(118,75,162,0.35);
         }}
         
         h1 {{

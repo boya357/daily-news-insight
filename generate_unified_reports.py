@@ -8,7 +8,7 @@
 import os
 from datetime import datetime
 
-# 标准HTML模板 - 绿色主题色 #4CAF50
+# 标准HTML模板 - 紫色渐变主题 #667eea
 STANDARD_TEMPLATE = '''<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -17,46 +17,98 @@ STANDARD_TEMPLATE = '''<!DOCTYPE html>
     <title>{title}</title>
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-        body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f5f7fa; color: #333; line-height: 1.6; }}
-        .container {{ max-width: 1200px; margin: 0 auto; padding: 20px; }}
-        .header {{ background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%); color: white; padding: 40px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(76, 175, 80, 0.3); }}
-        .header h1 {{ font-size: 2.5em; margin-bottom: 10px; }}
-        .header .date {{ opacity: 0.9; font-size: 1.2em; }}
-        .section {{ background: white; border-radius: 12px; padding: 30px; margin-bottom: 25px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }}
-        .section h2 {{ color: #4CAF50; font-size: 1.5em; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #4CAF50; }}
+        body {{ 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4a1a6b 100%); 
+            min-height: 100vh;
+            color: #ffffff; 
+            line-height: 1.6; 
+            position: relative;
+            overflow-x: hidden;
+        }}
+        /* 光影动画背景 */
+        body::before {{
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(118,75,162,0.3) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            z-index: 0;
+        }}
+        @keyframes float {{
+            0%, 100% {{ transform: translate(0, 0) rotate(0deg); }}
+            25% {{ transform: translate(2%, 2%) rotate(1deg); }}
+            50% {{ transform: translate(0, 4%) rotate(0deg); }}
+            75% {{ transform: translate(-2%, 2%) rotate(-1deg); }}
+        }}
+        .container {{ max-width: 900px; margin: 0 auto; padding: 40px 20px; position: relative; z-index: 1; }}
+        .header {{ 
+            background: rgba(255,255,255,0.1); 
+            backdrop-filter: blur(20px); 
+            color: white; 
+            padding: 40px; 
+            border-radius: 20px; 
+            margin-bottom: 30px; 
+            box-shadow: 0 15px 40px rgba(118,75,162,0.35);
+            border: 1px solid rgba(255,255,255,0.15);
+        }}
+        .header h1 {{ font-size: 2.2em; margin-bottom: 10px; font-weight: 800; text-shadow: 0 4px 20px rgba(0,0,0,0.3); }}
+        .header .date {{ opacity: 0.9; font-size: 1.1em; }}
+        .section {{ 
+            background: rgba(255,255,255,0.95); 
+            color: #1e293b;
+            border-radius: 20px; 
+            padding: 30px; 
+            margin-bottom: 25px; 
+            box-shadow: 0 15px 40px rgba(118,75,162,0.3); 
+        }}
+        .section h2 {{ 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.5em; 
+            margin-bottom: 20px; 
+            padding-bottom: 10px; 
+            border-bottom: 2px solid #667eea; 
+        }}
         .market-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }}
-        .market-card {{ background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }}
+        .market-card {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 14px; text-align: center; box-shadow: 0 8px 20px rgba(102,126,234,0.3); }}
         .market-card .value {{ font-size: 1.8em; font-weight: bold; }}
         .market-card .label {{ opacity: 0.9; margin-top: 5px; }}
-        .news-item {{ background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 4px solid #4CAF50; }}
-        .news-item h3 {{ color: #333; margin-bottom: 10px; }}
-        .news-item .tag {{ display: inline-block; background: #4CAF50; color: white; padding: 3px 12px; border-radius: 20px; font-size: 0.85em; margin-right: 10px; }}
-        .news-item .tag.hot {{ background: #ff6b6b; }}
-        .news-item .tag.policy {{ background: #4ecdc4; }}
-        .news-item .tag.tech {{ background: #f093fb; }}
+        .news-item {{ background: #f8fafc; padding: 20px; border-radius: 14px; margin-bottom: 15px; border-left: 4px solid #667eea; }}
+        .news-item h3 {{ color: #1e293b; margin-bottom: 10px; }}
+        .news-item .tag {{ display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4px 14px; border-radius: 20px; font-size: 0.85em; margin-right: 10px; }}
+        .news-item .tag.hot {{ background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); }}
+        .news-item .tag.policy {{ background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%); }}
+        .news-item .tag.tech {{ background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }}
         table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
-        th, td {{ padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }}
-        th {{ background: #4CAF50; color: white; }}
-        tr:hover {{ background: #f8f9fa; }}
-        .warning {{ background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 8px; margin-top: 20px; }}
+        th, td {{ padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }}
+        th {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }}
+        tr:hover {{ background: #f8fafc; }}
+        .warning {{ background: #fffbeb; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 12px; margin-top: 20px; color: #78350f; }}
         .info-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }}
-        .info-card {{ background: #f8f9fa; padding: 20px; border-radius: 10px; }}
-        .info-card h4 {{ color: #4CAF50; margin-bottom: 15px; }}
-        .trend-up {{ color: #22c55e; }}
-        .trend-down {{ color: #ef4444; }}
-        .footer {{ text-align: center; padding: 30px; color: #888; font-size: 0.9em; }}
-        .chain-diagram {{ background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); padding: 25px; border-radius: 12px; margin: 20px 0; }}
-        .chain-level {{ display: flex; justify-content: space-between; align-items: center; margin: 15px 0; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }}
-        .chain-level.upstream {{ border-left: 4px solid #2196F3; }}
-        .chain-level.midstream {{ border-left: 4px solid #4CAF50; }}
-        .chain-level.downstream {{ border-left: 4px solid #FF9800; }}
-        .tech-card {{ background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 10px 0; border: 1px solid #e0e0e0; }}
-        .tech-card h4 {{ color: #4CAF50; margin-bottom: 10px; }}
-        .signal-tag {{ display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; margin-left: 5px; }}
-        .signal-tag.buy {{ background: #4CAF50; color: white; }}
-        .signal-tag.sell {{ background: #ef4444; color: white; }}
-        .signal-tag.hold {{ background: #ffc107; color: white; }}
-        .signal-tag.reduced {{ background: #ff9800; color: white; }}
+        .info-card {{ background: #f8fafc; padding: 20px; border-radius: 14px; border: 1px solid #e2e8f0; }}
+        .info-card h4 {{ color: #667eea; margin-bottom: 15px; }}
+        .trend-up {{ color: #22c55e; font-weight: 600; }}
+        .trend-down {{ color: #ef4444; font-weight: 600; }}
+        .footer {{ text-align: center; padding: 30px; color: rgba(255,255,255,0.7); font-size: 0.9em; }}
+        .chain-diagram {{ background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%); padding: 25px; border-radius: 16px; margin: 20px 0; }}
+        .chain-level {{ display: flex; justify-content: space-between; align-items: center; margin: 15px 0; padding: 15px; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }}
+        .chain-level.upstream {{ border-left: 4px solid #3b82f6; }}
+        .chain-level.midstream {{ border-left: 4px solid #8b5cf6; }}
+        .chain-level.downstream {{ border-left: 4px solid #f59e0b; }}
+        .tech-card {{ background: #f8fafc; padding: 20px; border-radius: 14px; margin: 10px 0; border: 1px solid #e2e8f0; }}
+        .tech-card h4 {{ color: #667eea; margin-bottom: 10px; }}
+        .signal-tag {{ display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 0.8em; margin-left: 5px; color: white; font-weight: 600; }}
+        .signal-tag.buy {{ background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }}
+        .signal-tag.sell {{ background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }}
+        .signal-tag.hold {{ background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }}
+        .signal-tag.reduced {{ background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }}
     </style>
 </head>
 <body>
