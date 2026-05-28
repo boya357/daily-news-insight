@@ -4,214 +4,130 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>催化日历</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
-        
-        * {
-            font-family: 'Noto Sans SC', sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .card-glass {
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 15px 40px rgba(118, 75, 162, 0.35);
-            border-radius: 20px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-        }
-        
-        .card-glass:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 20px 50px rgba(118, 75, 162, 0.45);
-            border-color: #667eea;
-        }
-        
-        .pulse-icon {
-            animation: pulse 3s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .gradient-text {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .new-badge {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-            animation: pulse 2s ease-in-out infinite;
-        }
-        
-        .s-level-badge {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            animation: pulse 2s ease-in-out infinite;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: #f8fafc; color: #334155; line-height: 1.6; min-height: 100vh; }
+        .header { position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.06); z-index: 100; padding: 0 24px; }
+        .header-inner { max-width: 600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+        .header-title { font-size: 17px; font-weight: 700; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header-date { font-size: 13px; color: #94a3b8; }
+        .nav-bar { background: white; border-radius: 16px; padding: 12px 16px; margin: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; }
+        .nav-item { padding: 8px 14px; border-radius: 20px; text-decoration: none; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+        .nav-item:not(.current) { background: #f5f7fa; color: #64748b; }
+        .nav-item:not(.current):hover { background: #6366f1; color: white; }
+        .nav-item.current { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+        .container { max-width: 600px; margin: 0 auto; padding: 0 20px 100px; }
+        .page-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: #1e293b; }
+        .page-subtitle { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+        .card { display: flex; align-items: center; gap: 14px; padding: 16px 18px; background: #fff; border: 1px solid rgba(0,0,0,0.06); border-radius: 16px; text-decoration: none; color: inherit; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 12px; }
+        .card:hover { border-color: #6366f1; box-shadow: 0 4px 12px rgba(99,102,241,0.12); transform: translateY(-1px); }
+        .card-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+        .card-content { flex: 1; }
+        .card-title { font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 2px; }
+        .card-subtitle { font-size: 13px; color: #94a3b8; }
+        .card-tag { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; background: rgba(99,102,241,0.1); color: #6366f1; }
+        .card-tag-new { background: rgba(239,68,68,0.1); color: #ef4444; }
+        .card-arrow { color: #cbd5e1; font-size: 20px; font-weight: 300; }
+        footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 12px; }
     </style>
 </head>
-<body class="pb-20">
-    <!-- 导航栏 -->
-    <nav class="glass-nav fixed top-0 left-0 right-0 z-50">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between flex-wrap gap-3">
-            <div class="flex items-center space-x-3">
-                <i class="fa fa-line-chart text-white text-2xl pulse-icon"></i>
-                <span class="text-white font-bold text-xl">市场洞察中心</span>
-            </div>
-            <div class="flex items-center space-x-2 flex-wrap gap-2">
-                <a href="/daily-news-insight/" class="text-white/80 hover:text-white text-sm transition-colors px-2 py-1 rounded hover:bg-white/10">
-                    <i class="fa fa-home mr-1"></i>首页
-                </a>
-                <a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white text-sm transition-colors px-2 py-1 rounded hover:bg-white/10">
-                    <i class="fa fa-newspaper-o mr-1"></i>日报
-                </a>
-                <a href="/daily-news-insight/intraday/latest.html" class="text-white/80 hover:text-white text-sm transition-colors px-2 py-1 rounded hover:bg-white/10">
-                    <i class="fa fa-bolt mr-1"></i>盘中
-                </a>
-                <a href="/daily-news-insight/aftermarket/latest.html" class="text-white/80 hover:text-white text-sm transition-colors px-2 py-1 rounded hover:bg-white/10">
-                    <i class="fa fa-line-chart mr-1"></i>盘后
-                </a>
-                <a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white text-sm transition-colors px-2 py-1 rounded hover:bg-white/10">
-                    <i class="fa fa-link mr-1"></i>产业链
-                </a>
-                <a href="/daily-news-insight/催化日历/latest.html" class="text-white font-medium text-sm bg-white/20 px-2 py-1 rounded">
-                    <i class="fa fa-calendar mr-1"></i>催化日历
-                </a>
-                <a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white text-sm transition-colors px-2 py-1 rounded hover:bg-white/10">
-                    <i class="fa fa-refresh mr-1"></i>周复盘
-                </a>
-                <a href="/daily-news-insight/周末速递/latest.html" class="text-white/80 hover:text-white text-sm transition-colors px-2 py-1 rounded hover:bg-white/10">
-                    <i class="fa fa-plane mr-1"></i>周末速递
-                </a>
-            </div>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="/daily-news-insight/" style="text-decoration: none;">
+                <span class="header-title">📊 市场洞察中心</span>
+            </a>
+            <span class="header-date" id="today"></span>
         </div>
-    </nav>
-
-    <!-- 主内容区 -->
-    <div class="pt-24 px-4">
-        <div class="max-w-4xl mx-auto">
-            <!-- 页面标题 -->
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-white mb-2">
-                    <i class="fa fa-calendar mr-3"></i>催化日历
-                </h1>
-                <p class="text-white/70 text-lg">S级/A级催化事件深度分析</p>
-            </div>
-
-            <!-- 报告列表 -->
-            <div class="space-y-4">
-                <a href="/daily-news-insight/s级催化扫描/20260528_盘后_S级催化扫描.html" class="card-glass block p-5 border-2 border-transparent">
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center flex-shrink-0">
-                            <i class="fa fa-fire text-white text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-800">S级催化扫描 - 2026年5月28日 盘后</h3>
-                            <p class="text-gray-500 text-sm">MSCI千亿扩容生效 + 政策托底双利好，科技主线多点开花</p>
-                        </div>
-                        <span class="s-level-badge text-white text-xs font-bold px-3 py-1 rounded-full">🔥 最新</span>
-                        <i class="fa fa-chevron-right text-gray-300 text-xl"></i>
-                    </div>
-                </a>
-
-                <a href="/daily-news-insight/s级催化扫描/20260528_盘前_S级催化扫描_长鑫科技IPO.html" class="card-glass block p-5 border-2 border-transparent">
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center flex-shrink-0">
-                            <i class="fa fa-fire text-white text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-800">S级催化扫描 - 2026年5月28日 盘前</h3>
-                            <p class="text-gray-500 text-sm">长鑫科技IPO过会 + 存储芯片超级周期深化</p>
-                        </div>
-                        <i class="fa fa-chevron-right text-gray-300 text-xl"></i>
-                    </div>
-                </a>
-
-                <a href="/daily-news-insight/weekly_outlook/20260527_周三前瞻.html" class="card-glass block p-5 border-2 border-transparent">
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center flex-shrink-0">
-                            <i class="fa fa-binoculars text-white text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-800">周三前瞻 - 2026年5月27日</h3>
-                            <p class="text-gray-500 text-sm">周中市场展望与重点催化事件</p>
-                        </div>
-                        <i class="fa fa-chevron-right text-gray-300 text-xl"></i>
-                    </div>
-                </a>
-
-                <a href="/daily-news-insight/催化日历/20260528_明日催化剂.html" class="card-glass block p-5 border-2 border-transparent">
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                            <i class="fa fa-lightbulb-o text-white text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-800">明日催化剂 - 2026年5月28日</h3>
-                            <p class="text-gray-500 text-sm">S级/A级催化事件深度分析</p>
-                        </div>
-                        <i class="fa fa-chevron-right text-gray-300 text-xl"></i>
-                    </div>
-                </a>
-
-                <a href="/daily-news-insight/催化日历/20260527_明日催化剂.html" class="card-glass block p-5 border-2 border-transparent">
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                            <i class="fa fa-lightbulb-o text-white text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-800">明日催化剂 - 2026年5月27日</h3>
-                            <p class="text-gray-500 text-sm">S级/A级催化事件深度分析</p>
-                        </div>
-                        <i class="fa fa-chevron-right text-gray-300 text-xl"></i>
-                    </div>
-                </a>
-
-                <a href="/daily-news-insight/催化日历/20260526_明日催化剂.html" class="card-glass block p-5 border-2 border-transparent">
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                            <i class="fa fa-lightbulb-o text-white text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-800">明日催化剂 - 2026年5月26日</h3>
-                            <p class="text-gray-500 text-sm">S级/A级催化事件深度分析</p>
-                        </div>
-                        <i class="fa fa-chevron-right text-gray-300 text-xl"></i>
-                    </div>
-                </a>
-
-                <a href="/daily-news-insight/催化日历/20260523_明日催化剂.html" class="card-glass block p-5 border-2 border-transparent">
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                            <i class="fa fa-lightbulb-o text-white text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-800">明日催化剂 - 2026年5月23日</h3>
-                            <p class="text-gray-500 text-sm">S级/A级催化事件深度分析</p>
-                        </div>
-                        <i class="fa fa-chevron-right text-gray-300 text-xl"></i>
-                    </div>
-                </a>
-            </div>
-        </div>
+    </header>
+    <div class="nav-bar">
+        <a href="/daily-news-insight/" class="nav-item">首页</a>
+        <a href="/daily-news-insight/daily/latest.html" class="nav-item">日报</a>
+        <a href="/daily-news-insight/intraday/latest.html" class="nav-item">盘中</a>
+        <a href="/daily-news-insight/aftermarket/latest.html" class="nav-item">盘后</a>
+        <a href="/daily-news-insight/industry_chain/latest.html" class="nav-item">产业链</a>
+        <a href="/daily-news-insight/催化日历/latest.html" class="nav-item current">催化日历</a>
+        <a href="/daily-news-insight/weekly_review/latest.html" class="nav-item">周复盘</a>
+        <a href="/daily-news-insight/周末速递/latest.html" class="nav-item">周末速递</a>
     </div>
+    <div class="container">
+        <h1 class="page-title">📰 催化日历</h1>
+        <p class="page-subtitle">S级/A级催化事件深度分析</p>
 
-    <!-- 页脚 -->
-    <footer class="text-center py-10 text-white/50 text-sm">
-        <p>© 2026 市场洞察中心 | 数据仅供参考，不构成投资建议</p>
+        <a href="/daily-news-insight/催化日历/20260529_明日催化剂.html" class="card">
+            <div class="card-icon">📰</div>
+            <div class="card-content">
+                <div class="card-title">明日催化剂 - 2026年5月29日</div>
+                <div class="card-subtitle">S级/A级催化事件深度分析</div>
+            </div>
+            <span class="card-tag card-tag-new">🆕 最新</span>
+            <span class="card-arrow">›</span>
+        </a>
+        <a href="/daily-news-insight/催化日历/20260528_明日催化剂.html" class="card">
+            <div class="card-icon">📰</div>
+            <div class="card-content">
+                <div class="card-title">明日催化剂 - 2026年5月28日</div>
+                <div class="card-subtitle">S级/A级催化事件深度分析</div>
+            </div>
+            
+            <span class="card-arrow">›</span>
+        </a>
+        <a href="/daily-news-insight/催化日历/20260527_明日催化剂.html" class="card">
+            <div class="card-icon">📰</div>
+            <div class="card-content">
+                <div class="card-title">明日催化剂 - 2026年5月27日</div>
+                <div class="card-subtitle">S级/A级催化事件深度分析</div>
+            </div>
+            
+            <span class="card-arrow">›</span>
+        </a>
+        <a href="/daily-news-insight/催化日历/20260526_明日催化剂.html" class="card">
+            <div class="card-icon">📰</div>
+            <div class="card-content">
+                <div class="card-title">明日催化剂 - 2026年5月26日</div>
+                <div class="card-subtitle">S级/A级催化事件深度分析</div>
+            </div>
+            
+            <span class="card-arrow">›</span>
+        </a>
+        <a href="/daily-news-insight/催化日历/20260523_明日催化剂.html" class="card">
+            <div class="card-icon">📰</div>
+            <div class="card-content">
+                <div class="card-title">明日催化剂 - 2026年5月23日</div>
+                <div class="card-subtitle">S级/A级催化事件深度分析</div>
+            </div>
+            
+            <span class="card-arrow">›</span>
+        </a>
+        <a href="/daily-news-insight/催化日历/20260522_明日催化剂.html" class="card">
+            <div class="card-icon">📰</div>
+            <div class="card-content">
+                <div class="card-title">明日催化剂 - 2026年5月22日</div>
+                <div class="card-subtitle">S级/A级催化事件深度分析</div>
+            </div>
+            
+            <span class="card-arrow">›</span>
+        </a>
+        <a href="/daily-news-insight/催化日历/20260517.html" class="card">
+            <div class="card-icon">📰</div>
+            <div class="card-content">
+                <div class="card-title">周复盘报告 | 2026年5月12日-5月16日</div>
+                <div class="card-subtitle">S级/A级催化事件深度分析</div>
+            </div>
+            
+            <span class="card-arrow">›</span>
+        </a>
+    </div>
+    
+    <footer>
+        <p>仅供参考，不构成投资建议</p>
     </footer>
+    
+    <script>
+        const now = new Date();
+        const weekDay = ['周日','周一','周二','周三','周四','周五','周六'][now.getDay()];
+        document.getElementById('today').textContent = `${now.getMonth()+1}月${now.getDate()}日 ${weekDay}`;
+    </script>
 </body>
 </html>
