@@ -210,6 +210,7 @@ class ListPageUpdater:
                 <span class="text-white font-bold text-lg">投资研究中心</span>
             </div>
             <div class="flex items-center space-x-1 flex-wrap gap-1">
+                <a href="/daily-news-insight/index.html" class="{'bg-white/20 text-white' if current_page == 'home' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-2 py-1 rounded">首页</a>
                 <a href="/daily-news-insight/daily/latest.html" class="{'bg-white/20 text-white' if current_page == 'daily' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-2 py-1 rounded">日报</a>
                 <a href="/daily-news-insight/intraday/latest.html" class="{'bg-white/20 text-white' if current_page == 'intraday' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-2 py-1 rounded">盘中</a>
                 <a href="/daily-news-insight/aftermarket/latest.html" class="{'bg-white/20 text-white' if current_page == 'aftermarket' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-2 py-1 rounded">盘后</a>

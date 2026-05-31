@@ -492,6 +492,7 @@ class ReportConverter:
     def _get_navigation(self, current_page: str) -> str:
         """导航栏"""
         pages = [
+            ('home', '首页', '/daily-news-insight/index.html'),
             ('daily', '日报', '/daily-news-insight/daily/latest.html'),
             ('intraday', '盘中', '/daily-news-insight/intraday/latest.html'),
             ('aftermarket', '盘后', '/daily-news-insight/aftermarket/latest.html'),
