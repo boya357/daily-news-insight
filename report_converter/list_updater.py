@@ -14,6 +14,7 @@ class ListPageUpdater:
     def __init__(self, docs_dir: str):
         self.docs_dir = docs_dir
         self.page_configs = {
+            # ========== 高频报告（5种） ==========
             'industry_chain': {
                 'title': '产业链全景追踪',
                 'subtitle': '覆盖AI算力、新能源、半导体等核心赛道',
@@ -37,6 +38,38 @@ class ListPageUpdater:
             'weekly_review': {
                 'title': '周复盘报告',
                 'subtitle': '一周市场回顾与总结',
+                'report_type_mapping': self._simple_mapping
+            },
+            
+            # ========== 低频报告（新增6种） ==========
+            'weekly_outlook': {
+                'title': '周前瞻',
+                'subtitle': '下周重要事件与投资机会前瞻',
+                'report_type_mapping': self._catalyst_mapping
+            },
+            '催化日历': {
+                'title': '催化日历',
+                'subtitle': '行业催化剂与重要事件日历',
+                'report_type_mapping': self._catalyst_mapping
+            },
+            '周末速递': {
+                'title': '周末速递',
+                'subtitle': '周末重要资讯汇总',
+                'report_type_mapping': self._simple_mapping
+            },
+            '明日催化剂': {
+                'title': '明日催化剂',
+                'subtitle': '明日重点关注催化剂',
+                'report_type_mapping': self._catalyst_mapping
+            },
+            's级催化扫描': {
+                'title': 'S级催化扫描',
+                'subtitle': '重磅深度催化事件分析',
+                'report_type_mapping': self._catalyst_mapping
+            },
+            'monthly': {
+                'title': '月度报告',
+                'subtitle': '月度市场回顾与展望',
                 'report_type_mapping': self._simple_mapping
             }
         }
@@ -123,6 +156,18 @@ class ListPageUpdater:
         """简单映射"""
         return filename.replace('.html', '').replace('_', ' '), '📊', '最新报告', 'bg-indigo-100 text-indigo-700'
     
+    def _catalyst_mapping(self, filename: str) -> tuple:
+        """催化剂类报告映射"""
+        filename_lower = filename.lower()
+        if 's级' in filename or 'S级' in filename:
+            return filename.replace('.html', '').replace('_', ' '), '🔥', '重磅催化', 'bg-red-100 text-red-700'
+        elif '明日' in filename or 'tomorrow' in filename_lower:
+            return filename.replace('.html', '').replace('_', ' '), '⏰', '明日催化', 'bg-orange-100 text-orange-700'
+        elif '前瞻' in filename or 'outlook' in filename_lower:
+            return filename.replace('.html', '').replace('_', ' '), '🔮', '前瞻报告', 'bg-purple-100 text-purple-700'
+        else:
+            return filename.replace('.html', '').replace('_', ' '), '⚡', '催化事件', 'bg-yellow-100 text-yellow-700'
+    
     def _generate_list_page(self, title: str, subtitle: str, current_page: str, cards_html: str, grid_cols: str = 'grid-cols-2') -> str:
         """生成标准列表页 - 独立页面，与单篇报告完全分离"""
         return f'''<!DOCTYPE html>
@@ -165,11 +210,17 @@ class ListPageUpdater:
                 <span class="text-white font-bold text-lg">投资研究中心</span>
             </div>
             <div class="flex items-center space-x-1 flex-wrap gap-1">
-                <a href="/daily-news-insight/daily/latest.html" class="{'bg-white/20 text-white' if current_page == 'daily' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a>
-                <a href="/daily-news-insight/intraday/latest.html" class="{'bg-white/20 text-white' if current_page == 'intraday' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a>
-                <a href="/daily-news-insight/aftermarket/latest.html" class="{'bg-white/20 text-white' if current_page == 'aftermarket' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a>
-                <a href="/daily-news-insight/industry_chain/latest.html" class="{'bg-white/20 text-white' if current_page == 'industry_chain' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a>
-                <a href="/daily-news-insight/weekly_review/latest.html" class="{'bg-white/20 text-white' if current_page == 'weekly_review' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a>
+                <a href="/daily-news-insight/daily/latest.html" class="{'bg-white/20 text-white' if current_page == 'daily' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-2 py-1 rounded">日报</a>
+                <a href="/daily-news-insight/intraday/latest.html" class="{'bg-white/20 text-white' if current_page == 'intraday' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-2 py-1 rounded">盘中</a>
+                <a href="/daily-news-insight/aftermarket/latest.html" class="{'bg-white/20 text-white' if current_page == 'aftermarket' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-2 py-1 rounded">盘后</a>
+                <a href="/daily-news-insight/industry_chain/latest.html" class="{'bg-white/20 text-white' if current_page == 'industry_chain' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-2 py-1 rounded">产业链</a>
+                <a href="/daily-news-insight/weekly_review/latest.html" class="{'bg-white/20 text-white' if current_page == 'weekly_review' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-2 py-1 rounded">周复盘</a>
+                <a href="/daily-news-insight/weekly_outlook/latest.html" class="{'bg-white/20 text-white' if current_page == 'weekly_outlook' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-2 py-1 rounded">周前瞻</a>
+                <a href="/daily-news-insight/催化日历/latest.html" class="{'bg-white/20 text-white' if current_page == '催化日历' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-2 py-1 rounded">催化日历</a>
+                <a href="/daily-news-insight/周末速递/latest.html" class="{'bg-white/20 text-white' if current_page == '周末速递' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-2 py-1 rounded">周末速递</a>
+                <a href="/daily-news-insight/明日催化剂/latest.html" class="{'bg-white/20 text-white' if current_page == '明日催化剂' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-2 py-1 rounded">明日催化</a>
+                <a href="/daily-news-insight/s级催化扫描/latest.html" class="{'bg-white/20 text-white' if current_page == 's级催化扫描' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-2 py-1 rounded">S级催化</a>
+                <a href="/daily-news-insight/monthly/latest.html" class="{'bg-white/20 text-white' if current_page == 'monthly' else 'text-white/80 hover:text-white hover:bg-white/10'} text-sm transition-colors px-2 py-1 rounded">月报</a>
             </div>
         </div>
     </nav>

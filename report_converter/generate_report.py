@@ -80,7 +80,7 @@ def main():
             print("❌ 请指定docs目录")
             return
         docs_dir = sys.argv[2]
-        page_types = sys.argv[3:] if len(sys.argv) > 3 else None
+        page_types = sys.argv[3:] if len(sys.argv) > 3 else []
         update_list_pages(docs_dir, *page_types)
     
     elif command == 'full':

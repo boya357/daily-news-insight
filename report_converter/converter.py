@@ -497,6 +497,12 @@ class ReportConverter:
             ('aftermarket', '盘后', '/daily-news-insight/aftermarket/latest.html'),
             ('industry_chain', '产业链', '/daily-news-insight/industry_chain/latest.html'),
             ('weekly_review', '周复盘', '/daily-news-insight/weekly_review/latest.html'),
+            ('weekly_outlook', '周前瞻', '/daily-news-insight/weekly_outlook/latest.html'),
+            ('催化日历', '催化日历', '/daily-news-insight/催化日历/latest.html'),
+            ('周末速递', '周末速递', '/daily-news-insight/周末速递/latest.html'),
+            ('明日催化剂', '明日催化', '/daily-news-insight/明日催化剂/latest.html'),
+            ('s级催化扫描', 'S级催化', '/daily-news-insight/s级催化扫描/latest.html'),
+            ('monthly', '月报', '/daily-news-insight/monthly/latest.html'),
         ]
         
         nav_items = []
