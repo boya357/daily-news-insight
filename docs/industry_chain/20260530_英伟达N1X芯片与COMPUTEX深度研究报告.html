@@ -33,8 +33,119 @@
             .table-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
         }
     </style>
+
+    <!-- 阅读进度条 -->
+    <style>
+        #progressBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            z-index: 9999;
+            transition: width 0.1s ease;
+        }
+        #backToTop {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            z-index: 9998;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+        #backToTop:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+        #backToTop.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toc-card.active {
+            border-color: #8b5cf6 !important;
+            background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(168,85,247,0.1)) !important;
+            transform: scale(1.02);
+        }
+        .section-title {
+            scroll-margin-top: 100px;
+        }
+        .action-buttons {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            display: flex;
+            gap: 10px;
+            z-index: 9997;
+        }
+        .action-btn {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            color: #6366f1;
+        }
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(99,102,241,0.3);
+            color: #8b5cf6;
+        }
+        .report-footer {
+            background: linear-gradient(135deg, rgba(99,102,241,0.05), rgba(139,92,246,0.05));
+            border-top: 1px solid rgba(99,102,241,0.2);
+        }
+        .data-source {
+            font-size: 12px;
+            color: #6b7280;
+            font-style: italic;
+        }
+        .risk-disclaimer {
+            background: linear-gradient(135deg, rgba(239,68,68,0.05), rgba(249,115,22,0.05));
+            border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+        @media print {
+            #backToTop, .action-buttons, #progressBar {
+                display: none !important;
+            }
+        }
+        @media (max-width: 768px) {
+            .action-buttons {
+                left: 15px;
+                bottom: 15px;
+            }
+            #backToTop {
+                right: 15px;
+                bottom: 70px;
+                width: 42px;
+                height: 42px;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 </head>
 <body class="bg-gradient-purple min-h-screen">
+    <div id="progressBar"></div>
     <!-- 头部导航 -->
     <nav class="bg-white/10 glass sticky top-0 z-50 border-b border-white/20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,7 +154,7 @@
                     <span class="text-white font-bold text-xl">📊 英伟达N1X芯片深度研究</span>
                 </div>
                 <div class="text-white/80 text-sm">
-                    发布日期：2026年5月30日
+                    发布日期：2026年5月31日  v1.0正式版
                 </div>
             </div>
         </div>
@@ -145,32 +256,32 @@
             <div class="bg-white/95 rounded-3xl p-8 shadow-2xl">
                 <h2 class="text-3xl font-bold text-dark mb-6">📑 报告目录</h2>
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <a href="#section1" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                    <a href="#section1" class="toc-card group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
                         <div class="text-2xl mb-2">一</div>
                         <h3 class="font-bold text-dark group-hover:text-primary transition-colors">N1X芯片规格详解</h3>
                         <p class="text-sm text-gray-500 mt-2">核心参数、性能对比、架构分析</p>
                     </a>
-                    <a href="#section2" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                    <a href="#section2" class="toc-card group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
                         <div class="text-2xl mb-2">二</div>
                         <h3 class="font-bold text-dark group-hover:text-primary transition-colors">COMPUTEX演讲前瞻</h3>
                         <p class="text-sm text-gray-500 mt-2">Vera Rubin架构、N1/N1X发布、AI工厂方案</p>
                     </a>
-                    <a href="#section3" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                    <a href="#section3" class="toc-card group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
                         <div class="text-2xl mb-2">三</div>
                         <h3 class="font-bold text-dark group-hover:text-primary transition-colors">上游产业链全景</h3>
                         <p class="text-sm text-gray-500 mt-2">晶圆制造、HBM存储、PCB材料、先进封装</p>
                     </a>
-                    <a href="#section4" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                    <a href="#section4" class="toc-card group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
                         <div class="text-2xl mb-2">四</div>
                         <h3 class="font-bold text-dark group-hover:text-primary transition-colors">中游代工与组件</h3>
                         <p class="text-sm text-gray-500 mt-2">PCB/载板、服务器代工、散热、光模块</p>
                     </a>
-                    <a href="#section5" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                    <a href="#section5" class="toc-card group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
                         <div class="text-2xl mb-2">五</div>
                         <h3 class="font-bold text-dark group-hover:text-primary transition-colors">价值与弹性分析</h3>
                         <p class="text-sm text-gray-500 mt-2">价值链分布、业绩弹性、价值传导机制</p>
                     </a>
-                    <a href="#section6" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                    <a href="#section6" class="toc-card group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
                         <div class="text-2xl mb-2">六</div>
                         <h3 class="font-bold text-dark group-hover:text-primary transition-colors">风险与投资策略</h3>
                         <p class="text-sm text-gray-500 mt-2">风险提示、投资策略、核心标的组合</p>
@@ -184,7 +295,7 @@
     <section id="section6" class="py-12 px-4">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white/95 rounded-3xl p-8 shadow-2xl">
-                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                <h2 class="section-title text-4xl font-bold text-dark mb-8 flex items-center">
                     <span class="bg-red-600 text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">六</span>
                     风险与投资策略
                 </h2>
@@ -300,7 +411,7 @@
     <section id="section1" class="py-12 px-4">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white/95 rounded-3xl p-8 shadow-2xl">
-                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                <h2 class="section-title text-4xl font-bold text-dark mb-8 flex items-center">
                     <span class="bg-secondary text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">二</span>
                     黄仁勋COMPUTEX 2026演讲前瞻
                 </h2>
@@ -482,7 +593,7 @@
     </section>id="section3" class="py-12 px-4">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white/95 rounded-3xl p-8 shadow-2xl">
-                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                <h2 class="section-title text-4xl font-bold text-dark mb-8 flex items-center">
                     <span class="bg-secondary text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">三</span>
                     上游产业链全景分析
                 </h2>
@@ -645,7 +756,7 @@
     </section>id="section4" class="py-12 px-4">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white/95 rounded-3xl p-8 shadow-2xl">
-                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                <h2 class="section-title text-4xl font-bold text-dark mb-8 flex items-center">
                     <span class="bg-accent text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">四</span>
                     中游代工与核心组件
                 </h2>
@@ -827,7 +938,7 @@
     </section>id="section5" class="py-12 px-4">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white/95 rounded-3xl p-8 shadow-2xl">
-                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                <h2 class="section-title text-4xl font-bold text-dark mb-8 flex items-center">
                     <span class="bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">五</span>
                     价值与弹性分析
                 </h2>
@@ -970,7 +1081,7 @@
     </section>id="section6" class="py-12 px-4">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white/95 rounded-3xl p-8 shadow-2xl">
-                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                <h2 class="section-title text-4xl font-bold text-dark mb-8 flex items-center">
                     <span class="bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">一</span>
                     N1X芯片规格详解与性能对比
                 </h2>
@@ -1153,7 +1264,7 @@
     <section id="section1" class="py-12 px-4">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white/95 rounded-3xl p-8 shadow-2xl">
-                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                <h2 class="section-title text-4xl font-bold text-dark mb-8 flex items-center">
                     <span class="bg-secondary text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">二</span>
                     黄仁勋COMPUTEX 2026演讲前瞻
                 </h2>
@@ -1335,7 +1446,7 @@
     </section>id="section3" class="py-12 px-4">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white/95 rounded-3xl p-8 shadow-2xl">
-                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                <h2 class="section-title text-4xl font-bold text-dark mb-8 flex items-center">
                     <span class="bg-secondary text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">三</span>
                     上游产业链全景分析
                 </h2>
@@ -1498,7 +1609,7 @@
     </section>id="section4" class="py-12 px-4">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white/95 rounded-3xl p-8 shadow-2xl">
-                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                <h2 class="section-title text-4xl font-bold text-dark mb-8 flex items-center">
                     <span class="bg-accent text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">四</span>
                     中游代工与核心组件
                 </h2>
