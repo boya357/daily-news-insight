@@ -10,6 +10,9 @@ import os
 import glob
 from typing import Dict, List, Any, Optional
 
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from report_templates import TEMPLATE_MAPPING
 
 
@@ -154,18 +157,53 @@ class ReportConverter:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{parsed['title']}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    {self._get_base_styles()}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script>
+        tailwind.config = {{
+            theme: {{
+                extend: {{
+                    colors: {{
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                        accent: '#a855f7',
+                        dark: '#1e1b4b',
+                        light: '#eef2ff'
+                    }},
+                    backgroundImage: {{
+                        'gradient-purple': 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #6b21a8 100%)',
+                        'gradient-card': 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(238,242,255,0.9) 100%)'
+                    }}
+                }}
+            }}
+        }}
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {{
+            .content-auto {{ content-visibility: auto; }}
+            .text-shadow {{ text-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
+            .glass {{ backdrop-filter: blur(10px); }}
+            .table-shadow {{ box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }}
+        }}
+    </style>
 </head>
-<body>
+<body class="bg-gradient-purple min-h-screen">
     {self._get_navigation(report_type)}
+
+    <!-- 主标题区 -->
+    <header class="py-16 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <h1 class="text-5xl font-bold text-white mb-6 text-shadow">
+                {parsed['title']}
+            </h1>
+            <p class="text-2xl text-white/90 mb-8">
+                深度研究报告
+            </p>
+        </div>
+    </header>
     
-    <main class="content-area">
-        {self._get_page_header(parsed['title'])}
-        
-        <div class="max-w-5xl mx-auto px-4">
-            <div class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-10">
+    <main class="pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-gradient-card rounded-3xl p-8 md:p-12 shadow-2xl">
                 {''.join(sections_html)}
             </div>
         </div>
@@ -195,30 +233,27 @@ class ReportConverter:
             return self._render_stock_analysis_section(section)
         elif section_type == 'risk':
             return self._render_risk_section(section)
-        elif '|' in content and content.count('|') > 5:
-            return self._render_table_section(section)
         else:
+            # 所有章节都走通用模板（通用模板内部会智能识别并渲染表格）
             return self._render_general_section(section)
     
     def _render_general_section(self, section: Dict[str, Any]) -> str:
         """渲染通用章节"""
         icon = self.section_icons.get(section['type'], '📋')
         level = section.get('level', 2)
-        size_class = 'text-2xl' if level == 2 else 'text-xl'
+        size_class = 'text-3xl' if level == 2 else 'text-2xl'
         
         content_html = self._render_text_content(section.get('content', ''))
         
         return f'''
-        <div class="mb-8 mt-10">
-            <div class="flex items-center space-x-3 mb-4">
-                <span class="text-3xl">{icon}</span>
-                <h{level} class="{size_class} font-bold text-gray-800">{section['title']}</h{level}>
-            </div>
-            <div class="h-1 w-24 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full mb-6 ml-1"></div>
+        <section class="py-8">
+            <h{level} class="{size_class} font-bold text-dark mb-6 flex items-center">
+                <span class="text-primary mr-3">{icon}</span>{section['title']}
+            </h{level}>
             <div class="section-content">
                 {content_html}
             </div>
-        </div>
+        </section>
         '''
     
     def _render_core_summary_section(self, section: Dict[str, Any]) -> str:
@@ -226,29 +261,67 @@ class ReportConverter:
         content = section.get('content', '')
         points = self._extract_list_items(content)
         
-        points_html = []
-        for i, point in enumerate(points, 1):
-            points_html.append(f'''
-            <div class="flex items-start space-x-3 py-3 border-b border-indigo-100 last:border-0">
-                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span class="text-white text-xs font-bold">{i}</span>
+        # 分成两列
+        mid = (len(points) + 1) // 2
+        col1_points = points[:mid]
+        col2_points = points[mid:]
+        
+        points_html1 = ''.join([f'''
+            <li class="flex items-start mb-4">
+                <span class="text-accent mr-2 mt-1">▸</span>
+                <span class="text-gray-700">{self._render_inline_markdown(point)}</span>
+            </li>
+            ''' for point in col1_points])
+        
+        points_html2 = ''.join([f'''
+            <li class="flex items-start mb-4">
+                <span class="text-accent mr-2 mt-1">▸</span>
+                <span class="text-gray-700">{self._render_inline_markdown(point)}</span>
+            </li>
+            ''' for point in col2_points])
+        
+        # 提取标的（如果有的话）
+        stocks = self._extract_stock_info(content)
+        stocks_html = ''
+        if stocks:
+            stock_cards = []
+            for stock in stocks[:3]:
+                tag = stock.get('metrics', {}).get('逻辑', '核心标的')
+                stock_cards.append(f'''
+                <div class="flex items-center justify-between bg-light rounded-xl p-4 mb-3 last:mb-0">
+                    <div>
+                        <span class="font-bold text-dark">{stock['name']}</span>
+                        <span class="text-sm text-gray-500 ml-2">{stock['code']}</span>
+                    </div>
+                    <span class="bg-primary text-white px-3 py-1 rounded-full text-sm">{tag}</span>
                 </div>
-                <div class="text-gray-700 leading-relaxed">{self._render_inline_markdown(point)}</div>
+                ''')
+            stocks_html = f'''
+            <div>
+                <h3 class="text-xl font-semibold text-primary mb-4">核心标的推荐</h3>
+                <div class="space-y-3">
+                    {''.join(stock_cards)}
+                </div>
             </div>
-            ''')
+            '''
         
         return f'''
-        <div class="mb-8 mt-10">
-            <div class="flex items-center space-x-3 mb-4">
-                <span class="text-3xl">🎯</span>
-                <h2 class="text-2xl font-bold text-gray-800">{section['title']}</h2>
+        <section class="py-8">
+            <h2 class="text-3xl font-bold text-dark mb-6 flex items-center">
+                <span class="text-primary mr-3">📌</span>{section['title']}
+            </h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold text-primary mb-4">投资要点</h3>
+                    <ul class="space-y-2">
+                        {points_html1}
+                    </ul>
+                </div>
+                <div>
+                    {stocks_html if stocks_html else f'<ul class="space-y-2">{points_html2}</ul>'}
+                </div>
             </div>
-            <div class="h-1 w-24 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full mb-6 ml-1"></div>
-            
-            <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100">
-                {''.join(points_html)}
-            </div>
-        </div>
+        </section>
         '''
     
     def _render_stock_analysis_section(self, section: Dict[str, Any]) -> str:
@@ -360,7 +433,7 @@ class ReportConverter:
         '''
     
     def _render_text_content(self, content: str) -> str:
-        """渲染文本内容"""
+        """渲染文本内容 - 智能识别并渲染表格"""
         if not content:
             return ''
         
@@ -368,22 +441,64 @@ class ReportConverter:
         html = []
         
         in_list = False
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-            
-            if line.startswith('- ') or line.startswith('* '):
-                if not in_list:
-                    html.append('<ul class="mb-4">')
-                    in_list = True
-                html.append(f'<li class="text-gray-700 mb-2 ml-4">{self._render_inline_markdown(line[2:].strip())}</li>')
-            else:
-                if in_list:
-                    html.append('</ul>')
-                    in_list = False
-                html.append(f'<p class="text-gray-700 mb-4 leading-relaxed">{self._render_inline_markdown(line)}</p>')
+        table_buffer = []
+        in_table = False
         
+        for line in lines:
+            stripped = line.strip()
+            
+            # 检测表格行（包含 | 且至少3个分隔符）
+            is_table_line = '|' in stripped and stripped.count('|') >= 3
+            is_table_separator = is_table_line and all(c in '|:- ' for c in stripped)
+            
+            if is_table_line:
+                if not in_table:
+                    # 表格开始
+                    if in_list:
+                        html.append('</ul>')
+                        in_list = False
+                    in_table = True
+                table_buffer.append(stripped)
+            elif in_table:
+                # 表格结束，先渲染表格
+                if len(table_buffer) >= 3:  # 至少需要表头+分隔线+一行数据
+                    html.append(self._render_table(table_buffer))
+                table_buffer = []
+                in_table = False
+                
+                # 继续处理当前行
+                if not stripped:
+                    continue
+                
+                if stripped.startswith('- ') or stripped.startswith('* '):
+                    if not in_list:
+                        html.append('<ul class="mb-4">')
+                        in_list = True
+                    html.append(f'<li class="text-gray-700 mb-2 ml-4">{self._render_inline_markdown(stripped[2:].strip())}</li>')
+                else:
+                    if in_list:
+                        html.append('</ul>')
+                        in_list = False
+                    html.append(f'<p class="text-gray-700 mb-4 leading-relaxed">{self._render_inline_markdown(stripped)}</p>')
+            else:
+                # 普通文本行
+                if not stripped:
+                    continue
+                
+                if stripped.startswith('- ') or stripped.startswith('* '):
+                    if not in_list:
+                        html.append('<ul class="mb-4">')
+                        in_list = True
+                    html.append(f'<li class="text-gray-700 mb-2 ml-4">{self._render_inline_markdown(stripped[2:].strip())}</li>')
+                else:
+                    if in_list:
+                        html.append('</ul>')
+                        in_list = False
+                    html.append(f'<p class="text-gray-700 mb-4 leading-relaxed">{self._render_inline_markdown(stripped)}</p>')
+        
+        # 处理末尾状态
+        if in_table and len(table_buffer) >= 3:
+            html.append(self._render_table(table_buffer))
         if in_list:
             html.append('</ul>')
         
