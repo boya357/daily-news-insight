@@ -6,7 +6,6 @@
     <title>英伟达N1X芯片与COMPUTEX 2026深度研究报告 | 2026年5月</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -151,6 +150,14 @@
         
         /* 平滑滚动 */
         html { scroll-behavior: smooth; }
+        
+        /* 打印优化 */
+        @media print {
+            #progressBar, #backToTop, .action-buttons { display: none !important; }
+            nav { position: relative !important; }
+            body { background: white !important; }
+            section { page-break-inside: avoid; }
+        }
     </style>
 </head>
 <body class="bg-gradient-purple min-h-screen">
@@ -1343,7 +1350,7 @@
 
     <!-- 操作按钮组 -->
     <div class="action-buttons fixed bottom-8 left-8 z-50">
-        <button onclick="exportPDF()" class="action-btn" title="导出PDF">
+        <button onclick="exportPDF()" class="action-btn" title="打印/导出PDF (选择'另存为PDF')">
             <span class="text-xl">📄</span>
         </button>
         <button onclick="shareReport()" class="action-btn" title="分享报告">
@@ -1406,18 +1413,9 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 导出PDF
+        // 导出PDF - 使用浏览器原生打印
         function exportPDF() {
-            const element = document.body;
-            const opt = {
-                margin: 10,
-                filename: '英伟达N1X芯片与COMPUTEX2026深度研究报告.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            
-            alert('正在生成PDF，请稍候...\n（注：完整PDF导出需要html2pdf.js支持）');
+            window.print();
         }
 
         // 分享报告
