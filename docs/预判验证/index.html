@@ -3,129 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>预判验证闭环</title>
+    <title>预判验证闭环系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { height: 100%; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: #f8fafc; color: #334155; line-height: 1.6; min-height: 100vh; }
-        .glass-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.06); }
-        .glass-nav .max-w-5xl { max-width: 90rem; margin: 0 auto; padding: 0 1rem; display: flex; align-items: center; justify-content: space-between; height: 56px; }
-        .glass-nav .nav-title { font-size: 17px; font-weight: 700; background: linear-gradient(135deg, #06b6d4, #0891b2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .glass-nav .nav-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        .glass-nav .nav-link { color: #64748b; text-decoration: none; font-size: 13px; padding: 0.375rem 0.75rem; border-radius: 0.5rem; transition: all 0.2s; }
-        .glass-nav .nav-link:hover { color: #334155; background: rgba(0,0,0,0.05); }
-        .glass-nav .nav-link.active { color: #06b6d4; background: rgba(6,182,212,0.1); }
-        .nav-bar { background: white; border-radius: 16px; padding: 12px 16px; margin: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; }
-        .nav-item { padding: 8px 14px; border-radius: 20px; text-decoration: none; font-size: 13px; font-weight: 500; transition: all 0.2s; }
-        .nav-item:not(.current) { background: #f5f7fa; color: #64748b; }
-        .nav-item:not(.current):hover { background: #06b6d4; color: white; }
-        .nav-item.current { background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; }
-        .container { max-width: 700px; margin: 0 auto; padding: 76px 20px 100px; }
-        .page-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: #1e293b; }
-        .page-subtitle { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
         
-        .stats-card { background: linear-gradient(135deg, #06b6d4, #0891b2); border-radius: 20px; padding: 24px; color: white; margin-bottom: 20px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; text-align: center; }
-        .stat-value { font-size: 32px; font-weight: 800; }
-        .stat-label { font-size: 12px; opacity: 0.9; }
+        * { font-family: 'Noto Sans SC', sans-serif; }
         
-        .module-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.06); text-decoration: none; color: inherit; display: block; transition: all 0.2s; }
-        .module-card:hover { border-color: #06b6d4; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(6,182,212,0.15); }
-        .module-header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
-        .module-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; }
-        .module-title { font-size: 16px; font-weight: 700; color: #1e293b; }
-        .module-desc { font-size: 13px; color: #64748b; margin-left: 62px; }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
         
-        footer { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 12px; }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card-glass {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 15px 40px rgba(118, 75, 162, 0.35);
+            border-radius: 20px;
+        }
+        
+        .prediction-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .prediction-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15); }
+        
+        .accuracy-ring {
+            background: conic-gradient(#22c55e 0deg calc(var(--percent) * 3.6deg), #e5e7eb calc(var(--percent) * 3.6deg) 360deg);
+        }
     </style>
 </head>
-<body>
-    <nav class="glass-nav">
-        <div class="max-w-5xl">
-            <span class="nav-title">📊 预判验证系统</span>
-            <div class="nav-links">
-                <a href="/daily-news-insight/index.html" class="nav-link">首页</a>
-                <a href="/daily-news-insight/daily/latest.html" class="nav-link">日报</a>
-                <a href="/daily-news-insight/intraday/latest.html" class="nav-link">盘中</a>
-                <a href="/daily-news-insight/aftermarket/latest.html" class="nav-link">盘后</a>
-                <a href="/daily-news-insight/industry_chain/latest.html" class="nav-link">产业链</a>
-                <a href="/daily-news-insight/weekly_review/latest.html" class="nav-link">周复盘</a>
-                <a href="/daily-news-insight/weekly_outlook/latest.html" class="nav-link">周前瞻</a>
-                <a href="/daily-news-insight/催化日历/latest.html" class="nav-link">催化日历</a>
-                <a href="/daily-news-insight/周末速递/latest.html" class="nav-link">周末速递</a>
-                <a href="/daily-news-insight/明日催化剂/latest.html" class="nav-link">明日催化</a>
-                <a href="/daily-news-insight/s级催化扫描/latest.html" class="nav-link">S级催化</a>
-                <a href="/daily-news-insight/monthly/latest.html" class="nav-link">月报</a>
+<body class="pb-20">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-teal-600 flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">✅</span>
+                </div>
+                <span class="text-white font-bold text-lg">预判验证闭环</span>
+            </div>
+            <div class="flex items-center space-x-1 flex-wrap gap-1">
+                <a href="/daily-news-insight/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a>
+                <a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a>
+                <a href="/daily-news-insight/intraday/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a>
+                <a href="/daily-news-insight/aftermarket/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a>
+                <a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a>
+                <a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a>
+                <a href="/daily-news-insight/weekly_outlook/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周前瞻</a>
+                <a href="/daily-news-insight/催化日历/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">催化日历</a>
+                <a href="/daily-news-insight/周末速递/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a>
+                <a href="/daily-news-insight/明日催化剂/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a>
+                <a href="/daily-news-insight/s级催化扫描/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a>
+                <a href="/daily-news-insight/monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
             </div>
         </div>
     </nav>
-    
-    <div class="nav-bar" style="margin-top: 76px;">
-        <a href="../index.html" class="nav-item">首页</a>
-        <a href="../daily/latest.html" class="nav-item">日报</a>
-        <a href="../intraday/latest.html" class="nav-item">盘中</a>
-        <a href="../aftermarket/latest.html" class="nav-item">盘后</a>
-        <a href="../industry_chain/latest.html" class="nav-item">产业链</a>
-        <a href="../催化日历/latest.html" class="nav-item">催化日历</a>
-        <a href="../周末速递/latest.html" class="nav-item">周末速递</a>
-    </div>
-    
-    <div class="container">
-        <h1 class="page-title">🎯 预判验证闭环</h1>
-        <p class="page-subtitle">记录预判 → T+N验证 → 准确率统计 → 系统进化</p>
-        
-        <div class="stats-card">
-            <div class="stats-grid">
+
+    <!-- 主内容区 -->
+    <div class="max-w-6xl mx-auto px-4 pt-24">
+        <!-- 系统概览 -->
+        <div class="card-glass p-6 mb-6">
+            <div class="flex items-center justify-between mb-6">
                 <div>
-                    <div class="stat-value">76%</div>
-                    <div class="stat-label">整体准确率</div>
+                    <h1 class="text-2xl font-black text-gray-800 mb-1">预判-验证-进化闭环</h1>
+                    <p class="text-gray-500 text-sm">记录每一次预判，T+N后验证，持续优化分析模型</p>
                 </div>
-                <div>
-                    <div class="stat-value">45</div>
-                    <div class="stat-label">累计预判</div>
+                <div class="flex items-center gap-6">
+                    <!-- 准确率圆环 -->
+                    <div class="flex items-center gap-4">
+                        <div class="relative">
+                            <div class="w-20 h-20 rounded-full accuracy-ring flex items-center justify-center" style="--percent: 76">
+                                <div class="w-16 h-16 rounded-full bg-white flex items-center justify-center">
+                                    <span class="text-2xl font-black text-green-600">76%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-lg font-bold text-gray-800">综合准确率</div>
+                            <div class="text-sm text-gray-500">A级分析师水平</div>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <div class="stat-value">10</div>
-                    <div class="stat-label">待验证</div>
+            </div>
+            
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-4 gap-4">
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 rounded-2xl p-5">
+                    <div class="text-sm text-gray-500 mb-1">累计预判</div>
+                    <div class="text-3xl font-black text-gray-800">45</div>
+                </div>
+                <div class="bg-gradient-to-br from-green-50 to-teal-50 border border-green-100 rounded-2xl p-5">
+                    <div class="text-sm text-gray-500 mb-1">验证正确</div>
+                    <div class="text-3xl font-black text-green-600">34</div>
+                </div>
+                <div class="bg-gradient-to-br from-red-50 to-orange-50 border border-red-100 rounded-2xl p-5">
+                    <div class="text-sm text-gray-500 mb-1">验证错误</div>
+                    <div class="text-3xl font-black text-red-600">5</div>
+                </div>
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-5">
+                    <div class="text-sm text-gray-500 mb-1">待验证</div>
+                    <div class="text-3xl font-black text-blue-600">6</div>
                 </div>
             </div>
         </div>
         
-        <a href="/daily-news-insight/预判验证/records/20260520_预判记录.html" class="module-card">
-            <div class="module-header">
-                <div class="module-icon">📝</div>
-                <div class="module-title">预判记录</div>
+        <!-- 待验证预判 -->
+        <div class="card-glass p-6 mb-6">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="w-3 h-8 rounded-full bg-blue-500"></span>
+                待验证预判
+                <span class="text-xs text-gray-400 font-normal ml-2">共6项等待验证</span>
+            </h2>
+            
+            <div class="space-y-4">
+                <!-- 预判1 -->
+                <div class="prediction-card bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-5">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-semibold">T+2验证</span>
+                                <span class="text-sm text-gray-500">预期：6月3日</span>
+                                <span class="text-sm text-gray-400">|</span>
+                                <span class="text-sm text-gray-500">英伟达产业链</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-lg">黄仁勋COMPUTEX演讲催化英伟达产业链上涨</h3>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-500">预判时间</div>
+                            <div class="font-semibold text-gray-700">5月29日</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">预判逻辑：Rubin架构发布、N1X Arm PC芯片曝光，有望带动AI算力产业链情绪高涨。关注光模块、液冷、PCB环节弹性标的。</p>
+                    <div class="flex items-center gap-3 text-sm">
+                        <span class="text-gray-500"><strong>关注标的：</strong>工业富联、中际旭创、英维克、沪电股份</span>
+                    </div>
+                </div>
+                
+                <!-- 预判2 -->
+                <div class="prediction-card bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-5">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-semibold">T+5验证</span>
+                                <span class="text-sm text-gray-500">预期：6月6日</span>
+                                <span class="text-sm text-gray-400">|</span>
+                                <span class="text-sm text-gray-500">存储芯片</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-lg">存储芯片超级周期确认，HBM3E持续涨价</h3>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-500">预判时间</div>
+                            <div class="font-semibold text-gray-700">5月30日</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">预判逻辑：AI服务器渗透率加速，HBM3E供需缺口扩大，三星/海力士/美光持续提价。国产替代逻辑下，万润科技、兆易创新等标的有望享受量价齐升。</p>
+                </div>
+                
+                <!-- 预判3 -->
+                <div class="prediction-card bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-5">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-semibold">T+3验证</span>
+                                <span class="text-sm text-gray-500">预期：6月上旬</span>
+                                <span class="text-sm text-gray-400">|</span>
+                                <span class="text-sm text-gray-500">*ST建艺</span>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-lg">*ST建艺摘帽申请获深交所通过</h3>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-500">预判时间</div>
+                            <div class="font-semibold text-gray-700">5月28日</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">预判逻辑：公司各项摘帽条件已满足，4月提交申请，正常审核周期约1-2个月，预计6月上旬获得批复。叠加城市更新政策催化，估值修复空间约30-50%。</p>
+                </div>
             </div>
-            <div class="module-desc">查看所有历史预判记录，按日期归档</div>
-        </a>
+        </div>
         
-        <a href="#" class="module-card">
-            <div class="module-header">
-                <div class="module-icon">✅</div>
-                <div class="module-title">验证任务</div>
+        <!-- 历史验证记录 -->
+        <div class="card-glass p-6">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="w-3 h-8 rounded-full bg-green-500"></span>
+                近期验证记录
+                <span class="text-xs text-gray-400 font-normal ml-2">最近5次验证结果</span>
+            </h2>
+            
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-4 bg-green-50 border border-green-100 rounded-xl">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center text-white text-xl">✓</div>
+                        <div>
+                            <div class="font-bold text-gray-800">铜冠铜箔HVLP铜箔国产替代逻辑验证</div>
+                            <div class="text-sm text-gray-500">预判：5月15日 | 验证：5月22日</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-green-600 font-bold text-lg">+30.8% 兑现</div>
+                        <div class="text-sm text-gray-400">7个交易日</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 bg-green-50 border border-green-100 rounded-xl">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center text-white text-xl">✓</div>
+                        <div>
+                            <div class="font-bold text-gray-800">英伟达GTC会议催化AI算力板块</div>
+                            <div class="text-sm text-gray-500">预判：3月10日 | 验证：3月20日</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-green-600 font-bold text-lg">+18.5% 兑现</div>
+                        <div class="text-sm text-gray-400">10个交易日</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 bg-red-50 border border-red-100 rounded-xl">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center text-white text-xl">✗</div>
+                        <div>
+                            <div class="font-bold text-gray-800">英维克液冷业务超预期增长</div>
+                            <div class="text-sm text-gray-500">预判：5月10日 | 验证：5月20日</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-red-600 font-bold text-lg">-12.7% 未兑现</div>
+                        <div class="text-sm text-gray-400">板块调整拖累</div>
+                    </div>
+                </div>
             </div>
-            <div class="module-desc">T+2/T+3/T+5定期验证任务队列</div>
-        </a>
+        </div>
         
-        <a href="#" class="module-card">
-            <div class="module-header">
-                <div class="module-icon">📊</div>
-                <div class="module-title">准确率统计</div>
-            </div>
-            <div class="module-desc">分维度准确率统计与分析报告</div>
-        </a>
-        
-        <a href="#" class="module-card">
-            <div class="module-header">
-                <div class="module-icon">🧠</div>
-                <div class="module-title">错误教训库</div>
-            </div>
-            <div class="module-desc">从错误中学习，优化预判模型</div>
-        </a>
+        <!-- 页脚 -->
+        <div class="text-center text-white/60 text-sm py-10">
+            <p>MLCC Pro v2.0 · 预判验证闭环系统</p>
+            <p class="text-xs mt-2">仅供参考，不构成投资建议</p>
+        </div>
     </div>
-    
-    <footer>
-        <p>仅供参考，不构成投资建议</p>
-    </footer>
 </body>
 </html>

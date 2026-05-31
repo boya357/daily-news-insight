@@ -4,368 +4,275 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>持仓智能预警仪表盘</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { height: 100%; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', sans-serif; 
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); 
-            color: #e2e8f0; 
-            line-height: 1.6; 
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+        
+        * { font-family: 'Noto Sans SC', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
         }
-        .glass-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(15,23,42,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .glass-nav .max-w-5xl { max-width: 90rem; margin: 0 auto; padding: 0 1rem; display: flex; align-items: center; justify-content: space-between; height: 56px; }
-        .glass-nav .nav-title { font-size: 17px; font-weight: 700; background: linear-gradient(135deg, #22c55e, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .glass-nav .nav-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        .glass-nav .nav-link { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 13px; padding: 0.375rem 0.75rem; border-radius: 0.5rem; transition: all 0.2s; }
-        .glass-nav .nav-link:hover { color: white; background: rgba(255,255,255,0.1); }
-        .glass-nav .nav-link.active { color: white; background: rgba(255,255,255,0.2); }
-        .container { max-width: 700px; margin: 0 auto; padding: 76px 20px 100px; }
         
-        .risk-overview { 
-            background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(220,38,38,0.1)); 
-            border: 1px solid rgba(239,68,68,0.3);
-            border-radius: 20px; 
-            padding: 24px; 
-            margin-bottom: 20px;
-        }
-        .risk-score-circle {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: conic-gradient(#ef4444 calc(var(--score) * 1%), rgba(255,255,255,0.1) 0);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-            position: relative;
-        }
-        .risk-score-inner {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: #1e293b;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .risk-score-number { font-size: 36px; font-weight: 800; color: #ef4444; }
-        .risk-score-label { font-size: 12px; color: #94a3b8; }
-        .risk-title { text-align: center; font-size: 18px; font-weight: 700; color: #ef4444; margin-bottom: 8px; }
-        .risk-desc { text-align: center; font-size: 13px; color: #cbd5e1; }
-        
-        .section-title { font-size: 14px; font-weight: 600; color: #94a3b8; margin: 24px 0 12px; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .stock-card {
-            background: rgba(30,41,59,0.8);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-        }
-        .stock-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-        .stock-name { font-size: 18px; font-weight: 700; color: #f1f5f9; }
-        .stock-code { font-size: 13px; color: #94a3b8; margin-left: 8px; }
-        .stock-price { font-size: 14px; font-weight: 600; }
-        .price-up { color: #22c55e; }
-        .price-down { color: #ef4444; }
-        
-        .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
-        .info-item { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; text-align: center; }
-        .info-label { font-size: 11px; color: #94a3b8; margin-bottom: 4px; }
-        .info-value { font-size: 15px; font-weight: 600; color: #f1f5f9; }
-        
-        .alert-section { margin-bottom: 12px 0; }
-        .alert-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-        .alert-good { color: #22c55e; }
-        .alert-bad { color: #ef4444; }
-        .alert-item {
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-bottom: 8px;
-            font-size: 13px;
-            border-left: 3px solid;
-        }
-        .alert-item.good { border-left-color: #22c55e; background: rgba(34,197,94,0.1); }
-        .alert-item.bad { border-left-color: #ef4444; background: rgba(239,68,68,0.1); }
-        
-        .action-box {
-            background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
-            border: 1px solid rgba(99,102,241,0.3);
-            border-radius: 12px;
-            padding: 14px;
-            margin-top: 16px;
-        }
-        .action-title { font-size: 13px; font-weight: 600; color: #818cf8; margin-bottom: 6px; }
-        .action-content { font-size: 14px; color: #e0e7ff; }
-        
-        .system-link {
-            background: rgba(139,92,246,0.15);
-            border: 1px solid rgba(139,92,246,0.3);
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 24px;
-            text-align: center;
-        }
-        .system-link a {
-            color: #a78bfa;
-            text-decoration: none;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
         
-        .dimensions {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-top: 12px;
+        .card-glass {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 15px 40px rgba(118, 75, 162, 0.35);
+            border-radius: 20px;
         }
-        .dim-item {
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            padding: 8px 6px;
-            text-align: center;
-            font-size: 11px;
+        
+        .stock-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .stock-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15); }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #22c55e 100%);
         }
-        .dim-active { background: rgba(34,197,94,0.2); color: #22c55e; }
-        .dim-warning { background: rgba(245,158,11,0.2); color: #f59e0b; }
-        .dim-danger { background: rgba(239,68,68,0.2); color: #ef4444; }
     </style>
 </head>
-<body>
-    <nav class="glass-nav">
-        <div class="max-w-5xl">
-            <span class="nav-title">📊 持仓智能预警仪表盘</span>
-            <div class="nav-links">
-                <a href="/daily-news-insight/index.html" class="nav-link">首页</a>
-                <a href="/daily-news-insight/daily/latest.html" class="nav-link">日报</a>
-                <a href="/daily-news-insight/intraday/latest.html" class="nav-link">盘中</a>
-                <a href="/daily-news-insight/aftermarket/latest.html" class="nav-link">盘后</a>
-                <a href="/daily-news-insight/industry_chain/latest.html" class="nav-link">产业链</a>
-                <a href="/daily-news-insight/weekly_review/latest.html" class="nav-link">周复盘</a>
-                <a href="/daily-news-insight/weekly_outlook/latest.html" class="nav-link">周前瞻</a>
-                <a href="/daily-news-insight/催化日历/latest.html" class="nav-link">催化日历</a>
-                <a href="/daily-news-insight/周末速递/latest.html" class="nav-link">周末速递</a>
-                <a href="/daily-news-insight/明日催化剂/latest.html" class="nav-link">明日催化</a>
-                <a href="/daily-news-insight/s级催化扫描/latest.html" class="nav-link">S级催化</a>
-                <a href="/daily-news-insight/monthly/latest.html" class="nav-link">月报</a>
+<body class="pb-20">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">📊</span>
+                </div>
+                <span class="text-white font-bold text-lg">持仓智能预警仪表盘</span>
+            </div>
+            <div class="flex items-center space-x-1 flex-wrap gap-1">
+                <a href="/daily-news-insight/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a>
+                <a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a>
+                <a href="/daily-news-insight/intraday/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a>
+                <a href="/daily-news-insight/aftermarket/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a>
+                <a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a>
+                <a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a>
+                <a href="/daily-news-insight/weekly_outlook/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周前瞻</a>
+                <a href="/daily-news-insight/催化日历/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">催化日历</a>
+                <a href="/daily-news-insight/周末速递/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a>
+                <a href="/daily-news-insight/明日催化剂/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a>
+                <a href="/daily-news-insight/s级催化扫描/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a>
+                <a href="/daily-news-insight/monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
             </div>
         </div>
     </nav>
-    
-    <div class="container">
-        <div class="risk-overview" style="--score: 65;">
-            <div class="risk-score-circle">
-                <div class="risk-score-inner">
-                    <span class="risk-score-number">65</span>
-                    <span class="risk-score-label">风险评分</span>
+
+    <!-- 主内容区 -->
+    <div class="max-w-6xl mx-auto px-4 pt-24">
+        <!-- 组合概览 -->
+        <div class="card-glass p-6 mb-6">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-black text-gray-800 mb-1">持仓组合实时监控</h1>
+                    <p class="text-gray-500 text-sm">自动监控止损止盈、异常波动与风险信号</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-500 mb-1">持仓总盈亏</div>
+                    <div class="text-3xl font-black text-green-600">+5.83%</div>
+                    <div class="text-xs text-gray-400 mt-1">更新时间：2026-05-29 收盘</div>
                 </div>
             </div>
-            <div class="risk-title">🟡 中等风险</div>
-            <div class="risk-desc">英维克继续下跌已跌破止损位，铜冠铜箔回调但仍处于强势区间，ST建艺小幅上涨维持安全。周末证监会释放护盘信号，整体风险可控但需严格执行纪律。</div>
-        </div>
-        
-        <div class="section-title">持仓明细与预警系统关联说明</div>
-        <div class="dimensions">
-            <div class="dim-item dim-active">🟢 监管风险（周末释放护盘信号）</div>
-            <div class="dim-item dim-active">🟡 业绩地雷</div>
-            <div class="dim-item dim-active">🟡 流动性</div>
-            <div class="dim-item dim-active">🟡 产业催化</div>
-            <div class="dim-item dim-active">🟡 地缘政治</div>
-            <div class="dim-item dim-danger">🔴 止损触发</div>
-        </div>
-        
-        <div class="section-title">持仓个股深度分析</div>
-        
-        <!-- 英维克 -->
-        <div class="stock-card">
-            <div class="stock-header">
-            <div>
-                <span class="stock-name">英维克</span>
-                <span class="stock-code">002837</span>
-            </div>
-            <span class="stock-price price-down">-6.69%</span>
-        </div>
-        <div class="info-grid">
-            <div class="info-item">
-                <div class="info-label">成本价</div>
-                <div class="info-value">104.23</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">止损位</div>
-                <div class="info-value">98.00</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">最新收盘价</div>
-                <div class="info-value">91.00</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">盈亏</div>
-                <div class="info-value" style="color:#ef4444">-12.69%</div>
+            
+            <!-- 组合统计卡片 -->
+            <div class="grid grid-cols-4 gap-4">
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-5">
+                    <div class="text-sm text-gray-500 mb-1">持仓标的</div>
+                    <div class="text-3xl font-black text-gray-800">3</div>
+                </div>
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 rounded-2xl p-5">
+                    <div class="text-sm text-gray-500 mb-1">盈利标的</div>
+                    <div class="text-3xl font-black text-green-600">1</div>
+                </div>
+                <div class="bg-gradient-to-br from-red-50 to-orange-50 border border-red-100 rounded-2xl p-5">
+                    <div class="text-sm text-gray-500 mb-1">需止损</div>
+                    <div class="text-3xl font-black text-red-600">1</div>
+                </div>
+                <div class="bg-gradient-to-br from-yellow-50 to-amber-50 border border-yellow-100 rounded-2xl p-5">
+                    <div class="text-sm text-gray-500 mb-1">风险等级</div>
+                    <div class="text-2xl font-black text-yellow-600">中 ⚠️</div>
+                </div>
             </div>
         </div>
         
-        <div class="alert-section">
-            <div class="alert-title alert-good">🟢 利好支撑</div>
-            <div class="alert-item good">
-                <strong>产业催化：</strong> 液冷赛道长期逻辑不变，GB300液冷刚需逻辑确认；周末电力投资新政加持新能源+电网
+        <!-- 持仓明细卡片 -->
+        <div class="card-glass p-6 mb-6">
+            <h2 class="text-lg font-bold text-gray-800 mb-4">
+                <span class="text-blue-500 mr-2">💼</span>持仓明细
+            </h2>
+            
+            <!-- 英维克 -->
+            <div class="stock-card bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-2xl p-6 mb-4">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-14 h-14 rounded-2xl bg-red-500 flex items-center justify-center text-white text-2xl">🔴</div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-xl font-black text-gray-800">英维克</h3>
+                                <span class="text-gray-400 text-sm">002837</span>
+                            </div>
+                            <span class="bg-red-100 text-red-600 text-xs px-3 py-1 rounded-full font-semibold mt-1 inline-block">需立即止损</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-3xl font-black text-red-600">-12.69%</div>
+                        <div class="text-sm text-gray-500">持仓盈亏</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-4 gap-4 mb-4">
+                    <div class="bg-white/60 rounded-xl p-3">
+                        <div class="text-xs text-gray-500 mb-1">成本价</div>
+                        <div class="text-lg font-bold text-gray-700">104.23</div>
+                    </div>
+                    <div class="bg-white/60 rounded-xl p-3">
+                        <div class="text-xs text-gray-500 mb-1">最新价</div>
+                        <div class="text-lg font-bold text-gray-700">91.00</div>
+                    </div>
+                    <div class="bg-white/60 rounded-xl p-3">
+                        <div class="text-xs text-gray-500 mb-1">止损价</div>
+                        <div class="text-lg font-bold text-red-600">98.00</div>
+                    </div>
+                    <div class="bg-white/60 rounded-xl p-3">
+                        <div class="text-xs text-gray-500 mb-1">距止损</div>
+                        <div class="text-lg font-bold text-red-600">-7.58%</div>
+                    </div>
+                </div>
+                
+                <!-- 风险进度条 -->
+                <div class="relative">
+                    <div class="h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full progress-bar rounded-full" style="width: 85%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500 mt-2">
+                        <span>安全区</span>
+                        <span>警戒区</span>
+                        <span class="text-red-600 font-semibold">止损区 ⬅ 当前</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 铜冠铜箔 -->
+            <div class="stock-card bg-gradient-to-r from-yellow-50 to-green-50 border border-yellow-200 rounded-2xl p-6 mb-4">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-14 h-14 rounded-2xl bg-yellow-500 flex items-center justify-center text-white text-2xl">🟡</div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-xl font-black text-gray-800">铜冠铜箔</h3>
+                                <span class="text-gray-400 text-sm">301217</span>
+                            </div>
+                            <span class="bg-yellow-100 text-yellow-700 text-xs px-3 py-1 rounded-full font-semibold mt-1 inline-block">高位放量回调</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-3xl font-black text-green-600">+30.80%</div>
+                        <div class="text-sm text-gray-500">持仓盈亏</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="bg-white/60 rounded-xl p-3">
+                        <div class="text-xs text-gray-500 mb-1">成本价</div>
+                        <div class="text-lg font-bold text-gray-700">87.16</div>
+                    </div>
+                    <div class="bg-white/60 rounded-xl p-3">
+                        <div class="text-xs text-gray-500 mb-1">最新价</div>
+                        <div class="text-lg font-bold text-gray-700">114.00</div>
+                    </div>
+                    <div class="bg-white/60 rounded-xl p-3">
+                        <div class="text-xs text-gray-500 mb-1">止损价</div>
+                        <div class="text-lg font-bold text-gray-700">85.00</div>
+                    </div>
+                    <div class="bg-white/60 rounded-xl p-3">
+                        <div class="text-xs text-gray-500 mb-1">安全边际</div>
+                        <div class="text-lg font-bold text-green-600">+34.12%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- *ST建艺 -->
+            <div class="stock-card bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-6">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-14 h-14 rounded-2xl bg-green-500 flex items-center justify-center text-white text-2xl">🟢</div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-xl font-black text-gray-800">*ST建艺</h3>
+                                <span class="text-gray-400 text-sm">002789</span>
+                            </div>
+                            <span class="bg-green-100 text-green-600 text-xs px-3 py-1 rounded-full font-semibold mt-1 inline-block">回升至止损位上方</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-3xl font-black text-gray-600">-1.56%</div>
+                        <div class="text-sm text-gray-500">持仓盈亏</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-4 gap-4 mb-4">
+                    <div class="bg-white/60 rounded-xl p-3">
+                        <div class="text-xs text-gray-500 mb-1">成本价</div>
+                        <div class="text-lg font-bold text-gray-700">~13.45</div>
+                    </div>
+                    <div class="bg-white/60 rounded-xl p-3">
+                        <div class="text-xs text-gray-500 mb-1">最新价</div>
+                        <div class="text-lg font-bold text-gray-700">13.24</div>
+                    </div>
+                    <div class="bg-white/60 rounded-xl p-3">
+                        <div class="text-xs text-gray-500 mb-1">止损价</div>
+                        <div class="text-lg font-bold text-gray-700">12.50</div>
+                    </div>
+                    <div class="bg-white/60 rounded-xl p-3">
+                        <div class="text-xs text-gray-500 mb-1">安全边际</div>
+                        <div class="text-lg font-bold text-green-600">+5.92%</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2 text-sm text-gray-500">
+                    <i class="fa fa-info-circle text-blue-500"></i>
+                    <span>摘帽审批进行中，关注6月上旬深交所审批结果</span>
+                </div>
             </div>
         </div>
         
-        <div class="alert-section">
-            <div class="alert-title alert-bad">🔴 风险提示</div>
-            <div class="alert-item bad">
-                <strong>⚠️ 止损触发：</strong> 已跌破98元止损位7元，最低探至88.02元，必须立即执行止损纪律
-            </div>
-            <div class="alert-item bad">
-                <strong>技术面：</strong> 连续两日大幅下跌，累计跌幅超12%，短期趋势走弱
-            </div>
-            <div class="alert-item bad">
-                <strong>资金面：</strong> 周五主力资金净流出13.6亿元，抛压严重
+        <!-- 资金流向监控 -->
+        <div class="card-glass p-6">
+            <h2 class="text-lg font-bold text-gray-800 mb-4">
+                <span class="text-purple-500 mr-2">💰</span>主力资金流向
+            </h2>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <span class="font-bold text-gray-800">英维克</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-red-600 font-bold">-13.59亿</span>
+                        <span class="text-sm text-gray-500">主力净流出</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <span class="font-bold text-gray-800">铜冠铜箔</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-red-600 font-bold">-3.36亿</span>
+                        <span class="text-sm text-gray-500">主力净流出</span>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <div class="action-box">
-            <div class="action-title">📋 操作建议</div>
-            <div class="action-content">
-                🔴 <strong>止损位已严重跌破！</strong> 严格执行止损纪律，跌破98元必须止损；液冷长期逻辑不变，可观察Q3业绩确认后重新布局
-            </div>
+        <!-- 页脚 -->
+        <div class="text-center text-white/60 text-sm py-10">
+            <p>MLCC Pro v2.0 · 持仓智能预警仪表盘</p>
+            <p class="text-xs mt-2">仅供参考，不构成投资建议</p>
         </div>
     </div>
-    
-    <!-- 铜冠铜箔 -->
-    <div class="stock-card">
-        <div class="stock-header">
-            <div>
-                <span class="stock-name">铜冠铜箔</span>
-                <span class="stock-code">301217</span>
-            </div>
-            <span class="stock-price price-down">-4.27%</span>
-        </div>
-        <div class="info-grid">
-            <div class="info-item">
-                <div class="info-label">成本价</div>
-                <div class="info-value">87.16</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">止损位</div>
-                <div class="info-value">85.00</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">最新收盘价</div>
-                <div class="info-value">114.00</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">盈亏</div>
-                <div class="info-value" style="color:#22c55e">+30.80%</div>
-            </div>
-        </div>
-        
-        <div class="alert-section">
-            <div class="alert-title alert-good">🟢 利好支撑</div>
-            <div class="alert-item good">
-                <strong>产业催化：</strong> 英伟达AI服务器PCB需求爆发，HVLP铜箔缺口确认；周末指数调整纳入科技权重
-            </div>
-            <div class="alert-item good">
-                <strong>技术面：</strong> 5月创历史新高，正常回调，仍维持强势区间，远离85元止损位
-            </div>
-            <div class="alert-item good">
-                <strong>业绩：</strong> 铜价下跌利好成本端，Q3业绩有望超预期
-            </div>
-        </div>
-        
-        <div class="alert-section">
-            <div class="alert-title alert-bad">⚠️ 短期风险</div>
-            <div class="alert-item bad">
-                <strong>资金面：</strong> 周五主力资金净流出3.36亿元，短期获利盘了结
-            </div>
-            <div class="alert-item bad">
-                <strong>板块风险：</strong> 国家大基金密集减持半导体，科技板块整体承压
-            </div>
-        </div>
-        
-        <div class="action-box">
-            <div class="action-title">📋 操作建议</div>
-            <div class="action-content">
-                🟢 85元止损位坚定持有，浮盈+30.80%；目标价保守120元/中性148元/乐观183元，PCB铜箔爆发逻辑持续验证，回调可加仓
-            </div>
-        </div>
-    </div>
-    
-    <!-- ST建艺 -->
-    <div class="stock-card">
-        <div class="stock-header">
-            <div>
-                <span class="stock-name">*ST建艺</span>
-                <span class="stock-code">002789</span>
-            </div>
-            <span class="stock-price price-up">+1.69%</span>
-        </div>
-        <div class="info-grid">
-            <div class="info-item">
-                <div class="info-label">成本价</div>
-                <div class="info-value">13.45</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">止损位</div>
-                <div class="info-value">12.50</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">最新收盘价</div>
-                <div class="info-value">13.24</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">盈亏</div>
-                <div class="info-value" style="color:#ef4444">-1.56%</div>
-            </div>
-        </div>
-        
-        <div class="alert-section">
-            <div class="alert-title alert-good">🟢 利好支撑</div>
-            <div class="alert-item good">
-                <strong>摘帽预期：</strong> 年报已出，退市风险解除，补充材料中
-            </div>
-            <div class="alert-item good">
-                <strong>技术面：</strong> 周五继续上涨，已站稳12.5元止损位上方
-            </div>
-            <div class="alert-item good">
-                <strong>政策催化：</strong> 周末国务院发布城市更新"十五五"规划，10万亿赛道，基建链受益
-            </div>
-        </div>
-        
-        <div class="alert-section">
-            <div class="alert-title alert-bad">🔴 风险提示</div>
-            <div class="alert-item good">
-                <strong>✅ 风险解除：</strong> 已回升至12.5元止损位上方，短期止损风险完全解除
-            </div>
-            <div class="alert-item bad">
-                <strong>摘星时间：</strong> 补充材料阶段，摘星时间可能延长
-            </div>
-        </div>
-        
-        <div class="action-box">
-            <div class="action-title">📋 操作建议</div>
-            <div class="action-content">
-                🟢 <strong>止损风险已完全解除！</strong> 周五继续上涨，叠加城市更新政策催化，可继续持有观察；摘星逻辑不变，等待后续公告进展
-            </div>
-        </div>
-    </div>
-    
-    <div class="system-link">
-        <a href="/daily-news-insight/智能预警系统/index.html">
-            🔗 查看完整智能预警系统 V2.0 →
-        </a>
-    </div>
-    </div>
-    
-    <script>
-        document.getElementById('today').textContent = '5月30日';
-    </script>
 </body>
 </html>
