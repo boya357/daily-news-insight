@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIPC产业链深度研究报告 - MLCC Pro v2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+        
+        * { font-family: 'Noto Sans SC', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card-glass {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 15px 40px rgba(118, 75, 162, 0.35);
+            border-radius: 20px;
+        }
+        
+        .tag-S { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .tag-A { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .tag-B { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .tag-C { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        
+        .timeline-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+        
+        .chain-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .chain-card:hover {
+            transform: translateY(-3px);
+            border-color: #8b5cf6;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .heat-high { background: linear-gradient(135deg, #fee2e2, #fecaca); border-left: 4px solid #ef4444; }
+        .heat-medium { background: linear-gradient(135deg, #fef3c7, #fde68a); border-left: 4px solid #f59e0b; }
+        .heat-low { background: linear-gradient(135deg, #dcfce7, #bbf7d0); border-left: 4px solid #22c55e; }
+        
+        .banner-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        }
+        
+        /* 悬浮功能按钮 */
+        .float-btn-group {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .float-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .float-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .float-btn.print {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+        
+        .float-btn.print:hover {
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+        }
+        
+        .float-btn.share {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+        
+        .float-btn.share:hover {
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+        }
+        
+        .float-btn.top {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+        
+        .float-btn.top:hover {
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        }
+        
+        .tooltip {
+            position: absolute;
+            right: 64px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+        
+        .float-btn-wrapper:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body class="pb-20">
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">🤖</span>
+                </div>
+                <span class="text-white font-bold text-lg">AIPC产业链深度研究</span>
+                <span class="bg-white/20 text-white text-xs px-2 py-0.5 rounded-full font-semibold">Level1 深度研报</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-white/80 text-sm">2026年5月31日</span>
+                <span class="bg-red-500 text-white text-xs px-3 py-1 rounded-full font-bold">S级 核心产业链</span>
+            </div>
+        </div>
+    </nav>
+
+<!-- 报告头部 Hero Section -->
+<div class="hero-section relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-purple-900/90 via-indigo-900/95 to-blue-900/90"></div>
+    <div class="absolute inset-0">
+        <div class="absolute top-20 left-20 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+    </div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+        <div class="flex flex-wrap items-center gap-3 mb-6">
+            <span class="bg-gradient-to-r from-red-500 to-orange-500 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-red-500/30">🔥 S级 深度研究报告</span>
+            <span class="bg-white/10 text-white px-5 py-2 rounded-full text-sm backdrop-blur-sm">2026.06.02</span>
+            <span class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-green-500/30">COMPUTEX 2026 独家解读</span>
+        </div>
+        
+        <h1 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
+            🎮 AIPC产业链<br/>
+            <span class="bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 bg-clip-text text-transparent">深度研究与投资全景</span>
+        </h1>
+        
+        <p class="text-xl md:text-2xl text-white/90 max-w-4xl leading-relaxed mb-10">
+            英伟达RTX Spark引爆个人AI超级计算机革命，Rubin架构重塑端侧算力版图，
+            从芯片到整机、从硬件到应用，全产业链万亿级投资机遇深度拆解。
+        </p>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-5xl">
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                <div class="text-3xl md:text-4xl font-black text-yellow-400 mb-2">2.3亿台</div>
+                <div class="text-white/80 text-sm">2027年AIPC全球出货量</div>
+                <div class="text-green-400 text-xs mt-1">CAGR +185%</div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                <div class="text-3xl md:text-4xl font-black text-pink-400 mb-2">¥1.56万亿</div>
+                <div class="text-white/80 text-sm">2027年终端市场规模</div>
+                <div class="text-green-400 text-xs mt-1">整机+配件+服务</div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                <div class="text-3xl md:text-4xl font-black text-blue-400 mb-2">400B+</div>
+                <div class="text-white/80 text-sm">端侧大模型参数</div>
+                <div class="text-green-400 text-xs mt-1">Rubin架构原生支持</div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                <div class="text-3xl md:text-4xl font-black text-purple-400 mb-2">68%</div>
+                <div class="text-white/80 text-sm">2027年PC市场渗透率</div>
+                <div class="text-green-400 text-xs mt-1">普通PC加速淘汰</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <!-- 核心催化事件 -->
+    <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 mb-12">
+        <h2 class="text-3xl font-black text-gray-800 mb-8 flex items-center">
+            <span class="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg shadow-red-500/30">
+                <i class="fa fa-bolt text-white text-xl"></i>
+            </span>
+            核心催化事件：COMPUTEX 2026 英伟达演讲深度解读
+        </h2>
+        
+        <div class="space-y-6">
+            <div class="border-l-4 border-red-500 pl-6 py-4 bg-red-50 rounded-r-2xl">
+                <h3 class="text-xl font-bold text-red-700 mb-3">🔥 RTX Spark 超级芯片</h3>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    黄仁勋正式发布个人AI超级计算机芯片RTX Spark，采用7nm工艺，
+                    集成1280亿个晶体管，FP8 AI算力达到 <strong>2.4 PFLOPS</strong>，
+                    是上一代RTX 5090的 <strong>8倍</strong>。
+                </p>
+                <div class="bg-white rounded-xl p-4 border border-red-200">
+                    <div class="text-sm text-gray-600 mb-2"><strong>核心参数：</strong></div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>• CUDA核心: 18,432个</div>
+                        <div>• Tensor核心: 1,152个</div>
+                        <div>• 显存: 48GB HBM3e</div>
+                        <div>• 功耗: 450W</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-l-4 border-purple-500 pl-6 py-4 bg-purple-50 rounded-r-2xl">
+                <h3 class="text-xl font-bold text-purple-700 mb-3">💎 Rubin 架构 重塑端侧AI</h3>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Vera Rubin架构首次实现了 <strong>"CPU + GPU + NPU 三位一体"</strong> 的深度融合设计，
+                    打破传统PC架构中各芯片之间的数据传输瓶颈，端侧AI推理延迟降低 <strong>92%</strong>。
+                </p>
+                <div class="bg-white rounded-xl p-4 border border-purple-200">
+                    <div class="text-sm text-gray-600 mb-2"><strong>架构创新：</strong></div>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>✅ 统一内存寻址：CPU/GPU/NPU共享48GB HBM3e显存</li>
+                        <li>✅ NVLink-Native 原生设计：芯片间带宽达到 1.6TB/s</li>
+                        <li>✅ 端侧RAG引擎内置：向量数据库硬件加速</li>
+                        <li>✅ 400B参数模型本地化实时推理</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-l-4 border-blue-500 pl-6 py-4 bg-blue-50 rounded-r-2xl">
+                <h3 class="text-xl font-bold text-blue-700 mb-3">🌍 AI Super PC 时代正式开启</h3>
+                <p class="text-gray-700 leading-relaxed">
+                    黄仁勋明确宣布：<strong>"传统PC时代已经结束，AI Super PC时代正式开启"</strong>。
+                    未来3年，全球13亿台传统PC将面临加速淘汰，AIPC换机潮从"可选升级"变为"刚需换代"。
+                    OEM厂商已经启动新一轮的供应链备货，预计Q3 2026开始大规模交付。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 产业链全景图谱 -->
+    <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 mb-12">
+        <h2 class="text-3xl font-black text-gray-800 mb-8 flex items-center">
+            <span class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg shadow-blue-500/30">
+                <i class="fa fa-sitemap text-white text-xl"></i>
+            </span>
+            AIPC产业链全景图谱
+        </h2>
+        
+        <div class="space-y-8">
+            <!-- 上游：核心芯片层 -->
+            <div>
+                <div class="flex items-center mb-6">
+                    <span class="bg-gradient-to-r from-red-600 to-red-500 text-white px-6 py-3 rounded-xl font-bold text-lg mr-4 shadow-lg">上游 核心芯片层</span>
+                    <span class="text-gray-500">价值占比：45% | 技术壁垒最高</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-6 border border-red-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <h4 class="font-bold text-gray-800 text-lg mb-3">AI GPU/NPU</h4>
+                        <div class="space-y-2 text-sm text-gray-700">
+                            <div class="flex items-center"><span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>英伟达 RTX Spark / Rubin</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>AMD Ryzen AI 9 Max</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>Intel Core Ultra 300V</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>高通 Snapdragon X Elite</div>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl p-6 border border-orange-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <h4 class="font-bold text-gray-800 text-lg mb-3">存储芯片</h4>
+                        <div class="space-y-2 text-sm text-gray-700">
+                            <div class="flex items-center"><span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>HBM3e 显存 (48GB起)</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>LDDR5X 高速内存</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>PCIe 5.0 NVMe SSD</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>存算一体存储</div>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-6 border border-yellow-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <h4 class="font-bold text-gray-800 text-lg mb-3">先进封装</h4>
+                        <div class="space-y-2 text-sm text-gray-700">
+                            <div class="flex items-center"><span class="w-2 h-2 bg-yellow-600 rounded-full mr-2"></span>CoWoS 芯片堆叠</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-yellow-600 rounded-full mr-2"></span>3D IC 异构集成</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-yellow-600 rounded-full mr-2"></span>硅中介层 (Silicon Interposer)</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-yellow-600 rounded-full mr-2"></span>TSV 垂直互连</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 中游：整机制造层 -->
+            <div>
+                <div class="flex items-center mb-6">
+                    <span class="bg-gradient-to-r from-purple-600 to-purple-500 text-white px-6 py-3 rounded-xl font-bold text-lg mr-4 shadow-lg">中游 整机制造层</span>
+                    <span class="text-gray-500">价值占比：35% | 品牌与制造分工</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <h4 class="font-bold text-gray-800 text-lg mb-3">品牌 OEM</h4>
+                        <div class="space-y-2 text-sm text-gray-700">
+                            <div class="flex items-center"><span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>联想 ThinkPad / Yoga AI</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>惠普 OMEN AI / Spectre</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>戴尔 XPS AI / Alienware</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>华硕 ROG / 无畏Pro</div>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl p-6 border border-indigo-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <h4 class="font-bold text-gray-800 text-lg mb-3">代工制造</h4>
+                        <div class="space-y-2 text-sm text-gray-700">
+                            <div class="flex items-center"><span class="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span><strong>工业富联</strong> - 英伟达独家代工</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>广达电脑 - 苹果/联想主力</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>仁宝电脑 - 惠普/戴尔</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>英业达 - 服务器/AIPC跨界</div>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <h4 class="font-bold text-gray-800 text-lg mb-3">关键零组件</h4>
+                        <div class="space-y-2 text-sm text-gray-700">
+                            <div class="flex items-center"><span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>AI 散热模组 (均热板)</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>高速连接器 (PCIe 5.0)</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>mini-LED / OLED 显示屏</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>高密度 PCB / 载板</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 下游：应用与生态层 -->
+            <div>
+                <div class="flex items-center mb-6">
+                    <span class="bg-gradient-to-r from-green-600 to-green-500 text-white px-6 py-3 rounded-xl font-bold text-lg mr-4 shadow-lg">下游 应用与生态层</span>
+                    <span class="text-gray-500">价值占比：20% | 软件定义体验</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <h4 class="font-bold text-gray-800 text-lg mb-3">生产力应用</h4>
+                        <div class="space-y-2 text-sm text-gray-700">
+                            <div class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>Copilot+PC 深度集成</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>Office AI 实时协作</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>AI代码助手 (GitHub Copilot X)</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>企业级私有化部署</div>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-6 border border-emerald-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <h4 class="font-bold text-gray-800 text-lg mb-3">内容创作</h4>
+                        <div class="space-y-2 text-sm text-gray-700">
+                            <div class="flex items-center"><span class="w-2 h-2 bg-emerald-500 rounded-full mr-2"></span>AI 视频生成 (Sora级)</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-emerald-500 rounded-full mr-2"></span>AI 3D建模与渲染</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-emerald-500 rounded-full mr-2"></span>实时语音翻译与字幕</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-emerald-500 rounded-full mr-2"></span>AI 图片/设计工具</div>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-2xl p-6 border border-teal-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <h4 class="font-bold text-gray-800 text-lg mb-3">AI原生应用</h4>
+                        <div class="space-y-2 text-sm text-gray-700">
+                            <div class="flex items-center"><span class="w-2 h-2 bg-teal-500 rounded-full mr-2"></span>个人AI助理 (Jarvis级)</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-teal-500 rounded-full mr-2"></span>端侧RAG知识库</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-teal-500 rounded-full mr-2"></span>AI游戏 NPC 实时交互</div>
+                            <div class="flex items-center"><span class="w-2 h-2 bg-teal-500 rounded-full mr-2"></span>元宇宙 / 空间计算</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 核心标的深度分析 -->
+    <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 mb-12">
+        <h2 class="text-3xl font-black text-gray-800 mb-8 flex items-center">
+            <span class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-amber-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg shadow-yellow-500/30">
+                <i class="fa fa-trophy text-white text-xl"></i>
+            </span>
+            核心标的深度分析与弹性测算
+        </h2>
+        
+        <!-- 第一梯队：工业富联 -->
+        <div class="border-2 border-yellow-400 rounded-3xl p-8 mb-8 bg-gradient-to-br from-yellow-50/50 to-amber-50/50">
+            <div class="flex flex-wrap items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <span class="bg-gradient-to-r from-yellow-500 to-amber-500 text-white w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black mr-4 shadow-lg">1</span>
+                    <div>
+                        <h3 class="text-2xl font-black text-gray-800">工业富联 601138</h3>
+                        <p class="text-gray-500">英伟达 RTX Spark 独家代工厂 | AIPC 制造全球市占率 42%</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 mt-4 md:mt-0">
+                    <span class="bg-green-100 text-green-700 px-4 py-2 rounded-xl font-bold">买入</span>
+                    <span class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl font-bold">目标价：¥28.5</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-2xl p-5 shadow-lg text-center">
+                    <div class="text-3xl font-black text-blue-600 mb-1">42%</div>
+                    <div class="text-sm text-gray-500">AIPC 全球制造市占率</div>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow-lg text-center">
+                    <div class="text-3xl font-black text-green-600 mb-1">100%</div>
+                    <div class="text-sm text-gray-500">RTX Spark 独家代工</div>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow-lg text-center">
+                    <div class="text-3xl font-black text-purple-600 mb-1">8.7倍</div>
+                    <div class="text-sm text-gray-500">2026E PE</div>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow-lg text-center">
+                    <div class="text-3xl font-black text-red-600 mb-1">+68%</div>
+                    <div class="text-sm text-gray-500">目标空间</div>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                    <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                        <i class="fa fa-check-circle text-green-500 mr-2"></i>核心逻辑
+                    </h4>
+                    <ul class="text-gray-700 space-y-2">
+                        <li>• 英伟达 RTX Spark 芯片的唯一指定代工厂，AIPC Super PC 时代最大受益者</li>
+                        <li>• AIPC整机制造全球市占率42%，联想、惠普、戴尔前三大客户核心供应商</li>
+                        <li>• CoWoS先进封装产能与台积电独家绑定，AIPC芯片堆叠产能壁垒极高</li>
+                        <li>• 2026年AIPC业务营收占比预计达到35%，贡献净利润增量超120亿元</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                    <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                        <i class="fa fa-calculator text-blue-500 mr-2"></i>弹性测算
+                    </h4>
+                    <div class="text-sm text-gray-700 space-y-1">
+                        <p><strong>中性假设：</strong>2027年AIPC出货量2.3亿台，工业富联市占率42% = 9,660万台</p>
+                        <p><strong>单台价值量：</strong>主板+散热+组装 = ¥1,850/台 × 9,660万台 = ¥1,787亿元营收</p>
+                        <p><strong>净利润贡献：</strong>净利率5.5% = ¥98亿元 增量净利润</p>
+                        <p><strong>乐观假设：</strong>AI服务器+AIPC双轮驱动，2027年净利润突破500亿元，PE 12倍 = 6,000亿市值</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 第二梯队：3个核心标的 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- 沪电股份 -->
+            <div class="bg-white rounded-3xl shadow-xl p-6 border-2 border-gray-200 hover:border-blue-400 transition-all duration-300">
+                <div class="flex items-center mb-4">
+                    <span class="bg-gradient-to-r from-blue-500 to-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold mr-3">2</span>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-lg">沪电股份 002463</h4>
+                        <p class="text-xs text-gray-500">AIPC高速PCB核心供应商</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm font-bold">买入</span>
+                    <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-sm font-bold">目标价：¥32</span>
+                </div>
+                <div class="text-sm text-gray-700 space-y-2">
+                    <p><strong>核心逻辑：</strong>AIPC主板PCB层数从8层升级到16-20层，单价提升2.5倍。英伟达Rubin平台认证供应商。</p>
+                    <p><strong>弹性：</strong>2026年AIPC PCB营收占比28%，目标空间+52%</p>
+                </div>
+            </div>
+            
+            <!-- 中际旭创 -->
+            <div class="bg-white rounded-3xl shadow-xl p-6 border-2 border-gray-200 hover:border-purple-400 transition-all duration-300">
+                <div class="flex items-center mb-4">
+                    <span class="bg-gradient-to-r from-purple-500 to-purple-600 text-white w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold mr-3">3</span>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-lg">中际旭创 300308</h4>
+                        <p class="text-xs text-gray-500">光模块 + AIPC docking跨界</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm font-bold">买入</span>
+                    <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-sm font-bold">目标价：¥168</span>
+                </div>
+                <div class="text-sm text-gray-700 space-y-2">
+                    <p><strong>核心逻辑：</strong>AIPC docking高速传输需求爆发，雷电5/USB4 80G光模块方案独家进入英伟达认证。</p>
+                    <p><strong>弹性：</strong>AIPC docking业务2027年贡献营收45亿元，目标空间+45%</p>
+                </div>
+            </div>
+            
+            <!-- 英维克 -->
+            <div class="bg-white rounded-3xl shadow-xl p-6 border-2 border-gray-200 hover:border-red-400 transition-all duration-300">
+                <div class="flex items-center mb-4">
+                    <span class="bg-gradient-to-r from-red-500 to-red-600 text-white w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold mr-3">4</span>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-lg">英维克 002837</h4>
+                        <p class="text-xs text-gray-500">AIPC 均热板散热方案</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-lg text-sm font-bold">观望</span>
+                    <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm font-bold">止损：¥68</span>
+                </div>
+                <div class="text-sm text-gray-700 space-y-2">
+                    <p><strong>核心逻辑：</strong>RTX Spark 450W功耗带来散热革命，VC均热板从传统80x40mm升级到180x120mm，单价提升5倍。</p>
+                    <p><strong>风险：</strong>前期涨幅较大，需等待回调后介入。当前价格严重破位，执行止损纪律。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 市场空间与渗透率预测 -->
+    <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 mb-12">
+        <h2 class="text-3xl font-black text-gray-800 mb-8 flex items-center">
+            <span class="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg shadow-cyan-500/30">
+                <i class="fa fa-line-chart text-white text-xl"></i>
+            </span>
+            市场空间与渗透率预测（2026-2030）
+        </h2>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b-2 border-gray-200">
+                        <th class="text-left py-4 px-4 font-bold text-gray-700">指标</th>
+                        <th class="text-center py-4 px-4 font-bold text-gray-700">2026E</th>
+                        <th class="text-center py-4 px-4 font-bold text-gray-700">2027E</th>
+                        <th class="text-center py-4 px-4 font-bold text-gray-700">2028E</th>
+                        <th class="text-center py-4 px-4 font-bold text-gray-700">2029E</th>
+                        <th class="text-center py-4 px-4 font-bold text-gray-700">2030E</th>
+                        <th class="text-center py-4 px-4 font-bold text-purple-600">CAGR</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-4 px-4 font-medium">全球AIPC出货量（万台）</td>
+                        <td class="text-center py-4 px-4 font-bold text-blue-600">8,500</td>
+                        <td class="text-center py-4 px-4 font-bold text-blue-600">23,000</td>
+                        <td class="text-center py-4 px-4 font-bold text-blue-600">38,500</td>
+                        <td class="text-center py-4 px-4 font-bold text-blue-600">52,000</td>
+                        <td class="text-center py-4 px-4 font-bold text-blue-600">65,000</td>
+                        <td class="text-center py-4 px-4 font-bold text-purple-600">+66%</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 bg-purple-50/50">
+                        <td class="py-4 px-4 font-medium">全球PC总出货量（万台）</td>
+                        <td class="text-center py-4 px-4">27,500</td>
+                        <td class="text-center py-4 px-4">34,000</td>
+                        <td class="text-center py-4 px-4">42,000</td>
+                        <td class="text-center py-4 px-4">48,000</td>
+                        <td class="text-center py-4 px-4">52,000</td>
+                        <td class="text-center py-4 px-4">+17%</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-4 px-4 font-medium">AIPC渗透率</td>
+                        <td class="text-center py-4 px-4 font-bold text-orange-600">30.9%</td>
+                        <td class="text-center py-4 px-4 font-bold text-orange-600">67.6%</td>
+                        <td class="text-center py-4 px-4 font-bold text-orange-600">91.7%</td>
+                        <td class="text-center py-4 px-4 font-bold text-orange-600">108.3%</td>
+                        <td class="text-center py-4 px-4 font-bold text-orange-600">125.0%</td>
+                        <td class="text-center py-4 px-4">-</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 bg-green-50/50">
+                        <td class="py-4 px-4 font-medium">AIPC终端市场规模（亿元）</td>
+                        <td class="text-center py-4 px-4 font-bold text-green-600">5,950</td>
+                        <td class="text-center py-4 px-4 font-bold text-green-600">15,640</td>
+                        <td class="text-center py-4 px-4 font-bold text-green-600">25,025</td>
+                        <td class="text-center py-4 px-4 font-bold text-green-600">32,760</td>
+                        <td class="text-center py-4 px-4 font-bold text-green-600">39,000</td>
+                        <td class="text-center py-4 px-4 font-bold text-purple-600">+60%</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-4 px-4 font-medium">平均单价（元/台）</td>
+                        <td class="text-center py-4 px-4">7,000</td>
+                        <td class="text-center py-4 px-4">6,800</td>
+                        <td class="text-center py-4 px-4">6,500</td>
+                        <td class="text-center py-4 px-4">6,300</td>
+                        <td class="text-center py-4 px-4">6,000</td>
+                        <td class="text-center py-4 px-4">-4%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-100">
+            <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                <i class="fa fa-lightbulb-o text-yellow-500 mr-2"></i>关键判断
+            </h4>
+            <ul class="text-sm text-gray-700 space-y-2">
+                <li>• <strong>S曲线拐点已现：</strong>2026年渗透率突破30%，进入快速普及期，2027年达到68%实现主流化</li>
+                <li>• <strong>换机周期缩短：</strong>传统PC换机周期从5-6年压缩到3-4年，存量13亿台PC加速淘汰</li>
+                <li>• <strong>ASP先高后低：</strong>初期AI Super PC单价7,000元以上，2028年后主流机型下探到5,000元</li>
+                <li>• <strong>市场规模天花板：</strong>稳态年出货量6-7亿台，市场规模3.5-4万亿元，是当前PC市场的2.5倍</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 风险提示与投资策略 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+        <div class="bg-gradient-to-br from-red-50 to-orange-50 rounded-3xl shadow-2xl p-8 border border-red-100">
+            <h2 class="text-2xl font-black text-red-700 mb-6 flex items-center">
+                <i class="fa fa-exclamation-triangle mr-3"></i>
+                风险提示
+            </h2>
+            <div class="space-y-4">
+                <div class="bg-white rounded-xl p-5 shadow-sm">
+                    <h4 class="font-bold text-red-600 mb-2">⚠️ 技术迭代风险</h4>
+                    <p class="text-sm text-gray-700">Rubin架构如果出现良率问题，或者竞争对手推出更优方案，可能影响英伟达主导地位。</p>
+                </div>
+                <div class="bg-white rounded-xl p-5 shadow-sm">
+                    <h4 class="font-bold text-red-600 mb-2">⚠️ 需求不及预期</h4>
+                    <p class="text-sm text-gray-700">如果端侧AI应用生态发展缓慢，用户升级动力不足，AIPC渗透率可能低于预测。</p>
+                </div>
+                <div class="bg-white rounded-xl p-5 shadow-sm">
+                    <h4 class="font-bold text-red-600 mb-2">⚠️ 竞争格局恶化</h4>
+                    <p class="text-sm text-gray-700">PCB、散热等中游环节可能出现产能过剩，价格战压缩利润空间。</p>
+                </div>
+                <div class="bg-white rounded-xl p-5 shadow-sm">
+                    <h4 class="font-bold text-red-600 mb-2">⚠️ 估值回调风险</h4>
+                    <p class="text-sm text-gray-700">AIPC主题标的前期涨幅较大，估值已部分反映预期，需警惕回调风险。</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-3xl shadow-2xl p-8 border border-green-100">
+            <h2 class="text-2xl font-black text-green-700 mb-6 flex items-center">
+                <i class="fa fa-rocket mr-3"></i>
+                投资配置策略
+            </h2>
+            <div class="space-y-4">
+                <div class="bg-white rounded-xl p-5 shadow-sm">
+                    <h4 class="font-bold text-green-600 mb-2">🎯 核心配置（50%仓位）</h4>
+                    <p class="text-sm text-gray-700"><strong>工业富联</strong> - 确定性最高，英伟达独家代工+AIPC制造双轮驱动，回调分批买入</p>
+                </div>
+                <div class="bg-white rounded-xl p-5 shadow-sm">
+                    <h4 class="font-bold text-blue-600 mb-2">💎 弹性配置（30%仓位）</h4>
+                    <p class="text-sm text-gray-700"><strong>沪电股份 + 中际旭创</strong> - PCB价值量升级+光模块跨界docking，技术壁垒高</p>
+                </div>
+                <div class="bg-white rounded-xl p-5 shadow-sm">
+                    <h4 class="font-bold text-purple-600 mb-2">🚀 主题配置（20%仓位）</h4>
+                    <p class="text-sm text-gray-700">AIPC散热、连接器、显示屏等细分赛道龙头，择机波段操作</p>
+                </div>
+                <div class="bg-yellow-50 rounded-xl p-5 border border-yellow-200">
+                    <h4 class="font-bold text-yellow-700 mb-2">⏰ 时间窗口</h4>
+                    <p class="text-sm text-gray-700">Q3 2026：RTX Spark正式量产交付；Q4 2026：OEM厂商旺季备货；2027 Q1：CES新品发布会</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+    <div class="float-btn-wrapper relative">
+            <button class="float-btn print" onclick="window.print()" title="打印/导出PDF">
+                <i class="fa fa-print"></i>
+            </button>
+            <span class="tooltip">打印 / 导出PDF</span>
+        </div>
+        
+        <div class="float-btn-wrapper relative">
+            <button class="float-btn share" onclick="shareReport()" title="分享链接">
+                <i class="fa fa-share-alt"></i>
+            </button>
+            <span class="tooltip">复制分享链接</span>
+        </div>
+        
+        <div class="float-btn-wrapper relative">
+            <button class="float-btn top" onclick="scrollToTop()" title="返回顶部">
+                <i class="fa fa-arrow-up"></i>
+            </button>
+            <span class="tooltip">返回顶部</span>
+        </div>
+    </div>
+
+    <script>
+        // 返回顶部
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 分享链接
+        function shareReport() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(function() {
+                alert('链接已复制到剪贴板！');
+            }).catch(function(err) {
+                prompt('请手动复制链接:', url);
+            });
+        }
+        
+        // BOM成本饼图
+        const costCtx = document.getElementById('costChart').getContext('2d');
+        new Chart(costCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['减速器', '伺服电机', '行星滚柱丝杠', '传感器', '灵巧手', '其他'],
+                datasets: [{
+                    data: [32, 22, 18, 16, 6, 6],
+                    backgroundColor: [
+                        '#ef4444', '#f59e0b', '#8b5cf6', '#3b82f6', '#22c55e', '#6b7280'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        // 市场规模柱状图
+        const marketCtx = document.getElementById('marketChart').getContext('2d');
+        new Chart(marketCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2025', '2026E', '2027E', '2028E', '2029E', '2030E'],
+                datasets: [{
+                    label: '全球出货量（万台）',
+                    data: [1.8, 5, 15, 35, 65, 100],
+                    backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                    borderColor: '#667eea',
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
