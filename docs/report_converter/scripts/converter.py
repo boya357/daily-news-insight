@@ -95,6 +95,11 @@ class ReportConverter:
         """转换单个文件"""
         input_path = Path(input_path)
         
+        # 保护：绝对不处理列表页latest.html
+        if 'latest.html' in str(input_path):
+            print(f"⏭️  跳过列表页: {input_path.name}")
+            return None
+        
         # 读取旧文件
         with open(input_path, 'r', encoding='utf-8') as f:
             old_html = f.read()
@@ -135,8 +140,8 @@ class ReportConverter:
         directory = Path(directory)
         html_files = list(directory.rglob(pattern))
         
-        # 排除模板文件和已转换的文件
-        html_files = [f for f in html_files if '_templates' not in str(f) and '_pro' not in str(f)]
+        # 排除模板文件、已转换的文件、列表页(latest.html)
+        html_files = [f for f in html_files if '_templates' not in str(f) and '_pro' not in str(f) and 'latest.html' not in str(f)]
         
         print(f"\n🔍 找到 {len(html_files)} 个待转换文件")
         
