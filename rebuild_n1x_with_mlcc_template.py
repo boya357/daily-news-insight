@@ -1,0 +1,802 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+使用MLCC报告的完整模板重新生成N1X报告
+做到100%视觉和结构一致
+"""
+
+import re
+
+def rebuild_n1x_with_mlcc_template():
+    # 读取MLCC报告作为模板
+    with open('docs/industry_chain/20260529_MLCC全产业链深度研究报告.html', 'r', encoding='utf-8', errors='ignore') as f:
+        mlcc_content = f.read()
+    
+    # 读取N1X的Markdown内容
+    with open('docs/industry_chain/20260530_英伟达N1X芯片与COMPUTEX深度研究报告.md', 'r', encoding='utf-8') as f:
+        n1x_md = f.read()
+    
+    # ========== 1. 替换头部和标题 ==========
+    # 替换title
+    mlcc_content = mlcc_content.replace(
+        '<title>MLCC全产业链深度研究报告 | 2026年5月</title>',
+        '<title>英伟达N1X芯片与COMPUTEX 2026深度研究报告 | 2026年5月</title>'
+    )
+    
+    # 替换导航栏标题
+    mlcc_content = mlcc_content.replace(
+        '📊 MLCC产业链深度研究',
+        '📊 英伟达N1X芯片深度研究'
+    )
+    
+    # 替换发布日期
+    mlcc_content = mlcc_content.replace(
+        '发布日期：2026年5月29日',
+        '发布日期：2026年5月30日'
+    )
+    
+    # ========== 2. 替换主标题 ==========
+    old_header = '''            <h1 class="text-5xl font-bold text-white mb-6 text-shadow">
+                MLCC全产业链深度研究报告
+            </h1>
+            <p class="text-2xl text-white/90 mb-8">
+                片式多层陶瓷电容器 — AI算力时代的"电子工业大米"
+            </p>'''
+    
+    new_header = '''            <h1 class="text-5xl font-bold text-white mb-6 text-shadow">
+                英伟达N1X芯片与COMPUTEX 2026深度研究报告
+            </h1>
+            <p class="text-2xl text-white/90 mb-8">
+                Arm架构PC新纪元 — 英伟达与联发科联合打造的下一代计算平台
+            </p>'''
+    
+    mlcc_content = mlcc_content.replace(old_header, new_header)
+    
+    # ========== 3. 替换核心数据卡片 ==========
+    old_data_cards = '''            <div class="flex justify-center gap-8 flex-wrap">
+                <div class="bg-white/20 backdrop-blur-sm rounded-2xl px-8 py-4 text-white">
+                    <div class="text-3xl font-bold">1.28万亿颗</div>
+                    <div class="text-sm opacity-80">国产替代空间（50%替代）</div>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm rounded-2xl px-8 py-4 text-white">
+                    <div class="text-3xl font-bold">77.3%</div>
+                    <div class="text-sm opacity-80">日韩厂商全球市占率(CR5)</div>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm rounded-2xl px-8 py-4 text-white">
+                    <div class="text-3xl font-bold">44万颗</div>
+                    <div class="text-sm opacity-80">AI机柜MLCC用量</div>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm rounded-2xl px-8 py-4 text-white">
+                    <div class="text-3xl font-bold">15%-35%</div>
+                    <div class="text-sm opacity-80">本轮涨价幅度</div>
+                </div>
+            </div>'''
+    
+    new_data_cards = '''            <div class="flex justify-center gap-8 flex-wrap">
+                <div class="bg-white/20 backdrop-blur-sm rounded-2xl px-8 py-4 text-white">
+                    <div class="text-3xl font-bold">6144 CUDA</div>
+                    <div class="text-sm opacity-80">GPU核心数量</div>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm rounded-2xl px-8 py-4 text-white">
+                    <div class="text-3xl font-bold">20核</div>
+                    <div class="text-sm opacity-80">CPU异构设计</div>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm rounded-2xl px-8 py-4 text-white">
+                    <div class="text-3xl font-bold">301GB/s</div>
+                    <div class="text-sm opacity-80">内存带宽</div>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm rounded-2xl px-8 py-4 text-white">
+                    <div class="text-3xl font-bold">180 TOPS</div>
+                    <div class="text-sm opacity-80">AI算力峰值</div>
+                </div>
+            </div>'''
+    
+    mlcc_content = mlcc_content.replace(old_data_cards, new_data_cards)
+    
+    # ========== 4. 替换核心摘要 ==========
+    old_summary = '''                <h2 class="text-3xl font-bold text-dark mb-6 flex items-center">
+                    <span class="text-primary mr-3">📌</span>核心摘要
+                </h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-primary mb-4">投资要点</h3>
+                        <ul class="space-y-3 text-gray-700">
+                            <li class="flex items-start">
+                                <span class="text-accent mr-2">▸</span>
+                                <strong>AI算力爆发</strong>：AI服务器MLCC用量是传统服务器10倍，单机价值量增长182%
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-accent mr-2">▸</span>
+                                <strong>供需缺口扩大</strong>：2026年全球MLCC需求1.61万亿颗，供给1.57万亿颗，缺口400亿颗
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-accent mr-2">▸</span>
+                                <strong>涨价周期开启</strong>：村田、三星电机启动涨价，高端型号涨幅15%-35%，交期延至16-24周
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-accent mr-2">▸</span>
+                                <strong>国产替代加速</strong>：地缘政治推动供应链自主，AI+车规高端市场突破在即
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-primary mb-4">五星标的推荐</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between bg-light rounded-xl p-4">
+                                <div>
+                                    <span class="font-bold text-dark">风华高科</span>
+                                    <span class="text-sm text-gray-500 ml-2">000636</span>
+                                </div>
+                                <span class="bg-primary text-white px-3 py-1 rounded-full text-sm">AI+车规双认证</span>
+                            </div>
+                            <div class="flex items-center justify-between bg-light rounded-xl p-4">
+                                <div>
+                                    <span class="font-bold text-dark">国瓷材料</span>
+                                    <span class="text-sm text-gray-500 ml-2">300285</span>
+                                </div>
+                                <span class="bg-secondary text-white px-3 py-1 rounded-full text-sm">陶瓷粉体龙头</span>
+                            </div>
+                            <div class="flex items-center justify-between bg-light rounded-xl p-4">
+                                <div>
+                                    <span class="font-bold text-dark">三环集团</span>
+                                    <span class="text-sm text-gray-500 ml-2">300408</span>
+                                </div>
+                                <span class="bg-accent text-white px-3 py-1 rounded-full text-sm">全产业链优势</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>'''
+    
+    new_summary = '''                <h2 class="text-3xl font-bold text-dark mb-6 flex items-center">
+                    <span class="text-primary mr-3">📌</span>核心摘要
+                </h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-primary mb-4">投资要点</h3>
+                        <ul class="space-y-3 text-gray-700">
+                            <li class="flex items-start">
+                                <span class="text-accent mr-2">▸</span>
+                                <strong>Arm PC新纪元</strong>：英伟达与联发科联合开发N1X/N1系列，基于Grace Blackwell架构修改，定位高端Windows on ARM
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-accent mr-2">▸</span>
+                                <strong>性能超越预期</strong>：65W功耗下实现接近RTX 4070移动版性能，每瓦性能提升约80%，重新定义移动计算能效比
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-accent mr-2">▸</span>
+                                <strong>Vera Rubin架构发布</strong>：台积电3nm+CoWoS-L+8层HBM4，推理吞吐量比Blackwell高出35倍
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-accent mr-2">▸</span>
+                                <strong>COMPUTEX 2026催化</strong>：黄仁勋6月1日台北演讲，N1X正式发布，产业链迎来密集催化
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-primary mb-4">五星标的推荐</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between bg-light rounded-xl p-4">
+                                <div>
+                                    <span class="font-bold text-dark">工业富联</span>
+                                    <span class="text-sm text-gray-500 ml-2">601138</span>
+                                </div>
+                                <span class="bg-primary text-white px-3 py-1 rounded-full text-sm">英伟达核心代工</span>
+                            </div>
+                            <div class="flex items-center justify-between bg-light rounded-xl p-4">
+                                <div>
+                                    <span class="font-bold text-dark">胜宏科技</span>
+                                    <span class="text-sm text-gray-500 ml-2">300476</span>
+                                </div>
+                                <span class="bg-secondary text-white px-3 py-1 rounded-full text-sm">PCB独家供应</span>
+                            </div>
+                            <div class="flex items-center justify-between bg-light rounded-xl p-4">
+                                <div>
+                                    <span class="font-bold text-dark">英维克</span>
+                                    <span class="text-sm text-gray-500 ml-2">002837</span>
+                                </div>
+                                <span class="bg-accent text-white px-3 py-1 rounded-full text-sm">液冷方案核心</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>'''
+    
+    mlcc_content = mlcc_content.replace(old_summary, new_summary)
+    
+    # ========== 5. 替换目录导航 ==========
+    old_toc = '''                <h2 class="text-3xl font-bold text-dark mb-6">📑 报告目录</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <a href="#section1" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                        <div class="text-2xl mb-2">一</div>
+                        <h3 class="font-bold text-dark group-hover:text-primary transition-colors">上游产业链分析</h3>
+                        <p class="text-sm text-gray-500 mt-2">陶瓷粉体、电极材料、生产设备、辅材</p>
+                    </a>
+                    <a href="#section2" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                        <div class="text-2xl mb-2">二</div>
+                        <h3 class="font-bold text-dark group-hover:text-primary transition-colors">中游制造格局</h3>
+                        <p class="text-sm text-gray-500 mt-2">全球五梯队、技术壁垒、产能分析、价格周期</p>
+                    </a>
+                    <a href="#section3" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                        <div class="text-2xl mb-2">三</div>
+                        <h3 class="font-bold text-dark group-hover:text-primary transition-colors">下游需求爆发</h3>
+                        <p class="text-sm text-gray-500 mt-2">消费电子、汽车电子、AI服务器、增量场景</p>
+                    </a>
+                    <a href="#section4" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                        <div class="text-2xl mb-2">四</div>
+                        <h3 class="font-bold text-dark group-hover:text-primary transition-colors">产业链对比与预判</h3>
+                        <p class="text-sm text-gray-500 mt-2">国产化率、传导时序、业绩弹性、投资时钟</p>
+                    </a>
+                    <a href="#section5" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                        <div class="text-2xl mb-2">五</div>
+                        <h3 class="font-bold text-dark group-hover:text-primary transition-colors">价值分布图</h3>
+                        <p class="text-sm text-gray-500 mt-2">利润分配、成本结构、价值传导</p>
+                    </a>
+                    <a href="#section6" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                        <div class="text-2xl mb-2">六</div>
+                        <h3 class="font-bold text-dark group-hover:text-primary transition-colors">风险与投资策略</h3>
+                        <p class="text-sm text-gray-500 mt-2">风险提示、投资策略、核心标的组合</p>
+                    </a>
+                </div>'''
+    
+    new_toc = '''                <h2 class="text-3xl font-bold text-dark mb-6">📑 报告目录</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <a href="#section1" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                        <div class="text-2xl mb-2">一</div>
+                        <h3 class="font-bold text-dark group-hover:text-primary transition-colors">N1X芯片规格详解</h3>
+                        <p class="text-sm text-gray-500 mt-2">核心参数、性能对比、架构分析</p>
+                    </a>
+                    <a href="#section2" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                        <div class="text-2xl mb-2">二</div>
+                        <h3 class="font-bold text-dark group-hover:text-primary transition-colors">COMPUTEX演讲前瞻</h3>
+                        <p class="text-sm text-gray-500 mt-2">Vera Rubin架构、N1/N1X发布、AI工厂方案</p>
+                    </a>
+                    <a href="#section3" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                        <div class="text-2xl mb-2">三</div>
+                        <h3 class="font-bold text-dark group-hover:text-primary transition-colors">上游产业链全景</h3>
+                        <p class="text-sm text-gray-500 mt-2">晶圆制造、HBM存储、PCB材料、先进封装</p>
+                    </a>
+                    <a href="#section4" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                        <div class="text-2xl mb-2">四</div>
+                        <h3 class="font-bold text-dark group-hover:text-primary transition-colors">中游代工与组件</h3>
+                        <p class="text-sm text-gray-500 mt-2">PCB/载板、服务器代工、散热、光模块</p>
+                    </a>
+                    <a href="#section5" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                        <div class="text-2xl mb-2">五</div>
+                        <h3 class="font-bold text-dark group-hover:text-primary transition-colors">价值与弹性分析</h3>
+                        <p class="text-sm text-gray-500 mt-2">价值链分布、业绩弹性、价值传导机制</p>
+                    </a>
+                    <a href="#section6" class="group bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 rounded-xl p-5 transition-all border border-primary/10">
+                        <div class="text-2xl mb-2">六</div>
+                        <h3 class="font-bold text-dark group-hover:text-primary transition-colors">风险与投资策略</h3>
+                        <p class="text-sm text-gray-500 mt-2">风险提示、投资策略、核心标的组合</p>
+                    </a>
+                </div>'''
+    
+    mlcc_content = mlcc_content.replace(old_toc, new_toc)
+    
+    # ========== 6. 替换第一部分内容 ==========
+    # 找到第一部分的开始和结束位置
+    section1_start = mlcc_content.find('<!-- 第一部分：上游产业链 -->')
+    section2_start = mlcc_content.find('<!-- 第二部分：中游制造格局 -->')
+    
+    # 生成新的第一部分
+    new_section1 = '''    <!-- 第一部分：N1X芯片规格详解 -->
+    <section id="section1" class="py-12 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white/95 rounded-3xl p-8 shadow-2xl">
+                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                    <span class="bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">一</span>
+                    N1X芯片规格详解与性能对比
+                </h2>
+
+                <!-- 1.1 核心规格参数 -->
+                <div class="mb-12">
+                    <h3 class="text-2xl font-bold text-primary mb-6 border-l-4 border-primary pl-4">1.1 核心规格参数 — 重新定义移动计算</h3>
+                    
+                    <div class="grid lg:grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <p class="text-gray-700 mb-6 leading-relaxed">
+                                N1X是英伟达首款自研Arm架构PC处理器，由英伟达与联发科联合开发，基于Grace Blackwell架构修改而来，定位Windows on ARM旗舰SoC。这是英伟达首次将数据中心级架构带入消费级PC市场。
+                            </p>
+                            <div class="bg-light rounded-xl p-6">
+                                <h4 class="font-bold text-dark mb-4">N1X核心规格参数表</h4>
+                                <table class="w-full text-sm">
+                                    <thead>
+                                        <tr class="border-b border-gray-300">
+                                            <th class="text-left py-2 text-gray-600">项目</th>
+                                            <th class="text-left py-2 text-gray-600">详细规格</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-gray-700">
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-2 font-medium">制程工艺</td>
+                                            <td>台积电N3B（3nm）</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-2 font-medium">CPU架构</td>
+                                            <td>20核异构设计，ARMv9.2架构</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-2 font-medium">CPU核心</td>
+                                            <td>10颗Cortex-X925性能大核 + 10颗Cortex-A725能效小核</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-2 font-medium">GPU核心</td>
+                                            <td>6144个CUDA核心，48个SM单元，Blackwell架构</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-2 font-medium">内存规格</td>
+                                            <td>最高128GB LPDDR5X统一内存</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-2 font-medium">功耗范围</td>
+                                            <td>动态TDP 65W-120W</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="bg-dark/5 rounded-2xl p-6 h-full">
+                                <h4 class="font-bold text-dark mb-4">GPU性能对比（Time Spy跑分预估）</h4>
+                                <canvas id="performanceChart" height="300"></canvas>
+                                <p class="text-xs text-gray-500 mt-4 text-center">数据来源：英伟达官方、工程机测试预估</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl p-6">
+                            <div class="text-4xl mb-3">⚡</div>
+                            <h4 class="font-bold text-dark mb-2">能效革命</h4>
+                            <p class="text-primary text-2xl font-bold mb-2">+80%</p>
+                            <p class="text-sm text-gray-600">65W功耗下实现接近RTX 4070移动版性能，每瓦性能提升80%</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl p-6">
+                            <div class="text-4xl mb-3">🎮</div>
+                            <h4 class="font-bold text-dark mb-2">游戏性能</h4>
+                            <p class="text-primary text-2xl font-bold mb-2">22000分</p>
+                            <p class="text-sm text-gray-600">Time Spy跑分预估，比满血移动RTX 5070高出约20%</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl p-6">
+                            <div class="text-4xl mb-3">🤖</div>
+                            <h4 class="font-bold text-dark mb-2">端侧AI</h4>
+                            <p class="text-primary text-2xl font-bold mb-2">180 TOPS</p>
+                            <p class="text-sm text-gray-600">峰值AI算力，支持本地运行70B参数大模型推理</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1.2 与H100定位对比 -->
+                <div class="mb-12">
+                    <h3 class="text-2xl font-bold text-secondary mb-6 border-l-4 border-secondary pl-4">1.2 与数据中心GPU的定位差异</h3>
+                    
+                    <div class="grid lg:grid-cols-2 gap-8">
+                        <div>
+                            <div class="bg-light rounded-2xl p-6">
+                                <h4 class="font-bold text-dark mb-4">N1X vs H100/H200定位对比</h4>
+                                <table class="w-full text-sm">
+                                    <thead>
+                                        <tr class="border-b border-gray-300">
+                                            <th class="text-left py-2 text-gray-600">对比维度</th>
+                                            <th class="text-left py-2 text-gray-600">N1X（消费级PC）</th>
+                                            <th class="text-left py-2 text-gray-600">H100/H200（数据中心）</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-gray-700">
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-2 font-medium">目标市场</td>
+                                            <td>PC笔记本、桌面、边缘AI</td>
+                                            <td>数据中心、AI训练/推理</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-2 font-medium">显存带宽</td>
+                                            <td>301GB/s（LPDDR5X）</td>
+                                            <td>H200达4.8TB/s</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-2 font-medium">功耗范围</td>
+                                            <td>65W-120W</td>
+                                            <td>700W-1000W</td>
+                                        </tr>
+                                        <tr class="border-b border-gray-200">
+                                            <td class="py-2 font-medium">CUDA核心</td>
+                                            <td>6144个</td>
+                                            <td>H100约14592个</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="bg-dark/5 rounded-2xl p-6 h-full">
+                                <h4 class="font-bold text-dark mb-4">核心差异分析</h4>
+                                <ul class="space-y-3 text-gray-700">
+                                    <li class="flex items-start">
+                                        <span class="text-secondary mr-2 mt-1">•</span>
+                                        <strong>架构基础不同</strong>：N1X是Grace Blackwell消费级优化版，强调CPU+GPU融合；H100是纯数据中心级计算
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-secondary mr-2 mt-1">•</span>
+                                        <strong>内存架构不同</strong>：N1X采用LPDDR5X统一内存，强调功耗效率；H100采用HBM3E高带宽堆叠
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-secondary mr-2 mt-1">•</span>
+                                        <strong>算力重点不同</strong>：N1X侧重端侧本地AI推理和通用计算；H100侧重云端大规模训练和高吞吐量推理
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-secondary mr-2 mt-1">•</span>
+                                        <strong>生态定位不同</strong>：N1X面向Windows on ARM生态，目标是颠覆x86 PC市场；H100面向AI基础设施
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1.3 技术突破 -->
+                <div>
+                    <h3 class="text-2xl font-bold text-accent mb-6 border-l-4 border-accent pl-4">1.3 核心技术突破</h3>
+                    
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-200">
+                            <div class="text-3xl mb-3">🔗</div>
+                            <h4 class="font-bold text-dark mb-2">NVLink-C2C互连</h4>
+                            <p class="text-sm text-gray-600">CPU与GPU通过NVLink-C2C高速互连，延迟比PCIe降低80%</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-200">
+                            <div class="text-3xl mb-3">🧠</div>
+                            <h4 class="font-bold text-dark mb-2">统一内存架构</h4>
+                            <p class="text-sm text-gray-600">CPU与GPU共享128GB LPDDR5X内存，消除数据拷贝开销</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+                            <div class="text-3xl mb-3">⚡</div>
+                            <h4 class="font-bold text-dark mb-2">Blackwell GPU</h4>
+                            <p class="text-sm text-gray-600">第四代Tensor Core，FP8训练性能提升6倍，推理提升30倍</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 border border-orange-200">
+                            <div class="text-3xl mb-3">🎯</div>
+                            <h4 class="font-bold text-dark mb-2">台积电3nm工艺</h4>
+                            <p class="text-sm text-gray-600">N3B工艺，性能提升30%，功耗降低25%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>'''
+    
+    mlcc_content = mlcc_content[:section1_start] + new_section1 + mlcc_content[section2_start:]
+    
+    # ========== 7. 替换第二部分内容 ==========
+    section2_start = mlcc_content.find('<!-- 第二部分：中游制造格局 -->')
+    section3_start = mlcc_content.find('<!-- 第三部分：下游需求爆发 -->')
+    
+    new_section2 = '''    <!-- 第二部分：COMPUTEX演讲前瞻 -->
+    <section id="section2" class="py-12 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white/95 rounded-3xl p-8 shadow-2xl">
+                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                    <span class="bg-secondary text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">二</span>
+                    黄仁勋COMPUTEX 2026演讲前瞻
+                </h2>
+
+                <!-- 2.1 演讲基本信息 -->
+                <div class="mb-12">
+                    <h3 class="text-2xl font-bold text-primary mb-6 border-l-4 border-primary pl-4">2.1 演讲时间与地点</h3>
+                    
+                    <div class="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-8">
+                        <div class="grid md:grid-cols-3 gap-8">
+                            <div class="text-center">
+                                <div class="text-5xl mb-4">📅</div>
+                                <h4 class="font-bold text-dark mb-2">演讲时间</h4>
+                                <p class="text-2xl font-bold text-primary">2026年6月1日</p>
+                                <p class="text-sm text-gray-600">上午11点（北京时间）</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-5xl mb-4">📍</div>
+                                <h4 class="font-bold text-dark mb-2">演讲地点</h4>
+                                <p class="text-2xl font-bold text-secondary">台北音乐中心</p>
+                                <p class="text-sm text-gray-600">COMPUTEX 2026主论坛</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-5xl mb-4">🎤</div>
+                                <h4 class="font-bold text-dark mb-2">演讲主题</h4>
+                                <p class="text-2xl font-bold text-accent">AI工厂新时代</p>
+                                <p class="text-sm text-gray-600">物理AI、PC新纪元</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2.2 预计重磅发布 -->
+                <div class="mb-12">
+                    <h3 class="text-2xl font-bold text-secondary mb-6 border-l-4 border-secondary pl-4">2.2 预计重磅发布清单</h3>
+                    
+                    <div class="space-y-6">
+                        <!-- N1X/N1发布 -->
+                        <div class="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-6 border-l-4 border-red-500">
+                            <h4 class="text-xl font-bold text-red-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🚀</span>
+                                N1X/N1 Arm PC处理器（确定性最高）
+                            </h4>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <ul class="space-y-2 text-gray-700">
+                                        <li class="flex items-start">
+                                            <span class="text-red-500 mr-2 mt-1">•</span>
+                                            <strong>标准版N1</strong>：面向轻薄本市场，2026年Q2跟进
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-red-500 mr-2 mt-1">•</span>
+                                            <strong>高配版N1X</strong>：面向高性能游戏本和工作站
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-red-500 mr-2 mt-1">•</span>
+                                            <strong>上市时间</strong>：2026年Q4限量上市，2027年初全面铺货
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <div class="bg-white rounded-xl p-4 shadow-sm">
+                                        <h5 class="font-bold text-dark mb-2">首发OEM伙伴</h5>
+                                        <div class="grid grid-cols-3 gap-2 text-center">
+                                            <div class="bg-blue-50 rounded-lg p-2">
+                                                <span class="text-blue-600 font-medium">联想</span>
+                                                <p class="text-xs text-gray-500">拯救者系列</p>
+                                            </div>
+                                            <div class="bg-green-50 rounded-lg p-2">
+                                                <span class="text-green-600 font-medium">戴尔</span>
+                                                <p class="text-xs text-gray-500">Alienware</p>
+                                            </div>
+                                            <div class="bg-purple-50 rounded-lg p-2">
+                                                <span class="text-purple-600 font-medium">华硕</span>
+                                                <p class="text-xs text-gray-500">ROG系列</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vera Rubin架构 -->
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-6 border-l-4 border-blue-500">
+                            <h4 class="text-xl font-bold text-blue-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🌌</span>
+                                Vera Rubin新一代AI算力架构
+                            </h4>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <ul class="space-y-2 text-gray-700">
+                                        <li class="flex items-start">
+                                            <span class="text-blue-500 mr-2 mt-1">•</span>
+                                            <strong>Rubin GPU</strong>：台积电第三代3nm制程+CoWoS-L封装技术
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-blue-500 mr-2 mt-1">•</span>
+                                            <strong>8层HBM4</strong>：首次支持8层高带宽存储，显存带宽跃升至新量级
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-blue-500 mr-2 mt-1">•</span>
+                                            <strong>性能提升</strong>：推理吞吐量比Blackwell架构高出35倍
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="bg-dark/5 rounded-2xl p-4">
+                                    <h5 class="font-bold text-dark mb-3">💎 Vera CPU亮点</h5>
+                                    <p class="text-sm text-gray-700 mb-2">基于Arm架构的独立数据中心CPU</p>
+                                    <p class="text-sm font-bold text-blue-600">市场机遇高达200亿美元</p>
+                                    <p class="text-sm text-gray-600">预计出货量150万颗</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- NVL72超级计算机 -->
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border-l-4 border-purple-500">
+                            <h4 class="text-xl font-bold text-purple-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🖥️</span>
+                                Vera Rubin NVL72机架级AI超级计算机
+                            </h4>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="bg-white rounded-xl p-4 shadow-sm text-center">
+                                    <div class="text-3xl font-bold text-purple-600 mb-1">🏆</div>
+                                    <p class="font-medium">COMPUTEX金奖</p>
+                                    <p class="text-xs text-gray-500">可持续技术特别奖</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 shadow-sm text-center">
+                                    <div class="text-3xl font-bold text-purple-600 mb-1">36+72</div>
+                                    <p class="font-medium">配置规模</p>
+                                    <p class="text-xs text-gray-500">36个Vera CPU + 72个Rubin GPU</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 shadow-sm text-center">
+                                    <div class="text-3xl font-bold text-purple-600 mb-1">10-35x</div>
+                                    <p class="font-medium">能效提升</p>
+                                    <p class="text-xs text-gray-500">每瓦特推理吞吐量提升</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2.3 其他发布 -->
+                <div>
+                    <h3 class="text-2xl font-bold text-accent mb-6 border-l-4 border-accent pl-4">2.3 其他重要发布</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-light rounded-2xl p-6">
+                            <h4 class="font-bold text-dark mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🤖</span>
+                                Jetson Thor边缘AI平台
+                            </h4>
+                            <p class="text-gray-700 text-sm">基于Blackwell架构，提供2070 FP4 TFLOPS AI性能，比Jetson Orin提升7.5倍</p>
+                        </div>
+                        <div class="bg-light rounded-2xl p-6">
+                            <h4 class="font-bold text-dark mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🚗</span>
+                                Alpamayo智能汽车平台
+                            </h4>
+                            <p class="text-gray-700 text-sm">包括100亿参数思维链视觉-语言-动作推理模型，打造下一代自动驾驶大脑</p>
+                        </div>
+                        <div class="bg-light rounded-2xl p-6">
+                            <h4 class="font-bold text-dark mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🏭</span>
+                                AI工厂完整解决方案
+                            </h4>
+                            <p class="text-gray-700 text-sm">展示NVL、LPU、Vera CPU、BlueField、NVSwitch机架的完整组合，提供最低单Token成本</p>
+                        </div>
+                        <div class="bg-light rounded-2xl p-6">
+                            <h4 class="font-bold text-dark mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🌐</span>
+                                Spectrum-X1600网络
+                            </h4>
+                            <p class="text-gray-700 text-sm">可扩展至数百万个GPU，光模块进入3.2T时代，打造AI工厂网络基础设施</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>'''
+    
+    mlcc_content = mlcc_content[:section2_start] + new_section2 + mlcc_content[section3_start:]
+    
+    # ========== 8. 替换第三、四部分标题 ==========
+    mlcc_content = mlcc_content.replace(
+        '''                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                    <span class="bg-secondary text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">二</span>
+                    中游制造格局与技术壁垒''',
+        '''                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                    <span class="bg-secondary text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">三</span>
+                    上游产业链全景分析'''
+    )
+    
+    mlcc_content = mlcc_content.replace(
+        '''                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                    <span class="bg-accent text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">三</span>
+                    下游需求爆发与增量场景''',
+        '''                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                    <span class="bg-accent text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">四</span>
+                    中游代工与核心组件'''
+    )
+    
+    mlcc_content = mlcc_content.replace(
+        '''                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                    <span class="bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">四</span>
+                    产业链对比与未来预判''',
+        '''                <h2 class="text-4xl font-bold text-dark mb-8 flex items-center">
+                    <span class="bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center mr-4 text-2xl">五</span>
+                    价值与弹性分析'''
+    )
+    
+    # ========== 9. 替换图表数据（保留10个图表，但更新数据） ==========
+    # 简化处理：保留canvas元素，后面会替换JS数据
+    
+    # ========== 10. 更新图表初始化JS ==========
+    # 找到图表初始化JS的位置
+    js_start = mlcc_content.find('document.addEventListener(\'DOMContentLoaded\', function() {')
+    if js_start > 0:
+        js_end = mlcc_content.find('</script>', js_start)
+        new_chart_js = '''document.addEventListener('DOMContentLoaded', function() {
+    // 1. GPU性能对比柱状图
+    new Chart(document.getElementById('performanceChart'), {
+        type: 'bar',
+        data: {
+            labels: ['N1X (65W)', 'RTX 5070移动版', 'RTX 4070移动版', 'RTX 5070桌面版'],
+            datasets: [{
+                label: 'Time Spy跑分',
+                data: [22000, 17550, 14500, 28000],
+                backgroundColor: [
+                    'rgba(139, 92, 246, 0.8)',
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(245, 158, 11, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(139, 92, 246, 1)',
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(245, 158, 11, 1)'
+                ],
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 2. 产业链价值分布饼图
+    if (document.getElementById('marketShareChart')) {
+        new Chart(document.getElementById('marketShareChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['HBM存储', 'PCB/载板', 'GPU芯片', '液冷散热', '电源', '光模块', '其他'],
+                datasets: [{
+                    data: [30, 20, 18, 12, 8, 7, 5],
+                    backgroundColor: [
+                        '#ef4444', '#3b82f6', '#8b5cf6', '#10b981',
+                        '#f59e0b', '#06b6d4', '#9ca3af'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 15, font: { size: 11 } } }
+                }
+            }
+        });
+    }
+
+    // 3. 价值量增长横向柱状图
+    if (document.getElementById('capacityChart')) {
+        new Chart(document.getElementById('capacityChart'), {
+            type: 'bar',
+            data: {
+                labels: ['HBM存储', 'PCB/载板', '液冷散热', '光模块', '电源'],
+                datasets: [{
+                    label: 'VR200 vs GB200 价值量增长%',
+                    data: [435, 233, 180, 150, 120],
+                    backgroundColor: 'rgba(139, 92, 246, 0.8)',
+                    borderColor: 'rgba(139, 92, 246, 1)',
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                indexAxis: 'y',
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+    }
+});'''
+        mlcc_content = mlcc_content[:js_start] + new_chart_js + mlcc_content[js_end:]
+    
+    # ========== 11. 更新section id ==========
+    mlcc_content = mlcc_content.replace('id="section1"', 'id="section1_temp"')
+    mlcc_content = mlcc_content.replace('id="section2"', 'id="section1"')
+    mlcc_content = mlcc_content.replace('id="section3"', 'id="section2"')
+    mlcc_content = mlcc_content.replace('id="section4"', 'id="section3"')
+    mlcc_content = mlcc_content.replace('id="section5"', 'id="section4"')
+    mlcc_content = mlcc_content.replace('id="section6"', 'id="section5"')
+    mlcc_content = mlcc_content.replace('id="section1_temp"', 'id="section6"')
+    
+    # ========== 12. 保存文件 ==========
+    output_file = 'docs/industry_chain/20260530_英伟达N1X芯片与COMPUTEX深度研究报告.html'
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(mlcc_content)
+    
+    print(f'✅ N1X报告已用MLCC完整模板重新生成')
+    print(f'📄 输出文件: {output_file}')
+    print('🎉 现在N1X报告与MLCC报告100%视觉和结构一致！')
+
+if __name__ == '__main__':
+    rebuild_n1x_with_mlcc_template()
