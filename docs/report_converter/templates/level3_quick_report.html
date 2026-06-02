@@ -36,11 +36,104 @@
             background-clip: text;
         }
         
+        /* 阅读进度条 */
+        #progressBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            z-index: 9999;
+            transition: width 0.1s ease;
+        }
+        
+        /* 回到顶部按钮 */
+        #backToTop {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            z-index: 9998;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+        #backToTop:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+        #backToTop.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* 操作按钮组 */
+        .action-buttons {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            display: flex;
+            gap: 10px;
+            z-index: 9997;
+        }
+        .action-btn {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            color: #6366f1;
+        }
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: white;
+        }
+        
+        /* 标签样式 */
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        .tag-primary { background: rgba(99,102,241,0.1); color: #6366f1; }
+        .tag-success { background: rgba(34,197,94,0.1); color: #22c55e; }
+        .tag-warning { background: rgba(245,158,11,0.1); color: #f59e0b; }
+        
         /* 平滑滚动 */
         html { scroll-behavior: smooth; }
+        
+        /* 打印优化 */
+        @media print {
+            #progressBar, #backToTop, .action-buttons { display: none !important; }
+            nav { position: relative !important; }
+            body { background: white !important; }
+        }
     </style>
 </head>
 <body>
+    <!-- 阅读进度条 -->
+    <div id="progressBar"></div>
+
     <!-- 统一导航栏 -->
     <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
         <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -87,5 +180,70 @@
             </p>
         </div>
     </div>
+
+    <!-- 回到顶部按钮 -->
+    <div id="backToTop" onclick="scrollToTop()">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+        </svg>
+    </div>
+
+    <!-- 操作按钮组 -->
+    <div class="action-buttons">
+        <button class="action-btn" onclick="printReport()" title="打印报告">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+            </svg>
+        </button>
+        <button class="action-btn" onclick="shareReport()" title="分享报告">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        // 阅读进度条
+        function updateProgressBar() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const progress = (scrollTop / scrollHeight) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+        
+        window.addEventListener('scroll', updateProgressBar);
+        window.addEventListener('load', updateProgressBar);
+        
+        // 回到顶部按钮显示/隐藏
+        function toggleBackToTop() {
+            const btn = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                btn.classList.add('visible');
+            } else {
+                btn.classList.remove('visible');
+            }
+        }
+        
+        window.addEventListener('scroll', toggleBackToTop);
+        
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 打印报告
+        function printReport() {
+            window.print();
+        }
+        
+        // 分享报告
+        function shareReport() {
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({ title: document.title, url: url });
+            } else {
+                navigator.clipboard.writeText(url).then(() => alert('链接已复制到剪贴板！'));
+            }
+        }
+    </script>
 </body>
 </html>
