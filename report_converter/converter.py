@@ -210,6 +210,47 @@ class ReportConverter:
     </main>
     
     {self._get_footer()}
+
+    <!-- 悬浮功能按钮 -->
+    <div class="float-btn-group">
+        <div class="float-btn-wrapper relative">
+            <button class="float-btn print" onclick="window.print()" title="打印/导出PDF">
+                <i class="fa fa-print"></i>
+            </button>
+            <span class="tooltip">打印 / 导出PDF</span>
+        </div>
+        
+        <div class="float-btn-wrapper relative">
+            <button class="float-btn share" onclick="shareReport()" title="分享链接">
+                <i class="fa fa-share-alt"></i>
+            </button>
+            <span class="tooltip">复制分享链接</span>
+        </div>
+        
+        <div class="float-btn-wrapper relative">
+            <button class="float-btn top" onclick="scrollToTop()" title="返回顶部">
+                <i class="fa fa-arrow-up"></i>
+            </button>
+            <span class="tooltip">返回顶部</span>
+        </div>
+    </div>
+
+    <script>
+        // 返回顶部
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 分享链接
+        function shareReport() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(function() {
+                alert('链接已复制到剪贴板！');
+            }).catch(function(err) {
+                prompt('请手动复制链接:', url);
+            });
+        }
+    </script>
 </body>
 </html>'''
     
@@ -694,6 +735,84 @@ class ReportConverter:
             * {
                 scrollbar-width: thin;
                 scrollbar-color: rgba(255,255,255,0.3) transparent;
+            }
+            
+            /* 悬浮功能按钮 */
+            .float-btn-group {
+                position: fixed;
+                right: 24px;
+                bottom: 24px;
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .float-btn {
+                width: 52px;
+                height: 52px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 20px;
+                transition: all 0.3s ease;
+            }
+            
+            .float-btn:hover {
+                transform: scale(1.1);
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            }
+            
+            .float-btn.print {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            }
+            
+            .float-btn.print:hover {
+                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+            }
+            
+            .float-btn.share {
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            }
+            
+            .float-btn.share:hover {
+                box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+            }
+            
+            .float-btn.top {
+                background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            }
+            
+            .float-btn.top:hover {
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+            }
+            
+            .tooltip {
+                position: absolute;
+                right: 64px;
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-size: 12px;
+                white-space: nowrap;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.2s ease;
+            }
+            
+            .float-btn-wrapper:hover .tooltip {
+                opacity: 1;
+                visibility: visible;
             }
         </style>'''
 
