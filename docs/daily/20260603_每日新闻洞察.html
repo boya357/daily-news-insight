@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日新闻洞察 - 2026年6月3日</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+        
+        * { font-family: 'Noto Sans SC', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(118,75,162,0.3) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            z-index: 0;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(2%, 2%) rotate(1deg); }
+            50% { transform: translate(0, 4%) rotate(0deg); }
+            75% { transform: translate(-2%, 2%) rotate(-1deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* 悬浮功能按钮 */
+        .float-btn-group {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .float-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .float-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .float-btn.print {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+        
+        .float-btn.print:hover {
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+        }
+        
+        .float-btn.share {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+        
+        .float-btn.share:hover {
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+        }
+        
+        .float-btn.top {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+        
+        .float-btn.top:hover {
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        }
+        
+        .tooltip {
+            position: absolute;
+            right: 64px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+        
+        .float-btn-wrapper:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card-glass {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 15px 40px rgba(118, 75, 162, 0.35);
+            border-radius: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card-glass:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(118, 75, 162, 0.45);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hot-tag {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .market-card-up {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        }
+        
+        .market-card-down {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .market-card-neutral {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .topic-card {
+            border-left: 4px solid #667eea;
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.08) 0%, transparent 100%);
+        }
+        
+        .risk-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+        }
+        
+        .diamond-card {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+        }
+    </style>
+</head>
+<body class="pb-20">
+    <!-- 导航栏 -->
+    <nav class="glass-nav fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center space-x-3">
+                <i class="fa fa-line-chart text-white text-2xl" style="animation: pulse 3s ease-in-out infinite;"></i>
+                <span class="text-white font-bold text-xl">市场洞察中心</span>
+            </div>
+            <div class="flex items-center space-x-1 flex-wrap gap-1">
+                <a href="/daily-news-insight/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a>
+                <a href="/daily-news-insight/daily/latest.html" class="bg-white/20 text-white text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a>
+                <a href="/daily-news-insight/intraday/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a>
+                <a href="/daily-news-insight/aftermarket/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a>
+                <a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a>
+                <a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a>
+                <a href="/daily-news-insight/weekly_outlook/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周前瞻</a>
+                <a href="/daily-news-insight/monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <div class="pt-24 px-4 relative z-10">
+        <div class="max-w-5xl mx-auto">
+            <!-- 头部 -->
+            <div class="card-glass p-8 mb-8 border-2 border-white/20">
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl" style="animation: pulse 3s ease-in-out infinite;">
+                        <i class="fa fa-newspaper-o text-white text-4xl"></i>
+                    </div>
+                    <h1 class="text-4xl font-black gradient-text mb-3">每日新闻洞察</h1>
+                    <p class="text-gray-500 text-lg">📅 2026年6月3日 · 星期三 · 龙空龙策略专用</p>
+                    <div class="mt-4 inline-flex items-center px-4 py-2 rounded-full bg-amber-100 text-amber-800 text-sm">
+                        <i class="fa fa-exclamation-triangle mr-2"></i>
+                        <strong>今日焦点：</strong>光通信史诗级行情爆发！英伟达CPO量产引爆板块，Marvell单日暴涨32.5%创历史纪录
+                    </div>
+                </div>
+            </div>
+
+            <!-- 隔夜全球市场数据 -->
+            <div class="card-glass p-6 mb-8">
+                <h2 class="text-2xl font-bold gradient-text mb-6 pb-3 border-b-2 border-indigo-500/30">
+                    <i class="fa fa-globe mr-3"></i>🌍 隔夜全球市场
+                </h2>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="market-card-up text-white p-5 rounded-2xl text-center shadow-lg">
+                        <div class="text-3xl font-black">+0.13%</div>
+                        <div class="text-sm opacity-90 mt-1">标普500</div>
+                        <div class="text-xs opacity-75">首次收7600点上方</div>
+                    </div>
+                    <div class="market-card-up text-white p-5 rounded-2xl text-center shadow-lg">
+                        <div class="text-3xl font-black">+0.45%</div>
+                        <div class="text-sm opacity-90 mt-1">道琼斯</div>
+                        <div class="text-xs opacity-75">历史新高</div>
+                    </div>
+                    <div class="market-card-neutral text-white p-5 rounded-2xl text-center shadow-lg">
+                        <div class="text-3xl font-black">+32.5%</div>
+                        <div class="text-sm opacity-90 mt-1">Marvell</div>
+                        <div class="text-xs opacity-75">单日暴涨创纪录</div>
+                    </div>
+                    <div class="market-card-up text-white p-5 rounded-2xl text-center shadow-lg">
+                        <div class="text-3xl font-black">+5.9%</div>
+                        <div class="text-sm opacity-90 mt-1">费城半导体</div>
+                        <div class="text-xs opacity-75">历史新高</div>
+                    </div>
+                </div>
+                
+                <div class="space-y-4 text-gray-700">
+                    <div class="flex items-start">
+                        <span class="hot-tag text-white text-xs px-2 py-1 rounded-full mr-3 mt-1">重磅</span>
+                        <div>
+                            <strong>美股三大指数再创历史新高！</strong>标普500首次收在7600点上方，纳指尾盘惊险收涨。费城半导体指数飙升5.9%，光通信板块集体爆发：Marvell大涨32.5%，Coherent涨17.63%，Lumentum涨超13%，Ciena涨超10%。
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full mr-3 mt-1">英伟达</span>
+                        <div>
+                            <strong>黄仁勋：Marvell可能成为下一家万亿美元公司！</strong>英伟达CEO在Computex与Marvell CEO同台对谈，明确指出"未来AI拼的不是算力是连接"，并透露英伟达已对Marvell进行战略投资。
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mr-3 mt-1">科技股</span>
+                        <div>
+                            <strong>科技七巨头分化加剧！</strong>慧与科技大涨19.5%，但谷歌跌1.81%（宣布800亿美元股权融资），微软跌4.2%，亚马逊跌3.9%。资金从高估值软件赛道大规模出逃，集中涌入算力硬件产业链。
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full mr-3 mt-1">地缘</span>
+                        <div>
+                            <strong>美伊谈判出现进展！</strong>国务卿鲁比奥表示双方正就核计划内容展开谈判，协议可能于近期落地；特朗普亦否认谈判中断，称对话持续推进。油价维持强势，布伦特原油突破96美元/桶。
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mr-3 mt-1">AI大模型</span>
+                        <div>
+                            <strong>Anthropic抢先OpenAI秘密提交IPO申请！</strong>最新估值达9650亿美元，年化收入突破470亿美元。智谱、MiniMax同步冲刺A股科创板，大模型IPO元年正式开启。OpenAI拟开发跨平台AI优化工具，剑指英伟达CUDA垄断。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 题材动态 -->
+            <div class="card-glass p-6 mb-8">
+                <h2 class="text-2xl font-bold gradient-text mb-6 pb-3 border-b-2 border-indigo-500/30">
+                    <i class="fa fa-fire mr-3"></i>🔥 核心题材动态
+                </h2>
+
+                <!-- 光通信/CPO -->
+                <div class="topic-card p-5 rounded-xl mb-5">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 mr-3"></span>
+                        光通信/CPO · 史诗级行情爆发！英伟达Spectrum-X硅光技术全面量产
+                    </h3>
+                    <div class="space-y-3 text-gray-700 text-sm">
+                        <p><strong>🚀 CPO正式迈入大规模商用阶段：</strong>英伟达官宣Spectrum-X以太网硅光技术全面量产，基于CPO（共封装光学）技术构建，专门服务于Vera Rubin平台横向扩展。能效比传统网络提升5倍，AI运行时间提升5倍，部署速度快1.3倍。</p>
+                        <p><strong>💡 黄仁勋定调技术路线：</strong>"未来AI拼的不是算力是连接"，"能用铜就用铜，必须用光才用光"。铜缆边界正向机架内部收缩，光互联及CPO技术将迎来爆发，光通信成为AI时代真正的"高速公路"。</p>
+                        <p><strong>📈 全球云厂商资本开支加码：</strong>摩根士丹利统计，全球前11家云服务商全年算力投入合计7950亿美元，较年初上浮19%，其中超过三成资金划拨给数据中心网络基建。Lumentum高端光组件产能已全部预售至2028年。</p>
+                        <p><strong>🇨🇳 国内产业链集体爆发：</strong>中国移动联合亨通光电建成全球首条S+C+L三波段多芯超低损耗光缆；6月北京光网络研讨会、上海CPO展会同步开幕；华为官宣6月10日发布新一代全光交换硅光架构。中际旭创、新易盛、天孚通信等国内龙头深度绑定英伟达CPO供应链。</p>
+                        <p><strong>⚠️ 产业链价值重构：</strong>CPO普及推动机会从传统光模块转向核心零部件：①外置光源（源杰科技70mW/100mW产品批量供货）；②精密连接器件（天孚通信FAU、透镜组件）；③硅光封装与代工（中际旭创、赛微电子）。</p>
+                    </div>
+                </div>
+
+                <!-- MLCC -->
+                <div class="topic-card p-5 rounded-xl mb-5">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 mr-3"></span>
+                        MLCC · 高盛称之为"新存储器"，AI引爆史上最长涨价周期
+                    </h3>
+                    <div class="space-y-3 text-gray-700 text-sm">
+                        <p><strong>💰 三星涨价6月1日正式生效：</strong>三星电机消费级MLCC新一轮涨价6月1日正式落地，高容产品上调30%，台系厂商调价15%-20%。国产厂商预计6月跟进涨价，幅度15%-20%。渠道在原厂涨价基础上加价30%-50%，少数稀缺料号价格翻倍。</p>
+                        <p><strong>🏭 供需紧张核心逻辑：</strong>AI服务器成为高容MLCC核心增量，单台AI服务器MLCC价值量已跻身BOM成本第三位，仅次于GPU与存储器；日系主动关停低毛利中低端产线、聚焦高端，高容扩产周期由3-4个月拉长至8-9个月；稀土出口管控抬升日系生产成本。</p>
+                        <p><strong>📊 高盛定性"史上最长上行周期"：</strong>整体MLCC市场规模约150亿美元，其中服务器细分市场约13亿美元，正以年均80%的复合增速急速扩张。专家判断本轮涨价行情至少持续至2026年末，日系年内或再涨30%，韩台系最高涨幅有望达50%。</p>
+                        <p><strong>📈 板块昨日集体爆发：</strong>MLCC板块整体暴涨7.15%，达利凯普20cm涨停，博杰股份、火炬电子涨停，利和兴、商络电子、国瓷材料、昀冢科技涨超10%，风华高科、深圳华强等涨超7%。</p>
+                    </div>
+                </div>
+
+                <!-- 人形机器人 -->
+                <div class="topic-card p-5 rounded-xl mb-5">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-gradient-to-r from-green-500 to-teal-500 mr-3"></span>
+                        人形机器人 · 6月迎多重催化，商业化落地加速
+                    </h3>
+                    <div class="space-y-3 text-gray-700 text-sm">
+                        <p><strong>🤝 英伟达×宇树科技重磅合作：</strong>黄仁勋在GTC台北发布英伟达Isaac GR00T参考人形机器人，基于宇树科技h2plus平台打造，整合SharpAve触觉五指灵巧手、Jetson Thor算力板载计算及Isaac GR00T软件生态。该产品将于今年年底由宇树正式推向市场，主要面向高等教育机构和研究人员。</p>
+                        <p><strong>📐 宇树h2plus详细参数：</strong>身高182cm，带电池重量约70kg，续航约3小时。全身共75个自由度，搭载NVIDIA Jetson T5000高算力模组，AI算力达到2070 TFLOPS。指尖触觉像素超1000个，压力灵敏度达0.005N；手臂峰值负载约15kg。</p>
+                        <p><strong>🏭 车企人形机器人量产竞速：</strong>比亚迪确认正在研发人形机器人项目"尧舜禹"；小鹏新一代IRON计划三季度亮相、年底高阶版本量产；广汽孵化慧仑科技，今年实现核心产品小批量试产；特斯拉首批Optimus Gen-3已在上海超级工厂交付投入产线作业。</p>
+                        <p><strong>🏠 消费级仿生机器人开启预售：</strong>深圳优必选旗下优世界官宣，全球首款全尺寸超仿生人形机器人正式在京东开启预售，6月30日全规格首发开售，主打家庭陪伴场景，填补亲情缺位带来的陪伴空白。</p>
+                        <p><strong>📋 行业标准6月正式落地：</strong>多项具身智能团体标准正式实施，首次针对机器人关节精度、智能控制系统、安全冗余设计等核心维度出台明确硬性规范。长三角、珠三角多地政策精准加码，"黑灯工厂"试点给予真金白银补贴。</p>
+                    </div>
+                </div>
+
+                <!-- 存储/HBM -->
+                <div class="topic-card p-5 rounded-xl mb-5">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 mr-3"></span>
+                        存储芯片 / HBM · 三大原厂2027年将大幅调高HBM报价
+                    </h3>
+                    <div class="space-y-3 text-gray-700 text-sm">
+                        <p><strong>💰 2027年HBM涨价确定性极强：</strong>TrendForce集邦咨询研究指出，基于DRAM供不应求市况、新旧世代HBM的高制造难度及高成本，三大原厂（三星、SK海力士、美光）将于2027年大幅调高HBM报价。2027年英伟达Rubin Ultra平台将进一步推升单颗GPU的HBM容量至384GB。</p>
+                        <p><strong>📊 投片量持续攀升：</strong>三大原厂2025-2027年HBM投片量估计占整体DRAM投片量的18%、22%及约30%，而HBM位元供给则将占整体DRAM位元供给的8%、9%及约13%。国产材料技术突破，部分企业已具备进入国际大厂供应链能力。</p>
+                        <p><strong>⚠️ Arm CEO预警：</strong>Arm CEO在Computex与黄仁勋同台时明确指出，存储芯片仍是AI算力扩张的最大瓶颈。随着Agent AI时代来临，CPU内存需求也将持续爆发。</p>
+                    </div>
+                </div>
+
+                <!-- AI PC / Rubin平台 -->
+                <div class="topic-card p-5 rounded-xl mb-5">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 mr-3"></span>
+                        AI PC / Rubin平台 · Vera Rubin全面量产，PC产业迎来历史性变革
+                    </h3>
+                    <div class="space-y-3 text-gray-700 text-sm">
+                        <p><strong>☁️ Vera Rubin平台全面投产：</strong>微软已对Vera Rubin平台完成验证，现已全面投产并将部署至Azure数据中心。每兆瓦推理吞吐量提升最高10倍，每个智能体token成本降低一个数量级，内置机密计算保护模型和数据安全。</p>
+                        <p><strong>💻 RTX Spark重新定义PC：</strong>英伟达携RTX Spark杀入消费级笔记本市场，集成128GB统一内存、20核CPU、相当于RTX 5070的GPU性能，提供1 Petaflop的AI算力。微软、戴尔、联想等30余款机型今秋集体入局，起售价预计高达2000-2500美元以上。</p>
+                        <p><strong>🤝 英伟达×微软深度合作：</strong>双方在Build 2026展示横跨Windows设备、Azure云与本地部署的统一加速计算栈，为开发者构建AI智能体提供端到端支撑。微软位于威斯康星州的Fairwater AI工厂已提前上线，运行数十万套Blackwell系统。</p>
+                        <p><strong>🏭 马斯克550亿美元芯片厂或落地：</strong>马斯克关联空壳公司在休斯顿郊外购地逾6000英亩，外界普遍认为这是为投资高达550亿美元的"Terafab"半导体工厂选址。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 持仓标的跟踪 -->
+            <div class="card-glass p-6 mb-8">
+                <h2 class="text-2xl font-bold gradient-text mb-6 pb-3 border-b-2 border-indigo-500/30">
+                    <i class="fa fa-bar-chart mr-3"></i>📊 核心持仓跟踪
+                </h2>
+                
+                <div class="space-y-4">
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-bold text-lg text-gray-800">英维克 (002837)</h4>
+                            <span class="text-red-600 font-bold text-xl">🔴 严重破止损</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 text-sm text-gray-600">
+                            <div><strong>成本价：</strong>104.23元</div>
+                            <div><strong>止损线：</strong>98元</div>
+                            <div><strong>浮亏：</strong>-36.62%</div>
+                        </div>
+                        <p class="mt-2 text-sm text-red-700 bg-red-100 p-2 rounded"><i class="fa fa-exclamation-circle mr-2"></i><strong>操作建议：</strong>反弹力度持续疲弱，建议今日开盘立即执行止损操作，控制风险优先。</p>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-bold text-lg text-gray-800">铜冠铜箔 (301217)</h4>
+                            <span class="text-yellow-600 font-bold text-xl">🟡 减仓锁定利润</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 text-sm text-gray-600">
+                            <div><strong>成本价：</strong>87.16元</div>
+                            <div><strong>止损线：</strong>85元</div>
+                            <div><strong>浮盈：</strong>+19.3%</div>
+                        </div>
+                        <p class="mt-2 text-sm text-yellow-700 bg-yellow-100 p-2 rounded"><i class="fa fa-info-circle mr-2"></i><strong>操作建议：</strong>昨日高位放量暴跌，MLCC板块热度有望传导，建议逢高减仓至25%仓位，锁定部分利润。</p>
+                    </div>
+                    
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-bold text-lg text-gray-800">*ST建艺 (002789)</h4>
+                            <span class="text-green-600 font-bold text-xl">🟢 持有观察</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 text-sm text-gray-600">
+                            <div><strong>成本价：</strong>约13.45元</div>
+                            <div><strong>止损线：</strong>12.5元</div>
+                            <div><strong>状态：</strong>略高于成本线</div>
+                        </div>
+                        <p class="mt-2 text-sm text-green-700 bg-green-100 p-2 rounded"><i class="fa fa-check-circle mr-2"></i><strong>操作建议：</strong>摘帽预期仍在，目前价格安全边际较高，可继续持有观察，跌破12.5元严格止损。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 风险提示 -->
+            <div class="risk-box p-6 rounded-2xl mb-8">
+                <h3 class="text-xl font-bold text-amber-800 mb-4 flex items-center">
+                    <i class="fa fa-exclamation-triangle mr-3"></i>⚠️ 市场风险提示
+                </h3>
+                <div class="space-y-3 text-amber-900 text-sm">
+                    <p><strong>1. 高盛警告AI交易拥挤风险：</strong>美股连涨九周后，AI交易已演变为高拥挤、高集中与高杠杆的自我强化循环；指数平静掩盖个股剧烈波动，投资者大规模放弃下行保护追逐上行，市场脆弱性已急剧攀升。</p>
+                    <p><strong>2. 期权数据亮红灯：</strong>看涨期权需求飙升，上次出现类似信号是2022年熊市前夕。回购静默期将至、CTA下行卖压达千亿美元、做市商Gamma一旦翻负将放大波动，亢奋牛市的拐点或比想象中更近。</p>
+                    <p><strong>3. 地缘政治不确定性：</strong>中东局势虽有缓和但仍存反复，霍尔木兹海峡任何风吹草动都可能引发能源市场剧烈波动，进而传导至全球资本市场。</p>
+                    <p><strong>4. 科技股内部分化加剧：</strong>资金从软件向硬件转移过程中，缺乏业绩支撑的纯题材概念股可能面临剧烈回调，需严格甄别个股基本面质量，坚决规避炒概念行为。</p>
+                </div>
+            </div>
+
+            <!-- 今日操作策略 -->
+            <div class="card-glass p-6">
+                <h2 class="text-2xl font-bold gradient-text mb-6 pb-3 border-b-2 border-indigo-500/30">
+                    <i class="fa fa-bullseye mr-3"></i>🎯 今日操作策略
+                </h2>
+                <div class="space-y-4 text-gray-700">
+                    <div class="flex items-start">
+                        <span class="bg-indigo-100 text-indigo-800 text-sm font-bold px-3 py-1 rounded-full mr-3 mt-1">仓位</span>
+                        <div><strong>建议仓位：</strong>30%-50%，保持偏谨慎态度。AI硬件板块热度高但波动加剧，不宜追高。</div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-green-100 text-green-800 text-sm font-bold px-3 py-1 rounded-full mr-3 mt-1">主线</span>
+                        <div>
+                            <strong>关注方向：</strong>
+                            <ul class="mt-2 space-y-1 ml-4 list-disc">
+                                <li><strong>光通信/CPO产业链：</strong>英伟达量产催化下，优先关注已深度绑定英伟达供应链的细分龙头（光引擎、外置光源、精密连接），避免追高已暴涨标的</li>
+                                <li><strong>MLCC/被动元件：</strong>涨价逻辑明确，关注国产替代进度快、高容产能释放的龙头企业</li>
+                                <li><strong>人形机器人：</strong>6月多重催化，优先关注上游核心零部件（伺服电机、减速器、传感器）确定性机会</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-red-100 text-red-800 text-sm font-bold px-3 py-1 rounded-full mr-3 mt-1">风控</span>
+                        <div>
+                            <strong>严格执行：</strong>
+                            <ul class="mt-2 space-y-1 ml-4 list-disc">
+                                <li>英维克止损操作必须执行，切勿抱有侥幸心理</li>
+                                <li>光通信板块短期涨幅巨大，追高风险急剧累积，逢低布局不追涨</li>
+                                <li>单票仓位控制在15%以内，避免单一题材过度暴露</li>
+                                <li>跌破关键支撑位的标的果断减仓，不做时间的敌人</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 悬浮功能按钮 -->
+    <div class="float-btn-group">
+        <div class="float-btn-wrapper">
+            <button class="float-btn print" onclick="window.print()">
+                <i class="fa fa-print"></i>
+            </button>
+            <span class="tooltip">打印报告</span>
+        </div>
+        <div class="float-btn-wrapper">
+            <button class="float-btn share" onclick="navigator.clipboard.writeText(window.location.href);alert('链接已复制');">
+                <i class="fa fa-share-alt"></i>
+            </button>
+            <span class="tooltip">复制链接</span>
+        </div>
+        <div class="float-btn-wrapper">
+            <button class="float-btn top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                <i class="fa fa-arrow-up"></i>
+            </button>
+            <span class="tooltip">返回顶部</span>
+        </div>
+    </div>
+
+    <script>
+        // 滚动时显示/隐藏返回顶部按钮
+        window.addEventListener('scroll', function() {
+            const topBtn = document.querySelector('.float-btn.top');
+            if (window.scrollY > 300) {
+                topBtn.style.opacity = '1';
+                topBtn.style.visibility = 'visible';
+            } else {
+                topBtn.style.opacity = '0';
+                topBtn.style.visibility = 'hidden';
+            }
+        });
+    </script>
+</body>
+</html>
