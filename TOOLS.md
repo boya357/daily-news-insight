@@ -6,6 +6,13 @@
 
 ## 📌 一、报告生成核心规范
 
+### 0. 提交前强制校验【2026-06-03 最高优先级】
+```
+提交前必须运行：./validate_system.sh
+✅ 15项全量校验全部通过 → 可以提交
+❌ 任何一项不通过 → 修复后再提交
+```
+
 ### 1. report_converter 核心流程
 ```
 1. python generate_report.py --type daily --date YYYYMMDD
@@ -74,7 +81,27 @@ python simple_push.py \
 
 ---
 
-## 📌 六、详细错误解决方案索引
+## 📌 六、核心文档索引（2026-06-03新增）
+
+| 文档 | 作用 | 位置 |
+|------|------|------|
+| validate_system.sh | 15项全量系统完整性校验 | 根目录 |
+| ERROR_KNOWLEDGE_BASE.md | 永久错误知识库，记录所有历史问题+根因+教训 | 根目录 |
+| SYSTEM_ARCHITECTURE.md | 完整系统架构与规则手册 | 根目录 |
+| DIRECTORY_RULES.md | 目录规则与禁忌，物理隔离规范 | 根目录 |
+| update_homepage.py | 首页自动更新脚本 | 根目录 |
+
+---
+
+## 📌 七、发现新问题标准流程
+
+```
+发现问题 → 更新ERROR_KNOWLEDGE_BASE.md → 新增对应校验项到validate_system.sh → 修复问题 → 运行./validate_system.sh → 全部通过后提交
+```
+
+---
+
+## 📌 八、详细错误解决方案索引
 
 | 错误 | 详细记录位置 |
 |------|-------------|
@@ -86,3 +113,52 @@ python simple_push.py \
 | Markdown渲染错误 | `recent_memory/decision/20260531_report_converter表格渲染修复.md` |
 | 报告卡片样式不统一 | `recent_memory/decision/20260601_报告卡片样式不统一问题修复.md` |
 | 重复报告卡片 | `recent_memory/decision/20260601_重复报告卡片问题修复.md` |
+| 导航栏CSS不统一 | `recent_memory/decision/20260603_导航栏CSS彻底统一.md` |
+| 新报告CSS缺失 | `recent_memory/decision/20260603_新报告导航栏CSS缺失问题修复.md` |
+| 悬浮按钮格式不统一 | `recent_memory/decision/20260603_悬浮按钮格式标准化.md` |
+| 目录混淆覆盖问题 | `recent_memory/decision/20260603_目录混淆问题彻底修复.md` |
+| 首页链接404问题 | `recent_memory/decision/20260603_首页链接404问题修复.md` |
+| weekly_preview冗余目录问题 | `recent_memory/decision/20260603_冗余目录问题终极解决.md` |
+
+---
+
+## 📌 九、deep-research-simple 技能使用规范【2026-06-03新增】
+
+### 1. 标准工作流程
+```
+1. skill_load 加载 deep-research-simple
+2. 获取当前日期，创建任务相关目录
+3. 第一轮搜索：宽泛搜索，获取整体概览
+4. 整理第一轮证据写入 *_evidence.md
+5. 第二轮搜索：补充细节，针对缺口定向搜索
+6. 整理第二轮证据，继续追加到证据库
+7. 第三轮搜索：技术细节、成本结构、良率瓶颈等
+8. 撰写完整Markdown深度研究报告
+9. Python markdown库转换为专业HTML报告
+10. 验证文件完整性后提交
+```
+
+### 2. 工具使用坑点
+| 坑点 | 现象 | 解决方案 |
+|------|------|---------|
+| edit_file写回失败 | 追加大段内容时报错"写回文件失败" | 改用 write_file 完全覆盖写入 |
+| Python markdown转换表格 | 默认不支持表格渲染 | 使用 `markdown.markdown(content, extensions=['tables'])` |
+| 搜索结果过大 | search_web返回超过100KB | 保存到临时文件，只提取关键证据 |
+
+### 3. 深度研究报告结构标准
+```
+执行摘要 → 技术路线深度分析 → 产业链全景图谱 → 核心玩家梳理
+→ 市场空间测算 → 催化因素分析 → 风险因素 → 投资机会图谱
+→ 重点公司深度 → 结论与展望
+```
+
+### 4. 证据块标准格式
+```
+Claim: [核心论断]
+Source: [来源名称]
+URL: [完整链接]
+Date: [YYYY-MM-DD]
+Excerpt: [原文摘录]
+Context: [上下文说明]
+Confidence: [HIGH/MEDIUM/LOW]
+```

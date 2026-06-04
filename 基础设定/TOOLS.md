@@ -1,50 +1,19 @@
 # 工具使用指南（精简版）
 
 ## 核心脚本
-- **simple_push.py**：企业微信推送（`python3 simple_push.py "标题" "URL"`）
-- **md_to_html.py**：Markdown转HTML（已废弃，改用report_converter）
-- **update_all_lists.py**：修复技能生成的跳转latest.html为列表页，路径：`/app/data/所有对话/主对话/update_all_lists.py`（不在src目录）
-- **report_converter/generate_report.py**：专业报告生成系统V1.0，统一入口，支持全部11种报告类型
+- **simple_push.py**：企业微信推送
+- **update_all_lists.py**：修复技能生成的跳转latest.html为列表页
+- **report_converter/generate_report.py**：专业报告生成系统，统一入口
 
 ## 🎯 专业报告生成系统V1.0（2026-05-31发布）
-
 ### 核心信息
 - **工具位置**：`/app/data/所有对话/主对话/docs/report_converter/`
 - **入口脚本**：`scripts/converter.py`
-- **支持报告数**：11种全类型
+- **支持报告数**：12种全类型
 - **核心价值**：彻底解决latest.html覆盖问题，统一报告风格
+- **核心功能**：智能Markdown解析、专业组件库、12种报告类型、原子写入机制、列表页独立生成
 
-### 核心功能（5项）
-智能Markdown解析、专业组件库、11种报告类型、原子写入机制、列表页独立生成
-
-### MLCC Pro三级模板体系
-| 级别 | 适用场景 | 核心功能 |
-|------|---------|---------|
-| **Level 1 深度研报 | 产业链深度研究、重大专题报告 | 6章完整结构、10+交互式图表、核心数据卡片、五星标的推荐、目录卡片导航高亮 |
-| **Level 2 标准报告** | 周复盘、月报、催化日历 | 3-4章内容、支持3-5个图表、所有MLCC Pro核心功能 |
-| **Level 3 轻量快报** | 每日新闻洞察、盘中快报、盘后速递 | 极简结构、保留统一导航栏 |
-
-### 快速使用（3种模式）
-```bash
-cd /app/data/所有对话/主对话/docs/report_converter/scripts
-
-# 1. 单篇转换
-python converter.py convert <md文件> <html文件> [类型]
-
-# 2. 批量转换目录
-python converter.py batch <目录> [输出目录]
-
-# 3. 单个文件
-python converter.py daily/20260530_每日新闻洞察.html
-```
-
-### 报告类型参数（常用5种）
-`daily`日报、`intraday`盘中、`aftermarket`盘后、`industry_chain`产业链、`weekly_review`周复盘
-
-> 完整11种类型、Python API、安全特性说明：见 `recent_memory/project/20260531_专业报告生成系统V1.0发布.md`
-
-### MLCC Pro模板核心特性
-> 完整16项功能列表、详细文档：见 `recent_memory/project/20260531_专业报告生成系统V1.0发布.md`
+> 完整使用指南、模板说明、API文档：见 `recent_memory/project/20260531_专业报告生成系统V1.0发布.md`
 
 ## ⚠️ 数据验证铁律
 **任何数据必须反复验证后才能写入报告，绝对不能凭记忆或未经核实直接引用！**
@@ -52,12 +21,15 @@ python converter.py daily/20260530_每日新闻洞察.html
 ## 🏗️ 系统架构规范
 
 ### 工作目录
-- **Git仓库**：`/app/data/所有对话/主对话/docs/`
+- **Git仓库**：`/root/daily-news-insight/`（注意：不是`/app/data/所有对话/主对话/docs/`）
+- **报告生成工作目录**：`/app/data/所有对话/主对话/docs/`
 
 ### 两大模块分类原则（核心）
 | 模块类型 | 命名规范 | 包含目录 |
 |---------|---------|---------|
-| **报告类（11个）** | `latest.html` | daily、intraday、aftermarket、weekly_review、weekly_outlook、monthly、industry_chain、s级催化扫描、催化日历、周末速递、明日催化剂 |
+| **报告类（11个）** | `latest.html` | daily、intraday、aftermarket、weekly_review、weekly_outlook、monthly、industry_chain、s级催化扫描、周末速递、明日催化剂 |
+| **单目录终极方案【2026-06-03】** | | weekly_outlook（唯一目录，已删除weekly_preview冗余目录），周三前瞻报告只存weekly_outlook/，周复盘只存weekly_review/，100%物理隔离 |
+| **⚠️ 重要提醒【2026-06-03】** | | **"催化日历"目录已永久删除！** S级催化扫描报告→`s级催化扫描/`，明日催化剂报告→`明日催化剂/`，任何情况下都不能再创建或写入"催化日历"目录 |
 | **工具类（5个）** | `index.html` | 产业链时钟、智能预警系统、持仓智能预警仪表盘、智能选题助手、预判验证 |
 
 ## 🚨 核心工作流程与防错原则
@@ -73,26 +45,38 @@ python converter.py daily/20260530_每日新闻洞察.html
 3. 文件名必须匹配模块类型
 
 ### Git同步流程
-- 工作目录：`/app/data/所有对话/主对话`
-- 安全检查：pwd确认 → ls验证 → 确认latest.html>3KB → 只add目标目录，绝不add -A
+- 工作目录：`/root/daily-news-insight/`
+- Git配置：token已永久保存到`~/.git-credentials`，无需手动输入
+- 安全检查：pwd确认 → ls验证 → 确认latest.html>3KB → 只add目标目录
 
 ### 🔴 技能缺陷与修复
 - **问题**：skill_daily-news-report的.so模块会写跳转latest.html
 - **强制修复**：改用`report_converter/generate_report.py`
 - **补充修复**：用`update_all_lists.py`恢复列表页
 
-## 📋 核心错误检查清单
+## 📋 核心检查清单
 | 检查项 | 要求 |
 |-------|------|
-| 价格数据 | 必须查当日收盘价，禁止用历史数据 |
-| latest.html | >3KB，是列表页不是跳转页/单篇报告 |
-| 目录检查 | 先`ls docs/`确认存在，禁止跨模块 |
-| 链接验证 | 修改后抽查3-5个链接 |
+| 价格数据 | 必须查当日收盘价，禁止历史数据 |
+| 目录检查 | 先`ls docs/`确认存在，禁止跨模块，**禁止创建催化日历目录** |
+| 列表页保护 | latest.html必须>3KB，是列表页不是跳转页，禁止直接覆盖 |
+| 导航栏检查 | 标准玻璃态样式，11个按钮，统一显示"周三前瞻" |
+| 报告完整性 | 深度报告必须完整6章结构，禁止自创HTML模板 |
+| 周复盘纯净度 | weekly_review目录下不能出现任何周三前瞻报告 |
+| 提交前校验 | 必须运行`./validate_system.sh`，15项校验全部通过 |
 | 持仓限制 | 仅3个持仓，禁止添加其他标的 |
-| 重复报告 | 立即删除v2/v3/v4等中间版本 |
-| 导航栏统一 | 同时验证首页、列表页、单篇报告 |
-| 模板验证 | 深度报告必须用MLCC同款模板 |
-| 重复报告卡片 | 插入前必须搜索文件，确认没有相同文件名已存在 |
-| 卡片样式一致性 | 必须完整复制既有卡片的HTML结构，绝对禁止自创样式 |
+| 文件修改原则 | 仅修改目标部分，严禁整个文件替换覆盖 |
 
-> **完整规范、定时任务、错误教训**：详见 `recent_memory/` 相关文档
+> **完整规范**：详见 `recent_memory/decision/` 文档
+
+## 🎨 项目聊天图片处理流程（2026-06-03新增）
+### 标准操作流程
+1. **下载图片**：使用`coze agent file download --project-id <项目ID> --project-file-path <用户上传路径>`下载用户上传的图片到本地
+2. **图片分析**：使用`read_image`工具分析图片内容，明确需要修改的区域和细节
+3. **生成修改**：使用`image_generate`工具，mode设为"生图"，传入参考图路径，prompt中明确、完整地描述修改要求，避免歧义
+4. **上传结果**：使用`coze agent file upload --project-id <项目ID> --local-file-path <生成图片本地路径> --project-dir "/用户上传"`将修改后的图片上传到项目目录
+5. **发送用户**：使用`computer://用户上传/<文件名>`格式将修改后的图片链接发送给用户
+
+### 注意事项
+- 当用户反馈修改不到位时，需要重新明确修改范围，确保完全覆盖用户指定的所有区域，避免局部修改
+- prompt描述要尽可能精确，例如明确说明"整个红色门头牌匾下方的所有玻璃幕墙（包括玻璃门窗、玻璃墙、台阶区域等）"而不是模糊的"玻璃幕墙"
