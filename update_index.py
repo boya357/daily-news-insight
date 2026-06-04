@@ -101,9 +101,9 @@ def main():
         </div>'''
     
     # 5. 用正则替换【第一区】的内容
-    # 匹配从"<!-- 【第一区】"开始到下一个"<!-- 【第二区】"或"<!-- 【"之前的内容
-    pattern = r'<!-- 【第一区】最新发布横幅.*?--\>\s*<div class="featured-banner.*?</div>'
-    new_content = re.sub(pattern, new_featured_section, content, flags=re.DOTALL)
+    # 匹配从"<!-- 【第一区】"开始到"<!-- 【第二区】"之前的所有内容
+    pattern = r'<!-- 【第一区】最新发布横幅.*?--\>.*?(?=\s*<!-- 【第二区】)'
+    new_content = re.sub(pattern, new_featured_section + '\n\n        ', content, flags=re.DOTALL)
     
     # 6. 写回文件
     with open(index_path, 'w', encoding='utf-8') as f:
