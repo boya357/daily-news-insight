@@ -153,7 +153,12 @@ def main():
     for i, filepath in enumerate(all_files):
         filename = os.path.basename(filepath)
         date_str = filename[:8]
-        title = f'{date_str} S级催化扫描'
+        # 从文件名中提取真正的标题，保留"盘前"和"盘后"标识
+        # 格式：YYYYMMDD_盘前_S级催化扫描.html -> 提取"盘前 S级催化扫描"
+        name_without_date = filename[9:].replace('.html', '')
+        # 把下划线换成空格
+        name_without_date = name_without_date.replace('_', ' ')
+        title = f'{date_str} {name_without_date}'
         
         if i == 0:
             # 最新报告

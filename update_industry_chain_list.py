@@ -153,7 +153,12 @@ def main():
     for i, filepath in enumerate(all_files):
         filename = os.path.basename(filepath)
         date_str = filename[:8]
-        title = f'{date_str} 产业链深度报告'
+        # 从文件名中提取真正的标题（日期后面的部分，去掉.html）
+        # 格式：YYYYMMDD_标题内容.html -> 提取"标题内容"部分
+        name_without_date = filename[9:].replace('.html', '')
+        # 去掉可能的后缀如_report
+        name_without_date = name_without_date.replace('_report', '')
+        title = f'{date_str} {name_without_date}'
         
         if i == 0:
             # 最新报告
