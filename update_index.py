@@ -23,56 +23,28 @@ FEATURED_REPORT_TEMPLATE = '''<a href="{filepath}" class="block bg-gradient-to-r
 </a>
 '''
 
-def get_latest_reports():
-    """获取最新的报告列表"""
-    reports = []
+def get_latest_report(directory, icon, title_prefix, desc):
+    """获取指定目录下最新的报告文件（排除latest.html）"""
+    # 只匹配YYYYMMDD开头的报告文件，排除latest.html
+    all_files = [f for f in glob.glob(f'{directory}/*.html') if os.path.basename(f).startswith('202')]
+    if not all_files:
+        return None
     
-    # 1. S级催化扫描（优先级最高）
-    s_files = glob.glob('docs/s级催化扫描/*.html')
-    if s_files:
-        s_files.sort(reverse=True)
-        latest_s = s_files[0]
-        filename = os.path.basename(latest_s)
-        date_str = filename[:8]
-        rel_path = os.path.relpath(latest_s, 'docs')
-        reports.append({
-            'filepath': rel_path,
-            'icon': '⭐',
-            'title': f'🔥 {date_str} S级催化扫描',
-            'desc': '超级催化事件深度挖掘'
-        })
+    # 按时间倒序排序，取最新
+    all_files.sort(reverse=True)
+    latest_file = all_files[0]
+    filename = os.path.basename(latest_file)
+    date_str = filename[:8]
     
-    # 2. 每日新闻洞察
-    daily_files = glob.glob('docs/daily/*.html')
-    if daily_files:
-        daily_files.sort(reverse=True)
-        latest_daily = daily_files[0]
-        filename = os.path.basename(latest_daily)
-        date_str = filename[:8]
-        rel_path = os.path.relpath(latest_daily, 'docs')
-        reports.append({
-            'filepath': rel_path,
-            'icon': '📰',
-            'title': f'📰 {date_str} 每日新闻洞察',
-            'desc': '早间市场综述与机会挖掘'
-        })
+    # 转换为相对路径（相对于docs目录）
+    rel_path = os.path.relpath(latest_file, 'docs')
     
-    # 3. 产业链报告
-    chain_files = glob.glob('docs/industry_chain/*.html')
-    if chain_files:
-        chain_files.sort(reverse=True)
-        latest_chain = chain_files[0]
-        filename = os.path.basename(latest_chain)
-        date_str = filename[:8]
-        rel_path = os.path.relpath(latest_chain, 'docs')
-        reports.append({
-            'filepath': rel_path,
-            'icon': '🔗',
-            'title': f'🔗 {date_str} 产业链深度研究',
-            'desc': '产业逻辑与弹性测算'
-        })
-    
-    return reports[:2]  # 只取最新的2个显示在横幅
+    return FEATURED_REPORT_TEMPLATE.format(
+        filepath=rel_path,
+        icon=icon,
+        title=f'{date_str} {title_prefix}',
+        desc=desc
+    )
 
 def main():
     # 切换到脚本所在目录
@@ -85,11 +57,30 @@ def main():
         content = f.read()
     
     # 2. 获取最新报告
-    latest_reports = get_latest_reports()
+    reports = []
+    
+    # S级催化扫描
+    s_report = get_latest_report('docs/s级催化扫描', '⭐', 'S级催化扫描', '超级催化事件深度挖掘')
+    if s_report:
+        reports.append(s_report)
+    
+    # 每日新闻洞察
+    daily_report = get_latest_report('docs/daily', '📰', '每日新闻洞察', '早间市场综述与机会挖掘')
+    if daily_report:
+        reports.append(daily_report)
+    
+    # 产业链报告
+    chain_report = get_latest_report('docs/industry_chain', '🔗', '产业链深度研究', '产业逻辑与弹性测算')
+    if chain_report:
+        reports.append(chain_report)
+    
+    # 只取最新的2个显示在横幅
+    latest_reports = reports[:2]
+    
     print(f'✅ 扫描到 {len(latest_reports)} 个最新报告')
     
     # 3. 生成新的最新发布HTML
-    report_html = '\n'.join([FEATURED_REPORT_TEMPLATE.format(**r) for r in latest_reports])
+    report_html = '\n'.join(latest_reports)
     
     # 4. 构建新的【第一区】最新发布横幅
     new_featured_section = f'''<!-- 【第一区】最新发布横幅 - 突出显示最新报告 -->
