@@ -69,7 +69,7 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
                 </div>
                 <span class="text-white font-bold text-lg">投资研究中心</span>
             </div>
-            <div class="flex items-center space-x-1 flex-wrap gap-1">
+            <div class="nav-links flex items-center space-x-1 flex-wrap gap-1">
                 <a href="/daily-news-insight/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a>
                 <a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a>
                 <a href="/daily-news-insight/intraday/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a>
@@ -82,8 +82,32 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
                 <a href="/daily-news-insight/s级催化扫描/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a>
                 <a href="/daily-news-insight/monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
             </div>
+            <button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
         </div>
     </nav>
+    
+    <!-- 移动端全屏菜单 -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
+        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a>
+        <a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a>
+        <a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中快报</a>
+        <a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后速递</a>
+        <a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链总览</a>
+        <a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a>
+        <a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a>
+        <a href="/daily-news-insight/周末速递/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a>
+        <a href="/daily-news-insight/明日催化剂/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化剂</a>
+        <a href="/daily-news-insight/s级催化扫描/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⭐ S级催化扫描</a>
+        <a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🗓️ 月度总结</a>
+    </div>
+    
+    <script>
+        function toggleMobileMenu() {{
+            document.getElementById('mobileMenu').classList.toggle('show');}}
+            document.body.style.overflow = document.getElementById('mobileMenu').classList.contains('show') ? 'hidden' : '';}}
+        }
+    </script>
 
     <div class="pt-24 pb-8 px-4">
         <div class="max-w-6xl mx-auto text-center">
@@ -101,7 +125,7 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
             </h2>
             
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {report_cards}
+                __REPORT_CARDS__
             </div>
         </div>
     </div>
@@ -170,9 +194,7 @@ def main():
         report_cards.append(card)
     
     # 4. 插入到模板中
-    final_html = PAGE_TEMPLATE.format(
-        report_cards='\n'.join(report_cards)
-    )
+    final_html = PAGE_TEMPLATE.replace('__REPORT_CARDS__', '\n'.join(report_cards))
     
     # 5. 写入文件
     output_path = f'{weekend_dir}/latest.html'
