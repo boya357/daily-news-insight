@@ -19,7 +19,7 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
     <style>
-        body::before {{
+        body::before {
             content: '';
             position: fixed;
             top: 0;
@@ -28,9 +28,9 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
             bottom: 0;
             z-index: 0;
             pointer-events: none;
-        }}
+        }
         
-        .glass-nav {{
+        .glass-nav {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -38,29 +38,29 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
             z-index: 2147483647 !important;
             isolation: isolate !important;
             pointer-events: auto !important;
-        }}
+        }
         
-        .glass-nav * {{
+        .glass-nav * {
             position: relative;
             z-index: 2147483647 !important;
             pointer-events: auto !important;
-        }}
+        }
         
-        body {{
+        body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
-        }}
+        }
         
-        .line-clamp-2 {{
+        .line-clamp-2 {
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-        }}
+        }
     
         /* ========== 汉堡菜单样式 ========== */
-        .hamburger-btn {{
+        .hamburger-btn {
             display: none;
             background: rgba(255,255,255,0.2);
             border: none;
@@ -71,9 +71,9 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
             cursor: pointer;
             font-size: 20px;
             z-index: 99999;
-        }}
+        }
         
-        .mobile-menu {{
+        .mobile-menu {
             position: fixed;
             top: 0;
             left: 0;
@@ -86,13 +86,13 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
             justify-content: center;
             align-items: center;
             padding: 20px;
-        }}
+        }
         
-        .mobile-menu.show {{
+        .mobile-menu.show {
             display: flex;
-        }}
+        }
         
-        .mobile-menu-item {{
+        .mobile-menu-item {
             color: white;
             font-size: 18px;
             font-weight: 600;
@@ -103,13 +103,13 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
             max-width: 300px;
             border-bottom: 1px solid rgba(255,255,255,0.2);
             transition: all 0.3s;
-        }}
+        }
         
-        .mobile-menu-item:hover {{
+        .mobile-menu-item:hover {
             background: rgba(255,255,255,0.1);
-        }}
+        }
         
-        .close-menu-btn {{
+        .close-menu-btn {
             position: absolute;
             top: 20px;
             right: 20px;
@@ -121,58 +121,58 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
             border-radius: 8px;
             cursor: pointer;
             font-size: 20px;
-        }}
+        }
         
         /* ========== 响应式媒体查询 ========== */
-        @media (max-width: 768px) {{
-            .nav-links {{
+        @media (max-width: 768px) {
+            .nav-links {
                 display: none !important;
-            }}
+            }
             
-            .hamburger-btn {{
+            .hamburger-btn {
                 display: block !important;
-            }}
+            }
             
-            .grid-cols-4 {{
+            .grid-cols-4 {
                 grid-template-columns: repeat(2, 1fr) !important;
-            }}
+            }
             
-            .text-4xl {{
+            .text-4xl {
                 font-size: 1.875rem !important;
-            }}
+            }
             
-            .text-3xl {{
+            .text-3xl {
                 font-size: 1.5rem !important;
-            }}
+            }
             
-            .text-2xl {{
+            .text-2xl {
                 font-size: 1.25rem !important;
-            }}
+            }
             
-            .p-8 {{
+            .p-8 {
                 padding: 1.5rem !important;
-            }}
+            }
             
-            .p-6 {{
+            .p-6 {
                 padding: 1.25rem !important;
-            }}
+            }
             
-            table {{
+            table {
                 display: block;
                 overflow-x: auto;
-            }}
+            }
             
-            a, button {{
+            a, button {
                 min-height: 44px;
                 min-width: 44px;
-            }}
-        }}
+            }
+        }
         
-        @media (min-width: 769px) and (max-width: 1024px) {{
-            .grid-cols-4 {{
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .grid-cols-4 {
                 grid-template-columns: repeat(3, 1fr) !important;
-            }}
-        }}
+            }
+        }
 
     </style>
 </head>
@@ -219,10 +219,10 @@ PAGE_TEMPLATE = '''<!DOCTYPE html>
     </div>
     
     <script>
-        function toggleMobileMenu() {{
+        function toggleMobileMenu() {
             document.getElementById('mobileMenu').classList.toggle('show');
             document.body.style.overflow = document.getElementById('mobileMenu').classList.contains('show') ? 'hidden' : '';
-        }}
+        }
     </script>
 
     <div class="pt-24 pb-8 px-4">
