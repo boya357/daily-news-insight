@@ -8,35 +8,35 @@
 
 ### 1. 标准工作流程
 ```
-生成报告 → 运行脚本更新列表页 → ./validate_system.sh全量校验
+生成报告 → 脚本更新列表 → ./validate_system.sh全量校验
     ↓
-✅ 15项校验全部通过 → Git提交 → 验证GitHub Pages返回200
-❌ 任何一项不通过 → 修复后重新校验
+✅ 15项校验通过 → Git提交 → 验证GitHub Pages返回200
+❌ 不通过 → 修复后重新校验
 ```
 
-### 2. 三大绝对禁令（违反即重罚）
+### 2. 三大绝对禁令
 1. ❌ **禁止手动编辑**任何 `latest.html`、禁止cp覆盖
 2. ❌ **禁止覆盖整个** `index.html`，首页仅允许增量更新
 3. ❌ **禁止自制HTML模板**，必须复制`industry_chain`标准模板
 
 ---
 
-## 📌 二、列表页自动化脚本（V2.0，2026-06-04）
+## 📌 二、列表页自动化脚本（V2.0）
 
 ### 核心原则
 - **零手动编辑**：所有列表页100%通过脚本自动更新
 - **布局永久固定**：脚本内置模板，HTML结构永远不变
 - **一键更新**：`python update_all_lists.py` 完成全部更新
 
-### 脚本清单（12个）
-**核心脚本**：update_all_lists.py（一键更新全部：10个列表页+首页）、update_index.py（首页仅增量更新第一区）
-
-**列表页脚本**：update_daily_list.py、update_intraday_list.py、update_aftermarket_list.py、update_industry_chain_list.py、update_weekly_review_list.py、update_weekly_outlook_list.py、update_weekend_express_list.py、update_tomorrow_catalyst_list.py、update_slevel_catalyst_list.py、update_monthly_list.py
+### 脚本清单（15个）
+**核心脚本**：update_all_lists.py（一键更新全部）、update_index.py（首页增量更新）
+**列表页脚本**：update_*_list.py共10个（日报/盘中/盘后/产业链/周复盘/周三前瞻/周末速递/明日催化/S级催化/月报）
+**安全防护**：`safe_update_latest.py`增量更新 + `validate_before_commit.py`校验 + `fix_navbar_final.py`导航栏修复 + Git Pre-commit钩子
 
 ### 首页特殊保护规则
 - ✅ **布局完全固定**：5个功能模块+系统工具箱永久保留
 - ✅ **增量更新模式**：只更新【第一区】最新发布横幅，其他不动
-- ❌ **错误教训**：2026-06-04曾尝试简化首页，已恢复并永久禁止此类操作
+- ❌ **错误教训**：2026-06-04曾尝试简化首页，已恢复并永久禁止
 
 ---
 
@@ -63,70 +63,66 @@
 
 ---
 
-## 📌 四、核心文档索引
+## 📌 四、核心文档与流程速查
 
-| 文档 | 作用 |
-|------|------|
-| `validate_system.sh` | 15项全量系统完整性校验 |
-| `ERROR_KNOWLEDGE_BASE.md` | 永久错误知识库（v1.2，含8个错误案例） |
-| `SYSTEM_ARCHITECTURE.md` | 完整系统架构与规则手册（v2.0） |
-| `MEMORY.md` | 核心知识库（v5.0） |
-| `USER.md` | 用户核心信息与持仓记录 |
+### 核心文档
+- `validate_system.sh`：15项全量系统校验
+- `ERROR_KNOWLEDGE_BASE.md`：错误知识库（8个案例）
+- `SYSTEM_ARCHITECTURE.md`：系统架构规则（v2.0）
 
----
-
-## 📌 五、问题处理标准流程
-
+### 问题处理SOP
 ```
-发现问题 → 更新ERROR_KNOWLEDGE_BASE.md记录错误
+发现问题 → 记录错误 → 新增校验 → 修复
     ↓
-新增对应校验项到validate_system.sh
-    ↓
-修复问题 → 运行./validate_system.sh全量校验
-    ↓
-✅ 全部通过 → Git提交部署
+✅ validate_system.sh全量通过 → Git提交
 ```
 
 ---
 
-## 📌 六、deep-research-simple 技能要点
+## 📌 五、其他要点速查
 
-- **流程**：3轮搜索→证据整理→Markdown报告→HTML转换
-- **坑点**：大段写入用write_file，markdown表格需`extensions=['tables']`
-- **证据格式**：Claim+Source+URL+Date+Excerpt+Confidence
+### deep-research-simple技能
+- 3轮搜索→证据整理→Markdown→HTML转换
+- 大段写入用write_file，markdown表格需`extensions=['tables']`
 
----
+### 工具页面更新规则
+- 不做自动化，布局100%固定，仅更新数字和文本
+- 每日更新：持仓、预判、预警
+- 每周更新：产业链时钟、智能选题
 
-## 📌 七、工具页面更新规则（2026-06-04确认）
-
-### 核心原则
-- **不做自动化**：5个工具页面保持手动更新，避免正则匹配破坏布局
-- **布局100%固定**：仅允许更新数字和文本内容，禁止任何HTML结构修改
-- **更新频率**：
-  - 每日更新：持仓仪表盘、预判验证、智能预警系统
-  - 每周更新：产业链时钟、智能选题助手
-
-### 更新操作方法
-1. 找到对应位置的数字/文本
-2. 直接修改，不动任何HTML标签
-3. 提交GitHub
+### 脚本修复记录
+- 产业链列表脚本：修复标题硬编码
+- S级催化列表脚本：修复"盘前/盘后"标识丢失
+- 教训：删除文件后必须重跑列表更新脚本
 
 ---
 
-## 📌 八、脚本修复记录（2026-06-04）
+## 📌 九、导航栏移动端适配要点
 
-### update_industry_chain_list.py
-- **问题**：标题硬编码为"产业链深度报告"，未显示真实产业链名称
-- **修复**：从文件名完整提取标题
+### 汉堡按钮规范
+- 位置：`nav-links`容器外同级，电脑端隐藏移动端显示
+- 颜色：紫色`#667eea`，白色按钮在白色导航栏不可见
 
-### update_slevel_catalyst_list.py
-- **问题**：标题丢失"盘前"、"盘后"标识
-- **修复**：完整提取文件名中信息，保留时间标识
+### 导航栏文字颜色规范（2026-06-04终版）
+- **核心教训**：白背景上绝对不能用白色文字！
+- **统一方案**：所有导航链接用`text-gray-700`（深灰色），hover用`text-gray-900`
+- **背景适配**：灰色文字在紫色渐变背景和白色玻璃态背景上都清晰可见
+- **标题文字**："投资研究中心"用`text-gray-800`
 
-### 重要经验教训
-- ⚠️ **删除文件后必须重新运行列表更新脚本**，否则列表中可能仍有已删除文件的链接
-- ⚠️ 列表脚本按修改时间排序，最新文件自动置顶
+### 关键要点
+- 脚本插入顺序：先插移动端菜单HTML，再插汉堡按钮
+- CSS断点：移动端768px，平板端769-1024px
+- 必须包含完整CSS：`@media`查询、汉堡按钮样式、移动端菜单样式
 
----
+### 最终修复方案
+- 主脚本：`fix_navbar_final.py` - 基于首页正确模板完全重写导航栏
+- 备份脚本：`fix_navbar_simple.py` - 支持双模板的简化修复版本
+- 批量修复：今日7个报告 + 4个模板全部同步修复
 
-> **详细错误案例、完整SOP、历史决策记录**见：`recent_memory/decision/` 目录
+### 错误教训（2026-06-04新增）
+1. Git提交前必须验证HTML完整性，避免大量内容被错误删除
+2. 回滚到基线版本后，新增的脚本文件会丢失，需要重新创建
+3. 修复现有文件后**必须同步修复模板**，否则新报告还会出错
+4. 颜色搭配要考虑所有主题（紫色/浅色/玻璃态），不能只看单一背景
+
+> **完整HTML结构、错误案例**见：`recent_memory/decision/`
