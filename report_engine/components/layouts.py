@@ -80,17 +80,17 @@ def report_page(title, subtitle, content_sections, metrics=None):
     # 内容区域
     content_html = ''.join(content_sections)
     
-    return f'''
+    return '''
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title}</title>
+    <title>''' + title + '''</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
     <style>
-        body::before {{
+        body::before {
             content: '';
             position: fixed;
             top: 0;
@@ -100,17 +100,17 @@ def report_page(title, subtitle, content_sections, metrics=None):
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             z-index: 0;
             pointer-events: none;
-        }}
+        }
         
-        .glass-nav {{
+        .glass-nav {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             z-index: 2147483647 !important;
-        }}
+        }
         
-        .hamburger-btn {{
+        .hamburger-btn {
             display: none;
             background: rgba(255,255,255,0.2);
             border: none;
@@ -120,9 +120,9 @@ def report_page(title, subtitle, content_sections, metrics=None):
             border-radius: 8px;
             cursor: pointer;
             font-size: 20px;
-        }}
+        }
         
-        .mobile-menu {{
+        .mobile-menu {
             position: fixed;
             top: 0;
             left: 0;
@@ -133,22 +133,22 @@ def report_page(title, subtitle, content_sections, metrics=None):
             display: none;
             padding-top: 80px;
             overflow-y: auto;
-        }}
+        }
         
-        .mobile-menu.show {{
+        .mobile-menu.show {
             display: block;
-        }}
+        }
         
-        .mobile-menu-item {{
+        .mobile-menu-item {
             display: block;
             color: white !important;
             padding: 16px 24px;
             text-decoration: none;
             font-size: 18px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
-        }}
+        }
         
-        .close-menu-btn {{
+        .close-menu-btn {
             position: absolute;
             top: 16px;
             right: 16px;
@@ -160,38 +160,38 @@ def report_page(title, subtitle, content_sections, metrics=None):
             border-radius: 8px;
             cursor: pointer;
             font-size: 20px;
-        }}
+        }
         
-        @media (max-width: 768px) {{
-            .hamburger-btn {{
+        @media (max-width: 768px) {
+            .hamburger-btn {
                 display: block;
-            }}
-            .hidden.md\\:flex {{
+            }
+            .hidden.md\\:flex {
                 display: none !important;
-            }}
-        }}
+            }
+        }
     </style>
 </head>
 <body class="relative z-10 min-h-screen font-sans">
-    {nav}
+    ''' + nav + '''
     
-    <div class="pt-24 pb-8 px-4">
-        <div class="max-w-6xl mx-auto">
-            {banner}
+    <div class="pt-24 pb-8 px-4 relative z-20">
+        <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-8">
+            ''' + banner + '''
             
             <!-- 内容区域 -->
             <div class="mt-12 space-y-0">
-                {content_html}
+                ''' + content_html + '''
             </div>
             
-            {footer}
+            ''' + footer + '''
         </div>
     </div>
     
     <script>
-        function toggleMobileMenu() {{
+        function toggleMobileMenu() {
             document.getElementById('mobileMenu').classList.toggle('show');
-        }}
+        }
     </script>
 </body>
 </html>
