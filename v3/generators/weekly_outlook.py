@@ -1,6 +1,6 @@
 """
-周三前瞻生成器 - V3.0
-周中展望 + 后半周机会分析
+周三前瞻生成器 - V3.0 高级版
+周中展望 + 题材预判 + 操作策略
 """
 import sys
 import os
@@ -8,12 +8,13 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.report import Report
-from components.layout import Section
-from components.special import RiskAlert
+from components.layout import Section, HighlightBox
+from components.data import DataCard, DataGrid, StockTags
+from components.special import RiskAlert, NewsItem
 
 
 class WeeklyOutlookGenerator:
-    """周三前瞻生成器"""
+    """周三前瞻生成器 - V3.0高级版"""
     
     def __init__(self, date_str: str, subtitle: str = None):
         self.date_str = date_str
@@ -25,127 +26,104 @@ class WeeklyOutlookGenerator:
         )
         self._components = []
     
-    def add_halfweek_review(self, review: str):
-        """前半周回顾"""
-        section = Section(
-            title="📊 前半周回顾",
-            content=f'<div class="prose-content"><p>{review}</p></div>'
-        )
+    def add_midweek_summary(self, summary: str):
+        """添加周中总结"""
+        box = HighlightBox(content=summary, icon="activity", variant="primary", title="周中核心观察")
+        self._components.append(box)
+    
+    def add_market_status(self, indices: list):
+        """添加当前市场状态"""
+        cards = []
+        for idx in indices:
+            variant = "success" if idx.get('up', True) else "danger"
+            cards.append(DataCard(
+                title=idx['name'],
+                value=idx.get('value', ''),
+                trend=idx.get('change', ''),
+                trend_up=idx.get('up', True),
+                variant=variant
+            ))
+        
+        grid = DataGrid(cards, cols=min(len(cards), 4))
+        section = Section(title="📊 周中市场概览", content=grid.render(), icon="chart")
         self._components.append(section)
     
-    def add_second_half_outlook(self, outlook: str):
-        """后半周展望"""
-        section = Section(
-            title="🔮 后半周展望",
-            content=f'<div class="prose-content"><p>{outlook}</p></div>',
-            variant="highlight"
-        )
-        self._components.append(section)
-    
-    def add_key_events(self, events: list):
-        """后半周重要事件"""
-        content_html = '<div class="space-y-3">'
-        for event in events:
+    def add_focus_topics(self, topics: list):
+        """添加重点关注题材"""
+        from components.icons import icon_svg
+        
+        content_html = '<div style="display: flex; flex-direction: column; gap: 12px;">'
+        for topic in topics:
+            stocks_html = ''
+            if topic.get('stocks'):
+                tags = StockTags(topic['stocks'], label="关注标的")
+                stocks_html = tags.render()
+            
             content_html += f'''
-            <div class="flex items-start p-3 bg-gray-50 rounded-lg">
-                <span class="text-indigo-600 font-mono text-sm mr-3">{event.get("date", "")}</span>
-                <div class="flex-1">
-                    <strong class="text-gray-800">{event.get("title", "")}</strong>
-                    <p class="text-gray-500 text-sm mt-1">{event.get("content", "")}</p>
+            <div style="background: white; border: 1px solid rgba(0, 0, 0, 0.06);
+                       border-radius: 14px; padding: 16px 18px;
+                       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);">
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <div style="width: 32px; height: 32px; 
+                               background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                               border-radius: 8px; display: flex; align-items: center; justify-content: center; 
+                               margin-right: 10px; flex-shrink: 0;">
+                        {icon_svg("eye", 16, "white")}
+                    </div>
+                    <div style="flex: 1;">
+                        <span style="font-size: 15px; font-weight: 600; color: #1f2937;">{topic.get("name", "")}</span>
+                    </div>
+                    <span style="padding: 3px 10px; border-radius: 20px; 
+                               font-size: 11px; font-weight: 600;
+                               background: #fef3c7; color: #92400e;">
+                        {topic.get("attention", "重点关注")}
+                    </span>
                 </div>
-            </div>
-            '''
+                <div style="font-size: 13px; color: #6b7280; line-height: 1.6; margin-bottom: 8px;">
+                    {topic.get("logic", "")}
+                </div>
+                {stocks_html}
+            </div>'''
         content_html += '</div>'
         
-        section = Section(
-            title="📅 重要事件日历",
-            content=content_html
-        )
+        section = Section(title="👁️ 重点关注题材", content=content_html, icon="eye")
         self._components.append(section)
     
-    def add_opportunity_focus(self, opportunities: list):
-        """机会关注点"""
-        content_html = '<div class="space-y-4">'
-        for opp in opportunities:
-            content_html += f'''
-            <div class="border border-gray-100 rounded-xl p-5">
-                <h4 class="font-bold text-gray-800 mb-2">{opp.get("name", "")}</h4>
-                <p class="text-gray-600 text-sm">{opp.get("logic", "")}</p>
-            </div>
-            '''
-        content_html += '</div>'
-        
-        section = Section(
-            title="🎯 机会关注点",
-            content=content_html
-        )
+    def add_second_half_strategy(self, strategy: str):
+        """添加下半周操作策略"""
+        content = f'<div style="line-height: 1.8; color: #374151; font-size: 14px;">{strategy}</div>'
+        section = Section(title="🎯 下半周操作策略", content=content, icon="target", variant="highlight")
         self._components.append(section)
     
     def add_risk_warning(self, risks: list):
-        """风险提示"""
+        """添加风险提示"""
         risk_text = "；".join(risks) if isinstance(risks, list) else risks
-        risk = RiskAlert(
-            level="warning",
-            title="⚠️ 风险提示",
-            text=risk_text
-        )
+        risk = RiskAlert(level="warning", title="⚠️ 风险提示", text=risk_text)
         self._components.append(risk)
     
-    def add_operation_strategy(self, strategy: str):
-        """操作策略"""
-        section = Section(
-            title="📋 操作策略",
-            content=f'<div class="prose-content"><p>{strategy}</p></div>'
-        )
-        self._components.append(section)
-    
     def generate(self) -> str:
+        """生成完整HTML"""
         for comp in self._components:
             self.report.add(comp)
         return self.report.generate()
     
     def save(self, filepath: str) -> str:
+        """保存到文件"""
         self.generate()
         return self.report.save(filepath)
     
     def validate(self) -> list:
+        """验证报告"""
         self.generate()
         return self.report.validate()
 
-    def publish(self, title: str = None, report_type: str = None, 
-                filename: str = None, excerpt: str = None,
-                auto_deploy: bool = True, docs_root: str = "docs") -> dict:
-        """
-        一键发布：生成 → 归档 → 更新列表 → 校验 → Git部署
-        
-        Args:
-            title: 报告标题（用于列表页显示）
-            report_type: 报告类型（对应REPORT_TYPES的key），默认使用self.report.report_type
-            filename: 文件名，不传则自动生成
-            excerpt: 摘要（用于列表页展示）
-            auto_deploy: 是否自动Git部署
-            docs_root: docs目录路径
-            
-        Returns:
-            发布结果字典
-        """
+    def publish(self, title=None, report_type=None, filename=None, excerpt=None, auto_deploy=True, docs_root="docs"):
+        """一键发布"""
         html_content = self.generate()
-        
-        import sys
-        import os
+        import sys, os
         sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         from workflow import ReportPublisher
-        
         rtype = report_type or self.report.report_type
         display_title = title or self.report.title or rtype
-        
         publisher = ReportPublisher(docs_root=docs_root)
-        return publisher.publish(
-            html_content=html_content,
-            title=display_title,
-            report_type=rtype,
-            filename=filename,
-            excerpt=excerpt,
-            auto_deploy=auto_deploy
-        )
-
+        return publisher.publish(html_content=html_content, title=display_title, report_type=rtype, filename=filename, excerpt=excerpt, auto_deploy=auto_deploy)

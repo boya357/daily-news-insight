@@ -125,7 +125,7 @@ class DailyReportGenerator:
         Args:
             sectors: [{"name": "AI算力", "rating": "强烈推荐", "stocks": [...], "logic": "...", "icon": "chip"}, ...]
         """
-        from ..components.icons import icon_svg
+        from components.icons import icon_svg
         
         content_html = '<div style="display: flex; flex-direction: column; gap: 14px;">'
         for sector in sectors:
@@ -189,7 +189,7 @@ class DailyReportGenerator:
         Args:
             holdings: [{"name": "英维克", "code": "002837", "price": "68.32", "change": "-5.23%", "up": False, "comment": "..."}, ...]
         """
-        from ..components.icons import icon_svg
+        from components.icons import icon_svg
         
         content_html = '<div style="display: flex; flex-direction: column; gap: 12px;">'
         for h in holdings:

@@ -1,5 +1,5 @@
 """
-盘中快报生成器 - V3.0
+盘中快报生成器 - V3.0 高级版
 午间市场数据 + 热点解析 + 操作策略
 """
 import sys
@@ -8,14 +8,14 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.report import Report
-from components.layout import Section, Card
-from components.data import DataCard, DataGrid, MetricsRow
-from components.special import RiskAlert, CatalystTag, ButtonGroup
+from components.layout import Section, Card, HighlightBox
+from components.data import DataCard, DataGrid, KeyPoints, StockTags, MetricsRow, Badge
+from components.special import RiskAlert, NewsItem
 
 
 class IntradayGenerator:
     """
-    盘中快报生成器
+    盘中快报生成器 - V3.0高级版
     
     使用方法:
     gen = IntradayGenerator("2026年6月6日")
@@ -36,6 +36,16 @@ class IntradayGenerator:
         )
         self._components = []
     
+    def add_focus_point(self, focus: str):
+        """添加午盘焦点"""
+        box = HighlightBox(
+            content=focus,
+            icon="zap",
+            variant="warning",
+            title="午盘焦点"
+        )
+        self._components.append(box)
+    
     def add_market_overview(self, indices: list, market_status: str = "震荡"):
         """
         添加市场全景
@@ -44,15 +54,13 @@ class IntradayGenerator:
             indices: 指数列表 [{"name": "上证指数", "value": "3200.50", "change": "+0.52%", "up": True}, ...]
             market_status: 市场状态描述
         """
-        # 指数数据卡片
         cards = []
         for idx in indices:
             variant = "success" if idx.get('up', True) else "danger"
-            trend = idx.get('change', '')
             cards.append(DataCard(
                 title=idx['name'],
                 value=idx['value'],
-                trend=trend,
+                trend=idx.get('change', ''),
                 trend_up=idx.get('up', True),
                 variant=variant
             ))
@@ -62,7 +70,8 @@ class IntradayGenerator:
         section = Section(
             title="📊 市场全景",
             content=grid.render(),
-            subtitle=f"午盘市场状态：{market_status}"
+            subtitle=f"午盘市场状态：{market_status}",
+            icon="trending"
         )
         self._components.append(section)
     
@@ -71,27 +80,72 @@ class IntradayGenerator:
         添加市场热点解析
         
         Args:
-            topics: 热点列表 [{"tag": "AI", "title": "...", "content": "...", "hot": True}, ...]
+            topics: 热点列表 [{"tag": "AI", "title": "...", "content": "...", "hot": True, "stocks": [...]}, ...]
         """
-        content_html = '<div class="space-y-4">'
+        from components.icons import icon_svg
+        
+        content_html = '<div style="display: flex; flex-direction: column; gap: 14px;">'
         for topic in topics:
-            tag_class = 'hot-tag' if topic.get('hot', False) else 'bg-indigo-100 text-indigo-800'
-            tag_html = f'<span class="{tag_class} text-white text-xs px-2 py-1 rounded-full mr-2">{topic.get("tag", "热点")}</span>'
+            is_hot = topic.get('hot', False)
+            tag = topic.get('tag', '热点')
+            
+            stocks_html = ''
+            if topic.get('stocks'):
+                stock_tags = StockTags(topic['stocks'], label="相关标的")
+                stocks_html = stock_tags.render()
+            
+            hot_badge = ''
+            if is_hot:
+                hot_badge = '''
+                <span style="padding: 3px 10px; border-radius: 20px; 
+                           font-size: 11px; font-weight: 700;
+                           background: linear-gradient(135deg, #ef4444 0%, #f97316 100%); 
+                           color: white; flex-shrink: 0;">
+                    🔥 热门
+                </span>
+                '''
+            
             content_html += f'''
-            <div class="topic-card p-4 rounded-xl">
-                <div class="flex items-start">
-                    <div class="flex-1">
-                        <h4 class="font-bold text-gray-800 mb-2">{tag_html}{topic.get("title", "")}</h4>
-                        <p class="text-gray-600 text-sm leading-relaxed">{topic.get("content", "")}</p>
+            <div style="background: white; 
+                       border: 1px solid rgba(0, 0, 0, 0.06);
+                       border-radius: 16px; 
+                       padding: 20px;
+                       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                       transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.04)';">
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <div style="width: 36px; height: 36px; 
+                               background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                               border-radius: 10px; 
+                               display: flex; align-items: center; justify-content: center; 
+                               margin-right: 12px; flex-shrink: 0;
+                               box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);">
+                        {icon_svg("topic", 18, "white")}
                     </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 16px; font-weight: 700; color: #1f2937;">
+                            <span style="display: inline-block; padding: 2px 8px; 
+                                       border-radius: 6px; background: #eef2ff; 
+                                       color: #4f46e5; font-size: 12px; font-weight: 600;
+                                       margin-right: 8px;">{tag}</span>
+                            {topic.get("title", "")}
+                        </div>
+                    </div>
+                    {hot_badge}
                 </div>
+                <div style="font-size: 13px; color: #6b7280; line-height: 1.7; margin-bottom: 8px;">
+                    {topic.get("content", "")}
+                </div>
+                {stocks_html}
             </div>
             '''
         content_html += '</div>'
         
         section = Section(
             title="🔥 市场热点解析",
-            content=content_html
+            content=content_html,
+            icon="flame"
         )
         self._components.append(section)
     
@@ -102,22 +156,32 @@ class IntradayGenerator:
         Args:
             sectors: 领跌板块列表 [{"name": "新能源", "change": "-2.5%", "reason": "..."}, ...]
         """
-        content_html = '<div class="space-y-3">'
+        content_html = '<div style="display: flex; flex-direction: column; gap: 12px;">'
         for sector in sectors:
             content_html += f'''
-            <div class="flex items-center justify-between p-3 bg-red-50 rounded-xl border border-red-100">
-                <div>
-                    <span class="font-semibold text-gray-800">{sector["name"]}</span>
-                    <span class="text-red-600 text-sm ml-2">{sector.get("change", "")}</span>
+            <div style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); 
+                       border: 1px solid rgba(239, 68, 68, 0.1);
+                       border-radius: 14px; 
+                       padding: 16px 18px;">
+                <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 15px; font-weight: 600; color: #991b1b; flex: 1;">
+                        {sector["name"]}
+                    </span>
+                    <span style="font-size: 14px; font-weight: 700; color: #dc2626;">
+                        {sector.get("change", "")}
+                    </span>
                 </div>
-                <p class="text-gray-500 text-sm">{sector.get("reason", "")}</p>
+                <div style="font-size: 12px; color: #b91c1c; line-height: 1.5;">
+                    💡 {sector.get("reason", "")}
+                </div>
             </div>
             '''
         content_html += '</div>'
         
         section = Section(
             title="⚠️ 领跌板块警示",
-            content=content_html
+            content=content_html,
+            icon="alert-triangle"
         )
         self._components.append(section)
     
@@ -128,40 +192,67 @@ class IntradayGenerator:
         Args:
             holdings: 持仓列表 [{"name": "英维克", "code": "002837", "price": "25.50", "change": "+1.2%", "up": True, "comment": "..."}, ...]
         """
-        content_html = '<div class="space-y-3">'
+        content_html = '<div style="display: flex; flex-direction: column; gap: 12px;">'
         for h in holdings:
-            change_class = 'text-green-600' if h.get('up', True) else 'text-red-600'
+            change_class = "#10b981" if h.get('up', True) else "#ef4444"
+            name = h["name"]
+            code = h.get("code", "")
+            price = h.get("price", "")
+            change = h.get("change", "")
+            comment = h.get("comment", "")
+            
             content_html += f'''
-            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                <div>
-                    <span class="font-bold text-gray-800">{h["name"]}</span>
-                    <span class="text-gray-400 text-sm ml-1">{h.get("code", "")}</span>
-                </div>
-                <div class="text-right">
-                    <div class="text-lg font-bold {change_class}">{h.get("price", "")}</div>
-                    <div class="text-sm {change_class}">{h.get("change", "")}</div>
+            <div style="background: #fafafa; border-radius: 14px; padding: 16px 18px;">
+                <div style="display: flex; align-items: center;">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                            <span style="font-size: 15px; font-weight: 600; color: #1f2937;">
+                                {name}
+                            </span>
+                            <span style="font-size: 12px; color: #9ca3af; margin-left: 8px;">
+                                {code}
+                            </span>
+                        </div>
+                        <div style="font-size: 12px; color: #6b7280; line-height: 1.5; max-width: 400px;">
+                            {comment}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 18px; font-weight: 700; color: {change_class};">
+                            {price}
+                        </div>
+                        <div style="font-size: 13px; font-weight: 500; color: {change_class};">
+                            {change}
+                        </div>
+                    </div>
                 </div>
             </div>
-            {f'<p class="text-gray-500 text-sm pl-4">💡 {h.get("comment", "")}</p>' if h.get("comment") else ''}
             '''
         content_html += '</div>'
         
         section = Section(
             title="💼 持仓股跟踪",
-            content=content_html
+            content=content_html,
+            icon="briefcase"
         )
         self._components.append(section)
     
     def add_trading_strategy(self, strategy: str):
         """
-        添加操作策略
+        添加午盘操作策略
         
         Args:
             strategy: 操作策略内容
         """
+        content = f'''
+        <div style="line-height: 1.8; color: #374151; font-size: 14px;">
+            {strategy}
+        </div>
+        '''
         section = Section(
             title="🎯 午盘操作策略",
-            content=f'<div class="prose-content"><p>{strategy}</p></div>',
+            content=content,
+            icon="target",
             variant="highlight"
         )
         self._components.append(section)
@@ -173,10 +264,11 @@ class IntradayGenerator:
         Args:
             risks: 风险提示列表
         """
+        risk_text = "；".join(risks) if isinstance(risks, list) else risks
         risk = RiskAlert(
             level="warning",
-            title="风险提示",
-            text="；".join(risks) if isinstance(risks, list) else risks
+            title="⚠️ 风险提示",
+            text=risk_text
         )
         self._components.append(risk)
     
@@ -187,9 +279,15 @@ class IntradayGenerator:
         Args:
             summary: 总结内容
         """
+        content = f'''
+        <div style="line-height: 1.8; color: #374151; font-size: 14px;">
+            {summary}
+        </div>
+        '''
         section = Section(
             title="📝 市场逻辑总结",
-            content=f'<div class="prose-content"><p>{summary}</p></div>'
+            content=content,
+            icon="book"
         )
         self._components.append(section)
     
@@ -214,17 +312,6 @@ class IntradayGenerator:
                 auto_deploy: bool = True, docs_root: str = "docs") -> dict:
         """
         一键发布：生成 → 归档 → 更新列表 → 校验 → Git部署
-        
-        Args:
-            title: 报告标题（用于列表页显示）
-            report_type: 报告类型（对应REPORT_TYPES的key），默认使用self.report.report_type
-            filename: 文件名，不传则自动生成
-            excerpt: 摘要（用于列表页展示）
-            auto_deploy: 是否自动Git部署
-            docs_root: docs目录路径
-            
-        Returns:
-            发布结果字典
         """
         html_content = self.generate()
         
@@ -245,4 +332,3 @@ class IntradayGenerator:
             excerpt=excerpt,
             auto_deploy=auto_deploy
         )
-

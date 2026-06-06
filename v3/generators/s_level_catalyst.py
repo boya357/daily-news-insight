@@ -1,6 +1,6 @@
 """
-S级催化生成器 - V3.0
-超级催化事件深度分析
+S级催化生成器 - V3.0 高级版
+重大题材深度分析 + 产业链梳理 + 投资机会
 """
 import sys
 import os
@@ -8,169 +8,163 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.report import Report
-from components.layout import Section
-from components.data import DataCard, DataGrid
-from components.special import RiskAlert
+from components.layout import Section, HighlightBox, Card
+from components.data import DataCard, DataGrid, KeyPoints, StockTags, CompareTable
+from components.special import RiskAlert, QuoteBlock
 
 
 class SLevelCatalystGenerator:
-    """
-    S级催化生成器
+    """S级催化生成器 - V3.0高级版"""
     
-    使用方法:
-    gen = SLevelCatalystGenerator("AI算力行业超级催化")
-    gen.add_catalyst_overview(overview)
-    gen.add_impact_analysis(impact)
-    gen.add_beneficiary_stocks(stocks)
-    gen.add_risk_warning(risks)
-    gen.save("output.html")
-    """
-    
-    def __init__(self, title: str, subtitle: str = None):
-        self.catalyst_title = title
-        self.subtitle = subtitle or "S级超级催化事件"
+    def __init__(self, date_str: str, catalyst_title: str = None, subtitle: str = None):
+        self.date_str = date_str
+        self.catalyst_title = catalyst_title or "重大催化事件"
+        self.subtitle = subtitle or f"{date_str} · S级催化深度分析"
         self.report = Report(
             title="S级催化",
             report_type="s_level_catalyst",
-            subtitle=subtitle
+            subtitle=self.subtitle
         )
         self._components = []
     
-    def add_catalyst_overview(self, overview: str, event_date: str = None, 
-                              impact_level: str = "S级"):
-        """
-        添加催化事件概述
-        """
-        date_html = f'<p class="text-gray-500 text-sm mt-2">📅 事件时间：{event_date}</p>' if event_date else ''
-        level_html = f'<span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">{impact_level}</span>'
-        
+    def add_catalyst_overview(self, overview: str, importance: str = "高"):
+        """添加催化事件概述"""
+        box = HighlightBox(
+            content=overview,
+            icon="zap",
+            variant="danger",
+            title=f"⚡ S级催化 - {self.catalyst_title}"
+        )
+        self._components.append(box)
+    
+    def add_catalyst_details(self, background: str, trigger: str):
+        """添加催化事件详细分析"""
         content = f'''
-        <div class="text-center py-6">
-            {level_html}
-            <h3 class="text-xl font-bold text-gray-800 mt-3">{self.catalyst_title}</h3>
-            <div class="text-gray-600 mt-4 prose-content"><p>{overview}</p></div>
-            {date_html}
-        </div>
-        '''
-        
-        section = Section(
-            title="⭐ 催化事件概述",
-            content=content
-        )
-        self._components.append(section)
-    
-    def add_impact_analysis(self, impact: str, dimensions: list = None):
-        """
-        添加影响分析
-        
-        Args:
-            impact: 影响分析正文
-            dimensions: 影响维度列表 [{"name": "行业影响", "level": "高", "desc": "..."}, ...]
-        """
-        dim_html = ''
-        if dimensions:
-            dim_html = '<div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">'
-            for d in dimensions:
-                level = d.get('level', '中')
-                level_color = {
-                    '高': 'bg-red-100 text-red-800',
-                    '中': 'bg-amber-100 text-amber-800',
-                    '低': 'bg-gray-100 text-gray-800'
-                }.get(level, 'bg-gray-100 text-gray-800')
-                
-                dim_html += f'''
-                <div class="bg-gray-50 rounded-xl p-4 text-center">
-                    <div class="font-bold text-gray-800 mb-1">{d["name"]}</div>
-                    <span class="text-xs px-2 py-1 rounded-full {level_color}">{level}</span>
-                    <p class="text-gray-500 text-sm mt-2">{d.get("desc", "")}</p>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="background: #f8fafc; border-radius: 14px; padding: 18px;">
+                <div style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 8px;">
+                    📚 事件背景
                 </div>
-                '''
-            dim_html += '</div>'
+                <div style="font-size: 13px; color: #475569; line-height: 1.7;">
+                    {background}
+                </div>
+            </div>
+            <div style="background: #fef3c7; border-radius: 14px; padding: 18px;">
+                <div style="font-size: 14px; font-weight: 600; color: #92400e; margin-bottom: 8px;">
+                    🔥 触发因素
+                </div>
+                <div style="font-size: 13px; color: #b45309; line-height: 1.7;">
+                    {trigger}
+                </div>
+            </div>
+        </div>'''
         
-        content = f'<div class="prose-content"><p>{impact}</p></div>{dim_html}'
-        
-        section = Section(
-            title="📊 影响深度分析",
-            content=content
-        )
+        section = Section(title="🔍 催化事件详解", content=content, icon="search")
         self._components.append(section)
     
-    def add_beneficiary_stocks(self, stocks: list):
-        """
-        添加受益标的分析
+    def add_industry_chain_analysis(self, upstream: list, midstream: list, downstream: list):
+        """添加产业链分析"""
+        from components.icons import icon_svg
         
-        Args:
-            stocks: [{"name": "...", "code": "...", "logic": "...", "elasticity": "高", "rating": "推荐"}, ...]
-        """
-        content_html = '<div class="space-y-4">'
-        for s in stocks:
-            elasticity = s.get('elasticity', '中')
-            elas_color = {
-                '高': 'bg-red-100 text-red-800',
-                '中': 'bg-amber-100 text-amber-800',
-                '低': 'bg-green-100 text-green-800'
-            }.get(elasticity, 'bg-gray-100 text-gray-800')
+        def render_chain_layer(title, items, icon, color_from, color_to):
+            items_html = ''
+            for item in items:
+                stocks_html = ''
+                if item.get('stocks'):
+                    tags = StockTags(item['stocks'], label="", )
+                    stocks_html = tags.render()
+                
+                items_html += f'''
+                <div style="background: white; border-radius: 12px; padding: 14px; 
+                          box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <div style="font-size: 14px; font-weight: 600; color: #1f2937; margin-bottom: 6px;">
+                        {item.get("name", "")}
+                    </div>
+                    <div style="font-size: 12px; color: #6b7280; line-height: 1.5; margin-bottom: 8px;">
+                        {item.get("desc", "")}
+                    </div>
+                    {stocks_html}
+                </div>'''
             
-            rating = s.get('rating', '关注')
-            rating_color = {
-                '强烈推荐': 'bg-green-100 text-green-800',
-                '推荐': 'bg-blue-100 text-blue-800',
-                '关注': 'bg-amber-100 text-amber-800',
-                '谨慎': 'bg-red-100 text-red-800',
-            }.get(rating, 'bg-gray-100 text-gray-800')
+            return f'''
+            <div style="margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <div style="width: 28px; height: 28px; 
+                               background: linear-gradient(135deg, {color_from} 0%, {color_to} 100%); 
+                               border-radius: 8px; display: flex; align-items: center; justify-content: center; 
+                               margin-right: 10px;">
+                        {icon_svg(icon, 14, "white")}
+                    </div>
+                    <span style="font-size: 14px; font-weight: 600; color: #374151;">{title}</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px; padding-left: 38px;">
+                    {items_html}
+                </div>
+            </div>'''
+        
+        content = ''
+        content += render_chain_layer("上游", upstream, "upstream", "#10b981", "#059669")
+        content += render_chain_layer("中游", midstream, "layers", "#3b82f6", "#2563eb")
+        content += render_chain_layer("下游", downstream, "downstream", "#f59e0b", "#d97706")
+        
+        section = Section(title="🔗 产业链梳理", content=content, icon="git-branch")
+        self._components.append(section)
+    
+    def add_investment_opportunities(self, opportunities: list):
+        """添加投资机会分析"""
+        from components.icons import icon_svg
+        
+        content_html = '<div style="display: flex; flex-direction: column; gap: 14px;">'
+        for opp in opportunities:
+            priority = opp.get('priority', '高')
+            priority_colors = {
+                '高': ('#ef4444', '#fee2e2', '#991b1b'),
+                '中': ('#f59e0b', '#fef3c7', '#92400e'),
+                '低': ('#3b82f6', '#dbeafe', '#1e40af'),
+            }
+            p_color, p_bg, p_text = priority_colors.get(priority, priority_colors['中'])
+            
+            stocks_html = ''
+            if opp.get('stocks'):
+                tags = StockTags(opp['stocks'], label="核心标的")
+                stocks_html = tags.render()
             
             content_html += f'''
-            <div class="border border-gray-100 rounded-xl p-5 hover:shadow-md transition-shadow">
-                <div class="flex items-center justify-between mb-3">
-                    <div>
-                        <span class="font-bold text-lg text-gray-800">{s["name"]}</span>
-                        <span class="text-gray-400 text-sm ml-2">{s.get("code", "")}</span>
+            <div style="background: white; border: 1px solid rgba(0, 0, 0, 0.06);
+                       border-radius: 16px; padding: 20px;
+                       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                       border-left: 4px solid {p_color};">
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                        <span style="font-size: 16px; font-weight: 700; color: #1f2937;">
+                            {opp.get("name", "")}
+                        </span>
                     </div>
-                    <div class="flex gap-2">
-                        <span class="text-xs px-2 py-1 rounded-full {elas_color}">弹性{elasticity}</span>
-                        <span class="text-xs px-2 py-1 rounded-full {rating_color}">{rating}</span>
-                    </div>
+                    <span style="padding: 3px 10px; border-radius: 20px; 
+                               font-size: 11px; font-weight: 700;
+                               background: {p_bg}; color: {p_text};">
+                        {priority}优先级
+                    </span>
                 </div>
-                <p class="text-gray-600 text-sm">💡 {s.get("logic", "")}</p>
-            </div>
-            '''
+                <div style="font-size: 13px; color: #6b7280; line-height: 1.7; margin-bottom: 10px;">
+                    {opp.get("logic", "")}
+                </div>
+                {stocks_html}
+            </div>'''
         content_html += '</div>'
         
-        section = Section(
-            title="🎯 核心受益标的",
-            content=content_html
-        )
+        section = Section(title="💰 投资机会分析", content=content_html, icon="dollar-sign")
         self._components.append(section)
-    
-    def add_timeline_analysis(self, stages: list):
-        """
-        添加催化时间线分析
-        """
-        from components.special import Timeline
-        
-        timeline = Timeline(
-            title="催化时间线",
-            items=stages
-        )
-        self._components.append(timeline)
     
     def add_risk_warning(self, risks: list):
         """添加风险提示"""
-        risk_text = "；".join(risks) if isinstance(risks, list) else risks
-        risk = RiskAlert(
-            level="danger",
-            title="⚠️ 风险提示",
-            text=risk_text
-        )
+        risk = RiskAlert(level="danger", title="⚠️ 重要风险提示", text="；".join(risks) if isinstance(risks, list) else risks)
         self._components.append(risk)
     
     def add_investment_strategy(self, strategy: str):
         """添加投资策略建议"""
-        section = Section(
-            title="📋 投资策略建议",
-            content=f'<div class="prose-content"><p>{strategy}</p></div>',
-            variant="highlight"
-        )
+        content = f'<div style="line-height: 1.8; color: #374151; font-size: 14px;">{strategy}</div>'
+        section = Section(title="🎯 投资策略建议", content=content, icon="target", variant="highlight")
         self._components.append(section)
     
     def generate(self) -> str:
@@ -189,40 +183,13 @@ class SLevelCatalystGenerator:
         self.generate()
         return self.report.validate()
 
-    def publish(self, title: str = None, report_type: str = None, 
-                filename: str = None, excerpt: str = None,
-                auto_deploy: bool = True, docs_root: str = "docs") -> dict:
-        """
-        一键发布：生成 → 归档 → 更新列表 → 校验 → Git部署
-        
-        Args:
-            title: 报告标题（用于列表页显示）
-            report_type: 报告类型（对应REPORT_TYPES的key），默认使用self.report.report_type
-            filename: 文件名，不传则自动生成
-            excerpt: 摘要（用于列表页展示）
-            auto_deploy: 是否自动Git部署
-            docs_root: docs目录路径
-            
-        Returns:
-            发布结果字典
-        """
+    def publish(self, title=None, report_type=None, filename=None, excerpt=None, auto_deploy=True, docs_root="docs"):
+        """一键发布"""
         html_content = self.generate()
-        
-        import sys
-        import os
+        import sys, os
         sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         from workflow import ReportPublisher
-        
         rtype = report_type or self.report.report_type
         display_title = title or self.report.title or rtype
-        
         publisher = ReportPublisher(docs_root=docs_root)
-        return publisher.publish(
-            html_content=html_content,
-            title=display_title,
-            report_type=rtype,
-            filename=filename,
-            excerpt=excerpt,
-            auto_deploy=auto_deploy
-        )
-
+        return publisher.publish(html_content=html_content, title=display_title, report_type=rtype, filename=filename, excerpt=excerpt, auto_deploy=auto_deploy)
