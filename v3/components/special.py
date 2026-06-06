@@ -149,7 +149,7 @@ class CatalystTag(Component):
     
     def render(self) -> str:
         tags_html = "".join(
-            f'<span class="inline-block px-4 py-2 m-1 rounded-full text-sm font-medium bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-sm hover:shadow-md transition-shadow">{tag}</span>'
+            f'<span class="inline-block px-5 py-2.5 m-1 rounded-full text-sm font-medium bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-sm hover:shadow-md transition-shadow">{tag}</span>'
             for tag in self.tags
         )
         

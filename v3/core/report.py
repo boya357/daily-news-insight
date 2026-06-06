@@ -106,9 +106,9 @@ class Report:
         }}
         
         .content-area {{
-            max-width: 64rem;
+            max-width: 72rem;
             margin: 0 auto;
-            padding: 0 1rem;
+            padding: 0 1.5rem;
         }}
         
         /* 报告标题样式 */
@@ -132,7 +132,7 @@ class Report:
         
         /* 内容排版优化 */
         .prose-content p {{
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             line-height: 1.8;
         }}
         
@@ -153,7 +153,7 @@ class Report:
         }}
         
         .prose-content ul, .prose-content ol {{
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             padding-left: 1.5rem;
         }}
         
@@ -182,7 +182,7 @@ class Report:
             padding: 1rem;
             border-radius: 0.5rem;
             overflow-x: auto;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }}
         
         .prose-content pre code {{
@@ -198,7 +198,7 @@ class Report:
             color: white;
             opacity: 0.9;
             text-decoration: none;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             transition: opacity 0.2s;
         }}
         

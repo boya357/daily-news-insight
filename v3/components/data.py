@@ -41,12 +41,12 @@ class DataCard(Component):
         card_class = variants.get(self.variant, variants["default"])
         
         return f"""
-        <div class="{card_class} rounded-xl p-5 text-center shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
+        <div class="{card_class} rounded-2xl p-6 text-center shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
             {icon_html}
-            <div class="text-3xl font-bold text-gray-800 mb-1">
+            <div class="text-3xl font-bold text-gray-800 mb-2">
                 {self.value}<span class="text-sm font-normal text-gray-500 ml-1">{self.unit}</span>
             </div>
-            <div class="text-sm text-gray-500 mb-2">{self.title}</div>
+            <div class="text-sm text-gray-500 mb-3">{self.title}</div>
             {trend_html}
         </div>
         """
@@ -70,13 +70,13 @@ class DataGrid(Component):
         
         # 响应式列数
         if self.cols == 2:
-            grid_class = "grid grid-cols-1 sm:grid-cols-2 gap-4"
+            grid_class = "grid grid-cols-1 sm:grid-cols-2 gap-5"
         elif self.cols == 3:
-            grid_class = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            grid_class = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
         elif self.cols == 4:
-            grid_class = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+            grid_class = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
         else:
-            grid_class = f"grid grid-cols-2 md:grid-cols-{self.cols} gap-4"
+            grid_class = f"grid grid-cols-2 md:grid-cols-{self.cols} gap-5"
         
         return f"""
         <div class="{grid_class}">
@@ -121,7 +121,7 @@ class MetricsRow(Component):
             """
         
         return f"""
-        <div class="bg-white/80 rounded-xl p-4 border border-gray-100 flex items-center">
+        <div class="bg-white/80 rounded-2xl p-4 border border-gray-100 flex items-center">
             {items_html}
         </div>
         """
@@ -147,7 +147,7 @@ class CompareTable(Component):
     def render(self) -> str:
         # 表头
         headers_html = "".join(
-            f'<th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider bg-gray-50">{h}</th>'
+            f'<th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider bg-gray-50">{h}</th>'
             for h in self.headers
         )
         
@@ -163,12 +163,12 @@ class CompareTable(Component):
                 if self.highlight_col is not None and j == self.highlight_col:
                     cell_class = "font-semibold text-indigo-600"
                 
-                cells_html += f'<td class="px-4 py-3 text-sm text-gray-700 {cell_class}">{cell}</td>'
+                cells_html += f'<td class="px-5 py-4 text-sm text-gray-700 {cell_class}">{cell}</td>'
             
             rows_html += f'<tr class="{row_class} hover:bg-gray-50 transition-colors">{cells_html}</tr>'
         
         return f"""
-        <div class="overflow-x-auto rounded-xl border border-gray-100 shadow-sm">
+        <div class="overflow-x-auto rounded-2xl border border-gray-100 shadow-sm">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead>
                     <tr>

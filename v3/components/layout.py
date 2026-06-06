@@ -142,7 +142,7 @@ class Navbar(Component):
         
         return f'''
         <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
-            <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-white/30 to-white/10 flex items-center justify-center backdrop-blur-sm">
                         <span class="text-white text-lg">📊</span>
@@ -209,7 +209,7 @@ class Footer(Component):
     
     def render(self) -> str:
         return '''
-        <footer class="mt-16 pb-8 px-4">
+        <footer class="mt-20 pb-10 px-4">
             <div class="max-w-5xl mx-auto text-center">
                 <div class="text-white/60 text-sm space-y-2">
                     <p>💡 投资研究中心 · 专业深度研究</p>
@@ -248,18 +248,18 @@ class Section(Component):
         # 根据变体选择样式
         if self.variant == "highlight":
             # 高亮版本：带左侧色条
-            header_class = "border-l-4 border-indigo-500 pl-4 mb-4"
+            header_class = "border-l-4 border-indigo-500 pl-4 mb-6"
             title_class = "text-xl font-bold text-gray-800"
         elif self.variant == "subtle":
             # 柔和版本
             header_class = "mb-4"
             title_class = "text-lg font-semibold text-gray-700"
         else:
-            header_class = "mb-5 pb-3 border-b border-gray-100"
+            header_class = "mb-6 pb-4 border-b border-gray-100"
             title_class = "text-xl font-bold text-gray-800"
         
         return f"""
-        <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100">
+        <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
             <div class="{header_class}">
                 <h3 class="{title_class}">
                     {icon_html}{self.title}
@@ -302,12 +302,12 @@ class Card(Component):
         title_html = f'<h4 class="font-semibold text-gray-800">{self.title}</h4>' if self.title else ''
         
         return f"""
-        <div class="{card_class} rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-300">
+        <div class="{card_class} rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
             <div class="flex items-start">
                 {icon_html}
                 <div class="flex-1">
                     {title_html}
-                    <div class="text-gray-600 text-sm mt-2">
+                    <div class="text-gray-600 text-sm mt-3">
                         {content_html}
                     </div>
                 </div>
