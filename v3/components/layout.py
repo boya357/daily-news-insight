@@ -1,195 +1,507 @@
 """
-布局组件 - Navbar, Footer, Section, Card
-升级后的高级感设计
+布局组件 - Section, Card, Navbar, Footer等
+高级感设计版本
 """
 from .base import Component
+from core.config import COLORS, SIZES
+
+
+class Section(Component):
+    """
+    章节组件 - 用于分隔内容区域
+    带精致的标题图标和渐变设计
+    """
+    
+    def __init__(self, title: str = "", content=None, 
+                 icon: str = None, variant: str = "default",
+                 subtitle: str = None, extra=None):
+        super().__init__()
+        self.title = title
+        self.content = content
+        self.icon = icon
+        self.variant = variant
+        self.subtitle = subtitle
+        self.extra = extra  # 右侧额外内容，如徽章等
+    
+    def render(self) -> str:
+        # 标题区域
+        title_html = ""
+        if self.title:
+            from .icons import icon_svg
+            
+            icon_html = ""
+            if self.icon:
+                icon_html = f'''
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    {icon_svg(self.icon, 20, "white")}
+                </div>
+                '''
+            
+            subtitle_html = f'''
+            <div style="font-size: 13px; color: #9ca3af; margin-top: 2px; font-weight: 400;">
+                {self.subtitle}
+            </div>
+            ''' if self.subtitle else ''
+            
+            extra_html = f'<div style="margin-left: auto;">{self.extra.render() if hasattr(self.extra, "render") else self.extra}</div>' if self.extra else ''
+            
+            title_html = f'''
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                {icon_html}
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #1f2937; 
+                               margin: 0; line-height: 1.3;">
+                        {self.title}
+                    </h2>
+                    {subtitle_html}
+                </div>
+                {extra_html}
+            </div>
+            '''
+        
+        # 内容
+        content_html = ""
+        if self.content is not None:
+            if hasattr(self.content, 'render'):
+                content_html = self.content.render()
+            else:
+                content_html = str(self.content)
+        
+        # 变体样式
+        variants = {
+            "default": {
+                "bg": "white",
+                "padding": "28px",
+                "border": "1px solid rgba(0, 0, 0, 0.06)",
+                "radius": "20px",
+                "shadow": "0 4px 16px rgba(0, 0, 0, 0.04)",
+            },
+            "highlight": {
+                "bg": "linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%)",
+                "padding": "28px",
+                "border": "1px solid rgba(79, 70, 229, 0.1)",
+                "radius": "20px",
+                "shadow": "0 4px 16px rgba(79, 70, 229, 0.08)",
+            },
+            "subtle": {
+                "bg": "transparent",
+                "padding": "0",
+                "border": "none",
+                "radius": "0",
+                "shadow": "none",
+            },
+        }
+        
+        v = variants.get(self.variant, variants["default"])
+        
+        return f'''
+        <section style="margin-bottom: 32px;">
+            {title_html}
+            <div style="background: {v["bg"]}; 
+                        padding: {v["padding"]}; 
+                        border: {v["border"]};
+                        border-radius: {v["radius"]};
+                        box-shadow: {v["shadow"]};">
+                {content_html}
+            </div>
+        </section>
+        '''
+
+
+class Card(Component):
+    """
+    卡片组件 - 基础容器
+    """
+    
+    def __init__(self, content=None, title: str = None, 
+                 icon: str = None, variant: str = "default",
+                 subtitle: str = None, footer=None,
+                 extra=None):
+        super().__init__()
+        self.content = content
+        self.title = title
+        self.icon = icon
+        self.variant = variant
+        self.subtitle = subtitle
+        self.footer = footer
+        self.extra = extra
+    
+    def render(self) -> str:
+        # 头部
+        header_html = ""
+        if self.title:
+            from .icons import icon_svg
+            
+            icon_html = ""
+            if self.icon:
+                icon_html = f'''
+                <div style="width: 44px; height: 44px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 14px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);">
+                    {icon_svg(self.icon, 22, "white")}
+                </div>
+                '''
+            
+            subtitle_html = f'''
+            <div style="font-size: 13px; color: #9ca3af; margin-top: 3px;">
+                {self.subtitle}
+            </div>
+            ''' if self.subtitle else ''
+            
+            extra_html = f'<div style="margin-left: auto;">{self.extra.render() if hasattr(self.extra, "render") else self.extra}</div>' if self.extra else ''
+            
+            header_html = f'''
+            <div style="display: flex; align-items: center; margin-bottom: 18px;">
+                {icon_html}
+                <div style="flex: 1; min-width: 0;">
+                    <h3 style="font-size: 17px; font-weight: 700; color: #1f2937; margin: 0;">
+                        {self.title}
+                    </h3>
+                    {subtitle_html}
+                </div>
+                {extra_html}
+            </div>
+            '''
+        
+        # 内容
+        content_html = ""
+        if self.content is not None:
+            if hasattr(self.content, 'render'):
+                content_html = self.content.render()
+            else:
+                content_html = str(self.content)
+        
+        # 底部
+        footer_html = ""
+        if self.footer is not None:
+            footer_content = self.footer.render() if hasattr(self.footer, 'render') else str(self.footer)
+            footer_html = f'''
+            <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid #f3f4f6;">
+                {footer_content}
+            </div>
+            '''
+        
+        # 变体样式
+        variants = {
+            "default": {
+                "bg": "white",
+                "padding": "24px",
+                "border": "1px solid rgba(0, 0, 0, 0.06)",
+                "radius": "18px",
+                "shadow": "0 4px 12px rgba(0, 0, 0, 0.04)",
+            },
+            "primary": {
+                "bg": "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+                "padding": "24px",
+                "border": "none",
+                "radius": "18px",
+                "shadow": "0 8px 24px rgba(79, 70, 229, 0.3)",
+            },
+        }
+        
+        v = variants.get(self.variant, variants["default"])
+        
+        return f'''
+        <div style="background: {v["bg"]}; 
+                    padding: {v["padding"]}; 
+                    border: {v["border"]};
+                    border-radius: {v["radius"]};
+                    box-shadow: {v["shadow"]};
+                    transition: all 0.3s ease;"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='{v["shadow"]}';">
+            {header_html}
+            {content_html}
+            {footer_html}
+        </div>
+        '''
+
+
+class HighlightBox(Component):
+    """
+    高亮提示框 - 用于重点内容、今日焦点等
+    """
+    
+    def __init__(self, content: str, icon: str = "zap", 
+                 variant: str = "warning", title: str = None):
+        super().__init__()
+        self.content = content
+        self.icon = icon
+        self.variant = variant
+        self.title = title
+    
+    def render(self) -> str:
+        variants = {
+            "warning": {
+                "bg": "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)",
+                "border": "rgba(245, 158, 11, 0.2)",
+                "icon_bg": "linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)",
+                "text": "#92400e",
+            },
+            "info": {
+                "bg": "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
+                "border": "rgba(59, 130, 246, 0.2)",
+                "icon_bg": "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+                "text": "#1e40af",
+            },
+            "success": {
+                "bg": "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
+                "border": "rgba(16, 185, 129, 0.2)",
+                "icon_bg": "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                "text": "#065f46",
+            },
+            "danger": {
+                "bg": "linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)",
+                "border": "rgba(239, 68, 68, 0.2)",
+                "icon_bg": "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+                "text": "#991b1b",
+            },
+            "primary": {
+                "bg": "linear-gradient(135deg, #f0f4ff 0%, #ede9fe 100%)",
+                "border": "rgba(79, 70, 229, 0.2)",
+                "icon_bg": "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+                "text": "#3730a3",
+            },
+        }
+        
+        v = variants.get(self.variant, variants["primary"])
+        
+        from .icons import icon_svg
+        
+        title_html = f'<div style="font-weight: 600; margin-bottom: 4px;">{self.title}</div>' if self.title else ''
+        
+        return f'''
+        <div style="background: {v["bg"]}; 
+                    border: 1px solid {v["border"]};
+                    border-radius: 14px; 
+                    padding: 16px 20px;
+                    display: flex; align-items: center;">
+            <div style="width: 36px; height: 36px; 
+                        background: {v["icon_bg"]};
+                        border-radius: 10px; display: flex; align-items: center; 
+                        justify-content: center; margin-right: 14px; flex-shrink: 0;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+                {icon_svg(self.icon, 18, "white")}
+            </div>
+            <div style="flex: 1; font-size: 14px; color: {v["text"]}; line-height: 1.5; font-weight: 500;">
+                {title_html}
+                {self.content}
+            </div>
+        </div>
+        '''
 
 
 class Navbar(Component):
     """
     导航栏组件 - 全站统一导航
-    11个导航项，玻璃态效果，移动端汉堡菜单
     """
     
-    def __init__(self, active_key: str = None):
+    # 导航项配置
+    NAV_ITEMS = [
+        {"key": "index", "label": "首页", "icon": "🏠", "path": "/daily-news-insight/index.html"},
+        {"key": "daily", "label": "日报", "icon": "📰", "path": "/daily-news-insight/daily/latest.html"},
+        {"key": "industry_chain", "label": "产业链", "icon": "🔗", "path": "/daily-news-insight/industry_chain/latest.html"},
+        {"key": "weekly_review", "label": "周复盘", "icon": "📋", "path": "/daily-news-insight/weekly_review/latest.html"},
+        {"key": "s_level_catalyst", "label": "S级催化", "icon": "⭐", "path": "/daily-news-insight/s级催化扫描/latest.html"},
+        {"key": "monthly", "label": "月报", "icon": "🗓️", "path": "/daily-news-insight/monthly/latest.html"},
+    ]
+    
+    def __init__(self, active_key: str = "index"):
         super().__init__()
         self.active_key = active_key
     
-    @staticmethod
-    def get_css() -> str:
-        """获取导航栏所需的CSS样式"""
-        return """
+    @classmethod
+    def get_css(cls):
+        """获取导航栏CSS样式"""
+        return '''
         <style>
-            .glass-nav {
-                background: rgba(255, 255, 255, 0.08);
+            .navbar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                background: rgba(255, 255, 255, 0.9);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
-                border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-                z-index: 2147483647 !important;
-                isolation: isolate !important;
-                pointer-events: auto !important;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.06);
             }
-            .glass-nav * {
-                position: relative;
-                z-index: 2147483647 !important;
-                pointer-events: auto !important;
+            .navbar-inner {
+                max-width: 64rem;
+                margin: 0 auto;
+                padding: 0 24px;
+                height: 64px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .navbar-logo {
+                font-size: 18px;
+                font-weight: 700;
+                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                display: flex;
+                align-items: center;
+            }
+            .navbar-logo-icon {
+                font-size: 22px;
+                margin-right: 8px;
+            }
+            .navbar-links {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+            .nav-link {
+                padding: 8px 14px;
+                border-radius: 10px;
+                text-decoration: none;
+                font-size: 13px;
+                font-weight: 500;
+                color: #6b7280;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .nav-link:hover {
+                background: #f3f4f6;
+                color: #374151;
+            }
+            .nav-link.active {
+                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                color: white;
+                box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
             }
             .hamburger-btn {
                 display: none;
-                background: rgba(255,255,255,0.15);
+                background: #f3f4f6;
                 border: none;
-                color: white;
-                width: 44px;
-                height: 44px;
-                border-radius: 12px;
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
                 cursor: pointer;
-                font-size: 20px;
-                z-index: 99999;
+                font-size: 18px;
                 align-items: center;
                 justify-content: center;
             }
             .mobile-menu {
+                display: none;
                 position: fixed;
                 top: 0;
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background: linear-gradient(135deg, rgba(79, 70, 229, 0.98) 0%, rgba(124, 58, 237, 0.98) 100%);
+                background: rgba(255, 255, 255, 0.98);
                 backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
-                z-index: 99998;
-                display: none;
+                z-index: 999;
                 flex-direction: column;
-                align-items: stretch;
-                padding: 20px;
-                overflow-y: auto;
+                padding: 80px 24px 24px;
             }
             .mobile-menu.show {
                 display: flex;
             }
             .mobile-menu-item {
-                display: flex;
-                align-items: center;
-                color: white !important;
                 padding: 16px 20px;
+                border-radius: 12px;
                 text-decoration: none;
                 font-size: 16px;
                 font-weight: 500;
-                border-bottom: 1px solid rgba(255,255,255,0.1);
-                border-radius: 12px;
+                color: #374151;
                 margin-bottom: 4px;
-                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                gap: 12px;
             }
-            .mobile-menu-item:hover {
-                background: rgba(255,255,255,0.1);
+            .mobile-menu-item.active {
+                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                color: white;
             }
             .close-menu-btn {
                 position: absolute;
                 top: 16px;
                 right: 16px;
-                background: rgba(255,255,255,0.15);
+                background: #f3f4f6;
                 border: none;
-                color: white;
-                width: 44px;
-                height: 44px;
-                border-radius: 12px;
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
                 cursor: pointer;
-                font-size: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 99999;
+                font-size: 18px;
             }
-            .mobile-menu-items {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            }
-            @media (max-width: 1024px) {
-                .nav-links {
-                    display: none !important;
+            @media (max-width: 768px) {
+                .navbar-links {
+                    display: none;
                 }
                 .hamburger-btn {
-                    display: flex !important;
+                    display: flex;
+                }
+                body {
+                    padding-top: 64px !important;
                 }
             }
         </style>
-        """
+        '''
     
     def render(self) -> str:
-        from core.config import NAV_ITEMS
-        
-        nav_items_html = ""
-        mobile_items_html = ""
-        
-        for item in NAV_ITEMS:
-            is_active = item["key"] == self.active_key
-            active_class = "text-white bg-white/15" if is_active else "text-white/80 hover:text-white hover:bg-white/10"
-            
-            nav_items_html += f'''
-                <a href="{item["path"]}" class="{active_class} text-sm transition-colors px-3 py-2 rounded-lg whitespace-nowrap">
-                    {item["label"]}
-                </a>
+        # 构建导航链接
+        links_html = ""
+        for item in self.NAV_ITEMS:
+            active_class = "active" if item["key"] == self.active_key else ""
+            links_html += f'''
+            <a href="{item["path"]}" class="nav-link {active_class}">
+                <span>{item["icon"]}</span>
+                <span>{item["label"]}</span>
+            </a>
             '''
-            
-            mobile_active_class = "bg-white/20 text-white" if is_active else "text-white/90"
-            mobile_items_html += f'''
-                <a href="{item["path"]}" class="mobile-menu-item {mobile_active_class}" onclick="toggleMobileMenu()">
-                    {item["icon"]} {item["label"]}
-                </a>
+        
+        # 移动端菜单项
+        mobile_links_html = ""
+        for item in self.NAV_ITEMS:
+            active_class = "active" if item["key"] == self.active_key else ""
+            mobile_links_html += f'''
+            <a href="{item["path"]}" class="mobile-menu-item {active_class}" onclick="toggleMenu()">
+                <span>{item["icon"]}</span>
+                <span>{item["label"]}</span>
+            </a>
             '''
         
         return f'''
-        <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
-            <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-white/30 to-white/10 flex items-center justify-center backdrop-blur-sm">
-                        <span class="text-white text-lg">📊</span>
-                    </div>
-                    <span class="text-white font-bold text-lg">投资研究中心</span>
+        <nav class="navbar">
+            <div class="navbar-inner">
+                <a href="/daily-news-insight/index.html" class="navbar-logo">
+                    <span class="navbar-logo-icon">📊</span>
+                    <span>投资研究中心</span>
+                </a>
+                <div class="navbar-links">
+                    {links_html}
                 </div>
-                
-                <!-- 桌面端导航 -->
-                <div class="nav-links hidden lg:flex items-center space-x-1 flex-wrap gap-1">
-                    {nav_items_html}
-                </div>
-                
-                <!-- 移动端汉堡按钮 -->
-                <button class="hamburger-btn lg:hidden" onclick="toggleMobileMenu()" aria-label="菜单">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                    </svg>
+                <button class="hamburger-btn" onclick="toggleMenu()">
+                    ☰
                 </button>
             </div>
         </nav>
         
-        <!-- 移动端全屏菜单 -->
-        <div id="mobileMenu" class="mobile-menu">
-            <button class="close-menu-btn" onclick="toggleMobileMenu()" aria-label="关闭">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-            <div class="mobile-menu-items pt-20">
-                {mobile_items_html}
-            </div>
+        <!-- 移动端菜单 -->
+        <div class="mobile-menu" id="mobileMenu">
+            <button class="close-menu-btn" onclick="toggleMenu()">✕</button>
+            {mobile_links_html}
         </div>
         
         <script>
-            function toggleMobileMenu() {{
+            function toggleMenu() {{
                 const menu = document.getElementById('mobileMenu');
                 menu.classList.toggle('show');
                 document.body.style.overflow = menu.classList.contains('show') ? 'hidden' : '';
             }}
-            
-            // 点击菜单项后自动关闭
-            document.querySelectorAll('.mobile-menu-item').forEach(item => {{
-                item.addEventListener('click', () => {{
-                    document.getElementById('mobileMenu').classList.remove('show');
-                    document.body.style.overflow = '';
-                }});
-            }});
         </script>
         '''
 
@@ -202,115 +514,21 @@ class Footer(Component):
     def __init__(self):
         super().__init__()
     
-    @staticmethod
-    def get_css() -> str:
-        """获取页脚所需的CSS样式"""
-        return ""  # 页脚样式已包含在基础CSS中
-    
     def render(self) -> str:
-        return '''
-        <footer class="mt-20 pb-10 px-4">
-            <div class="max-w-5xl mx-auto text-center">
-                <div class="text-white/60 text-sm space-y-2">
-                    <p>💡 投资研究中心 · 专业深度研究</p>
-                    <p class="text-white/40 text-xs">数据仅供参考，不构成投资建议 | 投资有风险，入市需谨慎</p>
+        return f'''
+        <footer style="max-width: 64rem; margin: 40px auto 0; 
+                     padding: 32px 24px;
+                     border-top: 1px solid rgba(0, 0, 0, 0.06);">
+            <div style="text-align: center; color: #9ca3af; font-size: 13px; line-height: 1.8;">
+                <div style="margin-bottom: 8px;">
+                    <span style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                               -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                               font-weight: 700; font-size: 16px;">投资研究中心</span>
+                </div>
+                <div>AI驱动 · 数据驱动 · 价值投资</div>
+                <div style="margin-top: 8px; font-size: 12px;">
+                    投资有风险，入市需谨慎。本报告仅供参考，不构成投资建议。
                 </div>
             </div>
         </footer>
         '''
-
-
-class Section(Component):
-    """
-    章节组件 - 带标题和内容的独立区块
-    高级感设计：大圆角、柔和阴影、充足内边距
-    """
-    
-    def __init__(self, title: str, content, subtitle: str = None, 
-                 icon: str = None, variant: str = "default"):
-        super().__init__()
-        self.title = title
-        self.content = content
-        self.subtitle = subtitle
-        self.icon = icon
-        self.variant = variant  # default, highlight, subtle
-    
-    def render(self) -> str:
-        # 处理内容：如果是Component就渲染，否则直接用
-        content_html = self.content.render() if hasattr(self.content, 'render') else str(self.content)
-        
-        # 标题图标
-        icon_html = f'<span class="mr-2">{self.icon}</span>' if self.icon else ''
-        
-        # 副标题
-        subtitle_html = f'<p class="text-gray-500 text-sm mt-1">{self.subtitle}</p>' if self.subtitle else ''
-        
-        # 根据变体选择样式
-        if self.variant == "highlight":
-            # 高亮版本：带左侧色条
-            header_class = "border-l-4 border-indigo-500 pl-4 mb-6"
-            title_class = "text-xl font-bold text-gray-800"
-        elif self.variant == "subtle":
-            # 柔和版本
-            header_class = "mb-4"
-            title_class = "text-lg font-semibold text-gray-700"
-        else:
-            header_class = "mb-5 pb-3 border-b border-gray-100"
-            title_class = "text-xl font-bold text-gray-800"
-        
-        return f"""
-        <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-7 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
-            <div class="{header_class}">
-                <h3 class="{title_class}">
-                    {icon_html}{self.title}
-                </h3>
-                {subtitle_html}
-            </div>
-            <div class="prose-content">
-                {content_html}
-            </div>
-        </div>
-        """
-
-
-class Card(Component):
-    """
-    卡片组件 - 通用信息卡片
-    """
-    
-    def __init__(self, title: str = None, content = None, 
-                 icon: str = None, variant: str = "default"):
-        super().__init__()
-        self.title = title
-        self.content = content
-        self.icon = icon
-        self.variant = variant
-    
-    def render(self) -> str:
-        content_html = self.content.render() if hasattr(self.content, 'render') else str(self.content)
-        
-        variants = {
-            "default": "bg-white border border-gray-100",
-            "primary": "bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100",
-            "success": "bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100",
-            "warning": "bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100",
-            "danger": "bg-gradient-to-br from-red-50 to-rose-50 border border-red-100",
-        }
-        
-        card_class = variants.get(self.variant, variants["default"])
-        icon_html = f'<span class="text-2xl mr-3">{self.icon}</span>' if self.icon else ''
-        title_html = f'<h4 class="font-semibold text-gray-800">{self.title}</h4>' if self.title else ''
-        
-        return f"""
-        <div class="{card_class} rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
-            <div class="flex items-start">
-                {icon_html}
-                <div class="flex-1">
-                    {title_html}
-                    <div class="text-gray-600 text-sm mt-3">
-                        {content_html}
-                    </div>
-                </div>
-            </div>
-        </div>
-        """

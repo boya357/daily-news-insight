@@ -1,6 +1,6 @@
 """
 数据展示组件 - DataCard, DataGrid, CompareTable, MetricsRow
-升级为高级感设计
+高级感设计版本
 """
 from .base import Component
 from core.config import COLORS
@@ -8,12 +8,14 @@ from core.config import COLORS
 
 class DataCard(Component):
     """
-    数据卡片 - 展示关键指标
+    精致数据卡片 - 展示关键指标
+    升级为精美渐变设计，带图标、趋势指示
     """
     
     def __init__(self, title: str, value: str, trend: str = None, 
                  trend_up: bool = True, unit: str = "", 
-                 icon: str = None, variant: str = "default"):
+                 icon: str = None, variant: str = "default",
+                 subtitle: str = None):
         super().__init__()
         self.title = title
         self.value = value
@@ -22,34 +24,86 @@ class DataCard(Component):
         self.unit = unit
         self.icon = icon
         self.variant = variant
+        self.subtitle = subtitle
     
     def render(self) -> str:
-        trend_class = "text-green-600" if self.trend_up else "text-red-600"
+        # 趋势样式
+        trend_color = "#10b981" if self.trend_up else "#ef4444"
         trend_icon = "↑" if self.trend_up else "↓"
-        trend_html = f'<span class="{trend_class} text-sm font-medium">{trend_icon} {self.trend}</span>' if self.trend else ''
+        trend_html = f'''
+        <div style="display: flex; align-items: center; color: {trend_color}; 
+                    font-size: 13px; font-weight: 600; margin-top: 4px;">
+            <span style="margin-right: 2px;">{trend_icon}</span>
+            <span>{self.trend}</span>
+        </div>
+        ''' if self.trend else ''
         
-        icon_html = f'<span class="text-2xl mb-2">{self.icon}</span>' if self.icon else ''
+        # 图标
+        icon_html = ''
+        if self.icon:
+            from .icons import icon_svg
+            icon_html = f'''
+            <div style="width: 40px; height: 40px; 
+                        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                        border-radius: 12px; display: flex; align-items: center; 
+                        justify-content: center; margin-bottom: 12px;">
+                {icon_svg(self.icon, 20, "white")}
+            </div>
+            '''
         
         variants = {
-            "default": "bg-white border border-gray-100",
-            "primary": "bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100",
-            "success": "bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100",
-            "warning": "bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100",
-            "danger": "bg-gradient-to-br from-red-50 to-rose-50 border border-red-100",
+            "default": {
+                "bg": "white",
+                "border": "rgba(0, 0, 0, 0.06)",
+                "value_color": "#1f2937"
+            },
+            "primary": {
+                "bg": "linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%)",
+                "border": "rgba(79, 70, 229, 0.1)",
+                "value_color": "#4f46e5"
+            },
+            "success": {
+                "bg": "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)",
+                "border": "rgba(16, 185, 129, 0.1)",
+                "value_color": "#059669"
+            },
+            "warning": {
+                "bg": "linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%)",
+                "border": "rgba(245, 158, 11, 0.1)",
+                "value_color": "#d97706"
+            },
+            "danger": {
+                "bg": "linear-gradient(135deg, #fef2f2 0%, #fef2f2 100%)",
+                "border": "rgba(239, 68, 68, 0.1)",
+                "value_color": "#dc2626"
+            },
         }
         
-        card_class = variants.get(self.variant, variants["default"])
+        v = variants.get(self.variant, variants["default"])
         
-        return f"""
-        <div class="{card_class} rounded-xl p-5 text-center shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+        subtitle_html = f'<div style="font-size: 12px; color: #9ca3af; margin-top: 2px;">{self.subtitle}</div>' if self.subtitle else ''
+        
+        return f'''
+        <div style="background: {v["bg"]}; 
+                    border: 1px solid {v["border"]};
+                    border-radius: 16px; 
+                    padding: 20px; 
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                    transition: all 0.3s ease;
+                    cursor: default;"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.04)';">
             {icon_html}
-            <div class="text-2xl font-bold text-gray-800 mb-2">
-                {self.value}<span class="text-sm font-normal text-gray-500 ml-1">{self.unit}</span>
+            <div style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">
+                {self.title}
             </div>
-            <div class="text-sm text-gray-500 mb-3">{self.title}</div>
+            <div style="font-size: 24px; font-weight: 700; color: {v["value_color"]}; line-height: 1.2;">
+                {self.value}<span style="font-size: 13px; font-weight: 400; color: #9ca3af; margin-left: 2px;">{self.unit}</span>
+            </div>
+            {subtitle_html}
             {trend_html}
         </div>
-        """
+        '''
 
 
 class DataGrid(Component):
@@ -57,32 +111,125 @@ class DataGrid(Component):
     数据卡片网格 - 展示多个数据卡片
     """
     
-    def __init__(self, cards: list, cols: int = 4):
+    def __init__(self, cards: list, cols: int = 4, gap: str = "16px"):
         super().__init__()
         self.cards = cards
         self.cols = cols
+        self.gap = gap
     
     def render(self) -> str:
         cards_html = "".join(
-            card.render() if hasattr(card, 'render') else str(card) 
+            f'<div style="flex: 1; min-width: 0;">{card.render() if hasattr(card, "render") else str(card)}</div>'
             for card in self.cards
         )
         
-        # 响应式列数
-        if self.cols == 2:
-            grid_class = "grid grid-cols-1 sm:grid-cols-2 gap-4"
-        elif self.cols == 3:
-            grid_class = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-        elif self.cols == 4:
-            grid_class = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-        else:
-            grid_class = f"grid grid-cols-2 md:grid-cols-{self.cols} gap-4"
-        
-        return f"""
-        <div class="{grid_class}">
+        return f'''
+        <div style="display: flex; gap: {self.gap}; flex-wrap: wrap;">
             {cards_html}
         </div>
-        """
+        '''
+
+
+class KeyPoints(Component):
+    """
+    要点列表组件 - 带图标的要点列表
+    类似旧版的 key-points 组件
+    """
+    
+    def __init__(self, points: list, icon: str = "check", icon_color: str = None):
+        super().__init__()
+        self.points = points
+        self.icon = icon
+        self.icon_color = icon_color or "#4f46e5"
+    
+    def render(self) -> str:
+        from .icons import icon_svg
+        
+        points_html = ""
+        for i, point in enumerate(self.points):
+            border_class = "" if i == len(self.points) - 1 else 'border-bottom: 1px dashed #e5e7eb;'
+            
+            points_html += f'''
+            <div style="display: flex; align-items: flex-start; 
+                        padding: 12px 0; {border_class}">
+                <div style="width: 22px; height: 22px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 6px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 12px; flex-shrink: 0;
+                            margin-top: 1px;">
+                    {icon_svg("check", 12, "white")}
+                </div>
+                <div style="flex: 1; font-size: 14px; color: #374151; line-height: 1.6;">
+                    {point}
+                </div>
+            </div>
+            '''
+        
+        return f'''
+        <div style="background: white; border-radius: 14px; padding: 4px 16px; 
+                    border: 1px solid rgba(0, 0, 0, 0.04);">
+            {points_html}
+        </div>
+        '''
+
+
+class StockTags(Component):
+    """
+    股票标签组件 - 展示相关股票/标的
+    """
+    
+    def __init__(self, stocks: list, label: str = "相关标的", 
+                 variant: str = "default"):
+        super().__init__()
+        self.stocks = stocks
+        self.label = label
+        self.variant = variant
+    
+    def render(self) -> str:
+        from .icons import icon_svg
+        
+        if self.variant == "gradient":
+            tag_style = '''
+                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                color: white;
+                box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+            '''
+        else:
+            tag_style = '''
+                background: linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%);
+                color: #4f46e5;
+                border: 1px solid rgba(79, 70, 229, 0.15);
+            '''
+        
+        tags_html = ""
+        for stock in self.stocks:
+            tags_html += f'''
+            <span style="display: inline-block; padding: 6px 14px; 
+                        border-radius: 20px; font-size: 13px; font-weight: 500;
+                        margin: 4px 6px 4px 0;
+                        transition: all 0.2s ease;
+                        {tag_style}"
+                 onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(79, 70, 229, 0.25)';"
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(79, 70, 229, 0.1)';">
+                {stock}
+            </span>
+            '''
+        
+        return f'''
+        <div style="padding-top: 16px; border-top: 1px solid #f3f4f6; margin-top: 16px;">
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <div style="width: 16px; height: 16px; margin-right: 6px;">
+                    {icon_svg("stock", 16, "#6b7280")}
+                </div>
+                <span style="font-size: 13px; color: #6b7280; font-weight: 500;">
+                    {self.label}
+                </span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap;">
+                {tags_html}
+            </div>
+        </div>
+        '''
 
 
 class MetricsRow(Component):
@@ -103,34 +250,69 @@ class MetricsRow(Component):
             
             trend_html = ""
             if trend_up is not None:
-                trend_class = "text-green-600" if trend_up else "text-red-600"
+                trend_color = "#10b981" if trend_up else "#ef4444"
                 trend_icon = "↑" if trend_up else "↓"
-                trend_html = f'<span class="{trend_class} text-xs ml-1">{trend_icon}</span>'
+                trend_html = f'<span style="color: {trend_color}; font-size: 12px; margin-left: 4px; font-weight: 600;">{trend_icon}</span>'
             
             # 分隔线（最后一个不加）
-            border_class = "" if i == len(self.metrics) - 1 else "border-r border-gray-100"
+            border_style = "" if i == len(self.metrics) - 1 else 'border-right: 1px solid #f3f4f6;'
             
-            items_html += f"""
-                <div class="flex-1 text-center px-4 {border_class}">
-                    <div class="text-2xl font-bold text-gray-800">
+            items_html += f'''
+                <div style="flex: 1; text-align: center; padding: 0 12px; {border_style}">
+                    <div style="font-size: 20px; font-weight: 700; color: #1f2937;">
                         {value}
                         {trend_html}
                     </div>
-                    <div class="text-xs text-gray-500 mt-1">{label}</div>
+                    <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">{label}</div>
                 </div>
-            """
+            '''
         
-        return f"""
-        <div class="bg-white/80 rounded-2xl p-4 border border-gray-100 flex items-center">
+        return f'''
+        <div style="background: white; border-radius: 16px; 
+                    padding: 20px 12px; border: 1px solid rgba(0, 0, 0, 0.06);
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                    display: flex; align-items: center;">
             {items_html}
         </div>
-        """
+        '''
+
+
+class Badge(Component):
+    """
+    徽章/标签组件
+    """
+    
+    def __init__(self, text: str, variant: str = "default"):
+        super().__init__()
+        self.text = text
+        self.variant = variant
+    
+    def render(self) -> str:
+        variants = {
+            "default": {"bg": "#f3f4f6", "color": "#374151"},
+            "primary": {"bg": "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)", "color": "white"},
+            "success": {"bg": "linear-gradient(135deg, #10b981 0%, #059669 100%)", "color": "white"},
+            "warning": {"bg": "linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)", "color": "white"},
+            "danger": {"bg": "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)", "color": "white"},
+            "info": {"bg": "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)", "color": "white"},
+            "purple": {"bg": "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)", "color": "white"},
+        }
+        
+        v = variants.get(self.variant, variants["default"])
+        
+        return f'''
+        <span style="display: inline-block; padding: 4px 12px; 
+                    border-radius: 16px; font-size: 11px; font-weight: 700;
+                    background: {v["bg"]}; color: {v["color"]};
+                    letter-spacing: 0.3px; text-transform: uppercase;">
+            {self.text}
+        </span>
+        '''
 
 
 class CompareTable(Component):
     """
     对比表格 - 多列数据对比
-    升级为更美观的表格样式
     """
     
     def __init__(self, headers: list, rows: list, 
@@ -147,7 +329,7 @@ class CompareTable(Component):
     def render(self) -> str:
         # 表头
         headers_html = "".join(
-            f'<th class="px-5 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider bg-gray-50">{h}</th>'
+            f'<th style="padding: 14px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; background: #f9fafb;">{h}</th>'
             for h in self.headers
         )
         
@@ -155,29 +337,31 @@ class CompareTable(Component):
         rows_html = ""
         for i, row in enumerate(self.rows):
             highlight = i in self.highlight_rows
-            row_class = "bg-indigo-50/50" if highlight else ("bg-white" if i % 2 == 0 or not self.striped else "bg-gray-50/50")
+            row_bg = "rgba(79, 70, 229, 0.04)" if highlight else ("white" if i % 2 == 0 or not self.striped else "#fafafa")
             
             cells_html = ""
             for j, cell in enumerate(row):
-                cell_class = ""
+                cell_style = ""
                 if self.highlight_col is not None and j == self.highlight_col:
-                    cell_class = "font-semibold text-indigo-600"
+                    cell_style = "font-weight: 600; color: #4f46e5;"
                 
-                cells_html += f'<td class="px-5 py-4 text-sm text-gray-700 {cell_class}">{cell}</td>'
+                cells_html += '<td style="padding: 14px 16px; font-size: 13px; color: #374151; ' + cell_style + '">' + str(cell) + '</td>'
             
-            rows_html += f'<tr class="{row_class} hover:bg-gray-50 transition-colors">{cells_html}</tr>'
+            rows_html += '<tr style="background: ' + row_bg + '; transition: background 0.2s;">' + cells_html + '</tr>'
         
-        return f"""
-        <div class="overflow-x-auto rounded-2xl border border-gray-100 shadow-sm">
-            <table class="min-w-full divide-y divide-gray-200">
+        return f'''
+        <div style="overflow-x: auto; border-radius: 16px; 
+                    border: 1px solid rgba(0, 0, 0, 0.06); 
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);">
+            <table style="width: 100%; border-collapse: collapse;">
                 <thead>
-                    <tr>
+                    <tr style="border-bottom: 1px solid #e5e7eb;">
                         {headers_html}
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody>
                     {rows_html}
                 </tbody>
             </table>
         </div>
-        """
+        '''
