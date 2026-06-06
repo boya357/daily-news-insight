@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日新闻洞察 - 2026年6月6日</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+        
+        * { font-family: 'Noto Sans SC', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(118,75,162,0.3) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(2%, 2%) rotate(1deg); }
+            50% { transform: translate(0, 4%) rotate(0deg); }
+            75% { transform: translate(-2%, 2%) rotate(-1deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-slide-in {
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+        
+        /* 悬浮功能按钮 */
+        .float-btn-group {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .float-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .float-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 2147483647 !important;
+            isolation: isolate !important;
+            pointer-events: auto !important;
+        }
+        
+        .glass-nav * {
+            position: relative;
+            z-index: 2147483647 !important;
+            pointer-events: auto !important;
+        }
+        
+        .card-glass {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 15px 40px rgba(118, 75, 162, 0.35);
+            border-radius: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card-glass:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(118, 75, 162, 0.45);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hot-tag {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .market-card-up {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        }
+        
+        .market-card-down {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .market-card-neutral {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .topic-card {
+            border-left: 4px solid #667eea;
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.08) 0%, transparent 100%);
+        }
+        
+        .risk-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+        }
+        
+        .hamburger-btn {
+            display: none;
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            color: #667eea;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 99999;
+        }
+        
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 99998;
+            display: none;
+            padding-top: 80px;
+            overflow-y: auto;
+        }
+        
+        .mobile-menu.show {
+            display: block;
+        }
+        
+        .mobile-menu-item {
+            display: block;
+            color: white !important;
+            padding: 16px 24px;
+            text-decoration: none;
+            font-size: 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .mobile-menu-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .close-menu-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        
+        /* 周末特别标识 */
+        .weekend-badge {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        /* ========== 移动端响应式优化 ========== */
+        @media (max-width: 768px) {
+            /* 导航栏：隐藏按钮，显示汉堡 */
+            .nav-links {
+                display: none !important;
+            }
+            .hamburger-btn {
+                display: block !important;
+            }
+            
+            .card-glass {
+                margin: 0 -4px;
+            }
+        }
+
+    </style>
+</head>
+<body class="pb-20">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">📊</span>
+                </div>
+                <span class="text-gray-800 font-bold text-lg">投资研究中心</span>
+            </div>
+            <div class="nav-links flex items-center space-x-1 flex-wrap gap-1">
+                <a href="/daily-news-insight/index.html" class="text-gray-700 hover:text-gray-900 hover:bg-gray-100 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a>
+                <a href="/daily-news-insight/daily/latest.html" class="text-gray-700 hover:text-gray-900 hover:bg-gray-100 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a>
+                <a href="/daily-news-insight/intraday/latest.html" class="text-gray-700 hover:text-gray-900 hover:bg-gray-100 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a>
+                <a href="/daily-news-insight/aftermarket/latest.html" class="text-gray-700 hover:text-gray-900 hover:bg-gray-100 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a>
+                <a href="/daily-news-insight/industry_chain/latest.html" class="text-gray-700 hover:text-gray-900 hover:bg-gray-100 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a>
+                <a href="/daily-news-insight/weekly_review/latest.html" class="text-gray-700 hover:text-gray-900 hover:bg-gray-100 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a>
+                <a href="/daily-news-insight/weekly_outlook/latest.html" class="text-gray-700 hover:text-gray-900 hover:bg-gray-100 text-sm transition-colors px-3 py-1.5 rounded-lg">周三前瞻</a>
+                <a href="/daily-news-insight/周末速递/latest.html" class="text-gray-700 hover:text-gray-900 hover:bg-gray-100 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a>
+                <a href="/daily-news-insight/明日催化剂/latest.html" class="text-gray-700 hover:text-gray-900 hover:bg-gray-100 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a>
+                <a href="/daily-news-insight/S级催化扫描/latest.html" class="text-gray-700 hover:text-gray-900 hover:bg-gray-100 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a>
+                <a href="/daily-news-insight/monthly/latest.html" class="text-gray-700 hover:text-gray-900 hover:bg-gray-100 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
+            </div>
+            <button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </nav>
+    
+    <!-- 移动端全屏菜单 -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
+        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a>
+        <a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a>
+        <a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中快报</a>
+        <a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后速递</a>
+        <a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链总览</a>
+        <a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a>
+        <a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a>
+        <a href="/daily-news-insight/周末速递/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a>
+        <a href="/daily-news-insight/明日催化剂/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化剂</a>
+        <a href="/daily-news-insight/S级催化扫描/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⭐ S级催化扫描</a>
+        <a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🗓️ 月度总结</a>
+    </div>
+    
+    <script>
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('show');
+        }
+    </script>
+
+    <!-- 主内容区 -->
+    <div class="pt-24 px-4 relative z-10">
+        <div class="max-w-5xl mx-auto">
+            <!-- 头部 -->
+            <div class="card-glass p-8 mb-8 border-2 border-white/20 animate-slide-in">
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl" style="animation: pulse 3s ease-in-out infinite;">
+                        <i class="fa fa-newspaper-o text-white text-4xl"></i>
+                    </div>
+                    <h1 class="text-4xl font-black gradient-text mb-3">每日新闻洞察</h1>
+                    <p class="text-gray-500 text-lg">📅 2026年6月6日 · 星期六 · 周末特刊</p>
+                    <div class="mt-4 inline-flex items-center px-4 py-2 rounded-full bg-red-100 text-red-800 text-sm">
+                        <i class="fa fa-exclamation-triangle mr-2"></i>
+                        <strong>今日焦点：</strong>美股芯片股集体暴跌，纳指重挫4.18%创8个月最大跌幅，非农数据超预期加息预期升温，AI板块遭遇恐慌性抛售
+                    </div>
+                </div>
+            </div>
+
+            <!-- 隔夜全球市场数据 -->
+            <div class="card-glass p-6 mb-8 animate-slide-in" style="animation-delay: 0.1s;">
+                <h2 class="text-2xl font-bold gradient-text mb-6 pb-3 border-b-2 border-indigo-500/30">
+                    <i class="fa fa-globe mr-3"></i>🌍 隔夜全球市场
+                </h2>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="market-card-down text-white p-5 rounded-2xl text-center shadow-lg">
+                        <div class="text-3xl font-black">-1.35%</div>
+                        <div class="text-sm opacity-90 mt-1">道琼斯</div>
+                        <div class="text-xs opacity-75">跌695点</div>
+                    </div>
+                    <div class="market-card-down text-white p-5 rounded-2xl text-center shadow-lg">
+                        <div class="text-3xl font-black">-4.18%</div>
+                        <div class="text-sm opacity-90 mt-1">纳斯达克</div>
+                        <div class="text-xs opacity-75">创8个月最大跌幅</div>
+                    </div>
+                    <div class="market-card-down text-white p-5 rounded-2xl text-center shadow-lg">
+                        <div class="text-3xl font-black">-2.64%</div>
+                        <div class="text-sm opacity-90 mt-1">标普500</div>
+                        <div class="text-xs opacity-75">终结周线九连阳</div>
+                    </div>
+                    <div class="market-card-down text-white p-5 rounded-2xl text-center shadow-lg">
+                        <div class="text-3xl font-black">-10.3%</div>
+                        <div class="text-sm opacity-90 mt-1">费城半导体</div>
+                        <div class="text-xs opacity-75">创四年最大单日跌幅</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="market-card-down text-white p-4 rounded-2xl text-center shadow-lg">
+                        <div class="text-xl font-bold">-6.1%</div>
+                        <div class="text-xs opacity-90 mt-1">英伟达</div>
+                    </div>
+                    <div class="market-card-down text-white p-4 rounded-2xl text-center shadow-lg">
+                        <div class="text-xl font-bold">-13.1%</div>
+                        <div class="text-xs opacity-90 mt-1">美光科技</div>
+                    </div>
+                    <div class="market-card-down text-white p-4 rounded-2xl text-center shadow-lg">
+                        <div class="text-xl font-bold">-16.2%</div>
+                        <div class="text-xs opacity-90 mt-1">迈威尔科技</div>
+                    </div>
+                    <div class="market-card-down text-white p-4 rounded-2xl text-center shadow-lg">
+                        <div class="text-xl font-bold">-3.56%</div>
+                        <div class="text-xs opacity-90 mt-1">中概金龙指数</div>
+                    </div>
+                </div>
+                
+                <div class="space-y-4 text-gray-700">
+                    <div class="flex items-start">
+                        <span class="hot-tag text-white text-xs px-2 py-1 rounded-full mr-3 mt-1">重磅</span>
+                        <div>
+                            <strong>美股遭遇黑色星期五，芯片股单日蒸发超万亿美元！</strong>美国三大股指全线重挫，纳指暴跌4.18%创2025年4月以来最大单日跌幅，费城半导体指数狂泻10.3%，创2020年3月熔断以来四年最大跌幅。芯片股集体崩盘：迈威尔科技跌16.2%、美光科技跌13.1%、英特尔跌超11%、AMD跌10.8%、英伟达跌6.1%（单日市值蒸发超3000亿美元）。博通两日累计大跌近19%。本周标普500终结周线九连阳，纳指单周大跌4.3%。来源：新浪财经、大河财立方
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full mr-3 mt-1">加息预期</span>
+                        <div>
+                            <strong>5月非农数据远超预期，降息预期彻底反转，年底加息概率骤升！</strong>美国5月非农就业新增17.2万人，远高于经济学家预期的8万人，失业率持平于4.3%。3月和4月就业数据同步上修。强劲数据推升美联储加息预期，CME美联储观察工具显示年底加息概率从数据前的不足50%升至近70%。10年期美债收益率飙升站上4.5%关口，美元指数大涨0.64%。穆迪首席经济学家马克·赞迪警告，若通胀预期持续攀升，美联储可能被迫加息，即便引发经济衰退。来源：环球市场播报、新浪财经
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full mr-3 mt-1">AI泡沫</span>
+                        <div>
+                            <strong>博通AI指引不及预期击碎信仰，AI估值逻辑松动！</strong>博通披露2026财年Q3 AI芯片营收指引低于机构平均预期，全年AI营收同样低于市场乐观预判，且未上调2027年千亿营收目标。市场开始重新质疑全球AI资本开支、云端芯片采购持续性，AI产业链估值逻辑松动，资金集中从高位芯片股出逃。机构分析认为，AI交易在经历两个多月飙升后已显疲态，板块估值过高，任何不及预期都可能引发剧烈回调。来源：新浪财经、证券时报
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full mr-3 mt-1">大宗商品</span>
+                        <div>
+                            <strong>黄金原油同步大跌，现货黄金抹去今年全部涨幅！</strong>COMEX黄金期货暴跌3.35%报4352.90美元/盎司，现货黄金一度跌3.6%，完全回吐年内涨幅。美油主力合约收跌3.0%报90.25美元/桶，布油跌2.37%报92.78美元/桶。美元走强和加息预期是贵金属下跌主因，股市抛售加剧黄金跌势。伦敦基本金属全线下跌，期锡跌4.56%、期铜跌2.98%。来源：大河财立方、东方财富网
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mr-3 mt-1">避险轮动</span>
+                        <div>
+                            <strong>资金从科技股轮出，必需消费品逆势上涨！</strong>市场避险情绪升温，资金从高位科技股转向防御性板块。必需消费品板块上涨2%，高露洁-棕榄和可口可乐均涨超3%。沃尔玛涨超1%。机构资金防御性配置策略暗示市场正在为"更高更久"的利率环境做准备。分析师表示，这表明轮动正处于初期阶段，同时也提醒投资者，并非所有AI股票都一样。来源：新浪财经、经济观察网
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 题材动态 -->
+            <div class="card-glass p-6 mb-8 animate-slide-in" style="animation-delay: 0.2s;">
+                <h2 class="text-2xl font-bold gradient-text mb-6 pb-3 border-b-2 border-indigo-500/30">
+                    <i class="fa fa-fire mr-3"></i>🔥 核心题材动态
+                </h2>
+
+                <!-- 芯片暴跌专题 -->
+                <div class="topic-card p-5 rounded-xl mb-5" style="border-left-color: #ef4444; background: linear-gradient(90deg, rgba(239, 68, 68, 0.08) 0%, transparent 100%);">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-gradient-to-r from-red-500 to-orange-500 mr-3"></span>
+                        芯片股暴跌专题 · AI信仰遭遇考验，板块何去何从
+                    </h3>
+                    <div class="space-y-3 text-gray-700 text-sm">
+                        <p><strong>📉 暴跌三重诱因：</strong>①导火索：博通AI芯片营收指引不及预期，击碎AI高景气信仰，市场质疑AI资本开支持续性；②宏观利空：5月非农大幅超预期，降息预期彻底反转，年底加息定价概率骤升，高估值成长股对利率高度敏感；③获利盘兑现：费城半导体年内最高涨幅超75%，短线累积巨量获利盘，高位筹码集中踩踏出逃。来源：仓又加错、新浪财经</p>
+                        <p><strong>🏦 机构多空对决：</strong>空头（摩根大通）认为AI盈利下修周期开启，芯片板块或仍存10%-15%下行空间，后续企业财报指引大概率持续保守；多头交易派则认为短期情绪恐慌杀跌，AI长期算力需求逻辑未破坏，大跌后可分批逢低布局龙头，但短期回避高位小票。来源：机构研报整理</p>
+                        <p><strong>⚠️ 关键观察指标：</strong>后续需重点关注：①英伟达GTC后续催化剂及订单展望；②美光、三星等存储大厂的涨价落地情况；③美联储6月议息会议表态及点阵图变化；④AI云厂商资本开支指引是否下调。若以上指标出现明显恶化，需警惕AI板块中期调整风险。来源：投研分析</p>
+                        <p><strong>💡 应对策略：</strong>对于持仓投资者，建议趁反弹降低高位小票仓位，聚焦有业绩支撑的核心龙头；对于空仓或轻仓投资者，耐心等待恐慌情绪释放完毕，关注20日均线支撑力度，分批布局确定性最强的存储、光模块等主线赛道，控制好整体仓位。来源：投资策略分析</p>
+                    </div>
+                </div>
+
+                <!-- 存储芯片/HBM -->
+                <div class="topic-card p-5 rounded-xl mb-5">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 mr-3"></span>
+                        存储芯片 / HBM · 美光单日暴跌13%，行业基本面是否生变
+                    </h3>
+                    <div class="space-y-3 text-gray-700 text-sm">
+                        <p><strong>📉 股价剧烈波动：</strong>美光科技周五暴跌13.1%，为年内最大单日跌幅，主要受博通指引不及预期引发的板块性抛售影响。市场担忧AI需求放缓可能传导至存储芯片领域。但需注意的是，存储芯片当前处于行业周期上行阶段，与逻辑芯片的景气逻辑有所不同。来源：新浪财经</p>
+                        <p><strong>💰 产业基本面：</strong>TrendForce集邦咨询研究显示，三大原厂（三星、SK海力士、美光）拟在2027年大幅上调HBM报价，预计合约价格将出现倍数成长。HBM投片量占整体DRAM投片比重将由2025年的18%提升至2027年约30%，位元供给占比也将由8%提高至约13%。AI基础建设需求强劲推动存储器产业获利结构向HBM倾斜。来源：TrendForce集邦咨询</p>
+                        <p><strong>🔍 核心逻辑不变：</strong>存储芯片正在从便宜的标准件变成被优先分配的稀缺资源。大客户用长期协议、预付款和战略承诺锁定产能。AI云和服务器优先拿货，传统消费电子、工业和汽车客户面对更高价格。行业供需格局未发生根本性变化，短期股价波动更多是情绪面和资金面影响。来源：行业分析</p>
+                        <p><strong>⚠️ 风险提示：</strong>若美国经济因加息陷入衰退，企业IT开支可能收缩，进而影响服务器及存储需求。需密切关注后续经济数据和企业财报指引，验证存储超级周期逻辑是否依然成立。来源：风险提示</p>
+                    </div>
+                </div>
+
+                <!-- MLCC -->
+                <div class="topic-card p-5 rounded-xl mb-5">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 mr-3"></span>
+                        MLCC · 华新科正式涨价，AI驱动的超级周期开启
+                    </h3>
+                    <div class="space-y-3 text-gray-700 text-sm">
+                        <p><strong>💸 涨价潮正式开启：</strong>被动元件大厂华新科向代理商发出涨价通知，自6月1日开始调涨芯片电阻及部分MLCC产品价格，主要因多项原物料价格持续上涨。此前村田、三星电机、太阳诱电等主要厂商已对旗下MLCC产品价格进行上调。村田率先上调AI、车规级MLCC报价，涨幅15%-35%。来源：证券时报、东方财富网</p>
+                        <p><strong>⚙️ 供需格局反转：</strong>AI服务器成为最大增量来源，普通传统服务器单台MLCC用量仅1800-2500颗，8卡AI服务器用量飙升至2万颗以上，英伟达GB200整机柜MLCC用量高达44万颗，下一代Rubin平台单机MLCC物料价值相比前代提升182%。村田、三星电机产能利用率已达90%以上，高端产品交期从3个月拉长至6-12个月。来源：集邦咨询、摩根士丹利</p>
+                        <p><strong>📈 国产替代加速：</strong>国内厂商依托国产替代加速跟进调价，高端规格涨价30%+，中低端消费品类涨幅约20%。天利控股集团（宇阳科技）午前涨超17%，风华高科、三环集团年内股价涨幅显著。行业正式进入量价齐升周期，AI+汽车电子双轮驱动下，MLCC超级周期正在上演。来源：证券时报、智通财经</p>
+                        <p><strong>🔬 设备是关键瓶颈：</strong>韭研公社热帖指出，当市场热议MLCC涨价时，真正的命门是"造MLCC的机器"。MLCC扩产的核心瓶颈不在陶瓷粉料，而在核心制造设备尤其是流延机（涂布成型）。就像当年固态电池炒作中，真正暴涨的不是电池厂，而是卖设备的公司。中游看景气，上游看垄断。来源：韭研公社</p>
+                    </div>
+                </div>
+
+                <!-- 金刚石散热 -->
+                <div class="topic-card p-5 rounded-xl mb-5">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 mr-3"></span>
+                        金刚石散热 · AI算力新风口，培育钻石价值重估
+                    </h3>
+                    <div class="space-y-3 text-gray-700 text-sm">
+                        <p><strong>💎 产业属性切换：</strong>人造金刚石行业正由"传统工业耗材与消费替代品"向"AI时代高端制造材料"完成产业属性切换。金刚石凭借其超高热导率特性（自然界中热导率最高，达2000-2200W/m·K，是纯铜的5倍），成为破解算力热管理困局的核心解法。机构预测到2030年，AI领域金刚石材料散热市场规模有望达到480-900亿元。来源：开源证券、环球网</p>
+                        <p><strong>🏭 产业化加速落地：</strong>2026年2月，全球首批搭载金刚石冷却技术的英伟达H200 GPU服务器完成商业化交付。英伟达官宣下一代Vera Rubin架构GPU将全面采用"金刚石-铜复合散热+液冷"的全新散热方案。国内郑州超算中心已实现金刚石铜复合材料规模化应用，芯片模组传热能力提升80%，性能提升10%，温度下降5℃。来源：36氪、东方财富网</p>
+                        <p><strong>📊 产业链布局：</strong>四方达金刚石散热片已通过海外客户测试，进入小批量供货阶段；国机精工金刚石散热片获高端客户认可，部分型号进入千万级出货规模；黄河旋风建成国内首条8英寸金刚石热沉片生产线；惠丰钻石高导热金刚石粉体项目正式投产，年产20吨。2026年以来培育钻石板块平均涨幅超90%，四方达涨幅超214%。来源：上市公司公告、证券时报</p>
+                        <p><strong>⚠️ 理性看待：</strong>力量钻石发布风险提示公告称，金刚石散热应用场景尚未达到大规模市场化应用阶段，未对公司主营业务及收入产生影响。机构也提醒投资者区分长期产业趋势与短期炒作行为，优先关注技术储备扎实、产能落地较快的头部企业。目前半导体级CVD金刚石仍处于全球实验室重点攻关阶段，小批量认证期。来源：上市公司公告、中新经纬</p>
+                    </div>
+                </div>
+
+                <!-- 6G -->
+                <div class="topic-card p-5 rounded-xl mb-5">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 mr-3"></span>
+                        6G通信 · 工信部启动部省协同试点，万亿赛道正式开启
+                    </h3>
+                    <div class="space-y-3 text-gray-700 text-sm">
+                        <p><strong>📋 试点正式启动：</strong>6月4日工信部正式印发《6G创新发展部省协同试点专项行动方案》，标志国内6G从实验室研发迈入落地试点新阶段。试点周期三年（2026-2029年），各省最多遴选3个特色赛道申报落地。目标到2029年形成一批自主创新的6G技术方案、新型应用场景和终端产品，为6G商用落地提供有力支撑。来源：工信部官网、新华社</p>
+                        <p><strong>🎯 核心技术方向：</strong>试点将推动通信与人工智能、卫星互联网、无线感知等融合技术方案研究，加强6G基站、核心网、承载网、专用仪器仪表等通信设备产业研发，培育新型终端、芯片器件、操作系统、商业航天等6G关联产业。6G发展不再单纯拼网速，而是更侧重广覆盖和多场景融合。来源：中国政府网</p>
+                        <p><strong>🌐 应用场景定位：</strong>面向沉浸式通信、低空经济、具身智能、智慧海洋等6G潜在场景，因地制宜开展应用培育。6G将带来多媒体宽带、6G与AI结合、大规模物联网三大主要发展机遇，其中与AI结合将是最重要的市场机会。全球首个6G标准预计2026年9月确定，2030年前后正式商用。来源：证券时报、工信部</p>
+                        <p><strong>📈 投资主线清晰：</strong>四条最清晰主线：①运营商（中国移动、中国电信、中国联通）；②主设备商（中兴通讯、信科移动）；③光通信与光模块（亨通光电、中际旭创、新易盛）；④卫星互联网（普天科技、上海瀚讯）。6G投资主线已从"概念炒作"转向"产业实锤"，相关产业链将迎来长期发展机遇。来源：新浪财经</p>
+                    </div>
+                </div>
+
+                <!-- CPO/光通信 -->
+                <div class="topic-card p-5 rounded-xl mb-5">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 mr-3"></span>
+                        光通信/CPO · 英伟达Spectrum-X全面量产，短期受大盘拖累
+                    </h3>
+                    <div class="space-y-3 text-gray-700 text-sm">
+                        <p><strong>🚀 CPO正式迈入大规模商用：</strong>英伟达官宣Spectrum-X以太网硅光技术全面量产，新一代Spectrum-X交换机基于硅光+CPO架构打造，支持Vera Rubin AI Factory大规模横向扩展与跨区域互联。能效提升5倍，AI系统正常运行时间提升5倍，部署效率提升1.3倍。台积电COUPE硅光工艺平台助力CPO封装，鸿海全光CPO交换机柜已提前出货。来源：英伟达官网、证券时报</p>
+                        <p><strong>💡 产业链价值重构：</strong>CPO通过将光引擎与交换芯片共封装，把电互连距离从厘米级压缩至百微米级，可将光通信系统整体功耗降低50%以上。行情正从传统光模块向更上游核心环节扩散：外置光源（源杰科技）、精密连接器件（天孚通信）、硅光封装与代工（中际旭创）、PCB钻针（鼎泰高科）。Scale Up网络打开光互联十倍增量空间。来源：广发证券、开源证券</p>
+                        <p><strong>📊 光模块景气度验证：</strong>高盛上调2026年全球高速光模块出货预期，全年800G型号出货上调至3800万只，适配CPO的1.6T新产品出货量预估1400万只。中际旭创手握百亿级别在手订单，1.6T规格CPO产品拿下英伟达主要供货份额，产能订单排到2027年二季度。LightCounting预测，2026年以太网光模块市场增长65%。来源：高盛研报、LightCounting</p>
+                        <p><strong>⚠️ 短期回调风险：</strong>受美股芯片股暴跌影响，光模块板块短期可能面临情绪性回调。但机构普遍认为，CPO商用化进程加速与AI算力需求长期增长的逻辑未变，短期回调反而提供布局机会。需关注后续订单兑现情况和行业竞争格局变化。来源：机构研报</p>
+                    </div>
+                </div>
+
+                <!-- AI PC/Rubin平台 -->
+                <div class="topic-card p-5 rounded-xl">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 mr-3"></span>
+                        AI PC / Rubin平台 · Vera Rubin全面量产，英伟达进军PC芯片市场
+                    </h3>
+                    <div class="space-y-3 text-gray-700 text-sm">
+                        <p><strong>☁️ Vera Rubin平台全面投产：</strong>黄仁勋在GTC台北2026宣布新一代Vera Rubin AI平台已全面量产。该平台是专为代理式AI工作负载设计的完整端到端异构计算系统，包含Rubin GPU、Vera CPU、ConnectX-9 SuperNIC、BlueField-4 DPU安全处理器等核心组件。训练性能是上一代Blackwell的3.5倍，推理性能达到5倍，推理成本降至七分之一。来源：英伟达官方</p>
+                        <p><strong>💻 英伟达正式进军PC芯片市场：</strong>黄仁勋宣布推出面向Windows系统个人电脑的新款处理器RTX Spark，今年秋季起戴尔、联想等主流PC品牌将陆续推出搭载该芯片的产品，标志英伟达正式打破英特尔在PC领域的垄断地位。AI PC时代，NPU算力成为核心竞争力，英伟达凭借GPU技术积累强势切入。来源：新浪科技、36氪</p>
+                        <p><strong>🔧 产业链耗材率先受益：</strong>韭研公社产业链研判显示，英伟达Rubin平台6月起拉货，钻针作为最早反应的OPEX耗材，头部厂商单价与需求量将出现阶跃式抬升。AI PCB通孔+盲埋孔数是普通服务器3-5倍，钻针磨损越快、更换频率越高。预估2026-2028年AI钻针全球市场规模120亿/260亿/400亿元。来源：韭研公社</p>
+                        <p>🤖 <strong>Agentic AI时代全面到来：</strong>英伟达GTC传递的核心信号是AI正在从"生成内容"阶段进入"执行任务"阶段，代理式人工智能（Agentic AI）将成为下一代计算的核心工作负载。Meta宣布首次向企业用户出售AI智能体访问权限。Wolfe Research预测Agentic CPU将推动CPU市场2028年前增长30%，花旗估算服务器CPU市场2030年将达1320亿美元。来源：机构研报</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 持仓标的跟踪 -->
+            <div class="card-glass p-6 mb-8 animate-slide-in" style="animation-delay: 0.3s;">
+                <h2 class="text-2xl font-bold gradient-text mb-6 pb-3 border-b-2 border-indigo-500/30">
+                    <i class="fa fa-bar-chart mr-3"></i>📊 核心持仓跟踪
+                </h2>
+                
+                <div class="space-y-4">
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-bold text-lg text-gray-800">英维克 (002837)</h4>
+                            <span class="text-red-600 font-bold text-xl">🔴 仍严重破止损</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 text-sm text-gray-600">
+                            <div><strong>成本价：</strong>104.23元</div>
+                            <div><strong>止损线：</strong>98元</div>
+                            <div><strong>最新价：</strong>68.32元</div>
+                        </div>
+                        <p class="mt-2 text-sm text-red-700 bg-red-100 p-2 rounded"><i class="fa fa-exclamation-circle mr-2"></i><strong>操作建议：</strong>已严重破位达34.45%，美股芯片股暴跌可能进一步拖累A股科技板块，需警惕下周开盘补跌风险。严格执行止损纪律，控制单只标的亏损幅度，避免被动深套。</p>
+                    </div>
+                    
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-bold text-lg text-gray-800">铜冠铜箔 (301217)</h4>
+                            <span class="text-green-600 font-bold text-xl">🟢 浮盈+23.22%</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 text-sm text-gray-600">
+                            <div><strong>成本价：</strong>87.16元</div>
+                            <div><strong>止损线：</strong>85元</div>
+                            <div><strong>最新价：</strong>107.40元</div>
+                        </div>
+                        <p class="mt-2 text-sm text-green-700 bg-green-100 p-2 rounded"><i class="fa fa-check-circle mr-2"></i><strong>操作建议：</strong>HVLP铜箔国产替代逻辑持续强化，存储芯片封装需求爆发带动铜箔需求增长。下周需警惕大盘系统性风险，可考虑在反弹中适当降低仓位锁定利润，上移止损位至100元，保护已有盈利。</p>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-bold text-lg text-gray-800">*ST建艺 (002789)</h4>
+                            <span class="text-yellow-600 font-bold text-xl">🟡 横盘整理</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4 text-sm text-gray-600">
+                            <div><strong>成本价：</strong>约13.45元</div>
+                            <div><strong>止损线：</strong>12.5元</div>
+                            <div><strong>最新价：</strong>13.79元</div>
+                        </div>
+                        <p class="mt-2 text-sm text-yellow-700 bg-yellow-100 p-2 rounded"><i class="fa fa-info-circle mr-2"></i><strong>操作建议：</strong>摘帽预期持续发酵，股价在成本线附近窄幅震荡。ST板块受大盘情绪影响相对较小，摘帽行情相对独立。继续持有观察，止损位维持12.5元不变，等待摘帽消息催化。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 风险提示框 -->
+            <div class="risk-box p-6 rounded-xl mb-8 animate-slide-in" style="animation-delay: 0.4s;">
+                <h3 class="text-xl font-bold text-amber-800 mb-4 flex items-center">
+                    <i class="fa fa-exclamation-triangle mr-3"></i>⚠️ 今日特别风险提示
+                </h3>
+                <div class="space-y-3 text-amber-900 text-sm">
+                    <p><strong>1. 美股暴跌传导风险：</strong>美股芯片股集体暴跌，费城半导体指数创四年最大单日跌幅，AI板块遭遇恐慌性抛售。下周一A股科技板块面临较大补跌压力，尤其是半导体、AI、光模块等高景气赛道，需警惕系统性回调风险。</p>
+                    <p><strong>2. 美联储加息预期升温：</strong>5月非农数据远超预期，市场对美联储年底加息概率大幅上升，美元走强美债收益率攀升。全球流动性收紧预期升温，新兴市场资金可能外流，对A股整体估值形成压制。</p>
+                    <p><strong>3. AI板块估值重构风险：</strong>博通AI指引不及预期揭开了AI高景气信仰的第一道裂痕，市场开始质疑AI资本开支的持续性。若后续更多科技公司财报不及预期，可能引发AI板块估值体系重构，高位标的回调风险巨大。</p>
+                    <p><strong>4. 持仓标的严格风控：</strong>英维克已严重破位34.45%，必须严格执行止损纪律；铜冠铜箔虽有浮盈但需警惕大盘拖累，建议上移止损位保护利润。整体仓位需保持谨慎，控制好风险敞口。</p>
+                    <p><strong>5. 周末消息面不确定性：</strong>周末期间需重点关注：①中美关系相关消息；②国内政策动向；③海外市场进一步走势；④中东地缘局势变化。这些因素都可能对下周开盘产生重要影响。</p>
+                </div>
+            </div>
+
+            <!-- 周末策略思考 -->
+            <div class="card-glass p-6 mb-8 animate-slide-in" style="animation-delay: 0.5s;">
+                <h2 class="text-2xl font-bold gradient-text mb-6 pb-3 border-b-2 border-indigo-500/30">
+                    <i class="fa fa-lightbulb-o mr-3"></i>💡 周末策略思考
+                </h2>
+                <div class="space-y-4 text-gray-700 text-sm">
+                    <div class="flex items-start">
+                        <span class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full mr-3 mt-1 flex-shrink-0">核心判断</span>
+                        <div>
+                            <p>美股芯片股暴跌是多重因素叠加的结果（博通指引+非农超预期+获利盘兑现），AI长期产业趋势未发生根本性变化，但短期市场情绪和资金面的影响可能导致板块出现中期调整。下周A股科技板块承压概率较大，建议保持谨慎，控制仓位。</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mr-3 mt-1 flex-shrink-0">应对策略</span>
+                        <div>
+                            <p>① 趁反弹降低高位高估值科技股仓位，向防御性板块适度倾斜；② 聚焦有明确业绩支撑的确定性赛道，如存储芯片（涨价周期）、MLCC（量价齐升）、铜箔（国产替代）；③ 关注低位、低估值且有催化的板块，如6G、金刚石散热等新质生产力方向；④ 保持现金储备，待恐慌情绪释放后再逢低布局核心资产。</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full mr-3 mt-1 flex-shrink-0">重点观察</span>
+                        <div>
+                            <p>下周需重点观察：① 美股是否继续下跌还是企稳反弹；② 北向资金流向；③ 国内是否有对冲政策出台；④ 存储、光模块等核心赛道的业绩验证情况。建议利用周末时间梳理持仓，做好风险应对预案，避免下周开盘手忙脚乱。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部信息 -->
+            <div class="text-center text-white/70 text-sm pb-8">
+                <p>📰 每日新闻洞察 · 周末特刊 · 龙空龙策略专用</p>
+                <p>⏰ 发布时间：2026年6月6日 08:30</p>
+                <p class="mt-2">数据来源：新浪财经、东方财富网、证券时报、上海证券报、韭研公社、工信部官网、TrendForce集邦咨询、36氪、环球网等</p>
+                <p class="mt-3 text-xs text-white/50">⚠️ 本报告仅供参考，不构成投资建议。股市有风险，投资需谨慎。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 悬浮按钮组 -->
+    <div class="float-btn-group">
+        <button class="float-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="回到顶部">
+            <i class="fa fa-arrow-up"></i>
+        </button>
+        <button class="float-btn" onclick="shareReport()" title="分享">
+            <i class="fa fa-share-alt"></i>
+        </button>
+    </div>
+
+    <script>
+        function shareReport() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '每日新闻洞察 - 2026年6月6日',
+                    url: window.location.href
+                });
+            } else {
+                // 复制链接到剪贴板
+                navigator.clipboard.writeText(window.location.href).then(function() {
+                    alert('链接已复制到剪贴板');
+                });
+            }
+        }
+        
+        // 滚动时显示/隐藏回到顶部按钮
+        window.addEventListener('scroll', function() {
+            var backToTop = document.querySelector('.float-btn-group .float-btn:first-child');
+            if (window.scrollY > 300) {
+                backToTop.style.opacity = '1';
+            } else {
+                backToTop.style.opacity = '0.5';
+            }
+        });
+    </script>
+</body>
+</html>
