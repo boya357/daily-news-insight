@@ -41,9 +41,9 @@ class DataCard(Component):
         card_class = variants.get(self.variant, variants["default"])
         
         return f"""
-        <div class="{card_class} rounded-2xl p-6 text-center shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+        <div class="{card_class} rounded-xl p-5 text-center shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
             {icon_html}
-            <div class="text-3xl font-bold text-gray-800 mb-2">
+            <div class="text-2xl font-bold text-gray-800 mb-2">
                 {self.value}<span class="text-sm font-normal text-gray-500 ml-1">{self.unit}</span>
             </div>
             <div class="text-sm text-gray-500 mb-3">{self.title}</div>
@@ -70,13 +70,13 @@ class DataGrid(Component):
         
         # 响应式列数
         if self.cols == 2:
-            grid_class = "grid grid-cols-1 sm:grid-cols-2 gap-5"
+            grid_class = "grid grid-cols-1 sm:grid-cols-2 gap-4"
         elif self.cols == 3:
-            grid_class = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+            grid_class = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
         elif self.cols == 4:
-            grid_class = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
+            grid_class = "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
         else:
-            grid_class = f"grid grid-cols-2 md:grid-cols-{self.cols} gap-5"
+            grid_class = f"grid grid-cols-2 md:grid-cols-{self.cols} gap-4"
         
         return f"""
         <div class="{grid_class}">

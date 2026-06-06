@@ -106,7 +106,7 @@ class Report:
         }}
         
         .content-area {{
-            max-width: 72rem;
+            max-width: 64rem;
             margin: 0 auto;
             padding: 0 1.5rem;
         }}
@@ -251,7 +251,7 @@ class Report:
         
         # 内容区
         components_html = "\n".join(
-            comp.render() if hasattr(comp, 'render') else str(comp)
+            f'<div class="mb-10 last:mb-0">{comp.render() if hasattr(comp, "render") else str(comp)}</div>'
             for comp in self.components
         )
         

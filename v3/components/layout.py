@@ -255,11 +255,11 @@ class Section(Component):
             header_class = "mb-4"
             title_class = "text-lg font-semibold text-gray-700"
         else:
-            header_class = "mb-6 pb-4 border-b border-gray-100"
+            header_class = "mb-5 pb-3 border-b border-gray-100"
             title_class = "text-xl font-bold text-gray-800"
         
         return f"""
-        <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
+        <div class="bg-white/95 backdrop-blur-sm rounded-2xl p-7 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
             <div class="{header_class}">
                 <h3 class="{title_class}">
                     {icon_html}{self.title}

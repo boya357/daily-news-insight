@@ -83,12 +83,12 @@ COLORS = {
 # 尺寸规范（优化后的尺寸系统）
 # ==========================================
 SIZES = {
-    "content_max_width": "max-w-5xl",
+    "content_max_width": "max-w-4xl",
     "content_padding": "px-6",
     "nav_height": "64px",
     "chart_height": "320px",
     "card_radius": "18px",
-    "section_spacing": "40px",
+    "section_spacing": "48px",
     "section_radius": "24px",
 }
 
