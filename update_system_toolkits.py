@@ -35,7 +35,7 @@ def write_file(filepath, content):
 def get_update_time():
     """获取当前更新时间字符串"""
     now = datetime.now()
-    return now.strftime('%m月%d日 %H:%M')
+    return now.strftime('%Y年%-m月%-d日 %H:%M')
 
 def safe_replace(html, pattern, replacement, description=""):
     """安全替换，如果找不到模式则警告但不中断"""
@@ -63,8 +63,8 @@ def update_alert_system():
     print("📊 更新智能预警系统...")
     
     # 1. 更新最后更新时间
-    old_time_pattern = r'最后更新：\d+月\d+日 \d+:\d+'
-    new_time_text = f'最后更新：{update_time}'
+    old_time_pattern = r'数据更新时间：\d+年\d+月\d+日 \d+:\d+'
+    new_time_text = f'数据更新时间：{update_time}'
     html = safe_replace(html, old_time_pattern, new_time_text, "更新时间戳")
     
     # 2. 更新综合风险指数 (68 -> 75)
@@ -152,8 +152,8 @@ def update_portfolio_dashboard():
     print("📊 更新持仓智能预警仪表盘...")
     
     # 更新最后更新时间
-    old_time_pattern = r'最后更新：\d+月\d+日 \d+:\d+'
-    new_time_text = f'最后更新：{update_time}'
+    old_time_pattern = r'数据更新时间：\d+年\d+月\d+日 \d+:\d+'
+    new_time_text = f'数据更新时间：{update_time}'
     html = safe_replace(html, old_time_pattern, new_time_text, "更新时间戳")
     
     write_file(filepath, html)
@@ -179,8 +179,8 @@ def update_topic_helper():
     print("📊 更新智能选题助手...")
     
     # 更新最后更新时间
-    old_time_pattern = r'最后更新：\d+月\d+日 \d+:\d+'
-    new_time_text = f'最后更新：{update_time}'
+    old_time_pattern = r'数据更新时间：\d+年\d+月\d+日 \d+:\d+'
+    new_time_text = f'数据更新时间：{update_time}'
     html = safe_replace(html, old_time_pattern, new_time_text, "更新时间戳")
     
     write_file(filepath, html)
