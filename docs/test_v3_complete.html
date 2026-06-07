@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V3.0 组件库完整演示 - 投资研究中心</title>
+    <meta name="description" content="大卡片嵌套小卡片 · 左右分栏 · 时间轴">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- 标准导航栏样式 -->
+    
+        <style>
+            /* Glass-Nav 玻璃态导航栏 */
+            .glass-nav {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 2147483647 !important;
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                isolation: isolate !important;
+                pointer-events: auto !important;
+            }
+            
+            .glass-nav * {
+                position: relative;
+                z-index: 2147483647 !important;
+                pointer-events: auto !important;
+            }
+            
+            .glass-nav-inner {
+                max-width: 80rem;
+                margin: 0 auto;
+                padding: 0 1rem;
+                height: 60px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            
+            .glass-nav-logo {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                text-decoration: none;
+            }
+            
+            .glass-nav-logo-icon {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+            }
+            
+            .glass-nav-logo-text {
+                color: white;
+                font-weight: 700;
+                font-size: 18px;
+            }
+            
+            .glass-nav-links {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                flex-wrap: wrap;
+            }
+            
+            .glass-nav-link {
+                padding: 6px 12px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 500;
+                color: rgba(255, 255, 255, 0.8);
+                transition: all 0.2s ease;
+            }
+            
+            .glass-nav-link:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.1);
+            }
+            
+            .glass-nav-link.active {
+                color: white;
+                background: rgba(255, 255, 255, 0.15);
+            }
+            
+            .hamburger-btn {
+                display: none;
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 16px;
+                color: white;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            /* 移动端菜单 - 玻璃态深色 */
+            .mobile-menu {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(15, 23, 42, 0.95);
+                backdrop-filter: blur(20px);
+                z-index: 2147483646;
+                flex-direction: column;
+                padding: 80px 24px 24px;
+            }
+            
+            .mobile-menu.show {
+                display: flex;
+            }
+            
+            .mobile-menu-item {
+                padding: 14px 16px;
+                border-radius: 10px;
+                text-decoration: none;
+                font-size: 16px;
+                font-weight: 500;
+                color: rgba(255, 255, 255, 0.8);
+                margin-bottom: 4px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            
+            .mobile-menu-item:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.1);
+            }
+            
+            .mobile-menu-item.active {
+                color: white;
+                background: rgba(255, 255, 255, 0.15);
+            }
+            
+            .close-menu-btn {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 16px;
+                color: white;
+            }
+            
+            @media (max-width: 768px) {
+                .glass-nav-links {
+                    display: none;
+                }
+                .hamburger-btn {
+                    display: flex;
+                }
+            }
+        </style>
+        
+    
+    <!-- 动效样式 -->
+    
+<style>
+/* 卡片悬停上浮效果 */
+.card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* 入场淡入上移动画 */
+.fade-in-up {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.fade-in-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 数字滚动动画 */
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 徽章标签系统 */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+.badge-hot {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #d97706;
+}
+.badge-good {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #059669;
+}
+.badge-risk {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #dc2626;
+}
+.badge-info {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #2563eb;
+}
+
+/* 表格悬停高亮 */
+.table-hover tbody tr:hover {
+    background: #f9fafb !important;
+}
+
+/* 折叠面板 */
+.collapse-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+.collapse-content.open {
+    max-height: 2000px;
+}
+.collapse-toggle {
+    cursor: pointer;
+    user-select: none;
+}
+.collapse-arrow {
+    transition: transform 0.3s ease;
+}
+.collapse-arrow.open {
+    transform: rotate(180deg);
+}
+
+/* 渐变进度条 */
+.progress-gradient {
+    background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%);
+}
+
+/* 玻璃态悬浮效果 */
+.glass-effect {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+</style>
+
+    
+    <!-- 基础样式 -->
+    <style>
+        body {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+            padding-top: 80px;
+        }
+        
+        .content-area {
+            max-width: 64rem;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        /* 报告标题样式 */
+        .report-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+        
+        .report-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .report-header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        /* 内容排版优化 */
+        .prose-content p {
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+        
+        .prose-content h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #1f2937;
+        }
+        
+        .prose-content h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .prose-content ul, .prose-content ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+        
+        .prose-content li {
+            margin-bottom: 0.5rem;
+            line-height: 1.7;
+        }
+        
+        .prose-content strong {
+            color: #1f2937;
+            font-weight: 600;
+        }
+        
+        /* 代码块 */
+        .prose-content code {
+            background: #f3f4f6;
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+        }
+        
+        .prose-content pre {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+        }
+        
+        .prose-content pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+        
+        /* 返回按钮 */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            color: white;
+            opacity: 0.9;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            transition: opacity 0.2s;
+        }
+        
+        .back-button:hover {
+            opacity: 1;
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .report-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            body {
+                padding-top: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+        <nav class="glass-nav">
+            <div class="glass-nav-inner">
+                <a href="/daily-news-insight/index.html" class="glass-nav-logo">
+                    <div class="glass-nav-logo-icon">📊</div>
+                    <span class="glass-nav-logo-text">投资研究中心</span>
+                </a>
+                <div class="glass-nav-links">
+                    
+            <a href="/daily-news-insight/index.html" class="glass-nav-link ">首页</a>
+            <a href="/daily-news-insight/daily/latest.html" class="glass-nav-link ">日报</a>
+            <a href="/daily-news-insight/intraday/latest.html" class="glass-nav-link ">盘中</a>
+            <a href="/daily-news-insight/aftermarket/latest.html" class="glass-nav-link ">盘后</a>
+            <a href="/daily-news-insight/industry_chain/latest.html" class="glass-nav-link active">产业链</a>
+            <a href="/daily-news-insight/weekly_review/latest.html" class="glass-nav-link ">周复盘</a>
+            <a href="/daily-news-insight/weekly_outlook/latest.html" class="glass-nav-link ">周三前瞻</a>
+            <a href="/daily-news-insight/周末速递/latest.html" class="glass-nav-link ">周末速递</a>
+            <a href="/daily-news-insight/明日催化剂/latest.html" class="glass-nav-link ">明日催化</a>
+            <a href="/daily-news-insight/s级催化扫描/latest.html" class="glass-nav-link ">S级催化</a>
+            <a href="/daily-news-insight/monthly/latest.html" class="glass-nav-link ">月报</a>
+                </div>
+                <button class="hamburger-btn" onclick="toggleMenu()">
+                    ☰
+                </button>
+            </div>
+        </nav>
+        
+        <!-- 移动端菜单 -->
+        <div class="mobile-menu" id="mobileMenu">
+            <button class="close-menu-btn" onclick="toggleMenu()">✕</button>
+            
+            <a href="/daily-news-insight/index.html" class="mobile-menu-item " onclick="toggleMenu()">首页</a>
+            <a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item " onclick="toggleMenu()">日报</a>
+            <a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item " onclick="toggleMenu()">盘中</a>
+            <a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item " onclick="toggleMenu()">盘后</a>
+            <a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item active" onclick="toggleMenu()">产业链</a>
+            <a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item " onclick="toggleMenu()">周复盘</a>
+            <a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item " onclick="toggleMenu()">周三前瞻</a>
+            <a href="/daily-news-insight/周末速递/latest.html" class="mobile-menu-item " onclick="toggleMenu()">周末速递</a>
+            <a href="/daily-news-insight/明日催化剂/latest.html" class="mobile-menu-item " onclick="toggleMenu()">明日催化</a>
+            <a href="/daily-news-insight/s级催化扫描/latest.html" class="mobile-menu-item " onclick="toggleMenu()">S级催化</a>
+            <a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item " onclick="toggleMenu()">月报</a>
+        </div>
+        
+        <script>
+            function toggleMenu() {
+                const menu = document.getElementById('mobileMenu');
+                menu.classList.toggle('show');
+            }
+        </script>
+        
+        <div class="content-area">
+            <a href="/daily-news-insight/industry_chain/latest.html" class="back-button">← 返回列表</a>
+            <div class="report-header">
+                <h1>V3.0 组件库完整演示</h1>
+                <p class="text-white/80">大卡片嵌套小卡片 · 左右分栏 · 时间轴</p>
+            </div>
+        </div>
+        
+        <div class="content-area">
+            <div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #1f2937; 
+                               margin: 0; line-height: 1.3;">
+                        市场概览
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: white; 
+                        padding: 28px; 
+                        border: 1px solid rgba(0, 0, 0, 0.06);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 -1px 0 rgba(0, 0, 0, 0.02) inset;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 8px;"><div style="min-width: 0;">
+        <div style="background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); 
+                    border-radius: 18px; 
+                    padding: 24px; 
+                    color: white;
+                    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4), 0 2px 8px rgba(0,0,0,0.1);
+                    transition: all 0.3s ease;
+                    position: relative;
+                    overflow: hidden;"
+             onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 32px rgba(139, 92, 246, 0.4), 0 4px 12px rgba(0,0,0,0.15)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(139, 92, 246, 0.4), 0 2px 8px rgba(0,0,0,0.1)';">
+            
+            <!-- 装饰光效 -->
+            <div style="position: absolute; top: -50%; right: -20%; 
+                        width: 200px; height: 200px; 
+                        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+                        border-radius: 50%; pointer-events: none;"></div>
+            
+            
+            
+            <div style="position: relative; z-index: 1;">
+                <div style="font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 8px; font-weight: 500;">
+                    总市值
+                </div>
+                <div style="font-size: 36px; font-weight: 800; line-height: 1.1; 
+                            text-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    3.2万亿
+                </div>
+                <div style="font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 4px;">较昨日+12.5%</div>
+                
+            <div style="display: flex; align-items: center; color: rgba(255,255,255,0.9); 
+                        font-size: 14px; font-weight: 600; margin-top: 8px;">
+                <span style="margin-right: 4px;">↑</span>
+                <span>上升</span>
+            </div>
+            
+            </div>
+        </div>
+        </div><div style="min-width: 0;">
+        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+                    border-radius: 18px; 
+                    padding: 24px; 
+                    color: white;
+                    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4), 0 2px 8px rgba(0,0,0,0.1);
+                    transition: all 0.3s ease;
+                    position: relative;
+                    overflow: hidden;"
+             onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 32px rgba(16, 185, 129, 0.4), 0 4px 12px rgba(0,0,0,0.15)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(16, 185, 129, 0.4), 0 2px 8px rgba(0,0,0,0.1)';">
+            
+            <!-- 装饰光效 -->
+            <div style="position: absolute; top: -50%; right: -20%; 
+                        width: 200px; height: 200px; 
+                        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+                        border-radius: 50%; pointer-events: none;"></div>
+            
+            
+            
+            <div style="position: relative; z-index: 1;">
+                <div style="font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 8px; font-weight: 500;">
+                    上涨家数
+                </div>
+                <div style="font-size: 36px; font-weight: 800; line-height: 1.1; 
+                            text-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    2,847
+                </div>
+                <div style="font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 4px;">较昨日+5.2%</div>
+                
+            <div style="display: flex; align-items: center; color: rgba(255,255,255,0.9); 
+                        font-size: 14px; font-weight: 600; margin-top: 8px;">
+                <span style="margin-right: 4px;">↑</span>
+                <span>增加</span>
+            </div>
+            
+            </div>
+        </div>
+        </div><div style="min-width: 0;">
+        <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); 
+                    border-radius: 18px; 
+                    padding: 24px; 
+                    color: white;
+                    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4), 0 2px 8px rgba(0,0,0,0.1);
+                    transition: all 0.3s ease;
+                    position: relative;
+                    overflow: hidden;"
+             onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 32px rgba(239, 68, 68, 0.4), 0 4px 12px rgba(0,0,0,0.15)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(239, 68, 68, 0.4), 0 2px 8px rgba(0,0,0,0.1)';">
+            
+            <!-- 装饰光效 -->
+            <div style="position: absolute; top: -50%; right: -20%; 
+                        width: 200px; height: 200px; 
+                        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+                        border-radius: 50%; pointer-events: none;"></div>
+            
+            
+            
+            <div style="position: relative; z-index: 1;">
+                <div style="font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 8px; font-weight: 500;">
+                    下跌家数
+                </div>
+                <div style="font-size: 36px; font-weight: 800; line-height: 1.1; 
+                            text-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    1,923
+                </div>
+                <div style="font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 4px;">较昨日-3.1%</div>
+                
+            <div style="display: flex; align-items: center; color: rgba(255,255,255,0.9); 
+                        font-size: 14px; font-weight: 600; margin-top: 8px;">
+                <span style="margin-right: 4px;">↓</span>
+                <span>减少</span>
+            </div>
+            
+            </div>
+        </div>
+        </div><div style="min-width: 0;">
+        <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); 
+                    border-radius: 18px; 
+                    padding: 24px; 
+                    color: white;
+                    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4), 0 2px 8px rgba(0,0,0,0.1);
+                    transition: all 0.3s ease;
+                    position: relative;
+                    overflow: hidden;"
+             onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 32px rgba(59, 130, 246, 0.4), 0 4px 12px rgba(0,0,0,0.15)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(59, 130, 246, 0.4), 0 2px 8px rgba(0,0,0,0.1)';">
+            
+            <!-- 装饰光效 -->
+            <div style="position: absolute; top: -50%; right: -20%; 
+                        width: 200px; height: 200px; 
+                        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+                        border-radius: 50%; pointer-events: none;"></div>
+            
+            
+            
+            <div style="position: relative; z-index: 1;">
+                <div style="font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 8px; font-weight: 500;">
+                    成交额
+                </div>
+                <div style="font-size: 36px; font-weight: 800; line-height: 1.1; 
+                            text-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    8,942亿
+                </div>
+                <div style="font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 4px;">较昨日+8.7%</div>
+                
+            <div style="display: flex; align-items: center; color: rgba(255,255,255,0.9); 
+                        font-size: 14px; font-weight: 600; margin-top: 8px;">
+                <span style="margin-right: 4px;">↑</span>
+                <span>放量</span>
+            </div>
+            
+            </div>
+        </div>
+        </div></div>
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #1f2937; 
+                               margin: 0; line-height: 1.3;">
+                        行业与指数
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: white; 
+                        padding: 28px; 
+                        border: 1px solid rgba(0, 0, 0, 0.06);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 -1px 0 rgba(0, 0, 0, 0.02) inset;">
+                
+        <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+            <div style="flex: 0 0 45%; min-width: 280px;">
+                
+        <div style="background: white; 
+                    padding: 24px; 
+                    border: 1px solid rgba(0, 0, 0, 0.06);
+                    border-radius: 18px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+                    transition: all 0.3s ease;"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.04)';">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 18px;">
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h3 style="font-size: 17px; font-weight: 700; color: #1f2937; margin: 0;">
+                        行业涨幅榜
+                    </h3>
+                    
+            <div style="font-size: 13px; color: #9ca3af; margin-top: 3px;">
+                申万一级行业
+            </div>
+            
+                </div>
+                
+            </div>
+            
+            <div style="overflow-x:auto;border-radius:12px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,0.05);"><table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr><th style="text-align:left;padding:10px 14px;font-weight:600;font-size:13px;color:#374151;background:#f9fafb;border-bottom:2px solid #e5e7eb;">排名</th><th style="text-align:left;padding:10px 14px;font-weight:600;font-size:13px;color:#374151;background:#f9fafb;border-bottom:2px solid #e5e7eb;">行业</th><th style="text-align:left;padding:10px 14px;font-weight:600;font-size:13px;color:#374151;background:#f9fafb;border-bottom:2px solid #e5e7eb;">涨幅</th><th style="text-align:left;padding:10px 14px;font-weight:600;font-size:13px;color:#374151;background:#f9fafb;border-bottom:2px solid #e5e7eb;">主力资金</th></tr></thead><tbody><tr style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-left: 3px solid #ef4444;"><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:left;">1</td><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:center;">半导体</td><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:center;">+5.23%</td><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:center;">+45.6亿</td></tr><tr style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-left: 3px solid #ef4444;"><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:left;">2</td><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:center;">AI应用</td><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:center;">+4.87%</td><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:center;">+38.2亿</td></tr><tr style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 3px solid #f59e0b;"><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:left;">3</td><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:center;">创新药</td><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:center;">+3.92%</td><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:center;">+29.8亿</td></tr><tr style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 3px solid #f59e0b;"><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:left;">4</td><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:center;">新能源</td><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:center;">+2.76%</td><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:center;">+18.5亿</td></tr><tr style="background: white; border-bottom: 1px solid #f3f4f6;"><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:left;">5</td><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:center;">军工</td><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:center;">+1.98%</td><td style="padding:10px 14px;font-size:13px;color:#4b5563;text-align:center;">+12.3亿</td></tr></tbody></table></div>
+            
+        </div>
+        
+            </div>
+            <div style="flex: 1; min-width: 280px;">
+                
+        <div style="background: white; 
+                    padding: 24px; 
+                    border: 1px solid rgba(0, 0, 0, 0.06);
+                    border-radius: 18px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+                    transition: all 0.3s ease;"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.04)';">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 18px;">
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h3 style="font-size: 17px; font-weight: 700; color: #1f2937; margin: 0;">
+                        创业板指走势
+                    </h3>
+                    
+            <div style="font-size: 13px; color: #9ca3af; margin-top: 3px;">
+                近30个交易日
+            </div>
+            
+                </div>
+                
+            </div>
+            
+            
+        <div style="background: white; 
+                    padding: 20px; 
+                    border: 1px solid rgba(0, 0, 0, 0.06);
+                    border-radius: 16px;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                    transition: all 0.3s ease;"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.04)';">
+            
+            
+        <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <div class="chart-wrapper" style="height: 280px;">
+                <canvas id="chart_1"></canvas>
+            </div>
+            <script>
+                (function() {
+                    const ctx = document.getElementById('chart_1').getContext('2d');
+                    new Chart(ctx, {"responsive": true, "maintainAspectRatio": true, "plugins": {"legend": {"display": true, "position": "bottom", "labels": {"usePointStyle": true, "padding": 20, "font": {"size": 12, "family": "-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif"}, "color": "#6b7280"}}, "title": {"display": false, "text": "", "font": {"size": 16, "weight": "bold", "family": "-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif"}, "padding": {"bottom": 20}, "color": "#1f2937"}, "tooltip": {"backgroundColor": "rgba(31, 41, 55, 0.95)", "titleFont": {"size": 13, "weight": "600", "family": "-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif"}, "bodyFont": {"size": 12, "family": "-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif"}, "padding": 12, "cornerRadius": 8, "displayColors": true}}, "scales": {"y": {"beginAtZero": false, "grid": {"color": "rgba(0,0,0,0.05)", "drawBorder": false}, "ticks": {"font": {"size": 11, "family": "-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif"}, "color": "#9ca3af"}}, "x": {"grid": {"display": false, "drawBorder": false}, "ticks": {"font": {"size": 11, "family": "-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif"}, "color": "#9ca3af"}}}, "elements": {"point": {"radius": 3, "hoverRadius": 5, "pointStyle": "circle"}, "line": {"tension": 0.4, "borderWidth": 2}}, "type": "line", "data": {"labels": ["5/8", "5/11", "5/14", "5/17", "5/20", "5/23", "5/26", "5/29", "6/1", "6/4", "6/7"], "datasets": [{"label": "创业板指", "data": [2100, 2150, 2080, 2120, 2200, 2180, 2250, 2300, 2280, 2350, 2410], "borderColor": "#4f46e5", "backgroundColor": "#4f46e520", "fill": true, "tension": 0.4, "pointRadius": 3, "pointHoverRadius": 5, "borderWidth": 2}]}});
+                })();
+            </script>
+        </div>
+        
+            
+            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #f3f4f6;
+                        font-size: 12px; color: #9ca3af; text-align: center;">
+                数据来源：Wind
+            </div>
+            
+        </div>
+        
+            
+        </div>
+        
+            </div>
+        </div>
+        
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #1f2937; 
+                               margin: 0; line-height: 1.3;">
+                        事件与资金流向
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: white; 
+                        padding: 28px; 
+                        border: 1px solid rgba(0, 0, 0, 0.06);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 -1px 0 rgba(0, 0, 0, 0.02) inset;">
+                
+        <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+            <div style="flex: 0 0 55%; min-width: 280px;">
+                
+        <div style="background: white; 
+                    padding: 24px; 
+                    border: 1px solid rgba(0, 0, 0, 0.06);
+                    border-radius: 18px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+                    transition: all 0.3s ease;"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.04)';">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 18px;">
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h3 style="font-size: 17px; font-weight: 700; color: #1f2937; margin: 0;">
+                        重要事件时间线
+                    </h3>
+                    
+                </div>
+                
+            </div>
+            
+            
+        <div style="padding: 8px 0;">
+            
+            <div style="position: relative; padding-left: 32px; padding-bottom: 24px;">
+                
+                <div style="position: absolute; left: 9px; top: 28px; 
+                           width: 2px; height: calc(100% - 8px); 
+                           background: linear-gradient(to bottom, #10b981, #e5e7eb);">
+                </div>
+                
+                <div style="position: absolute; left: 0; top: 4px; 
+                           width: 20px; height: 20px; 
+                           background: #10b981;
+                           border-radius: 50%;
+                           border: 3px solid white;
+                           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                           z-index: 1;">
+                </div>
+                <div style="font-size: 12px; color: #6b7280; font-weight: 500; 
+                           margin-bottom: 4px;">
+                    09:30
+                </div>
+                <div style="font-size: 15px; font-weight: 600; color: #1f2937; 
+                           margin-bottom: 6px;">
+                    开盘
+                </div>
+                <div style="font-size: 13px; color: #6b7280; line-height: 1.6;">
+                    三大指数高开，半导体领涨
+                </div>
+            </div>
+            
+            <div style="position: relative; padding-left: 32px; padding-bottom: 24px;">
+                
+                <div style="position: absolute; left: 9px; top: 28px; 
+                           width: 2px; height: calc(100% - 8px); 
+                           background: linear-gradient(to bottom, #4f46e5, #e5e7eb);">
+                </div>
+                
+                <div style="position: absolute; left: 0; top: 4px; 
+                           width: 20px; height: 20px; 
+                           background: #4f46e5;
+                           border-radius: 50%;
+                           border: 3px solid white;
+                           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                           z-index: 1;">
+                </div>
+                <div style="font-size: 12px; color: #6b7280; font-weight: 500; 
+                           margin-bottom: 4px;">
+                    10:30
+                </div>
+                <div style="font-size: 15px; font-weight: 600; color: #1f2937; 
+                           margin-bottom: 6px;">
+                    AI应用爆发
+                </div>
+                <div style="font-size: 13px; color: #6b7280; line-height: 1.6;">
+                    多只AI应用标的涨停，成交额快速放大
+                </div>
+            </div>
+            
+            <div style="position: relative; padding-left: 32px; padding-bottom: 24px;">
+                
+                <div style="position: absolute; left: 9px; top: 28px; 
+                           width: 2px; height: calc(100% - 8px); 
+                           background: linear-gradient(to bottom, #f59e0b, #e5e7eb);">
+                </div>
+                
+                <div style="position: absolute; left: 0; top: 4px; 
+                           width: 20px; height: 20px; 
+                           background: #f59e0b;
+                           border-radius: 50%;
+                           border: 3px solid white;
+                           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                           z-index: 1;">
+                </div>
+                <div style="font-size: 12px; color: #6b7280; font-weight: 500; 
+                           margin-bottom: 4px;">
+                    13:15
+                </div>
+                <div style="font-size: 15px; font-weight: 600; color: #1f2937; 
+                           margin-bottom: 6px;">
+                    新能源回落
+                </div>
+                <div style="font-size: 13px; color: #6b7280; line-height: 1.6;">
+                    新能源板块冲高回落，资金分歧加大
+                </div>
+            </div>
+            
+            <div style="position: relative; padding-left: 32px; padding-bottom: 24px;">
+                
+                <div style="position: absolute; left: 9px; top: 28px; 
+                           width: 2px; height: calc(100% - 8px); 
+                           background: linear-gradient(to bottom, #10b981, #e5e7eb);">
+                </div>
+                
+                <div style="position: absolute; left: 0; top: 4px; 
+                           width: 20px; height: 20px; 
+                           background: #10b981;
+                           border-radius: 50%;
+                           border: 3px solid white;
+                           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                           z-index: 1;">
+                </div>
+                <div style="font-size: 12px; color: #6b7280; font-weight: 500; 
+                           margin-bottom: 4px;">
+                    14:30
+                </div>
+                <div style="font-size: 15px; font-weight: 600; color: #1f2937; 
+                           margin-bottom: 6px;">
+                    尾盘拉升
+                </div>
+                <div style="font-size: 13px; color: #6b7280; line-height: 1.6;">
+                    北向资金大幅流入，指数收于日内高点
+                </div>
+            </div>
+            
+            <div style="position: relative; padding-left: 32px; padding-bottom: 24px;">
+                
+                <div style="position: absolute; left: 0; top: 4px; 
+                           width: 20px; height: 20px; 
+                           background: #3b82f6;
+                           border-radius: 50%;
+                           border: 3px solid white;
+                           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                           z-index: 1;">
+                </div>
+                <div style="font-size: 12px; color: #6b7280; font-weight: 500; 
+                           margin-bottom: 4px;">
+                    15:00
+                </div>
+                <div style="font-size: 15px; font-weight: 600; color: #1f2937; 
+                           margin-bottom: 6px;">
+                    收盘
+                </div>
+                <div style="font-size: 13px; color: #6b7280; line-height: 1.6;">
+                    沪指涨1.23%，创业板指涨2.15%
+                </div>
+            </div>
+            
+        </div>
+        
+            
+        </div>
+        
+            </div>
+            <div style="flex: 1; min-width: 280px;">
+                
+        <div style="background: white; 
+                    padding: 24px; 
+                    border: 1px solid rgba(0, 0, 0, 0.06);
+                    border-radius: 18px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+                    transition: all 0.3s ease;"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.04)';">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 18px;">
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h3 style="font-size: 17px; font-weight: 700; color: #1f2937; margin: 0;">
+                        行业资金分布
+                    </h3>
+                    
+                </div>
+                
+            </div>
+            
+            
+        <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <div class="chart-wrapper" style="height: 280px;">
+                <canvas id="chart_2"></canvas>
+            </div>
+            <script>
+                (function() {
+                    const ctx = document.getElementById('chart_2').getContext('2d');
+                    new Chart(ctx, {"responsive": true, "maintainAspectRatio": true, "plugins": {"legend": {"display": true, "position": "bottom", "labels": {"usePointStyle": true, "padding": 20, "font": {"size": 12, "family": "-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif"}, "color": "#6b7280"}}, "title": {"display": false, "text": "", "font": {"size": 16, "weight": "bold", "family": "-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif"}, "padding": {"bottom": 20}, "color": "#1f2937"}, "tooltip": {"backgroundColor": "rgba(31, 41, 55, 0.95)", "titleFont": {"size": 13, "weight": "600", "family": "-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif"}, "bodyFont": {"size": 12, "family": "-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif"}, "padding": 12, "cornerRadius": 8, "displayColors": true}}, "scales": {}, "elements": {"point": {"radius": 3, "hoverRadius": 5, "pointStyle": "circle"}, "line": {"tension": 0.4, "borderWidth": 2}}, "cutout": "65%", "type": "doughnut", "data": {"labels": ["半导体", "AI应用", "新能源", "创新药", "消费", "金融", "其他"], "datasets": [{"data": [35, 25, 15, 10, 8, 5, 2], "backgroundColor": ["#4f46e5", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#06b6d4"], "borderWidth": 0, "borderRadius": 4, "hoverOffset": 8}]}});
+                })();
+            </script>
+        </div>
+        
+            
+        </div>
+        
+            </div>
+        </div>
+        
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #1f2937; 
+                               margin: 0; line-height: 1.3;">
+                        策略观点
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: white; 
+                        padding: 28px; 
+                        border: 1px solid rgba(0, 0, 0, 0.06);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 -1px 0 rgba(0, 0, 0, 0.02) inset;">
+                
+        <div id="tabs_27964" style="width: 100%;">
+            <div style="display: flex; gap: 6px; padding: 4px; 
+                        background: #f3f4f6; border-radius: 12px; flex-wrap: wrap;">
+                
+            <button class="tab-btn active" 
+                    style="padding: 10px 20px; border: none; border-radius: 10px;
+                           font-size: 13px; font-weight: 600; cursor: pointer;
+                           transition: all 0.3s ease; 
+                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                    color: white;
+                    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+                "
+                    onclick="switchTab_tabs_27964(0)">
+                核心观点
+            </button>
+            
+            <button class="tab-btn " 
+                    style="padding: 10px 20px; border: none; border-radius: 10px;
+                           font-size: 13px; font-weight: 600; cursor: pointer;
+                           transition: all 0.3s ease; 
+                    background: transparent;
+                    color: #6b7280;
+                "
+                    onclick="switchTab_tabs_27964(1)">
+                风险提示
+            </button>
+            
+            <button class="tab-btn " 
+                    style="padding: 10px 20px; border: none; border-radius: 10px;
+                           font-size: 13px; font-weight: 600; cursor: pointer;
+                           transition: all 0.3s ease; 
+                    background: transparent;
+                    color: #6b7280;
+                "
+                    onclick="switchTab_tabs_27964(2)">
+                配置建议
+            </button>
+            
+            </div>
+            
+            <div class="tab-panel" id="tabs_27964_panel_0" style="display: block; padding-top: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 8px;"><div style="min-width: 0;"><div style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); padding: 18px 20px; border: 1px solid rgba(16, 185, 129, 0.08);border-radius: 14px;box-shadow: 0 1px 2px rgba(16, 185, 129, 0.04), 0 1px 0 rgba(255, 255, 255, 0.6) inset;margin-bottom: 12px;"><div style="display: flex; align-items: center; margin-bottom: 14px;"><div style="flex: 1; min-width: 0;"><h4 style="font-size: 15px; font-weight: 600; color: #374151; margin: 0;">市场情绪</h4></div></div>当前市场情绪处于乐观区间，投资者风险偏好回升</div></div><div style="min-width: 0;"><div style="background: linear-gradient(135deg, #eff6ff 0%, #f0f4ff 100%); padding: 18px 20px; border: 1px solid rgba(59, 130, 246, 0.08);border-radius: 14px;box-shadow: 0 1px 2px rgba(59, 130, 246, 0.04), 0 1px 0 rgba(255, 255, 255, 0.6) inset;margin-bottom: 12px;"><div style="display: flex; align-items: center; margin-bottom: 14px;"><div style="flex: 1; min-width: 0;"><h4 style="font-size: 15px; font-weight: 600; color: #374151; margin: 0;">资金面</h4></div></div>北向资金连续3日净流入，合计超150亿元</div></div><div style="min-width: 0;"><div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); padding: 18px 20px; border: 1px solid rgba(245, 158, 11, 0.08);border-radius: 14px;box-shadow: 0 1px 2px rgba(245, 158, 11, 0.04), 0 1px 0 rgba(255, 255, 255, 0.6) inset;margin-bottom: 12px;"><div style="display: flex; align-items: center; margin-bottom: 14px;"><div style="flex: 1; min-width: 0;"><h4 style="font-size: 15px; font-weight: 600; color: #374151; margin: 0;">技术面</h4></div></div>沪指突破60日均线，短期趋势向好</div></div></div>
+            </div>
+            
+            <div class="tab-panel" id="tabs_27964_panel_1" style="display: none; padding-top: 20px;">
+                
+        <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); 
+                    border: 1px solid rgba(245, 158, 11, 0.2);
+                    border-radius: 14px; 
+                    padding: 18px 20px;
+                    margin: 16px 0;">
+            <div style="display: flex; align-items: flex-start;">
+                <span style="font-size: 20px; margin-right: 12px; flex-shrink: 0; margin-top: -2px;">
+                    ⚠️
+                </span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; color: #92400e; 
+                               font-size: 14px; margin-bottom: 6px;">
+                        市场风险提示
+                    </div>
+                    <div style="color: #b45309; 
+                               font-size: 13px; line-height: 1.6;">
+                        1. 外围市场波动风险；2. 国内经济复苏不及预期；3. 行业政策变化风险；4. 流动性收紧风险。
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+            </div>
+            
+            <div class="tab-panel" id="tabs_27964_panel_2" style="display: none; padding-top: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 8px;"><div style="min-width: 0;"><div style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); padding: 18px 20px; border: 1px solid rgba(16, 185, 129, 0.08);border-radius: 14px;box-shadow: 0 1px 2px rgba(16, 185, 129, 0.04), 0 1px 0 rgba(255, 255, 255, 0.6) inset;margin-bottom: 12px;"><div style="display: flex; align-items: center; margin-bottom: 14px;"><div style="flex: 1; min-width: 0;"><h4 style="font-size: 15px; font-weight: 600; color: #374151; margin: 0;">超配</h4></div></div>半导体、AI应用、创新药</div></div><div style="min-width: 0;"><div style="background: linear-gradient(135deg, #eff6ff 0%, #f0f4ff 100%); padding: 18px 20px; border: 1px solid rgba(59, 130, 246, 0.08);border-radius: 14px;box-shadow: 0 1px 2px rgba(59, 130, 246, 0.04), 0 1px 0 rgba(255, 255, 255, 0.6) inset;margin-bottom: 12px;"><div style="display: flex; align-items: center; margin-bottom: 14px;"><div style="flex: 1; min-width: 0;"><h4 style="font-size: 15px; font-weight: 600; color: #374151; margin: 0;">标配</h4></div></div>新能源、消费、军工</div></div><div style="min-width: 0;"><div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); padding: 18px 20px; border: 1px solid rgba(245, 158, 11, 0.08);border-radius: 14px;box-shadow: 0 1px 2px rgba(245, 158, 11, 0.04), 0 1px 0 rgba(255, 255, 255, 0.6) inset;margin-bottom: 12px;"><div style="display: flex; align-items: center; margin-bottom: 14px;"><div style="flex: 1; min-width: 0;"><h4 style="font-size: 15px; font-weight: 600; color: #374151; margin: 0;">低配</h4></div></div>金融、地产、周期</div></div></div>
+            </div>
+            
+            
+        <script>
+        function switchTab_tabs_27964(index) {
+            const container = document.getElementById("tabs_27964");
+            const buttons = container.querySelectorAll(".tab-btn");
+            const panels = container.querySelectorAll(".tab-panel");
+            
+            buttons.forEach((btn, i) => {
+                if (i === index) {
+                    btn.style.background = "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)";
+                    btn.style.color = "white";
+                    btn.style.boxShadow = "0 2px 8px rgba(79, 70, 229, 0.3)";
+                } else {
+                    btn.style.background = "transparent";
+                    btn.style.color = "#6b7280";
+                    btn.style.boxShadow = "none";
+                }
+            });
+            
+            panels.forEach((panel, i) => {
+                panel.style.display = i === index ? "block" : "none";
+            });
+        }
+        </script>
+        
+        </div>
+        
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #1f2937; 
+                               margin: 0; line-height: 1.3;">
+                        资讯与观点
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: white; 
+                        padding: 28px; 
+                        border: 1px solid rgba(0, 0, 0, 0.06);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 -1px 0 rgba(0, 0, 0, 0.02) inset;">
+                
+        <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+            <div style="flex: 0 0 65%; min-width: 280px;">
+                
+        <div style="background: white; 
+                    padding: 24px; 
+                    border: 1px solid rgba(0, 0, 0, 0.06);
+                    border-radius: 18px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+                    transition: all 0.3s ease;"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.04)';">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 18px;">
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h3 style="font-size: 17px; font-weight: 700; color: #1f2937; margin: 0;">
+                        重要新闻
+                    </h3>
+                    
+                </div>
+                
+            </div>
+            
+            
+        <div style="padding: 14px 16px; 
+                    border-radius: 12px;
+                    background: #fafafa;
+                    margin-bottom: 10px;
+                    transition: all 0.2s ease;"
+             onmouseover="this.style.background='#f5f5f5';"
+             onmouseout="this.style.background='#fafafa';">
+            <div style="display: flex; align-items: flex-start;">
+                <div style="margin-right: 10px;">
+        <span style="display: inline-block; padding: 4px 12px; 
+                    border-radius: 16px; font-size: 11px; font-weight: 700;
+                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white;
+                    letter-spacing: 0.3px; text-transform: uppercase;">
+            政策
+        </span>
+        </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 14px; font-weight: 700; 
+                               color: #1f2937; line-height: 1.5;">
+                        国务院印发《人工智能产业发展行动计划》
+                    </div>
+                    
+            <div style="font-size: 13px; color: #6b7280; line-height: 1.6; 
+                       margin-top: 8px;">
+                提出到2026年，AI核心产业规模超过5000亿元。
+            </div>
+            
+                    
+            <div style="font-size: 12px; color: #9ca3af; margin-top: 6px;">
+                20:30 · 新华社
+            </div>
+            
+                </div>
+            </div>
+        </div>
+        
+        <div style="padding: 14px 16px; 
+                    border-radius: 12px;
+                    background: #fafafa;
+                    margin-bottom: 10px;
+                    transition: all 0.2s ease;"
+             onmouseover="this.style.background='#f5f5f5';"
+             onmouseout="this.style.background='#fafafa';">
+            <div style="display: flex; align-items: flex-start;">
+                <div style="margin-right: 10px;">
+        <span style="display: inline-block; padding: 4px 12px; 
+                    border-radius: 16px; font-size: 11px; font-weight: 700;
+                    background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;
+                    letter-spacing: 0.3px; text-transform: uppercase;">
+            行业
+        </span>
+        </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 14px; font-weight: 600; 
+                               color: #374151; line-height: 1.5;">
+                        英伟达发布新一代AI芯片，性能提升3倍
+                    </div>
+                    
+            <div style="font-size: 13px; color: #6b7280; line-height: 1.6; 
+                       margin-top: 8px;">
+                新架构大幅降低大模型训练成本。
+            </div>
+            
+                    
+            <div style="font-size: 12px; color: #9ca3af; margin-top: 6px;">
+                18:45 · 财联社
+            </div>
+            
+                </div>
+            </div>
+        </div>
+        
+        <div style="padding: 14px 16px; 
+                    border-radius: 12px;
+                    background: #fafafa;
+                    margin-bottom: 10px;
+                    transition: all 0.2s ease;"
+             onmouseover="this.style.background='#f5f5f5';"
+             onmouseout="this.style.background='#fafafa';">
+            <div style="display: flex; align-items: flex-start;">
+                <div style="margin-right: 10px;">
+        <span style="display: inline-block; padding: 4px 12px; 
+                    border-radius: 16px; font-size: 11px; font-weight: 700;
+                    background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); color: white;
+                    letter-spacing: 0.3px; text-transform: uppercase;">
+            宏观
+        </span>
+        </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 14px; font-weight: 600; 
+                               color: #374151; line-height: 1.5;">
+                        5月社融数据超预期，M2增速回升
+                    </div>
+                    
+            <div style="font-size: 13px; color: #6b7280; line-height: 1.6; 
+                       margin-top: 8px;">
+                5月新增社融2.8万亿元，同比多增3000亿元。
+            </div>
+            
+                    
+            <div style="font-size: 12px; color: #9ca3af; margin-top: 6px;">
+                16:00 · 央行
+            </div>
+            
+                </div>
+            </div>
+        </div>
+        
+            
+        </div>
+        
+            </div>
+            <div style="flex: 1; min-width: 280px;">
+                
+        <div style="background: white; 
+                    padding: 24px; 
+                    border: 1px solid rgba(0, 0, 0, 0.06);
+                    border-radius: 18px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+                    transition: all 0.3s ease;"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.04)';">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 18px;">
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h3 style="font-size: 17px; font-weight: 700; color: #1f2937; margin: 0;">
+                        名家观点
+                    </h3>
+                    
+                </div>
+                
+            </div>
+            
+            
+        <div style="background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%); 
+                    border-left: 4px solid #8b5cf6;
+                    border-radius: 0 12px 12px 0; 
+                    padding: 20px 24px;
+                    margin: 16px 0;">
+            <div style="font-size: 15px; color: #581c87; line-height: 1.8; 
+                       font-weight: 500; font-style: italic;">
+                "AI不是单一的技术革命，而是继蒸汽机、电力、互联网之后的第四次产业革命。"
+            </div>
+            
+            <div style="text-align: right; font-size: 13px; color: #9ca3af; 
+                       margin-top: 12px; font-style: italic;">
+                —— 黄仁勋 · NVIDIA CEO
+            </div>
+            
+        </div>
+        
+            
+        </div>
+        
+            </div>
+        </div>
+        
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #1f2937; 
+                               margin: 0; line-height: 1.3;">
+                        市场指标仪表盘
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: white; 
+                        padding: 28px; 
+                        border: 1px solid rgba(0, 0, 0, 0.06);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 -1px 0 rgba(0, 0, 0, 0.02) inset;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 8px;"><div style="min-width: 0;">
+        <div style="background: white; 
+                    padding: 24px; 
+                    border: 1px solid rgba(0, 0, 0, 0.06);
+                    border-radius: 18px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+                    transition: all 0.3s ease;"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.04)';">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 18px;">
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h3 style="font-size: 17px; font-weight: 700; color: #1f2937; margin: 0;">
+                        市场情绪指数
+                    </h3>
+                    
+            <div style="font-size: 13px; color: #9ca3af; margin-top: 3px;">
+                0-100分
+            </div>
+            
+                </div>
+                
+            </div>
+            
+            
+        <div style="text-align: center;">
+            <div style="position: relative; width: 140px; height: 140px; margin: 0 auto;">
+                <svg width="140" height="140" viewBox="0 0 140 140">
+                    <!-- 背景弧 -->
+                    <path d="M 116.7 116.7 
+                             A 66.0 66.0 0 1 1 116.7 23.3"
+                          fill="none" stroke="#f3f4f6" stroke-width="8" 
+                          stroke-linecap="round" />
+                    
+                    <!-- 前景弧 -->
+                    <path d="M 116.7 116.7 
+                             A 66.0 66.0 0 1 1 36.4 13.2"
+                          fill="none" stroke="#f59e0b" stroke-width="8" 
+                          stroke-linecap="round"
+                          style="filter: drop-shadow(0 2px 4px #f59e0b40);" />
+                </svg>
+                
+            <div style="position: absolute; top: 55%; left: 50%; 
+                        transform: translate(-50%, -50%); text-align: center; width: 100%;">
+                <div style="font-size: 39px; font-weight: 700; 
+                            color: #f59e0b; line-height: 1;">
+                    72
+                </div>
+            </div>
+            
+            </div>
+            <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">乐观</div>
+        </div>
+        
+            
+        </div>
+        </div><div style="min-width: 0;">
+        <div style="background: white; 
+                    padding: 24px; 
+                    border: 1px solid rgba(0, 0, 0, 0.06);
+                    border-radius: 18px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+                    transition: all 0.3s ease;"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.04)';">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 18px;">
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h3 style="font-size: 17px; font-weight: 700; color: #1f2937; margin: 0;">
+                        风险偏好
+                    </h3>
+                    
+            <div style="font-size: 13px; color: #9ca3af; margin-top: 3px;">
+                当前等级
+            </div>
+            
+                </div>
+                
+            </div>
+            
+            
+        <div style="text-align: center;">
+            <div style="position: relative; width: 140px; height: 140px; margin: 0 auto;">
+                <svg width="140" height="140" viewBox="0 0 140 140">
+                    <!-- 背景弧 -->
+                    <path d="M 116.7 116.7 
+                             A 66.0 66.0 0 1 1 116.7 23.3"
+                          fill="none" stroke="#f3f4f6" stroke-width="8" 
+                          stroke-linecap="round" />
+                    
+                    <!-- 前景弧 -->
+                    <path d="M 116.7 116.7 
+                             A 66.0 66.0 0 0 1 19.8 27.1"
+                          fill="none" stroke="#f59e0b" stroke-width="8" 
+                          stroke-linecap="round"
+                          style="filter: drop-shadow(0 2px 4px #f59e0b40);" />
+                </svg>
+                
+            <div style="position: absolute; top: 55%; left: 50%; 
+                        transform: translate(-50%, -50%); text-align: center; width: 100%;">
+                <div style="font-size: 39px; font-weight: 700; 
+                            color: #f59e0b; line-height: 1;">
+                    65
+                </div>
+            </div>
+            
+            </div>
+            <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">中等偏高</div>
+        </div>
+        
+            
+        </div>
+        </div><div style="min-width: 0;">
+        <div style="background: white; 
+                    padding: 24px; 
+                    border: 1px solid rgba(0, 0, 0, 0.06);
+                    border-radius: 18px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+                    transition: all 0.3s ease;"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.04)';">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 18px;">
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h3 style="font-size: 17px; font-weight: 700; color: #1f2937; margin: 0;">
+                        估值分位
+                    </h3>
+                    
+            <div style="font-size: 13px; color: #9ca3af; margin-top: 3px;">
+                历史百分位
+            </div>
+            
+                </div>
+                
+            </div>
+            
+            
+        <div style="text-align: center;">
+            <div style="position: relative; width: 140px; height: 140px; margin: 0 auto;">
+                <svg width="140" height="140" viewBox="0 0 140 140">
+                    <!-- 背景弧 -->
+                    <path d="M 116.7 116.7 
+                             A 66.0 66.0 0 1 1 116.7 23.3"
+                          fill="none" stroke="#f3f4f6" stroke-width="8" 
+                          stroke-linecap="round" />
+                    
+                    <!-- 前景弧 -->
+                    <path d="M 116.7 116.7 
+                             A 66.0 66.0 0 0 1 14.3 105.4"
+                          fill="none" stroke="#10b981" stroke-width="8" 
+                          stroke-linecap="round"
+                          style="filter: drop-shadow(0 2px 4px #10b98140);" />
+                </svg>
+                
+            <div style="position: absolute; top: 55%; left: 50%; 
+                        transform: translate(-50%, -50%); text-align: center; width: 100%;">
+                <div style="font-size: 39px; font-weight: 700; 
+                            color: #10b981; line-height: 1;">
+                    38
+                </div>
+            </div>
+            
+            </div>
+            <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">偏低</div>
+        </div>
+        
+            
+        </div>
+        </div></div>
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #1f2937; 
+                               margin: 0; line-height: 1.3;">
+                        热门题材追踪
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: white; 
+                        padding: 28px; 
+                        border: 1px solid rgba(0, 0, 0, 0.06);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 -1px 0 rgba(0, 0, 0, 0.02) inset;">
+                
+        <div style="background: white; 
+                    padding: 24px; 
+                    border: 1px solid rgba(0, 0, 0, 0.06);
+                    border-radius: 18px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+                    transition: all 0.3s ease;"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.04)';">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 18px;">
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h3 style="font-size: 17px; font-weight: 700; color: #1f2937; margin: 0;">
+                        热门题材
+                    </h3>
+                    
+            <div style="font-size: 13px; color: #9ca3af; margin-top: 3px;">
+                今日市场热点题材
+            </div>
+            
+                </div>
+                
+            </div>
+            
+            
+        <span style="display: inline-block; padding: 6px 14px; 
+                    border-radius: 20px; font-size: 13px; font-weight: 500;
+                    margin: 4px 8px 4px 0;
+                    transition: all 0.2s ease;
+                    
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+            "
+             onmouseover="this.style.transform='translateY(-1px)';"
+             onmouseout="this.style.transform='translateY(0)';">
+            AI大模型
+        </span>
+        
+        <span style="display: inline-block; padding: 6px 14px; 
+                    border-radius: 20px; font-size: 13px; font-weight: 500;
+                    margin: 4px 8px 4px 0;
+                    transition: all 0.2s ease;
+                    
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+            "
+             onmouseover="this.style.transform='translateY(-1px)';"
+             onmouseout="this.style.transform='translateY(0)';">
+            半导体设备
+        </span>
+        
+        <span style="display: inline-block; padding: 6px 14px; 
+                    border-radius: 20px; font-size: 13px; font-weight: 500;
+                    margin: 4px 8px 4px 0;
+                    transition: all 0.2s ease;
+                    
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+            "
+             onmouseover="this.style.transform='translateY(-1px)';"
+             onmouseout="this.style.transform='translateY(0)';">
+            存储芯片
+        </span>
+        
+        <span style="display: inline-block; padding: 6px 14px; 
+                    border-radius: 20px; font-size: 13px; font-weight: 500;
+                    margin: 4px 8px 4px 0;
+                    transition: all 0.2s ease;
+                    
+            background: linear-gradient(135deg, #f0f4ff 0%, #ede9fe 100%);
+            color: #4f46e5;
+            border: 1px solid rgba(79, 70, 229, 0.15);
+            "
+             onmouseover="this.style.transform='translateY(-1px)';"
+             onmouseout="this.style.transform='translateY(0)';">
+            创新药
+        </span>
+        
+        <span style="display: inline-block; padding: 6px 14px; 
+                    border-radius: 20px; font-size: 13px; font-weight: 500;
+                    margin: 4px 8px 4px 0;
+                    transition: all 0.2s ease;
+                    
+            background: linear-gradient(135deg, #f0f4ff 0%, #ede9fe 100%);
+            color: #4f46e5;
+            border: 1px solid rgba(79, 70, 229, 0.15);
+            "
+             onmouseover="this.style.transform='translateY(-1px)';"
+             onmouseout="this.style.transform='translateY(0)';">
+            人形机器人
+        </span>
+        
+        <span style="display: inline-block; padding: 6px 14px; 
+                    border-radius: 20px; font-size: 13px; font-weight: 500;
+                    margin: 4px 8px 4px 0;
+                    transition: all 0.2s ease;
+                    
+            background: linear-gradient(135deg, #f0f4ff 0%, #ede9fe 100%);
+            color: #4f46e5;
+            border: 1px solid rgba(79, 70, 229, 0.15);
+            "
+             onmouseover="this.style.transform='translateY(-1px)';"
+             onmouseout="this.style.transform='translateY(0)';">
+            自动驾驶
+        </span>
+        
+        <span style="display: inline-block; padding: 6px 14px; 
+                    border-radius: 20px; font-size: 13px; font-weight: 500;
+                    margin: 4px 8px 4px 0;
+                    transition: all 0.2s ease;
+                    
+            background: linear-gradient(135deg, #f0f4ff 0%, #ede9fe 100%);
+            color: #4f46e5;
+            border: 1px solid rgba(79, 70, 229, 0.15);
+            "
+             onmouseover="this.style.transform='translateY(-1px)';"
+             onmouseout="this.style.transform='translateY(0)';">
+            算力租赁
+        </span>
+        
+        <span style="display: inline-block; padding: 6px 14px; 
+                    border-radius: 20px; font-size: 13px; font-weight: 500;
+                    margin: 4px 8px 4px 0;
+                    transition: all 0.2s ease;
+                    
+            background: linear-gradient(135deg, #f0f4ff 0%, #ede9fe 100%);
+            color: #4f46e5;
+            border: 1px solid rgba(79, 70, 229, 0.15);
+            "
+             onmouseover="this.style.transform='translateY(-1px)';"
+             onmouseout="this.style.transform='translateY(0)';">
+            数据要素
+        </span>
+        
+        <span style="display: inline-block; padding: 6px 14px; 
+                    border-radius: 20px; font-size: 13px; font-weight: 500;
+                    margin: 4px 8px 4px 0;
+                    transition: all 0.2s ease;
+                    
+            background: linear-gradient(135deg, #f0f4ff 0%, #ede9fe 100%);
+            color: #4f46e5;
+            border: 1px solid rgba(79, 70, 229, 0.15);
+            "
+             onmouseover="this.style.transform='translateY(-1px)';"
+             onmouseout="this.style.transform='translateY(0)';">
+            低空经济
+        </span>
+        
+        <span style="display: inline-block; padding: 6px 14px; 
+                    border-radius: 20px; font-size: 13px; font-weight: 500;
+                    margin: 4px 8px 4px 0;
+                    transition: all 0.2s ease;
+                    
+            background: linear-gradient(135deg, #f0f4ff 0%, #ede9fe 100%);
+            color: #4f46e5;
+            border: 1px solid rgba(79, 70, 229, 0.15);
+            "
+             onmouseover="this.style.transform='translateY(-1px)';"
+             onmouseout="this.style.transform='translateY(0)';">
+            消费电子
+        </span>
+        
+            
+        </div>
+        
+            </div>
+        </section>
+        </div>
+        </div>
+        
+        <footer style="max-width: 64rem; margin: 40px auto 0; 
+                     padding: 32px 24px;
+                     border-top: 1px solid rgba(0, 0, 0, 0.06);">
+            <div style="text-align: center; color: #9ca3af; font-size: 13px; line-height: 1.8;">
+                <div style="margin-bottom: 8px;">
+                    <span style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                               -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                               font-weight: 700; font-size: 16px;">投资研究中心</span>
+                </div>
+                <div>AI驱动 · 数据驱动 · 价值投资</div>
+                <div style="margin-top: 8px; font-size: 12px;">
+                    投资有风险，入市需谨慎。本报告仅供参考，不构成投资建议。
+                </div>
+            </div>
+        </footer>
+        
+
+<script>
+// 入场动画 - 滚动时触发
+document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+    
+    // 观察所有带fade-in-up类的元素
+    document.querySelectorAll('.fade-in-up').forEach(el => {
+        observer.observe(el);
+    });
+});
+
+// 数字滚动动画
+function animateNumber(element, target, duration = 1500) {
+    const start = 0;
+    const startTime = performance.now();
+    
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // 缓动函数 - easeOutExpo
+        const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+        const current = Math.floor(start + (target - start) * easeProgress);
+        
+        element.textContent = current.toLocaleString();
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    
+    requestAnimationFrame(update);
+}
+
+// 折叠面板切换
+function toggleCollapse(id) {
+    const content = document.getElementById('collapse-' + id);
+    const arrow = document.getElementById('collapse-arrow-' + id);
+    
+    if (content.classList.contains('open')) {
+        content.classList.remove('open');
+        arrow.classList.remove('open');
+    } else {
+        content.classList.add('open');
+        arrow.classList.add('open');
+    }
+}
+</script>
+
+</body>
+</html>
