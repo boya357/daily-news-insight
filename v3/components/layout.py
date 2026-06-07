@@ -299,23 +299,13 @@ class HighlightBox(Component):
 
 class Navbar(Component):
     """
-    导航栏组件 - 全站统一导航
+    导航栏组件 - 全站统一glass-nav玻璃态风格
+    与首页标准完全一致
     """
     
-    # 导航项配置
-    NAV_ITEMS = [
-        {"key": "index", "label": "首页", "icon": "🏠", "path": "/daily-news-insight/index.html"},
-        {"key": "daily", "label": "日报", "icon": "📰", "path": "/daily-news-insight/daily/latest.html"},
-        {"key": "intraday", "label": "盘中", "icon": "📈", "path": "/daily-news-insight/intraday/latest.html"},
-        {"key": "aftermarket", "label": "盘后", "icon": "📉", "path": "/daily-news-insight/aftermarket/latest.html"},
-        {"key": "industry_chain", "label": "产业链", "icon": "🔗", "path": "/daily-news-insight/industry_chain/latest.html"},
-        {"key": "weekly_review", "label": "周复盘", "icon": "📋", "path": "/daily-news-insight/weekly_review/latest.html"},
-        {"key": "weekly_outlook", "label": "周三前瞻", "icon": "🔮", "path": "/daily-news-insight/weekly_outlook/latest.html"},
-        {"key": "weekend_express", "label": "周末速递", "icon": "📦", "path": "/daily-news-insight/周末速递/latest.html"},
-        {"key": "tomorrow_catalyst", "label": "明日催化", "icon": "⏰", "path": "/daily-news-insight/明日催化剂/latest.html"},
-        {"key": "s_level_catalyst", "label": "S级催化", "icon": "⭐", "path": "/daily-news-insight/s级催化扫描/latest.html"},
-        {"key": "monthly", "label": "月报", "icon": "🗓️", "path": "/daily-news-insight/monthly/latest.html"},
-    ]
+    # 导航项配置（从core.config导入，单一数据源）
+    from core.config import NAV_ITEMS as _NAV_ITEMS
+    NAV_ITEMS = _NAV_ITEMS
     
     def __init__(self, active_key: str = "index"):
         super().__init__()
@@ -323,81 +313,106 @@ class Navbar(Component):
     
     @classmethod
     def get_css(cls):
-        """获取导航栏CSS样式"""
-        return '''
+        """获取导航栏CSS样式 - glass-nav玻璃态风格"""
+        return """
         <style>
-            .navbar {
+            /* Glass-Nav 玻璃态导航栏 */
+            .glass-nav {
                 position: fixed;
                 top: 0;
                 left: 0;
                 right: 0;
-                z-index: 1000;
-                background: rgba(255, 255, 255, 0.9);
+                z-index: 2147483647 !important;
+                background: rgba(255, 255, 255, 0.1);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
-                border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                isolation: isolate !important;
+                pointer-events: auto !important;
             }
-            .navbar-inner {
-                max-width: 64rem;
+            
+            .glass-nav * {
+                position: relative;
+                z-index: 2147483647 !important;
+                pointer-events: auto !important;
+            }
+            
+            .glass-nav-inner {
+                max-width: 80rem;
                 margin: 0 auto;
-                padding: 0 24px;
-                height: 64px;
+                padding: 0 1rem;
+                height: 60px;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
             }
-            .navbar-logo {
-                font-size: 18px;
-                font-weight: 700;
-                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
+            
+            .glass-nav-logo {
                 display: flex;
                 align-items: center;
+                gap: 12px;
+                text-decoration: none;
             }
-            .navbar-logo-icon {
-                font-size: 22px;
-                margin-right: 8px;
+            
+            .glass-nav-logo-icon {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
             }
-            .navbar-links {
+            
+            .glass-nav-logo-text {
+                color: white;
+                font-weight: 700;
+                font-size: 18px;
+            }
+            
+            .glass-nav-links {
                 display: flex;
                 align-items: center;
                 gap: 4px;
+                flex-wrap: wrap;
             }
-            .nav-link {
-                padding: 8px 14px;
-                border-radius: 10px;
+            
+            .glass-nav-link {
+                padding: 6px 12px;
+                border-radius: 8px;
                 text-decoration: none;
-                font-size: 13px;
+                font-size: 14px;
                 font-weight: 500;
-                color: #6b7280;
+                color: rgba(255, 255, 255, 0.8);
                 transition: all 0.2s ease;
-                display: flex;
-                align-items: center;
-                gap: 6px;
             }
-            .nav-link:hover {
-                background: #f3f4f6;
-                color: #374151;
-            }
-            .nav-link.active {
-                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            
+            .glass-nav-link:hover {
                 color: white;
-                box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+                background: rgba(255, 255, 255, 0.1);
             }
+            
+            .glass-nav-link.active {
+                color: white;
+                background: rgba(255, 255, 255, 0.15);
+            }
+            
             .hamburger-btn {
                 display: none;
-                background: #f3f4f6;
+                background: rgba(255, 255, 255, 0.1);
                 border: none;
-                width: 40px;
-                height: 40px;
-                border-radius: 10px;
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
                 cursor: pointer;
-                font-size: 18px;
+                font-size: 16px;
+                color: white;
                 align-items: center;
                 justify-content: center;
             }
+            
+            /* 移动端菜单 - 玻璃态深色 */
             .mobile-menu {
                 display: none;
                 position: fixed;
@@ -405,88 +420,85 @@ class Navbar(Component):
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background: rgba(255, 255, 255, 0.98);
+                background: rgba(15, 23, 42, 0.95);
                 backdrop-filter: blur(20px);
-                z-index: 999;
+                z-index: 2147483646;
                 flex-direction: column;
                 padding: 80px 24px 24px;
             }
+            
             .mobile-menu.show {
                 display: flex;
             }
+            
             .mobile-menu-item {
-                padding: 16px 20px;
-                border-radius: 12px;
+                padding: 14px 16px;
+                border-radius: 10px;
                 text-decoration: none;
                 font-size: 16px;
                 font-weight: 500;
-                color: #374151;
+                color: rgba(255, 255, 255, 0.8);
                 margin-bottom: 4px;
                 display: flex;
                 align-items: center;
                 gap: 12px;
             }
-            .mobile-menu-item.active {
-                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            
+            .mobile-menu-item:hover {
                 color: white;
+                background: rgba(255, 255, 255, 0.1);
             }
+            
+            .mobile-menu-item.active {
+                color: white;
+                background: rgba(255, 255, 255, 0.15);
+            }
+            
             .close-menu-btn {
                 position: absolute;
                 top: 16px;
                 right: 16px;
-                background: #f3f4f6;
+                background: rgba(255, 255, 255, 0.1);
                 border: none;
-                width: 40px;
-                height: 40px;
-                border-radius: 10px;
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
                 cursor: pointer;
-                font-size: 18px;
+                font-size: 16px;
+                color: white;
             }
+            
             @media (max-width: 768px) {
-                .navbar-links {
+                .glass-nav-links {
                     display: none;
                 }
                 .hamburger-btn {
                     display: flex;
                 }
-                body {
-                    padding-top: 64px !important;
-                }
             }
         </style>
-        '''
+        """
     
     def render(self) -> str:
-        # 构建导航链接
+        # 构建导航链接（与首页一致，纯文字无emoji图标）
         links_html = ""
         for item in self.NAV_ITEMS:
             active_class = "active" if item["key"] == self.active_key else ""
-            links_html += f'''
-            <a href="{item["path"]}" class="nav-link {active_class}">
-                <span>{item["icon"]}</span>
-                <span>{item["label"]}</span>
-            </a>
-            '''
+            links_html += f'\n            <a href="{item["path"]}" class="glass-nav-link {active_class}">{item["label"]}</a>'
         
         # 移动端菜单项
         mobile_links_html = ""
         for item in self.NAV_ITEMS:
             active_class = "active" if item["key"] == self.active_key else ""
-            mobile_links_html += f'''
-            <a href="{item["path"]}" class="mobile-menu-item {active_class}" onclick="toggleMenu()">
-                <span>{item["icon"]}</span>
-                <span>{item["label"]}</span>
-            </a>
-            '''
+            mobile_links_html += f'\n            <a href="{item["path"]}" class="mobile-menu-item {active_class}" onclick="toggleMenu()">{item["label"]}</a>'
         
-        return f'''
-        <nav class="navbar">
-            <div class="navbar-inner">
-                <a href="/daily-news-insight/index.html" class="navbar-logo">
-                    <span class="navbar-logo-icon">📊</span>
-                    <span>投资研究中心</span>
+        return f"""        <nav class="glass-nav">
+            <div class="glass-nav-inner">
+                <a href="/daily-news-insight/index.html" class="glass-nav-logo">
+                    <div class="glass-nav-logo-icon">📊</div>
+                    <span class="glass-nav-logo-text">投资研究中心</span>
                 </a>
-                <div class="navbar-links">
+                <div class="glass-nav-links">
                     {links_html}
                 </div>
                 <button class="hamburger-btn" onclick="toggleMenu()">
@@ -505,11 +517,9 @@ class Navbar(Component):
             function toggleMenu() {{
                 const menu = document.getElementById('mobileMenu');
                 menu.classList.toggle('show');
-                document.body.style.overflow = menu.classList.contains('show') ? 'hidden' : '';
             }}
         </script>
-        '''
-
+        """
 
 class Footer(Component):
     """
