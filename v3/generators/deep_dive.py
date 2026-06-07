@@ -7,8 +7,8 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.report import Report
-from components.layout import Section, Card
-from components.data import DataCard, DataGrid, CompareTable, MetricsRow
+from components.layout import Section, Card, SubCard, CardGrid, SplitLayout
+from components.data import DataCard, DataGrid, CompareTable, MetricsRow, StatCard, Sparkline, GaugeChart, Tabs, ProgressBar, Badge
 from components.special import RiskAlert, QuoteBlock, Timeline, CatalystTag
 
 
@@ -62,9 +62,69 @@ class DeepDiveGenerator:
         """添加数据卡片网格
         
         Args:
-            cards: [DataCard(...), ...]
+            cards: [DataCard(...) or StatCard(...), ...]
         """
-        self.report.add(DataGrid(cards, cols))
+        # 自动检测卡片类型选择合适的网格
+        has_stat = any('StatCard' in str(type(c)) for c in cards)
+        if has_stat:
+            self.report.add(CardGrid(cards, cols))
+        else:
+            self.report.add(DataGrid(cards, cols))
+        return self
+    
+    def add_stat_cards(self, cards: list, cols: int = 4):
+        """添加渐变统计卡片网格（V3.0新版）
+        
+        Args:
+            cards: [StatCard(...), ...]
+        """
+        self.report.add(CardGrid(cards, cols))
+        return self
+    
+    def add_gauge_chart(self, title: str, value: int, max_value: int = 100, 
+                        label: str = None, color: str = "#3b82f6"):
+        """添加仪表盘图表
+        
+        Args:
+            title: 仪表盘标题
+            value: 当前值
+            max_value: 最大值
+            label: 底部标签
+            color: 主题色
+        """
+        gauge = GaugeChart(value=value, max_value=max_value, label=label, color=color)
+        section = Section(title=title, content=gauge.render(), icon="gauge")
+        self.report.add(section)
+        return self
+    
+    def add_tabs_section(self, title: str, tabs: list, icon: str = None):
+        """添加标签页内容
+        
+        Args:
+            title: 章节标题
+            tabs: [(标签名, 内容HTML), ...]
+            icon: 图标
+        """
+        tabs_comp = Tabs(tabs)
+        section = Section(title=title, content=tabs_comp.render(), icon=icon)
+        self.report.add(section)
+        return self
+    
+    def add_split_layout(self, title: str, left_content: str, right_content: str,
+                        left_title: str = None, right_title: str = None, icon: str = None):
+        """添加左右分栏布局
+        
+        Args:
+            title: 章节标题
+            left_content: 左侧内容HTML
+            right_content: 右侧内容HTML
+            left_title: 左侧小标题
+            right_title: 右侧小标题
+            icon: 图标
+        """
+        split = SplitLayout(left_content, right_content, left_title, right_title)
+        section = Section(title=title, content=split.render(), icon=icon)
+        self.report.add(section)
         return self
     
     def add_analysis_section(self, title: str, content: str, icon: str = None):

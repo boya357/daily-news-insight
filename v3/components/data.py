@@ -365,3 +365,414 @@ class CompareTable(Component):
             </table>
         </div>
         '''
+
+
+class ProgressBar(Component):
+    """
+    渐变进度条组件 - 展示百分比数据
+    """
+    
+    def __init__(self, value: float, max_value: float = 100, 
+                 label: str = None, show_percent: bool = True,
+                 variant: str = "default", height: str = "8px"):
+        super().__init__()
+        self.value = value
+        self.max_value = max_value
+        self.label = label
+        self.show_percent = show_percent
+        self.variant = variant
+        self.height = height
+    
+    def render(self) -> str:
+        percent = min((self.value / self.max_value) * 100, 100)
+        
+        variants = {
+            "default": "linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%)",
+            "success": "linear-gradient(90deg, #10b981 0%, #059669 100%)",
+            "warning": "linear-gradient(90deg, #f59e0b 0%, #ea580c 100%)",
+            "danger": "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)",
+            "rainbow": "linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%)",
+        }
+        
+        gradient = variants.get(self.variant, variants["default"])
+        
+        label_html = ''
+        if self.label:
+            percent_html = f'<span style="font-weight: 600; color: #4f46e5;">{percent:.0f}%</span>' if self.show_percent else ''
+            label_html = f'''
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 13px; font-weight: 500; color: #374151;">{self.label}</span>
+                {percent_html}
+            </div>
+            '''
+        
+        return f'''
+        <div style="width: 100%;">
+            {label_html}
+            <div style="width: 100%; height: {self.height}; 
+                        background: #f3f4f6; border-radius: 999px; 
+                        overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);">
+                <div style="width: {percent}%; height: 100%; 
+                            background: {gradient};
+                            border-radius: 999px; 
+                            transition: width 1s ease-out;
+                            box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                </div>
+            </div>
+        </div>
+        '''
+
+
+class Sparkline(Component):
+    """
+    迷你趋势图组件 - 纯SVG实现的小型折线图
+    """
+    
+    def __init__(self, data: list, width: int = 120, height: int = 40,
+                 color: str = "#4f46e5", fill: bool = True,
+                 stroke_width: int = 2):
+        super().__init__()
+        self.data = data
+        self.width = width
+        self.height = height
+        self.color = color
+        self.fill = fill
+        self.stroke_width = stroke_width
+    
+    def render(self) -> str:
+        if not self.data:
+            return '<div style="width: {width}px; height: {height}px;"></div>'
+        
+        min_val = min(self.data)
+        max_val = max(self.data)
+        range_val = max_val - min_val if max_val != min_val else 1
+        
+        padding = self.stroke_width
+        graph_width = self.width - padding * 2
+        graph_height = self.height - padding * 2
+        
+        # 生成路径点
+        points = []
+        step = graph_width / (len(self.data) - 1) if len(self.data) > 1 else graph_width
+        
+        for i, val in enumerate(self.data):
+            x = padding + i * step
+            y = padding + graph_height - ((val - min_val) / range_val) * graph_height
+            points.append((x, y))
+        
+        # 生成折线路径
+        path_d = f"M {points[0][0]:.1f} {points[0][1]:.1f}"
+        for i in range(1, len(points)):
+            path_d += f" L {points[i][0]:.1f} {points[i][1]:.1f}"
+        
+        # 生成填充区域路径
+        fill_d = ''
+        if self.fill:
+            fill_d = path_d + f" L {points[-1][0]:.1f} {padding + graph_height:.1f} L {points[0][0]:.1f} {padding + graph_height:.1f} Z"
+        
+        fill_color = self.color.replace(')', ', 0.1)').replace('rgb', 'rgba')
+        if '#' in self.color:
+            fill_color = self.color + '1A'  # 10% 透明度
+        
+        return f'''
+        <svg width="{self.width}" height="{self.height}" viewBox="0 0 {self.width} {self.height}" style="display: block;">
+            {'<path d="' + fill_d + '" fill="' + fill_color + '" />' if self.fill else ''}
+            <path d="{path_d}" fill="none" stroke="{self.color}" stroke-width="{self.stroke_width}" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        '''
+
+
+class GaugeChart(Component):
+    """
+    仪表盘组件 - SVG环形仪表盘，展示指数类数据
+    """
+    
+    def __init__(self, value: float, max_value: float = 100,
+                 label: str = "", size: int = 100, stroke_width: int = 8,
+                 color: str = None, show_value: bool = True):
+        super().__init__()
+        self.value = min(value, max_value)
+        self.max_value = max_value
+        self.label = label
+        self.size = size
+        self.stroke_width = stroke_width
+        self.show_value = show_value
+        
+        # 根据数值自动变色
+        if color is None:
+            percent = value / max_value
+            if percent >= 0.8:
+                self.color = "#ef4444"  # 红色 - 高风险
+            elif percent >= 0.6:
+                self.color = "#f59e0b"  # 黄色 - 中等
+            elif percent >= 0.4:
+                self.color = "#3b82f6"  # 蓝色 - 正常
+            else:
+                self.color = "#10b981"  # 绿色 - 低风险
+        else:
+            self.color = color
+    
+    def render(self) -> str:
+        percent = self.value / self.max_value
+        radius = (self.size - self.stroke_width) / 2
+        center_x = self.size / 2
+        center_y = self.size / 2
+        
+        # 计算圆弧起点和终点（270度为起点，顺时针画225度范围）
+        start_angle = 135  # 左下起点
+        end_angle = start_angle + 270 * percent  # 终点角度
+        bg_end_angle = start_angle + 270  # 背景弧终点
+        
+        # 转换为弧度
+        import math
+        
+        def angle_to_point(angle_deg, r):
+            angle_rad = math.radians(angle_deg - 90)  # -90让0度在顶部
+            x = center_x + r * math.cos(angle_rad)
+            y = center_y + r * math.sin(angle_rad)
+            return x, y
+        
+        # 背景弧
+        bg_start = angle_to_point(start_angle, radius)
+        bg_end = angle_to_point(bg_end_angle, radius)
+        bg_large_arc = 1 if 270 > 180 else 0
+        
+        # 前景弧
+        fg_end = angle_to_point(end_angle, radius)
+        fg_large_arc = 1 if (270 * percent) > 180 else 0
+        
+        value_html = ''
+        if self.show_value:
+            value_html = f'''
+            <div style="position: absolute; top: 55%; left: 50%; 
+                        transform: translate(-50%, -50%); text-align: center; width: 100%;">
+                <div style="font-size: {int(self.size * 0.28)}px; font-weight: 700; 
+                            color: {self.color}; line-height: 1;">
+                    {int(self.value)}
+                </div>
+            </div>
+            '''
+        
+        return f'''
+        <div style="text-align: center;">
+            <div style="position: relative; width: {self.size}px; height: {self.size}px; margin: 0 auto;">
+                <svg width="{self.size}" height="{self.size}" viewBox="0 0 {self.size} {self.size}">
+                    <!-- 背景弧 -->
+                    <path d="M {bg_start[0]:.1f} {bg_start[1]:.1f} 
+                             A {radius:.1f} {radius:.1f} 0 {bg_large_arc} 1 {bg_end[0]:.1f} {bg_end[1]:.1f}"
+                          fill="none" stroke="#f3f4f6" stroke-width="{self.stroke_width}" 
+                          stroke-linecap="round" />
+                    
+                    <!-- 前景弧 -->
+                    <path d="M {bg_start[0]:.1f} {bg_start[1]:.1f} 
+                             A {radius:.1f} {radius:.1f} 0 {fg_large_arc} 1 {fg_end[0]:.1f} {fg_end[1]:.1f}"
+                          fill="none" stroke="{self.color}" stroke-width="{self.stroke_width}" 
+                          stroke-linecap="round"
+                          style="filter: drop-shadow(0 2px 4px {self.color}40);" />
+                </svg>
+                {value_html}
+            </div>
+            {'<div style="font-size: 12px; color: #6b7280; margin-top: 4px;">' + self.label + '</div>' if self.label else ''}
+        </div>
+        '''
+
+
+class Tabs(Component):
+    """
+    标签页组件 - 支持切换多个内容面板
+    """
+    
+    def __init__(self, tabs: list, default_index: int = 0):
+        super().__init__()
+        self.tabs = tabs  # [(label, content), ...]
+        self.default_index = default_index
+    
+    def render(self) -> str:
+        # 生成唯一ID，避免页面内多个Tabs冲突
+        import random
+        tab_id = f"tabs_{random.randint(10000, 99999)}"
+        
+        # 标签按钮
+        tab_buttons = ""
+        for i, (label, _) in enumerate(self.tabs):
+            active_class = "active" if i == self.default_index else ""
+            active_style = ""
+            if i == self.default_index:
+                active_style = """
+                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                    color: white;
+                    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+                """
+            else:
+                active_style = """
+                    background: transparent;
+                    color: #6b7280;
+                """
+            
+            tab_buttons += f'''
+            <button class="tab-btn {active_class}" 
+                    style="padding: 10px 20px; border: none; border-radius: 10px;
+                           font-size: 13px; font-weight: 600; cursor: pointer;
+                           transition: all 0.3s ease; {active_style}"
+                    onclick="switchTab_{tab_id}({i})">
+                {label}
+            </button>
+            '''
+        
+        # 内容面板
+        tab_panels = ""
+        for i, (_, content) in enumerate(self.tabs):
+            display_style = "block" if i == self.default_index else "none"
+            content_html = content.render() if hasattr(content, "render") else str(content)
+            tab_panels += f'''
+            <div class="tab-panel" id="{tab_id}_panel_{i}" style="display: {display_style}; padding-top: 20px;">
+                {content_html}
+            </div>
+            '''
+        
+        # JavaScript
+        js_script = f'''
+        <script>
+        function switchTab_{tab_id}(index) {{
+            const container = document.getElementById("{tab_id}");
+            const buttons = container.querySelectorAll(".tab-btn");
+            const panels = container.querySelectorAll(".tab-panel");
+            
+            buttons.forEach((btn, i) => {{
+                if (i === index) {{
+                    btn.style.background = "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)";
+                    btn.style.color = "white";
+                    btn.style.boxShadow = "0 2px 8px rgba(79, 70, 229, 0.3)";
+                }} else {{
+                    btn.style.background = "transparent";
+                    btn.style.color = "#6b7280";
+                    btn.style.boxShadow = "none";
+                }}
+            }});
+            
+            panels.forEach((panel, i) => {{
+                panel.style.display = i === index ? "block" : "none";
+            }});
+        }}
+        </script>
+        '''
+        
+        return f'''
+        <div id="{tab_id}" style="width: 100%;">
+            <div style="display: flex; gap: 6px; padding: 4px; 
+                        background: #f3f4f6; border-radius: 12px; flex-wrap: wrap;">
+                {tab_buttons}
+            </div>
+            {tab_panels}
+            {js_script}
+        </div>
+        '''
+
+
+class StatCard(Component):
+    """
+    渐变统计卡片 - 大号数字 + 渐变背景，冲击力强
+    """
+    
+    def __init__(self, title: str, value: str, subtitle: str = None,
+                 icon: str = None, variant: str = "purple",
+                 trend: str = None, trend_up: bool = True):
+        super().__init__()
+        self.title = title
+        self.value = value
+        self.subtitle = subtitle
+        self.icon = icon
+        self.variant = variant
+        self.trend = trend
+        self.trend_up = trend_up
+    
+    def render(self) -> str:
+        variants = {
+            "purple": {
+                "bg": "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
+                "glow": "rgba(139, 92, 246, 0.4)"
+            },
+            "blue": {
+                "bg": "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+                "glow": "rgba(59, 130, 246, 0.4)"
+            },
+            "green": {
+                "bg": "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                "glow": "rgba(16, 185, 129, 0.4)"
+            },
+            "orange": {
+                "bg": "linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)",
+                "glow": "rgba(245, 158, 11, 0.4)"
+            },
+            "red": {
+                "bg": "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+                "glow": "rgba(239, 68, 68, 0.4)"
+            },
+            "indigo": {
+                "bg": "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+                "glow": "rgba(99, 102, 241, 0.4)"
+            },
+        }
+        
+        v = variants.get(self.variant, variants["purple"])
+        
+        icon_html = ''
+        if self.icon:
+            from .icons import icon_svg
+            icon_html = f'''
+            <div style="width: 48px; height: 48px; 
+                        background: rgba(255, 255, 255, 0.2); 
+                        border-radius: 14px; display: flex; align-items: center; 
+                        justify-content: center; margin-bottom: 16px;
+                        backdrop-filter: blur(10px);">
+                {icon_svg(self.icon, 24, "white")}
+            </div>
+            '''
+        
+        trend_html = ''
+        if self.trend:
+            trend_color = "rgba(255,255,255,0.9)"
+            trend_icon = "↑" if self.trend_up else "↓"
+            trend_html = f'''
+            <div style="display: flex; align-items: center; color: {trend_color}; 
+                        font-size: 14px; font-weight: 600; margin-top: 8px;">
+                <span style="margin-right: 4px;">{trend_icon}</span>
+                <span>{self.trend}</span>
+            </div>
+            '''
+        
+        subtitle_html = f'<div style="font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 4px;">{self.subtitle}</div>' if self.subtitle else ''
+        
+        return f'''
+        <div style="background: {v["bg"]}; 
+                    border-radius: 18px; 
+                    padding: 24px; 
+                    color: white;
+                    box-shadow: 0 8px 24px {v["glow"]}, 0 2px 8px rgba(0,0,0,0.1);
+                    transition: all 0.3s ease;
+                    position: relative;
+                    overflow: hidden;"
+             onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 32px {v["glow"]}, 0 4px 12px rgba(0,0,0,0.15)';"
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px {v["glow"]}, 0 2px 8px rgba(0,0,0,0.1)';">
+            
+            <!-- 装饰光效 -->
+            <div style="position: absolute; top: -50%; right: -20%; 
+                        width: 200px; height: 200px; 
+                        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+                        border-radius: 50%; pointer-events: none;"></div>
+            
+            {icon_html}
+            
+            <div style="position: relative; z-index: 1;">
+                <div style="font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 8px; font-weight: 500;">
+                    {self.title}
+                </div>
+                <div style="font-size: 36px; font-weight: 800; line-height: 1.1; 
+                            text-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    {self.value}
+                </div>
+                {subtitle_html}
+                {trend_html}
+            </div>
+        </div>
+        '''

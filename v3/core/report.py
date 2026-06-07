@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.config import SITE_NAME, SITE_ICON, COLORS, SIZES, BASE_PATH, REPORT_TYPES, BASE_CSS
 from components.layout import Navbar, Footer, Section
 from components.charts import get_chartjs_cdn
+from components.base import get_animation_css, get_animation_js
 
 
 class Report:
@@ -95,6 +96,9 @@ class Report:
     
     <!-- 标准导航栏样式 -->
     {Navbar.get_css()}
+    
+    <!-- 动效样式 -->
+    {get_animation_css()}
     
     <!-- 基础样式 -->
     <style>
@@ -275,8 +279,8 @@ class Report:
         # 再生成head（根据是否有图表决定是否加载Chart.js）
         head_html = self._generate_head(force_chart=has_chart)
         
-        return head_html + body_html + "\n</body>\n</html>"
-    
+        return head_html + body_html + "\n" + get_animation_js() + "\n</body>\n</html>"
+
     def save(self, filepath: str) -> str:
         """保存报告到文件，返回文件路径
         会检查受保护文件，防止意外覆盖

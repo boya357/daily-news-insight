@@ -8,8 +8,8 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.report import Report
-from components.layout import Section, Card, HighlightBox
-from components.data import DataCard, DataGrid, KeyPoints, StockTags, MetricsRow, Badge
+from components.layout import Section, Card, HighlightBox, SubCard, CardGrid, SplitLayout
+from components.data import DataCard, DataGrid, KeyPoints, StockTags, MetricsRow, Badge, StatCard, Sparkline, Tabs, GaugeChart, ProgressBar
 from components.special import RiskAlert, NewsItem
 
 
@@ -46,35 +46,38 @@ class IntradayGenerator:
         )
         self._components.append(box)
     
-    def add_market_overview(self, indices: list, market_status: str = "震荡"):
-        """
-        添加市场全景
+    def add_market_overview(self, indices: list, market_status: str = "震荡", sparkline_data: dict = None):
+        """添加市场概览（V3.0增强版：渐变统计卡）
         
         Args:
-            indices: 指数列表 [{"name": "上证指数", "value": "3200.50", "change": "+0.52%", "up": True}, ...]
-            market_status: 市场状态描述
+            indices: [{"name": "上证指数", "value": "3,200.50", "change": "+0.52%", "up": True}, ...]
+            market_status: 市场状态（上涨/下跌/震荡）
+            sparkline_data: 各指数迷你走势数据（可选）
         """
         cards = []
         for idx in indices:
             variant = "success" if idx.get('up', True) else "danger"
-            cards.append(DataCard(
+            cards.append(StatCard(
                 title=idx['name'],
-                value=idx['value'],
+                value=idx.get('value', ''),
+                subtitle=idx.get('change', ''),
+                icon=idx.get('icon', 'trending_up'),
+                variant=variant,
                 trend=idx.get('change', ''),
-                trend_up=idx.get('up', True),
-                variant=variant
+                trend_up=idx.get('up', True)
             ))
         
-        grid = DataGrid(cards, cols=min(len(cards), 4))
+        grid = CardGrid(cards, cols=min(len(cards), 4))
         
-        section = Section(
-            title="📊 市场全景",
-            content=grid.render(),
-            subtitle=f"午盘市场状态：{market_status}",
-            icon="trending"
-        )
+        # 市场状态标签
+        status_colors = {"上涨": "success", "下跌": "danger", "震荡": "warning"}
+        status_variant = status_colors.get(market_status, "default")
+        status_badge = Badge(text=f"市场状态：{market_status}", variant=status_variant)
+        
+        content = grid.render() + '<div style="margin-top: 12px;">' + status_badge.render() + '</div>'
+        section = Section(title="📈 市场概览", content=content, icon="trending-up")
         self._components.append(section)
-    
+
     def add_hot_topics(self, topics: list):
         """
         添加市场热点解析

@@ -8,8 +8,8 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.report import Report
-from components.layout import Section, HighlightBox
-from components.data import DataCard, DataGrid, KeyPoints, StockTags
+from components.layout import Section, HighlightBox, SubCard, CardGrid, SplitLayout
+from components.data import DataCard, DataGrid, KeyPoints, StockTags, Badge, StatCard, Sparkline, Tabs, GaugeChart, ProgressBar
 from components.special import RiskAlert, NewsItem, Timeline
 
 
@@ -33,20 +33,21 @@ class WeeklyReviewGenerator:
         self._components.append(box)
     
     def add_market_review(self, indices: list):
-        """添加本周市场表现"""
+        """添加本周市场表现（V3.0增强版：渐变统计卡）"""
         cards = []
         for idx in indices:
             variant = "success" if idx.get('up', True) else "danger"
-            cards.append(DataCard(
+            cards.append(StatCard(
                 title=idx['name'],
                 value=idx.get('current', ''),
-                trend=idx.get('change', ''),
-                trend_up=idx.get('up', True),
+                subtitle=idx.get('change', ''),
+                icon=idx.get('icon', 'trending_up'),
                 variant=variant,
-                subtitle=idx.get('subtitle', '')
+                trend=idx.get('change', ''),
+                trend_up=idx.get('up', True)
             ))
         
-        grid = DataGrid(cards, cols=min(len(cards), 4))
+        grid = CardGrid(cards, cols=min(len(cards), 4))
         section = Section(title="📊 本周市场表现", content=grid.render(), icon="chart")
         self._components.append(section)
     

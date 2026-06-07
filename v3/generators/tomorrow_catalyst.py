@@ -8,8 +8,8 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.report import Report
-from components.layout import Section, HighlightBox
-from components.data import DataCard, DataGrid, StockTags
+from components.layout import Section, HighlightBox, SubCard, CardGrid, SplitLayout
+from components.data import DataCard, DataGrid, StockTags, Badge, StatCard, Sparkline, Tabs, GaugeChart, ProgressBar
 from components.special import RiskAlert
 
 

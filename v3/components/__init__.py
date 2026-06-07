@@ -1,13 +1,15 @@
-from .base import Component
-from .layout import Navbar, Footer, Section, Card
-from .data import DataCard, DataGrid, CompareTable, MetricsRow
-from .charts import LineChart, BarChart, PieChart
-from .special import RiskAlert, QuoteBlock, Timeline, ButtonGroup
+from .base import Component, get_animation_assets, get_animation_css, get_animation_js
+from .layout import Navbar, Footer, Section, Card, SubCard, CardGrid, DataTable, SplitLayout, ChartCard
+from .data import (DataCard, DataGrid, CompareTable, MetricsRow, KeyPoints, StockTags, Badge, 
+                   ProgressBar, Sparkline, GaugeChart, Tabs, StatCard)
+from .charts import LineChart, BarChart, PieChart, get_chartjs_cdn
+from .special import RiskAlert, QuoteBlock, Timeline, ButtonGroup, CatalystTag, NewsItem, SectionHeader
 
 __all__ = [
-    "Component",
-    "Navbar", "Footer", "Section", "Card",
-    "DataCard", "DataGrid", "CompareTable", "MetricsRow",
-    "LineChart", "BarChart", "PieChart",
-    "RiskAlert", "QuoteBlock", "Timeline", "ButtonGroup",
+    "Component", "get_animation_assets", "get_animation_css", "get_animation_js",
+    "Navbar", "Footer", "Section", "Card", "SubCard", "CardGrid", "DataTable", "SplitLayout", "ChartCard",
+    "DataCard", "DataGrid", "CompareTable", "MetricsRow", "KeyPoints", "StockTags", "Badge", 
+    "ProgressBar", "Sparkline", "GaugeChart", "Tabs", "StatCard",
+    "LineChart", "BarChart", "PieChart", "get_chartjs_cdn",
+    "RiskAlert", "QuoteBlock", "Timeline", "ButtonGroup", "CatalystTag", "NewsItem", "SectionHeader",
 ]

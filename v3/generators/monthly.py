@@ -33,19 +33,21 @@ class MonthlyReportGenerator:
         self._components.append(box)
     
     def add_market_performance(self, indices: list):
-        """添加市场表现"""
+        """添加市场表现（V3.0增强版：渐变统计卡）"""
         cards = []
         for idx in indices:
             variant = "success" if idx.get('up', True) else "danger"
-            cards.append(DataCard(
+            cards.append(StatCard(
                 title=idx['name'],
                 value=idx.get('current', ''),
+                subtitle=idx.get('change', ''),
+                icon=idx.get('icon', 'trending_up'),
+                variant=variant,
                 trend=idx.get('change', ''),
-                trend_up=idx.get('up', True),
-                variant=variant
+                trend_up=idx.get('up', True)
             ))
         
-        grid = DataGrid(cards, cols=min(len(cards), 4))
+        grid = CardGrid(cards, cols=min(len(cards), 4))
         section = Section(title="📊 指数表现", content=grid.render(), icon="chart")
         self._components.append(section)
     
