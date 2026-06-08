@@ -1,6 +1,7 @@
 """
-S级催化生成器 - V3.0 高级版
+S级催化生成器 - V3.0 精致增强版
 重大题材深度分析 + 产业链梳理 + 投资机会
+已整合：StatCard渐变统计卡、Tabs标签页、SplitLayout分栏、SubCard嵌套卡片、全局动效
 """
 import sys
 import os
@@ -14,7 +15,7 @@ from components.special import RiskAlert, QuoteBlock
 
 
 class SLevelCatalystGenerator:
-    """S级催化生成器 - V3.0高级版"""
+    """S级催化生成器 - V3.0精致增强版"""
     
     def __init__(self, date_str: str, catalyst_title: str = None, subtitle: str = None):
         self.date_str = date_str
@@ -38,45 +39,88 @@ class SLevelCatalystGenerator:
         self._components.append(box)
     
     def add_catalyst_details(self, background: str, trigger: str):
-        """添加催化事件详细分析"""
-        content = f'''
-        <div style="display: flex; flex-direction: column; gap: 16px;">
-            <div style="background: #f8fafc; border-radius: 14px; padding: 18px;">
-                <div style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 8px;">
-                    📚 事件背景
+        """添加催化事件详细分析（V3.0增强：SplitLayout左右分栏）
+        
+        Args:
+            background: 事件背景
+            trigger: 触发因素
+        """
+        # 左侧：事件背景
+        left_html = f'''
+        <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
+                    border-radius: 14px; padding: 20px; height: 100%;
+                    border: 1px solid #bae6fd;">
+            <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                <div style="width: 36px; height: 36px; 
+                           background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); 
+                           border-radius: 10px; display: flex; align-items: center; justify-content: center; 
+                           margin-right: 12px;">
+                    📚
                 </div>
-                <div style="font-size: 13px; color: #475569; line-height: 1.7;">
-                    {background}
-                </div>
+                <span style="font-size: 16px; font-weight: 700; color: #1e40af;">
+                    事件背景
+                </span>
             </div>
-            <div style="background: #fef3c7; border-radius: 14px; padding: 18px;">
-                <div style="font-size: 14px; font-weight: 600; color: #92400e; margin-bottom: 8px;">
-                    🔥 触发因素
-                </div>
-                <div style="font-size: 13px; color: #b45309; line-height: 1.7;">
-                    {trigger}
-                </div>
+            <div style="font-size: 13px; color: #374151; line-height: 1.8;">
+                {background}
             </div>
-        </div>'''
+        </div>
+        '''
+        
+        # 右侧：触发因素
+        right_html = f'''
+        <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); 
+                    border-radius: 14px; padding: 20px; height: 100%;
+                    border: 1px solid #fcd34d;">
+            <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                <div style="width: 36px; height: 36px; 
+                           background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); 
+                           border-radius: 10px; display: flex; align-items: center; justify-content: center; 
+                           margin-right: 12px;">
+                    🔥
+                </div>
+                <span style="font-size: 16px; font-weight: 700; color: #92400e;">
+                    触发因素
+                </span>
+            </div>
+            <div style="font-size: 13px; color: #78350f; line-height: 1.8;">
+                {trigger}
+            </div>
+        </div>
+        '''
+        
+        split = SplitLayout(left=left_html, right=right_html, left_width="50%", gap="16px")
+        content = split.render()
         
         section = Section(title="🔍 催化事件详解", content=content, icon="search")
         self._components.append(section)
     
     def add_industry_chain_analysis(self, upstream: list, midstream: list, downstream: list):
-        """添加产业链分析"""
+        """添加产业链分析（V3.0增强：Tabs标签页分类 + SubCard卡片）
+        
+        Args:
+            upstream: 上游环节列表
+            midstream: 中游环节列表
+            downstream: 下游环节列表
+        """
         from components.icons import icon_svg
         
-        def render_chain_layer(title, items, icon, color_from, color_to):
-            items_html = ''
+        def render_chain_layer(items, color_from, color_to):
+            """渲染单个产业链层级"""
+            items_html = '<div style="display: flex; flex-direction: column; gap: 10px;">'
             for item in items:
                 stocks_html = ''
                 if item.get('stocks'):
-                    tags = StockTags(item['stocks'], label="", )
+                    tags = StockTags(item['stocks'], label="核心标的")
                     stocks_html = tags.render()
                 
-                items_html += f'''
-                <div style="background: white; border-radius: 12px; padding: 14px; 
-                          box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                item_html = f'''
+                <div style="background: white; border-radius: 12px; padding: 14px 16px;
+                          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                          border: 1px solid rgba(0,0,0,0.04);
+                          transition: all 0.3s ease;"
+                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)';">
                     <div style="font-size: 14px; font-weight: 600; color: #1f2937; margin-bottom: 6px;">
                         {item.get("name", "")}
                     </div>
@@ -84,34 +128,62 @@ class SLevelCatalystGenerator:
                         {item.get("desc", "")}
                     </div>
                     {stocks_html}
-                </div>'''
-            
-            return f'''
-            <div style="margin-bottom: 16px;">
-                <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <div style="width: 28px; height: 28px; 
-                               background: linear-gradient(135deg, {color_from} 0%, {color_to} 100%); 
-                               border-radius: 8px; display: flex; align-items: center; justify-content: center; 
-                               margin-right: 10px;">
-                        {icon_svg(icon, 14, "white")}
-                    </div>
-                    <span style="font-size: 14px; font-weight: 600; color: #374151;">{title}</span>
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 8px; padding-left: 38px;">
-                    {items_html}
-                </div>
-            </div>'''
+                '''
+                items_html += item_html
+            items_html += '</div>'
+            return items_html
         
-        content = ''
-        content += render_chain_layer("上游", upstream, "upstream", "#10b981", "#059669")
-        content += render_chain_layer("中游", midstream, "layers", "#3b82f6", "#2563eb")
-        content += render_chain_layer("下游", downstream, "downstream", "#f59e0b", "#d97706")
+        # 生成三个标签页
+        tab_list = [
+            ("上游", render_chain_layer(upstream, "#10b981", "#059669")),
+            ("中游", render_chain_layer(midstream, "#3b82f6", "#2563eb")),
+            ("下游", render_chain_layer(downstream, "#f59e0b", "#d97706")),
+        ]
+        
+        tabs = Tabs(tabs=tab_list, default_index=1)  # 默认显示中游
+        content = tabs.render()
         
         section = Section(title="🔗 产业链梳理", content=content, icon="git-branch")
         self._components.append(section)
     
-    def add_investment_opportunities(self, opportunities: list):
-        """添加投资机会分析"""
+    def add_investment_opportunities(self, opportunities: list, view_mode: str = "card"):
+        """添加投资机会分析（V3.0增强：支持卡片模式/标签页模式）
+        
+        Args:
+            opportunities: 投资机会列表
+            view_mode: "card"（卡片列表）或 "tab"（按优先级标签页）
+        """
+        from components.icons import icon_svg
+        
+        if view_mode == "tab":
+            # 按优先级分组
+            priority_groups = {}
+            for opp in opportunities:
+                priority = opp.get('priority', '中')
+                if priority not in priority_groups:
+                    priority_groups[priority] = []
+                priority_groups[priority].append(opp)
+            
+            # 按优先级排序：高 > 中 > 低
+            priority_order = ['高', '中', '低']
+            tab_list = []
+            for p in priority_order:
+                if p in priority_groups:
+                    tab_content = self._render_opportunity_cards(priority_groups[p])
+                    tab_list.append((f"{p}优先级", tab_content))
+            
+            tabs = Tabs(tabs=tab_list, default_index=0)
+            content = tabs.render()
+        else:
+            # 卡片列表模式
+            content = self._render_opportunity_cards(opportunities)
+        
+        section = Section(title="💰 投资机会分析", content=content, icon="dollar-sign")
+        self._components.append(section)
+    
+    def _render_opportunity_cards(self, opportunities: list) -> str:
+        """渲染投资机会卡片列表（内部方法）"""
         from components.icons import icon_svg
         
         content_html = '<div style="display: flex; flex-direction: column; gap: 14px;">'
@@ -129,32 +201,39 @@ class SLevelCatalystGenerator:
                 tags = StockTags(opp['stocks'], label="核心标的")
                 stocks_html = tags.render()
             
-            content_html += f'''
-            <div style="background: white; border: 1px solid rgba(0, 0, 0, 0.06);
-                       border-radius: 16px; padding: 20px;
-                       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-                       border-left: 4px solid {p_color};">
-                <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <div style="flex: 1;">
-                        <span style="font-size: 16px; font-weight: 700; color: #1f2937;">
-                            {opp.get("name", "")}
-                        </span>
-                    </div>
-                    <span style="padding: 3px 10px; border-radius: 20px; 
-                               font-size: 11px; font-weight: 700;
-                               background: {p_bg}; color: {p_text};">
-                        {priority}优先级
+            card_content = f'''
+            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+                <div style="flex: 1;">
+                    <span style="font-size: 16px; font-weight: 700; color: #1f2937;">
+                        {opp.get("name", "")}
                     </span>
                 </div>
-                <div style="font-size: 13px; color: #6b7280; line-height: 1.7; margin-bottom: 10px;">
-                    {opp.get("logic", "")}
-                </div>
-                {stocks_html}
-            </div>'''
+                <span style="padding: 4px 10px; border-radius: 20px; 
+                           font-size: 11px; font-weight: 700;
+                           background: linear-gradient(135deg, {p_color} 0%, {p_text} 100%); 
+                           color: white;">
+                    {priority}优先级
+                </span>
+            </div>
+            <div style="font-size: 13px; color: #6b7280; line-height: 1.7; margin-bottom: 10px;">
+                {opp.get("logic", "")}
+            </div>
+            {stocks_html}
+            '''
+            
+            sub_card = SubCard(content=card_content, variant="white")
+            # 左边框颜色
+            card_html = f'''
+            <div style="border-left: 4px solid {p_color}; border-radius: 0 12px 12px 0;
+                       transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateX(4px)';"
+                 onmouseout="this.style.transform='translateX(0)';">
+                {sub_card.render()}
+            </div>
+            '''
+            content_html += card_html
         content_html += '</div>'
-        
-        section = Section(title="💰 投资机会分析", content=content_html, icon="dollar-sign")
-        self._components.append(section)
+        return content_html
     
     def add_risk_warning(self, risks: list):
         """添加风险提示"""
