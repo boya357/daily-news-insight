@@ -214,6 +214,7 @@ class TomorrowCatalystGenerator:
     
     def generate(self) -> str:
         """生成完整HTML"""
+        self.report.components.clear()  # 清空避免重复添加
         for comp in self._components:
             self.report.add(comp)
         return self.report.generate()
