@@ -180,8 +180,29 @@ def main():
     print()
     
     print("=" * 60)
+
+    # 4. 归档历史快照（数据回溯功能）
+    archive_history_snapshot()
+    print()
     print("✅ 所有页面数据更新完成！")
     print("=" * 60)
+
+
+def archive_history_snapshot():
+    """归档当日持仓数据快照，用于数据回溯"""
+    import shutil
+    from datetime import date
+    
+    history_dir = 'data/history'
+    os.makedirs(history_dir, exist_ok=True)
+    
+    today = date.today().strftime("%Y-%m-%d")
+    src = 'data/portfolio.json'
+    dst = os.path.join(history_dir, f'{today}.json')
+    
+    # 同一天多次更新只保留最新版本
+    shutil.copy2(src, dst)
+    print(f"📦 历史快照已归档：{dst}")
 
 if __name__ == '__main__':
     main()
