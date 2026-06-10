@@ -51,7 +51,7 @@ def update_portfolio(html, portfolio):
             rf'(<div class="text-sm text-gray-600 mb-1">{re.escape(label)}</div>\s*<div class="text-2xl font-black )([a-z0-9-]+)(">)([^<]+)(</div>)',
             re.DOTALL
         )
-        html = pattern.sub(rf'\1{color}\3{value}\5', html)
+        html = pattern.sub(rf'\g<1>{color}\g<3>{value}\g<5>', html)
     
     # 更新时间
     html = html.replace('数据更新时间：2026年6月10日 21:30', f'数据更新时间：{portfolio["update_time"]}')
@@ -92,7 +92,7 @@ def update_stock_card(card_html, stock):
         r'(<div class="text-xs text-gray-500 mb-1">成本价</div>\s*<div class="text-xl font-bold )([a-z0-9-]+)(">)([^<]+)(</div>)',
         re.DOTALL
     )
-    card_html = pattern.sub(rf'\1text-gray-700\3{stock["cost_price"]:.2f}\5', card_html)
+    card_html = pattern.sub(rf'\g<1>text-gray-700\g<3>{stock["cost_price"]:.2f}\g<5>', card_html)
     
     # 最新价
     price_color = 'text-green-600' if stock['current_price'] >= stock['cost_price'] else 'text-red-600'
@@ -100,14 +100,14 @@ def update_stock_card(card_html, stock):
         r'(<div class="text-xs text-gray-500 mb-1">最新价</div>\s*<div class="text-xl font-bold )([a-z0-9-]+)(">)([^<]+)(</div>)',
         re.DOTALL
     )
-    card_html = pattern.sub(rf'\1{price_color}\3{stock["current_price"]:.2f}\5', card_html)
+    card_html = pattern.sub(rf'\g<1>{price_color}\g<3>{stock["current_price"]:.2f}\g<5>', card_html)
     
     # 止损价
     pattern = re.compile(
         r'(<div class="text-xs text-gray-500 mb-1">止损价</div>\s*<div class="text-xl font-bold )([a-z0-9-]+)(">)([^<]+)(</div>)',
         re.DOTALL
     )
-    card_html = pattern.sub(rf'\1text-gray-700\3{stock["stop_loss_price"]:.2f}\5', card_html)
+    card_html = pattern.sub(rf'\g<1>text-gray-700\g<3>{stock["stop_loss_price"]:.2f}\g<5>', card_html)
     
     # 距止损 / 安全边际
     if 'distance_to_stop_loss' in stock:
@@ -125,7 +125,7 @@ def update_stock_card(card_html, stock):
         rf'(<div class="text-xs text-gray-500 mb-1">{re.escape(label)}</div>\s*<div class="text-xl font-bold )([a-z0-9-]+)(">)([^<]+)(</div>)',
         re.DOTALL
     )
-    card_html = pattern.sub(rf'\1{color}\3{text}\5', card_html)
+    card_html = pattern.sub(rf'\g<1>{color}\g<3>{text}\g<5>', card_html)
     
     # 今日涨跌
     today_change = stock['today_change']
@@ -135,7 +135,7 @@ def update_stock_card(card_html, stock):
         r'(<div class="text-xs text-gray-500 mb-1">今日涨跌</div>\s*<div class="text-xl font-bold )([a-z0-9-]+)(">)([^<]+)(</div>)',
         re.DOTALL
     )
-    card_html = pattern.sub(rf'\1{today_color}\3{today_text}\5', card_html)
+    card_html = pattern.sub(rf'\g<1>{today_color}\g<3>{today_text}\g<5>', card_html)
     
     # 主力资金
     if 'main_fund' in stock:
@@ -144,7 +144,7 @@ def update_stock_card(card_html, stock):
             re.DOTALL
         )
         fund_color = 'text-red-600' if stock['main_fund'].startswith('-') else 'text-green-600'
-        card_html = pattern.sub(rf'\1{fund_color}\3{stock["main_fund"]}\5', card_html)
+        card_html = pattern.sub(rf'\g<1>{fund_color}\g<3>{stock["main_fund"]}\g<5>', card_html)
     
     # 右上角持仓盈亏
     profit_pct = (stock['current_price'] - stock['cost_price']) / stock['cost_price']
@@ -156,7 +156,7 @@ def update_stock_card(card_html, stock):
         r'(<div class="text-4xl font-black )([a-z0-9-]+)(">)([+-]?\d+\.\d+%)(</div>)',
     )
     # 只替换第一个匹配（卡片内的）
-    card_html = pattern.sub(rf'\1{profit_color}\3{profit_text}\5', card_html, count=1)
+    card_html = pattern.sub(rf'\g<1>{profit_color}\g<3>{profit_text}\g<5>', card_html, count=1)
     
     # 风险程度
     if 'risk_level' in stock:
@@ -205,10 +205,7 @@ def update_stock_card(card_html, stock):
             
             # 更新值和颜色
             status = d.get('status', 'neutral')
-            color_map = {
-                'good': ('text-green-600', 'bg-green-50', 'border-green-100'
-            ,
-            }
+            # color_map 备用
             if status == 'bad':
                 value_color = 'text-red-600'
                 bg_color = 'bg-red-50'
@@ -224,7 +221,7 @@ def update_stock_card(card_html, stock):
             
             # 更新值
             old_value_pattern = re.compile(r'<div class="text-lg font-bold [^"]+">[^<]+</div>')
-            item_html = value_pattern.search(item_html)
+            value_match = old_value_pattern.search(item_html)
             if value_match:
                 old_value = value_match.group(0)
                 new_value = f'<div class="text-lg font-bold {value_color}">{d["value"]}</div>'
