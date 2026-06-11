@@ -67,65 +67,64 @@ def update_alert_system():
     new_time_text = f'数据更新时间：{update_time}'
     html = safe_replace(html, old_time_pattern, new_time_text, "更新时间戳")
     
-    # 2. 更新综合风险指数 (68 -> 75)
-    old_risk_score = r'<div class="text-2xl font-black text-red-600">68</div>'
-    new_risk_score = '<div class="text-2xl font-black text-red-600">75</div>'
-    html = safe_replace(html, old_risk_score, new_risk_score, "综合风险指数 68→75")
-    
-    # 3. 更新风险等级描述
-    old_risk_level = r'较高风险 · 严格风控'
-    new_risk_level = '高风险 · 严控仓位'
-    html = safe_replace(html, old_risk_level, new_risk_level, "风险等级描述")
-    
-    # 4. 更新建议仓位
-    old_position = r'建议仓位：30-50%'
-    new_position = '建议仓位：20-30%'
-    html = safe_replace(html, old_position, new_position, "建议仓位")
-    
-    # 5. 更新大盘风险监控 - 风险事件
-    old_market_event = r'科技股集体暴跌，PCB/CPO/光模块跌5-8%，高低切换剧烈'
-    new_market_event = '美股黑色星期五，纳指暴跌4.18%，半导体指数跌10.26%，AI股集体重挫'
+    # 2. 更新大盘风险监控 - 风险事件
+    old_market_event = r'沪指失守4000点，创业板跌2.7%，超3800股下跌，电子板块领跌'
+    new_market_event = '指数微跌但个股普跌，超4000股下跌，结构性分化加剧'
     html = safe_replace(html, old_market_event, new_market_event, "大盘风险-风险事件")
     
-    # 更新当前状态
-    old_market_status = r'英伟达COMPUTEX演讲后出现明显"利好兑现"行情，高位科技股集体遭抛售'
-    new_market_status = '美国非农数据大超预期，加息预期急剧升温，全球科技股遭遇恐慌性抛售'
+    # 更新大盘风险-当前状态
+    old_market_status = r'6月10日A股震荡调整，沪指跌0.42%失守4000点，创业板指跌2.7%。两市成交2.62万亿缩量，超3800股下跌。大金融护盘，科技股、煤炭、电力领跌。电子板块主力净流出339亿，市场观望情绪浓厚'
+    new_market_status = '6月11日A股震荡分化，沪指跌0.16%收3987.01点，创业板指跌1.13%。两市成交2.55万亿缩量，超4000股下跌。半导体材料、小金属逆势走强，AI应用、文化传媒领跌。权重护盘但个股普跌，赚钱效应差'
     html = safe_replace(html, old_market_status, new_market_status, "大盘风险-当前状态")
     
-    # 6. 更新资金流向监控
-    old_money_event = r'科技板块主力资金净流出超200亿，北向资金净卖出'
-    new_money_event = '全球科技股遭遇抛售潮，单日市值蒸发1.75万亿美元，流动性冲击显现'
+    # 3. 更新资金流向监控 - 风险事件
+    old_money_event = r'主力资金单日净流出超千亿，电子板块遭大幅抛售，科技ETF持续赎回'
+    new_money_event = '主力净流出超400亿，AI题材持续失血，防御板块获资金青睐'
     html = safe_replace(html, old_money_event, new_money_event, "资金流向-风险事件")
     
-    old_money_status = r'AI硬件端遭遇资金大幅撤离，资金向低位防御板块（煤炭/电力）切换'
-    new_money_status = '避险资产（黄金/白银）与风险资产齐跌，现金为王，美元指数大涨站上100'
+    # 更新资金流向-当前状态
+    old_money_status = r'今日主力净流出1050亿元，北向资金观望，资金向大金融防御板块切换，科技成长持续失血。电子板块净流出339亿居首，通信、电新板块也遭遇撤离。银行、保险获资金流入'
+    new_money_status = '今日主力净流出约430亿元，北向资金小幅净流出。资金从高位AI题材向低位半导体材料、资源股切换。电子、计算机板块资金流出居前，银行、有色获小幅流入'
     html = safe_replace(html, old_money_status, new_money_status, "资金流向-当前状态")
     
-    # 7. 更新持仓风险监控
-    old_portfolio_status = r'英维克66\.06元 vs 止损98元，浮亏-36\.62%，严重破止损需立即执行'
-    new_portfolio_status = '英维克68.32元 vs 止损98元，浮亏-34.45%，严重破止损；铜冠铜箔需警惕科技股回调风险'
+    # 4. 更新持仓风险监控 - 风险事件
+    old_portfolio_event = r'英维克下跌2.55%浮亏扩大至-18.9%、铜冠铜箔涨4.22%创新高、*ST建艺震荡摘帽窗口临近、雅克科技涨停HBM逻辑强化'
+    new_portfolio_event = '英维克持续走弱浮亏扩大，雅克科技两连板累计涨21%，铜冠铜箔续创新高'
+    html = safe_replace(html, old_portfolio_event, new_portfolio_event, "持仓风险-风险事件")
+    
+    # 更新持仓风险-当前状态
+    old_portfolio_status = r'英维克69.72元 vs 止损98元，浮亏约-14%，震荡整理；铜冠铜箔122.76元创历史新高，持有；*ST建艺13.33元摘帽审核中；雅克科技约113元，小幅浮盈'
+    new_portfolio_status = '英维克67.14元（-2.55%）vs 止损98元，浮亏约-31.5%，走势偏弱；铜冠铜箔127.98元（+4.22%）再创历史新高；*ST建艺12.99元（+1.88%）摘帽审核中；雅克科技134.81元（+10.00%）涨停，两连板累计涨21%'
     html = safe_replace(html, old_portfolio_status, new_portfolio_status, "持仓风险-当前状态")
     
-    # 8. 更新消息面监控
-    old_news_event = r'英伟达COMPUTEX大会圆满落幕'
-    new_news_event = '美国非农数据大超预期，加息预期骤升'
+    # 5. 更新题材热度监控 - 风险事件
+    old_topic_event = r'科技题材集体退潮，AI算力/液冷/CPO调整，市场热点散乱持续性差'
+    new_topic_event = '市场风格切换，AI题材退潮，半导体材料、资源股逆势走强'
+    html = safe_replace(html, old_topic_event, new_topic_event, "题材热度-风险事件")
+    
+    # 更新题材热度-当前状态
+    old_topic_status = r'英维克67.14元（-2.55%），铜冠铜箔127.98元（+4.22%）创历史新高，*ST建艺12.99元（+1.88%）摘帽审核中，雅克科技134.81元（+10.00%）涨停'
+    new_topic_status = '今日半导体材料、光刻机、小金属板块涨幅居前，AI应用、文化传媒、算力租赁领跌。雅克科技（HBM）涨停带动半导体材料板块，英维克（液冷）跌2.55%'
+    html = safe_replace(html, old_topic_status, new_topic_status, "题材热度-当前状态")
+    
+    # 6. 更新消息面监控 - 重大事件
+    old_news_event = r'美国5月CPI同比升至4.2%超预期，美联储加息预期升温；工信部发布AI+信息通信创新发展意见'
+    new_news_event = '美国5月CPI同比升至4.2%超预期，美联储降息预期降温；中东局势升级，霍尔木兹海峡关闭，油价大涨'
     html = safe_replace(html, old_news_event, new_news_event, "消息面-重大事件")
     
-    old_news_content = r'RTX Spark超级芯片、Vera CPU、Isaac GR00T人形机器人'
-    new_news_content = '5月非农新增17.2万人（预期8.8万），11月加息概率升至65%'
-    html = safe_replace(html, old_news_content, new_news_content, "消息面-数据详情")
-    
-    old_news_reaction = r'利好兑现，硬件端集体回调，AI PC逆势上涨'
-    new_news_reaction = '全球市场恐慌性下跌，科技股遭血洗，VIX恐慌指数飙升60%+'
+    # 更新消息面-市场反应
+    old_news_reaction = r'美股纳指跌0.97%，费城半导体跌1.93%；A股创业板跌2.7%，科技股承压；黄金油价齐跌'
+    new_news_reaction = '美股道指跌1.87%、纳指跌1.98%，费城半导体指数跌3.57%；A股创业板跌1.13%，半导体材料板块逆势上涨；布伦特原油涨超2%站上93美元'
     html = safe_replace(html, old_news_reaction, new_news_reaction, "消息面-市场反应")
     
-    # 9. 更新事件日历监控
-    old_event_upcoming = r'6月3日苹果WWDC大会、6月18日美联储议息'
-    new_event_upcoming = '6月18日美联储议息、6月12日SpaceX上市'
+    # 7. 更新事件日历监控 - 即将到来
+    old_event_upcoming = r'6月12日美加墨世界杯开幕、6月16-17日美联储FOMC会议、6月17日沃什首场发布会'
+    new_event_upcoming = '6月12日SpaceX上市、6月18日美联储议息会议、*ST建艺摘帽结果待公布'
     html = safe_replace(html, old_event_upcoming, new_event_upcoming, "事件日历-即将到来")
     
-    old_event_warning = r'警惕苹果AI功能发布不及预期风险'
-    new_event_warning = '警惕美联储加息预期进一步升温，中东局势持续紧张'
+    # 更新事件日历-风险提示
+    old_event_warning = r'警惕美联储议息会议释放鹰派信号，CPI超预期强化加息预期，中东局势持续紧张'
+    new_event_warning = 'SpaceX IPO虹吸全球资本流动性，美联储政策不确定性，中东局势持续紧张升级'
     html = safe_replace(html, old_event_warning, new_event_warning, "事件日历-风险提示")
     
     # 写回文件
@@ -134,7 +133,6 @@ def update_alert_system():
     print(f"✅ 智能预警系统更新完成（更新时间: {update_time}）")
     print(f"   页面路径: {filepath}")
     return True
-
 # ============================================================
 # 持仓智能预警仪表盘更新
 # ============================================================
