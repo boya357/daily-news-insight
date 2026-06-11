@@ -415,7 +415,7 @@ def load_industry_chain_data():
         return json.load(f)
 
 def update_industry_chain_page(data):
-    """更新产业链时钟页面 - 精确数据点替换"""
+    """更新产业链时钟页面 - 按data-chain-id精准更新"""
     print("🔄 更新产业链时钟...")
     
     html_path = 'docs/产业链时钟/index.html'
@@ -427,28 +427,111 @@ def update_industry_chain_page(data):
     chains = data.get('core_chains', [])
     update_time = data.get('system_info', {}).get('update_time', datetime.now().strftime('%Y年%-m月%-d日 %H:%M'))
     
-    # 更新每个产业链的配置比例
     updated = 0
     for chain in chains:
-        name = chain['name']
-        allocation = chain.get('allocation_ratio', '0%')
-        stage = chain.get('stage', 1)
+        cid = chain.get('id', '')
+        if not cid:
+            continue
         
-        # 更新配置比例：<strong>存储芯片</strong>（30%）
-        alloc_pattern = re.compile(
-            rf'(<strong>{re.escape(name)}</strong>（)(\d+)(%）)',
+        # 按data-chain-id提取卡片
+        start, end, card_html = extract_chain_card(html, cid)
+        if not card_html:
+            continue
+        
+        # 1. 更新阶段名称
+        stage_name = chain.get('stage_name', '')
+        if stage_name:
+            card_html = re.sub(
+                r'(<span class="phase-\d+ text-white px-4 py-2 rounded-full text-sm font-bold">)[^<]+(</span>)',
+                lambda m: f'{m.group(1)}{stage_name}{m.group(2)}',
+                card_html
+            )
+        
+        # 2. 更新周期位置文字和进度条位置
+        progress = chain.get('progress', 0)
+        stage = chain.get('stage', 1)
+        # 更新文字：周期位置：2/4 → 25%
+        pos_pattern = re.compile(r'(周期位置：)(\d+)(/4 → )(\d+)(%)')
+        card_html = pos_pattern.sub(
+            lambda m: f'{m.group(1)}{stage}{m.group(3)}{progress}{m.group(5)}',
+            card_html
         )
-        if alloc_pattern.search(html):
+        
+        # 更新进度条指示器位置
+        card_html = re.sub(
+            r'(<div class="absolute -top-3" style="left: )(\d+)(%;")',
+            lambda m: f'{m.group(1)}{progress}{m.group(3)}',
+            card_html
+        )
+        
+        # 3. 更新配置策略中的建议仓位
+        allocation = str(chain.get('allocation_ratio', '0%')).rstrip('%')
+        card_html = re.sub(
+            r'(建议仓位：)(\d+)(%)',
+            lambda m: f'{m.group(1)}{allocation}{m.group(3)}',
+            card_html
+        )
+        
+        # 替换回原HTML
+        html = html[:start] + card_html + html[end:]
+        updated += 1
+    
+    # 更新配置策略汇总区的比例
+    for chain in chains:
+        name = chain.get('name', '')
+        allocation = str(chain.get('allocation_ratio', '0%')).rstrip('%')
+        if name and allocation:
+            alloc_pattern = re.compile(
+                r'(<strong>' + re.escape(name) + r'</strong>（)(\d+)(%）)',
+            )
             html = alloc_pattern.sub(
-                lambda m: f'{m.group(1)}{str(allocation).rstrip("%")}{m.group(3)}', 
+                lambda m: f'{m.group(1)}{allocation}{m.group(3)}', 
                 html
             )
-            updated += 1
+    
+    # 更新时间戳
+    html = re.sub(
+        r'(数据更新时间：)([^<]+)(</p>)',
+        lambda m: f'{m.group(1)}{update_time}{m.group(3)}',
+        html
+    )
     
     with open(html_path, 'w', encoding='utf-8') as f:
         f.write(html)
     
-    print(f"  ✅ 产业链时钟更新完成（共{len(chains)}个，已更新配置：{updated}个）")
+    print(f"  ✅ 产业链时钟更新完成（共{len(chains)}个，已更新：{updated}个）")
+
+
+def extract_chain_card(html, chain_id):
+    """根据data-chain-id提取单个产业链卡片的HTML，返回起止位置和卡片内容"""
+    start_pattern = re.compile(r'<div data-chain-id="' + re.escape(chain_id) + r'"[^>]*>')
+    match = start_pattern.search(html)
+    if not match:
+        return None, None, None
+    
+    start_pos = match.start()
+    depth = 1
+    pos = match.end()
+    while depth > 0 and pos < len(html):
+        if html[pos:pos+4] == '<div':
+            depth += 1
+            pos += 4
+        elif html[pos:pos+6] == '</div>':
+            depth -= 1
+            pos += 6
+        elif html[pos:pos+5] == '</div':
+            depth -= 1
+            pos += 5
+            if pos < len(html) and html[pos] == '>':
+                pos += 1
+        else:
+            pos += 1
+    
+    if depth == 0:
+        card_html = html[start_pos:pos]
+        return start_pos, pos, card_html
+    return None, None, None
+
 
 
 # ========== 预判验证模块 ==========
