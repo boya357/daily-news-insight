@@ -268,46 +268,28 @@ def update_industry_chain_page(data):
     chains = data.get('core_chains', [])
     update_time = data.get('system_info', {}).get('update_time', datetime.now().strftime('%Y年%-m月%-d日 %H:%M'))
     
-    # 更新顶部统计数字
-    html = re.sub(
-        r'(跟踪产业链\s*</div>\s*<div class="text-3xl font-black text-indigo-600">)(\d+)(</div>)',
-        lambda m: f'{m.group(1)}{len(chains)}{m.group(3)}', html
-    )
-    
-    # 更新每个产业链的进度和配置
+    # 更新每个产业链的配置比例
     updated = 0
     for chain in chains:
         name = chain['name']
-        progress = chain.get('progress', 50)
-        allocation = chain.get('allocation_ratio', '15%')
+        allocation = chain.get('allocation_ratio', '0%')
+        stage = chain.get('stage', 1)
         
-        # 更新进度条宽度
-        pattern = re.compile(
-            rf'({re.escape(name)}.*?width: )(\d+)(%)',
-            re.DOTALL
-        )
-        if pattern.search(html):
-            html = pattern.sub(lambda m: f'{m.group(1)}{progress}{m.group(3)}', html)
-        
-        # 更新配置比例
+        # 更新配置比例：<strong>存储芯片</strong>（30%）
         alloc_pattern = re.compile(
-            rf'({re.escape(name)}.*?建议配置.*?text-2xl font-black text-[a-z]+-600">)([^<]+)(</div>)',
-            re.DOTALL
+            rf'(<strong>{re.escape(name)}</strong>（)(\d+)(%）)',
         )
         if alloc_pattern.search(html):
-            html = alloc_pattern.sub(lambda m: f'{m.group(1)}{allocation}{m.group(3)}', html)
+            html = alloc_pattern.sub(
+                lambda m: f'{m.group(1)}{str(allocation).rstrip("%")}{m.group(3)}', 
+                html
+            )
             updated += 1
-    
-    # 更新时间戳
-    html = re.sub(
-        r'(数据更新时间：)([^<]+)(</div>)',
-        lambda m: f'{m.group(1)}{update_time}{m.group(3)}', html
-    )
     
     with open(html_path, 'w', encoding='utf-8') as f:
         f.write(html)
     
-    print(f"  ✅ 产业链时钟更新完成（共{len(chains)}个，已更新{updated}个）")
+    print(f"  ✅ 产业链时钟更新完成（共{len(chains)}个，已更新配置：{updated}个）")
 
 
 # ========== 预判验证模块 ==========
@@ -330,70 +312,53 @@ def update_predictions_page(data):
     system_info = data.get('system_info', {})
     pending = data.get('pending_predictions', [])
     history = data.get('history_records', [])
-    accuracy = system_info.get('accuracy', '70%')
+    accuracy = system_info.get('accuracy', '72.7%')
     analyst_level = system_info.get('analyst_level', 'A')
-    update_time = system_info.get('update_time', datetime.now().strftime('%Y年%-m月%-d日 %H:%M'))
+    total_pred = system_info.get('total_predictions', len(pending) + len(history))
+    correct_count = system_info.get('correct_count', 0)
+    wrong_count = system_info.get('wrong_count', 0)
     
-    level_names = {'S': 'S级分析师', 'A': 'A级分析师', 'B': 'B级分析师', 'C': 'C级分析师'}
-    level_name = level_names.get(analyst_level, 'A级分析师')
+    level_names = {'S': 'S级', 'A': 'A级', 'B': 'B级', 'C': 'C级'}
+    level_name = level_names.get(analyst_level, 'A级')
     
-    # 更新统计数字
+    # 更新综合准确率（百分比数字）
+    acc_num = str(accuracy).rstrip('%')
     html = re.sub(
-        r'(综合准确率\s*</div>\s*<div class="text-4xl font-black text-green-600">)(\d+\.?\d*)(%</div>)',
-        lambda m: f'{m.group(1)}{str(accuracy).rstrip("%")}{m.group(3)}', html
+        r'(text-3xl font-black text-green-600">)(\d+\.?\d*)(%</div>)',
+        lambda m: f'{m.group(1)}{acc_num}{m.group(3)}', html
     )
+    
+    # 更新环形进度条
     html = re.sub(
-        r'(待验证\s*</div>\s*<div class="text-2xl font-black text-yellow-600">)(\d+)(</div>)',
-        lambda m: f'{m.group(1)}{len(pending)}{m.group(3)}', html
-    )
-    html = re.sub(
-        r'(历史记录\s*</div>\s*<div class="text-2xl font-black text-gray-600">)(\d+)(</div>)',
-        lambda m: f'{m.group(1)}{len(history)}{m.group(3)}', html
+        r'(accuracy-ring.*?style="--p: )(\d+)(%)',
+        lambda m: f'{m.group(1)}{int(float(acc_num))}{m.group(3)}', html
     )
     
     # 更新分析师等级
     html = re.sub(
-        r'(当前等级\s*</div>\s*<div class="text-xl font-black text-purple-600">)([^<]+)(</div>)',
+        r'(text-4xl font-black text-purple-600">)([A-Z]级)(</div>)',
         lambda m: f'{m.group(1)}{level_name}{m.group(3)}', html
     )
     
-    # 更新每个待验证预判的状态
-    updated = 0
-    for pred in pending:
-        title = pred['title']
-        status = pred.get('status', 'pending')
-        
-        if status == 'verified':
-            badge_text = '已验证'
-            badge_class = 'bg-green-100 text-green-700'
-        elif status == 'wrong':
-            badge_text = '已失败'
-            badge_class = 'bg-red-100 text-red-700'
-        else:
-            badge_text = '待验证'
-            badge_class = 'bg-yellow-100 text-yellow-700'
-        
-        badge_pattern = re.compile(
-            rf'({re.escape(title)}.*?<span class=")bg-[a-z]+-100 text-[a-z]+-700( px-2 py-1 rounded-full text-xs font-bold">)([^<]+)(</span>)',
+    # 更新统计卡片：通过下方标签定位上方数字
+    stats_map = {
+        '累计预判': str(total_pred),
+        '验证正确': str(correct_count),
+        '验证错误': str(wrong_count),
+        '待验证': str(len(pending)),
+    }
+    
+    for label, value in stats_map.items():
+        pattern = re.compile(
+            rf'(text-3xl font-black text-[^"]+">)(\d+)(</div>\s*<div class="text-sm text-gray-500">{label})',
             re.DOTALL
         )
-        if badge_pattern.search(html):
-            html = badge_pattern.sub(
-                lambda m: f'{m.group(1)}{badge_class}{m.group(2)}{badge_text}{m.group(4)}', 
-                html
-            )
-            updated += 1
-    
-    # 更新时间戳
-    html = re.sub(
-        r'(数据更新时间：)([^<]+)(</div>)',
-        lambda m: f'{m.group(1)}{update_time}{m.group(3)}', html
-    )
+        html = pattern.sub(lambda m: f'{m.group(1)}{value}{m.group(3)}', html)
     
     with open(html_path, 'w', encoding='utf-8') as f:
         f.write(html)
     
-    print(f"  ✅ 预判验证系统更新完成（待验证：{len(pending)}个，历史：{len(history)}个，状态更新：{updated}个）")
+    print(f"  ✅ 预判验证系统更新完成（累计：{total_pred}，正确：{correct_count}，错误：{wrong_count}，待验证：{len(pending)}）")
 
 
 # ========== 主函数 ==========
