@@ -23,6 +23,41 @@ def backup_file(path):
 
 # ========== 持仓数据模块 ==========
 
+
+
+def extract_card_html(html, topic_id):
+    """根据data-topic-id提取单个题材卡片的HTML，返回起止位置和卡片内容"""
+    start_pattern = re.compile(r'<div data-topic-id="' + re.escape(topic_id) + r'"[^>]*>')
+    match = start_pattern.search(html)
+    if not match:
+        return None, None, None
+    
+    start_pos = match.start()
+    # 从start_pos开始找匹配的闭合div
+    depth = 1
+    pos = match.end()
+    while depth > 0 and pos < len(html):
+        if html[pos:pos+4] == '<div':
+            depth += 1
+            pos += 4
+        elif html[pos:pos+6] == '</div>':
+            depth -= 1
+            pos += 6
+        elif html[pos:pos+5] == '</div':
+            # 可能遇到</div后面还有>的情况，兼容处理
+            depth -= 1
+            pos += 5
+            if pos < len(html) and html[pos] == '>':
+                pos += 1
+        else:
+            pos += 1
+    
+    if depth == 0:
+        card_html = html[start_pos:pos]
+        return start_pos, pos, card_html
+    return None, None, None
+
+
 def load_portfolio_data():
     """加载统一持仓数据"""
     with open('data/portfolio.json', 'r', encoding='utf-8') as f:
@@ -172,8 +207,9 @@ def load_topics_data():
     with open('data/topics.json', 'r', encoding='utf-8') as f:
         return json.load(f)
 
+
 def update_topics_page(data):
-    """更新智能选题助手页面 - 精确数据点替换"""
+    """更新智能选题助手页面 - 按data-topic-id精准更新全字段"""
     print("🔄 更新智能选题助手...")
     
     html_path = 'docs/智能选题助手/index.html'
@@ -187,15 +223,18 @@ def update_topics_page(data):
     b_topics = data.get('b_level_topics', [])
     update_time = data.get('system_info', {}).get('update_time', datetime.now().strftime('%Y年%-m月%-d日 %H:%M'))
     
-    # 更新顶部统计数字（数字在上，文字在下）
+    # ===== 1. 更新顶部统计数字 =====
+    # S级题材数量
     html = re.sub(
         r'(text-3xl font-black text-red-600">)(\d+)(</div>\s*<div class="text-sm text-gray-500">S级题材)',
         lambda m: f'{m.group(1)}{len(s_topics)}{m.group(3)}', html
     )
+    # A级题材数量
     html = re.sub(
         r'(text-3xl font-black text-yellow-600">)(\d+)(</div>\s*<div class="text-sm text-gray-500">A级题材)',
         lambda m: f'{m.group(1)}{len(a_topics)}{m.group(3)}', html
     )
+    # B级题材数量
     html = re.sub(
         r'(text-3xl font-black text-blue-600">)(\d+)(</div>\s*<div class="text-sm text-gray-500">B级题材)',
         lambda m: f'{m.group(1)}{len(b_topics)}{m.group(3)}', html
@@ -206,7 +245,7 @@ def update_topics_page(data):
         lambda m: f'{m.group(1)}{len(s_topics)+len(a_topics)+len(b_topics)}{m.group(3)}', html
     )
     
-    # 更新区域数量标签
+    # ===== 2. 更新区域数量标签 =====
     html = re.sub(
         r'(S级核心题材\s*<span class="bg-red-100 text-red-700 text-xs px-2 py-0\.5 rounded-full font-bold ml-2">)(\d+)(个</span>)',
         lambda m: f'{m.group(1)}{len(s_topics)}{m.group(3)}', html
@@ -216,36 +255,156 @@ def update_topics_page(data):
         lambda m: f'{m.group(1)}{len(a_topics)}{m.group(3)}', html
     )
     
-    # 更新每个S级题材的综合评分（按顺序匹配，3个S级评分按顺序对应）
+    # ===== 3. 逐卡更新S级题材 =====
     s_updated = 0
-    # 找到所有综合评分的位置
-    score_pattern = re.compile(
-        r'(综合评分.*?text-4xl font-black text-[a-z]+-600">)(\d+)(分)',
-        re.DOTALL
-    )
-    scores = [t.get('total_score', 0) for t in s_topics]
+    for topic in s_topics:
+        tid = topic.get('id', '')
+        if not tid:
+            continue
+        start, end, card_html = extract_card_html(html, tid)
+        if not card_html:
+            continue
+        
+        # 更新标题
+        card_html = re.sub(
+            r'(<h3 class="text-xl font-black text-gray-800">)[^<]+(</h3>)',
+            lambda m: f'{m.group(1)}{topic.get("name", "")}{m.group(2)}',
+            card_html
+        )
+        
+        # 更新副标题
+        card_html = re.sub(
+            r'(<p class="text-gray-500 text-sm mt-1">)[^<]+(</p>)',
+            lambda m: f'{m.group(1)}{topic.get("core_logic", "")}{m.group(2)}',
+            card_html
+        )
+        
+        # 更新综合评分
+        total_score = topic.get('total_score', 0)
+        card_html = re.sub(
+            r'(text-4xl font-black text-[a-z]+-600">)(\d+)(分</div>)',
+            lambda m: f'{m.group(1)}{total_score}{m.group(3)}',
+            card_html
+        )
+        
+        # 更新三维度评分和进度条
+        dim_scores = topic.get('dimension_scores', {})
+        policy_score = dim_scores.get('policy', 0)
+        industry_score = dim_scores.get('industry', 0)
+        capital_score = dim_scores.get('capital', 0)
+        
+        # 政策强度
+        dim_pattern = re.compile(
+            r'(政策强度</span>\s*<span class="font-bold text-[a-z]+-600">)(\d+)(分</span>.*?style="width: )(\d+)(%;")',
+            re.DOTALL
+        )
+        card_html = dim_pattern.sub(
+            lambda m: f'{m.group(1)}{policy_score}{m.group(3)}{policy_score}{m.group(5)}',
+            card_html
+        )
+        
+        # 产业逻辑
+        dim_pattern2 = re.compile(
+            r'(产业逻辑</span>\s*<span class="font-bold text-[a-z]+-600">)(\d+)(分</span>.*?style="width: )(\d+)(%;")',
+            re.DOTALL
+        )
+        card_html = dim_pattern2.sub(
+            lambda m: f'{m.group(1)}{industry_score}{m.group(3)}{industry_score}{m.group(5)}',
+            card_html
+        )
+        
+        # 资金关注
+        dim_pattern3 = re.compile(
+            r'(资金关注</span>\s*<span class="font-bold text-[a-z]+-600">)(\d+)(分</span>.*?style="width: )(\d+)(%;")',
+            re.DOTALL
+        )
+        card_html = dim_pattern3.sub(
+            lambda m: f'{m.group(1)}{capital_score}{m.group(3)}{capital_score}{m.group(5)}',
+            card_html
+        )
+        
+        # 更新近期催化
+        recent_catalyst = topic.get('recent_catalyst', '')
+        if recent_catalyst:
+            catalyst_pattern = re.compile(
+                r'(<strong>)(今日催化|近期催化)(：</strong>\s*)[^<]+(</span>)',
+                re.DOTALL
+            )
+            card_html = catalyst_pattern.sub(
+                lambda m: f'{m.group(1)}{m.group(2)}{m.group(3)}{recent_catalyst}{m.group(4)}',
+                card_html
+            )
+        
+        # 替换回原HTML
+        html = html[:start] + card_html + html[end:]
+        s_updated += 1
     
-    # 按顺序替换（假设页面上S级题材顺序与数据中一致）
-    def replace_score(match, score_idx=[0]):
-        if score_idx[0] < len(scores):
-            result = f'{match.group(1)}{scores[score_idx[0]]}{match.group(3)}'
-            score_idx[0] += 1
-            return result
-        return match.group(0)
+    # ===== 4. 逐卡更新A级题材 =====
+    a_updated = 0
+    for topic in a_topics:
+        tid = topic.get('id', '')
+        if not tid:
+            continue
+        start, end, card_html = extract_card_html(html, tid)
+        if not card_html:
+            continue
+        
+        # 更新标题
+        card_html = re.sub(
+            r'(<h3 class="font-bold text-gray-800">)[^<]+(</h3>)',
+            lambda m: f'{m.group(1)}{topic.get("name", "")}{m.group(2)}',
+            card_html
+        )
+        
+        # 更新副标题
+        card_html = re.sub(
+            r'(<p class="text-xs text-gray-500">)[^<]+(</p>)',
+            lambda m: f'{m.group(1)}{topic.get("subtitle", "")}{m.group(2)}',
+            card_html
+        )
+        
+        # 更新综合评分
+        total_score = topic.get('total_score', 0)
+        card_html = re.sub(
+            r'(<span class="text-2xl font-black text-yellow-600">)(\d+)(分</span>)',
+            lambda m: f'{m.group(1)}{total_score}{m.group(3)}',
+            card_html
+        )
+        
+        # 更新标的标签
+        tags = topic.get('tags', [])
+        if tags:
+            tags_pattern = re.compile(
+                r'(<div class="flex gap-2">)(.*?)(</div>)',
+                re.DOTALL
+            )
+            tags_html = '\n'
+            for tag in tags:
+                tags_html += f'                            <span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full text-xs">{tag}</span>\n'
+            tags_html += '                        '
+            card_html = tags_pattern.sub(
+                lambda m: f'{m.group(1)}{tags_html}{m.group(3)}',
+                card_html,
+                count=1
+            )
+        
+        # 替换回原HTML
+        html = html[:start] + card_html + html[end:]
+        a_updated += 1
     
-    html = score_pattern.sub(replace_score, html)
-    s_updated = min(len(scores), 3)  # 最多3个S级
-    
-    # 更新时间戳（p标签）
+    # ===== 5. 更新时间戳 =====
     html = re.sub(
         r'(数据更新时间：)([^<]+)(</p>)',
-        lambda m: f'{m.group(1)}{update_time}{m.group(3)}', html
+        lambda m: f'{m.group(1)}{update_time}{m.group(3)}',
+        html
     )
     
     with open(html_path, 'w', encoding='utf-8') as f:
         f.write(html)
     
-    print(f"  ✅ 智能选题助手更新完成（S级：{len(s_topics)}个，已更新评分：{s_updated}个）")
+    print(f"  ✅ 智能选题助手更新完成（S级：{s_updated}个，A级：{a_updated}个）")
+
+
 
 
 # ========== 产业链时钟模块 ==========
