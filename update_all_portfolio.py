@@ -185,7 +185,7 @@ def update_topics_page(data):
     s_topics = data.get('s_level_topics', [])
     a_topics = data.get('a_level_topics', [])
     b_topics = data.get('b_level_topics', [])
-    update_time = data.get('system_info', {}).get('update_time', datetime.now().strftime('%Y年%m月%d日 %H:%M'))
+    update_time = data.get('system_info', {}).get('update_time', datetime.now().strftime('%Y年%-m月%-d日 %H:%M'))
     
     # 更新顶部统计数字（数字在上，文字在下）
     html = re.sub(
@@ -216,24 +216,29 @@ def update_topics_page(data):
         lambda m: f'{m.group(1)}{len(a_topics)}{m.group(3)}', html
     )
     
-    # 更新每个S级题材的综合评分
+    # 更新每个S级题材的综合评分（按顺序匹配，3个S级评分按顺序对应）
     s_updated = 0
-    for topic in s_topics:
-        name = topic['name']
-        score = topic.get('total_score', 0)
-        
-        # 评分匹配：找到题材名称后的综合评分数字（更宽松匹配）
-        pattern = re.compile(
-            rf'({re.escape(name)}.*?综合评分.*?text-4xl font-black text-[a-z]+-600">)(\d+)(分)',
-            re.DOTALL
-        )
-        if pattern.search(html):
-            html = pattern.sub(lambda m: f'{m.group(1)}{score}{m.group(3)}', html)
-            s_updated += 1
+    # 找到所有综合评分的位置
+    score_pattern = re.compile(
+        r'(综合评分.*?text-4xl font-black text-[a-z]+-600">)(\d+)(分)',
+        re.DOTALL
+    )
+    scores = [t.get('total_score', 0) for t in s_topics]
     
-    # 更新时间戳
+    # 按顺序替换（假设页面上S级题材顺序与数据中一致）
+    def replace_score(match, score_idx=[0]):
+        if score_idx[0] < len(scores):
+            result = f'{match.group(1)}{scores[score_idx[0]]}{match.group(3)}'
+            score_idx[0] += 1
+            return result
+        return match.group(0)
+    
+    html = score_pattern.sub(replace_score, html)
+    s_updated = min(len(scores), 3)  # 最多3个S级
+    
+    # 更新时间戳（p标签）
     html = re.sub(
-        r'(数据更新时间：)([^<]+)(</div>)',
+        r'(数据更新时间：)([^<]+)(</p>)',
         lambda m: f'{m.group(1)}{update_time}{m.group(3)}', html
     )
     
@@ -261,7 +266,7 @@ def update_industry_chain_page(data):
         html = f.read()
     
     chains = data.get('core_chains', [])
-    update_time = data.get('system_info', {}).get('update_time', datetime.now().strftime('%Y年%m月%d日 %H:%M'))
+    update_time = data.get('system_info', {}).get('update_time', datetime.now().strftime('%Y年%-m月%-d日 %H:%M'))
     
     # 更新顶部统计数字
     html = re.sub(
@@ -327,7 +332,7 @@ def update_predictions_page(data):
     history = data.get('history_records', [])
     accuracy = system_info.get('accuracy', '70%')
     analyst_level = system_info.get('analyst_level', 'A')
-    update_time = system_info.get('update_time', datetime.now().strftime('%Y年%m月%d日 %H:%M'))
+    update_time = system_info.get('update_time', datetime.now().strftime('%Y年%-m月%-d日 %H:%M'))
     
     level_names = {'S': 'S级分析师', 'A': 'A级分析师', 'B': 'B级分析师', 'C': 'C级分析师'}
     level_name = level_names.get(analyst_level, 'A级分析师')
