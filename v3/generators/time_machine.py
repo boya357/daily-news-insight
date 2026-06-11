@@ -1,0 +1,709 @@
+"""
+数据时光机生成器
+展示历史数据快照，支持日期切换和数据对比
+"""
+
+import os
+import json
+from datetime import datetime, date
+from pathlib import Path
+
+
+class TimeMachineGenerator:
+    """时光机页面生成器"""
+    
+    def __init__(self):
+        self.base_dir = Path(__file__).resolve().parent.parent.parent
+        self.data_dir = self.base_dir / 'data'
+        self.output_dir = self.base_dir / 'docs' / '数据时光机'
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+    
+    def get_available_dates(self):
+        """获取所有可用的历史日期"""
+        history_dir = self.data_dir / 'history'
+        dates = []
+        
+        if history_dir.exists():
+            for f in history_dir.glob('*.json'):
+                if f.name != 'market':  # 排除market目录
+                    dates.append(f.stem)
+        
+        return sorted(dates, reverse=True)
+    
+    def load_portfolio_snapshot(self, date_str):
+        """加载指定日期的持仓快照"""
+        file_path = self.data_dir / 'history' / f'{date_str}.json'
+        if file_path.exists():
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return None
+    
+    def load_market_snapshot(self, date_str):
+        """加载指定日期的市场快照"""
+        file_path = self.data_dir / 'history' / 'market' / f'{date_str}.json'
+        if file_path.exists():
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return None
+    
+    def generate_navbar(self, active_page="数据时光机"):
+        """生成统一导航栏"""
+        nav_items = [
+            ('首页', 'index.html', 'fa-home'),
+            ('持仓仪表盘', '持仓智能预警仪表盘/index.html', 'fa-chart-line'),
+            ('智能选题', '智能选题助手/index.html', 'fa-lightbulb'),
+            ('产业链时钟', '产业链时钟/index.html', 'fa-clock'),
+            ('S级催化', 's级催化扫描/latest.html', 'fa-bolt'),
+            ('预判验证', '预判验证/index.html', 'fa-target'),
+            ('数据时光机', '数据时光机/index.html', 'fa-history'),
+            ('每日报告', 'daily/latest.html', 'fa-newspaper'),
+        ]
+        
+        nav_html = '''<nav class="glass-nav fixed top-0 left-0 right-0 z-50">
+            <div class="max-w-6xl mx-auto px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                            <i class="fas fa-chart-area text-white text-lg"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">市场洞察中心</span>
+                    </div>
+                    <div class="hidden md:flex items-center gap-1">'''
+        
+        for name, url, icon in nav_items:
+            active_class = 'active' if name == active_page else ''
+            nav_html += f'''
+                        <a href="../{url}" class="nav-item {active_class} px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-all text-sm flex items-center gap-2">
+                            <i class="fas {icon}"></i>
+                            {name}
+                        </a>'''
+        
+        nav_html += '''
+                    </div>
+                    <button id="mobileMenuBtn" class="md:hidden text-white text-xl">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- 移动端菜单 -->
+        <div id="mobileMenu" class="mobile-menu fixed inset-0 z-40 bg-gradient-to-br from-slate-900/95 to-indigo-900/95 backdrop-blur-xl hidden">
+            <div class="flex flex-col items-center justify-center h-full gap-4">'''
+        
+        for name, url, icon in nav_items:
+            active_class = 'active' if name == active_page else ''
+            nav_html += f'''
+                <a href="../{url}" class="text-2xl text-white/80 hover:text-white transition-colors {active_class}">{name}</a>'''
+        
+        nav_html += '''
+            </div>
+        </div>'''
+        
+        return nav_html
+    
+    def generate(self):
+        """生成时光机主页面"""
+        dates = self.get_available_dates()
+        latest_date = dates[0] if dates else date.today().strftime('%Y-%m-%d')
+        
+        # 加载最新数据
+        portfolio_data = self.load_portfolio_snapshot(latest_date)
+        market_data = self.load_market_snapshot(latest_date)
+        
+        # 生成持仓卡片HTML
+        portfolio_cards = self._generate_portfolio_cards(portfolio_data)
+        
+        # 生成市场卡片HTML
+        market_cards = self._generate_market_cards(market_data)
+        
+        # 生成日期选项
+        date_options = ''
+        for d in dates:
+            selected = 'selected' if d == latest_date else ''
+            date_options += f'<option value="{d}" {selected}>{d}</option>'
+        
+        # 完整HTML
+        html = f'''<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据时光机 - 市场洞察中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }}
+        
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }}
+        
+        .glass-nav {{
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 2147483647 !important;
+        }}
+        
+        .glass-nav * {{
+            position: relative;
+            z-index: 2147483647 !important;
+        }}
+        
+        .nav-item.active {{
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }}
+        
+        .mobile-menu {{
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }}
+        
+        .mobile-menu.show {{
+            transform: translateX(0);
+        }}
+        
+        .card-glass {{
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }}
+        
+        .main-content {{
+            padding-top: 100px;
+            padding-bottom: 60px;
+        }}
+        
+        .stat-card {{
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f0f0f0;
+        }}
+        
+        .stock-card {{
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }}
+        
+        .stock-card.risk-high {{
+            border-left-color: #ef4444;
+        }}
+        
+        .stock-card.risk-medium {{
+            border-left-color: #f59e0b;
+        }}
+        
+        .stock-card.risk-low {{
+            border-left-color: #10b981;
+        }}
+        
+        .date-selector {{
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }}
+        
+        .date-selector:hover {{
+            border-color: #667eea;
+        }}
+        
+        .date-selector:focus {{
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }}
+        
+        .tag {{
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }}
+        
+        .tag-green {{
+            background: #dcfce7;
+            color: #166534;
+        }}
+        
+        .tag-red {{
+            background: #fee2e2;
+            color: #991b1b;
+        }}
+        
+        .tag-blue {{
+            background: #dbeafe;
+            color: #1e40af;
+        }}
+        
+        .tag-purple {{
+            background: #f3e8ff;
+            color: #6b21a8;
+        }}
+        
+        .section-title {{
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }}
+        
+        .fade-in {{
+            animation: fadeIn 0.5s ease-in-out;
+        }}
+        
+        @keyframes fadeIn {{
+            from {{ opacity: 0; transform: translateY(10px); }}
+            to {{ opacity: 1; transform: translateY(0); }}
+        }}
+        
+        @media (max-width: 768px) {{
+            .main-content {{
+                padding-top: 80px;
+            }}
+        }}
+    </style>
+</head>
+<body>
+    {self.generate_navbar("数据时光机")}
+    
+    <div class="main-content max-w-6xl mx-auto px-6">
+        <!-- 标题区域 -->
+        <div class="text-center mb-8 fade-in">
+            <h1 class="text-4xl font-bold text-white mb-3">
+                <i class="fas fa-history mr-3"></i>数据时光机
+            </h1>
+            <p class="text-white/80 text-lg">穿越时间，回看历史数据快照</p>
+        </div>
+        
+        <!-- 日期选择器 -->
+        <div class="card-glass p-6 mb-6 fade-in">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <label class="font-semibold text-gray-700">选择日期：</label>
+                    <select id="dateSelector" class="date-selector min-w-[200px]">
+                        {date_options}
+                    </select>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-gray-500">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>共 {len(dates)} 个历史快照</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 持仓快照区域 -->
+        <div class="card-glass p-6 mb-6 fade-in" id="portfolioSection">
+            <h2 class="section-title">
+                <i class="fas fa-wallet text-indigo-500"></i>
+                持仓快照
+            </h2>
+            <div id="portfolioCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {portfolio_cards}
+            </div>
+        </div>
+        
+        <!-- 市场快照区域 -->
+        <div class="card-glass p-6 mb-6 fade-in" id="marketSection">
+            <h2 class="section-title">
+                <i class="fas fa-chart-bar text-blue-500"></i>
+                市场快照
+            </h2>
+            <div id="marketCards" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {market_cards}
+            </div>
+        </div>
+        
+        <!-- 市场情绪区域 -->
+        <div class="card-glass p-6 fade-in" id="sentimentSection">
+            <h2 class="section-title">
+                <i class="fas fa-heartbeat text-red-500"></i>
+                市场情绪
+            </h2>
+            <div id="sentimentContent">
+                {self._generate_sentiment_section(market_data)}
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 移动端菜单
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        mobileMenuBtn.addEventListener('click', () => {{
+            mobileMenu.classList.toggle('show');
+        }});
+        
+        // 日期切换功能
+        const dateSelector = document.getElementById('dateSelector');
+        
+        dateSelector.addEventListener('change', function() {{
+            const selectedDate = this.value;
+            loadDateData(selectedDate);
+        }});
+        
+        function loadDateData(dateStr) {{
+            // 加载持仓数据
+            fetch(`../../data/history/${{dateStr}}.json`)
+                .then(response => response.json())
+                .then(data => {{
+                    renderPortfolioData(data);
+                }})
+                .catch(error => {{
+                    console.error('加载持仓数据失败:', error);
+                    document.getElementById('portfolioCards').innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">暂无持仓数据</p>';
+                }});
+            
+            // 加载市场数据
+            fetch(`../../data/history/market/${{dateStr}}.json`)
+                .then(response => response.json())
+                .then(data => {{
+                    renderMarketData(data);
+                    renderSentimentData(data);
+                }})
+                .catch(error => {{
+                    console.error('加载市场数据失败:', error);
+                    document.getElementById('marketCards').innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">暂无市场数据</p>';
+                    document.getElementById('sentimentContent').innerHTML = '<p class="text-gray-500 text-center py-4">暂无情绪数据</p>';
+                }});
+        }}
+        
+        function renderPortfolioData(data) {{
+            const stocks = data.stocks || [];
+            const container = document.getElementById('portfolioCards');
+            
+            if (stocks.length === 0) {{
+                container.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">暂无持仓数据</p>';
+                return;
+            }}
+            
+            let html = '';
+            stocks.forEach(stock => {{
+                const changePct = ((stock.current_price - stock.cost_price) / stock.cost_price * 100).toFixed(2);
+                const isProfit = stock.current_price >= stock.cost_price;
+                const changeClass = isProfit ? 'text-green-600' : 'text-red-500';
+                const changeIcon = isProfit ? 'fa-arrow-up' : 'fa-arrow-down';
+                
+                let riskClass = 'risk-low';
+                if (stock.risk_level === 'high') riskClass = 'risk-high';
+                else if (stock.risk_level === 'medium') riskClass = 'risk-medium';
+                
+                html += `
+                    <div class="stock-card ${{riskClass}}">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-bold text-gray-800">${{stock.name}}</span>
+                            <span class="tag ${{isProfit ? 'tag-green' : 'tag-red'}}">
+                                <i class="fas ${{changeIcon}} mr-1"></i>${{changePct}}%
+                            </span>
+                        </div>
+                        <div class="text-2xl font-bold text-gray-900 mb-2">
+                            ¥${{stock.current_price.toFixed(2)}}
+                        </div>
+                        <div class="text-sm text-gray-500 space-y-1">
+                            <div class="flex justify-between">
+                                <span>成本价</span>
+                                <span>¥${{stock.cost_price.toFixed(2)}}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>止损价</span>
+                                <span>¥${{stock.stop_loss_price.toFixed(2)}}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>风险等级</span>
+                                <span class="${{changeClass}}">${{stock.risk_level === 'high' ? '高风险' : stock.risk_level === 'medium' ? '中风险' : '低风险'}}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }});
+            
+            container.innerHTML = html;
+        }}
+        
+        function renderMarketData(data) {{
+            const indices = data.indices || [];
+            const container = document.getElementById('marketCards');
+            
+            if (indices.length === 0) {{
+                container.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">暂无市场数据</p>';
+                return;
+            }}
+            
+            let html = '';
+            indices.forEach(idx => {{
+                const isUp = idx.up;
+                const changeClass = isUp ? 'text-green-600' : 'text-red-500';
+                const bgClass = isUp ? 'bg-green-50' : 'bg-red-50';
+                
+                html += `
+                    <div class="stat-card text-center">
+                        <div class="text-sm text-gray-500 mb-1">${{idx.name}}</div>
+                        <div class="text-xl font-bold text-gray-900 mb-1">${{idx.price.toFixed(2)}}</div>
+                        <div class="${{changeClass}} font-semibold text-sm">
+                            ${{isUp ? '+' : ''}}${{idx.change_pct.toFixed(2)}}%
+                        </div>
+                    </div>
+                `;
+            }});
+            
+            container.innerHTML = html;
+        }}
+        
+        function renderSentimentData(data) {{
+            const sentiment = data.sentiment || {{}};
+            const marketData = data.market_data || {{}};
+            const container = document.getElementById('sentimentContent');
+            
+            let html = '<div class="grid grid-cols-2 md:grid-cols-4 gap-4">';
+            
+            if (sentiment.fear_greed !== undefined) {{
+                const fg = sentiment.fear_greed;
+                let fgLevel = '中性';
+                let fgColor = 'text-yellow-600';
+                if (fg > 70) {{ fgLevel = '贪婪'; fgColor = 'text-green-600'; }}
+                else if (fg > 50) {{ fgLevel = '乐观'; fgColor = 'text-blue-600'; }}
+                else if (fg < 30) {{ fgLevel = '恐惧'; fgColor = 'text-red-600'; }}
+                else if (fg < 40) {{ fgLevel = '恐慌'; fgColor = 'text-orange-600'; }}
+                
+                html += `
+                    <div class="stat-card text-center">
+                        <div class="text-sm text-gray-500 mb-2">恐惧贪婪指数</div>
+                        <div class="text-3xl font-bold ${{fgColor}} mb-1">${{fg}}</div>
+                        <div class="text-xs text-gray-400">${{fgLevel}}</div>
+                    </div>
+                `;
+            }}
+            
+            if (market_data.turnover) {{
+                html += `
+                    <div class="stat-card text-center">
+                        <div class="text-sm text-gray-500 mb-2">成交额</div>
+                        <div class="text-xl font-bold text-gray-900 mb-1">${{market_data.turnover}}</div>
+                        <div class="text-xs text-gray-400">两市合计</div>
+                    </div>
+                `;
+            }}
+            
+            if (market_data.up_count !== undefined && market_data.down_count !== undefined) {{
+                html += `
+                    <div class="stat-card text-center">
+                        <div class="text-sm text-gray-500 mb-2">涨跌家数</div>
+                        <div class="text-lg font-bold mb-1">
+                            <span class="text-red-500">${{market_data.up_count}}</span>
+                            /
+                            <span class="text-green-600">${{market_data.down_count}}</span>
+                        </div>
+                        <div class="text-xs text-gray-400">上涨/下跌</div>
+                    </div>
+                `;
+            }}
+            
+            if (sentiment.advance_decline_ratio !== undefined) {{
+                html += `
+                    <div class="stat-card text-center">
+                        <div class="text-sm text-gray-500 mb-2">涨跌比</div>
+                        <div class="text-2xl font-bold text-blue-600 mb-1">${{sentiment.advance_decline_ratio}}</div>
+                        <div class="text-xs text-gray-400">全市场</div>
+                    </div>
+                `;
+            }}
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }}
+    </script>
+</body>
+</html>'''
+        
+        # 保存文件
+        output_path = self.output_dir / 'index.html'
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(html)
+        
+        return output_path
+    
+    def _generate_portfolio_cards(self, data):
+        """生成持仓卡片HTML（服务端渲染初始数据）"""
+        if not data or 'stocks' not in data:
+            return '<p class="text-gray-500 col-span-full text-center py-8">暂无持仓数据</p>'
+        
+        stocks = data['stocks']
+        html = ''
+        
+        for stock in stocks:
+            change_pct = ((stock['current_price'] - stock['cost_price']) / stock['cost_price'] * 100)
+            is_profit = change_pct >= 0
+            change_class = 'text-green-600' if is_profit else 'text-red-500'
+            tag_class = 'tag-green' if is_profit else 'tag-red'
+            
+            risk_class = 'risk-low'
+            if stock.get('risk_level') == 'high':
+                risk_class = 'risk-high'
+            elif stock.get('risk_level') == 'medium':
+                risk_class = 'risk-medium'
+            
+            risk_text = {'high': '高风险', 'medium': '中风险', 'low': '低风险'}.get(stock.get('risk_level'), '未知')
+            
+            html += f'''
+                <div class="stock-card {risk_class}">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-gray-800">{stock['name']}</span>
+                        <span class="tag {tag_class}">
+                            {change_pct:+.2f}%
+                        </span>
+                    </div>
+                    <div class="text-2xl font-bold text-gray-900 mb-2">
+                        ¥{stock['current_price']:.2f}
+                    </div>
+                    <div class="text-sm text-gray-500 space-y-1">
+                        <div class="flex justify-between">
+                            <span>成本价</span>
+                            <span>¥{stock['cost_price']:.2f}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>止损价</span>
+                            <span>¥{stock['stop_loss_price']:.2f}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>风险等级</span>
+                            <span class="{change_class}">{risk_text}</span>
+                        </div>
+                    </div>
+                </div>
+            '''
+        
+        return html
+    
+    def _generate_market_cards(self, data):
+        """生成市场卡片HTML"""
+        if not data or 'indices' not in data:
+            return '<p class="text-gray-500 col-span-full text-center py-8">暂无市场数据</p>'
+        
+        indices = data['indices']
+        html = ''
+        
+        for idx in indices:
+            is_up = idx.get('up', False)
+            change_class = 'text-green-600' if is_up else 'text-red-500'
+            
+            html += f'''
+                <div class="stat-card text-center">
+                    <div class="text-sm text-gray-500 mb-1">{idx['name']}</div>
+                    <div class="text-xl font-bold text-gray-900 mb-1">{idx['price']:.2f}</div>
+                    <div class="{change_class} font-semibold text-sm">
+                        {'+' if is_up else ''}{idx['change_pct']:.2f}%
+                    </div>
+                </div>
+            '''
+        
+        return html
+    
+    def _generate_sentiment_section(self, data):
+        """生成情绪区域HTML"""
+        if not data:
+            return '<p class="text-gray-500 text-center py-4">暂无情绪数据</p>'
+        
+        sentiment = data.get('sentiment', {})
+        market_data = data.get('market_data', {})
+        
+        html = '<div class="grid grid-cols-2 md:grid-cols-4 gap-4">'
+        
+        # 恐惧贪婪指数
+        fg = sentiment.get('fear_greed')
+        if fg is not None:
+            if fg > 70:
+                fg_level = '贪婪'
+                fg_color = 'text-green-600'
+            elif fg > 50:
+                fg_level = '乐观'
+                fg_color = 'text-blue-600'
+            elif fg < 30:
+                fg_level = '恐惧'
+                fg_color = 'text-red-600'
+            elif fg < 40:
+                fg_level = '恐慌'
+                fg_color = 'text-orange-600'
+            else:
+                fg_level = '中性'
+                fg_color = 'text-yellow-600'
+            
+            html += f'''
+                <div class="stat-card text-center">
+                    <div class="text-sm text-gray-500 mb-2">恐惧贪婪指数</div>
+                    <div class="text-3xl font-bold {fg_color} mb-1">{fg}</div>
+                    <div class="text-xs text-gray-400">{fg_level}</div>
+                </div>
+            '''
+        
+        # 成交额
+        turnover = market_data.get('turnover')
+        if turnover:
+            html += f'''
+                <div class="stat-card text-center">
+                    <div class="text-sm text-gray-500 mb-2">成交额</div>
+                    <div class="text-xl font-bold text-gray-900 mb-1">{turnover}</div>
+                    <div class="text-xs text-gray-400">两市合计</div>
+                </div>
+            '''
+        
+        # 涨跌家数
+        up_count = market_data.get('up_count')
+        down_count = market_data.get('down_count')
+        if up_count is not None and down_count is not None:
+            html += f'''
+                <div class="stat-card text-center">
+                    <div class="text-sm text-gray-500 mb-2">涨跌家数</div>
+                    <div class="text-lg font-bold mb-1">
+                        <span class="text-red-500">{up_count}</span>
+                        /
+                        <span class="text-green-600">{down_count}</span>
+                    </div>
+                    <div class="text-xs text-gray-400">上涨/下跌</div>
+                </div>
+            '''
+        
+        # 涨跌比
+        ad_ratio = sentiment.get('advance_decline_ratio')
+        if ad_ratio is not None:
+            html += f'''
+                <div class="stat-card text-center">
+                    <div class="text-sm text-gray-500 mb-2">涨跌比</div>
+                    <div class="text-2xl font-bold text-blue-600 mb-1">{ad_ratio}</div>
+                    <div class="text-xs text-gray-400">全市场</div>
+                </div>
+            '''
+        
+        html += '</div>'
+        return html
+
+
+if __name__ == '__main__':
+    generator = TimeMachineGenerator()
+    output = generator.generate()
+    print(f'✅ 数据时光机页面已生成: {output}')
+    print(f'   可用快照数: {len(generator.get_available_dates())} 天')
