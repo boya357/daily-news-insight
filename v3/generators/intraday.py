@@ -240,6 +240,84 @@ class IntradayGenerator:
         )
         self._components.append(section)
     
+    def add_holdings_from_data_layer(self):
+        """
+        从统一数据层（data/portfolio.json）加载持仓数据并添加持仓跟踪
+        确保所有报告使用同源数据，杜绝数据不一致问题
+        """
+        from utils.data_loader import get_holdings_for_intraday
+        
+        holdings = get_holdings_for_intraday(include_comments=True)
+        self.add_holdings_tracking(holdings=holdings)
+    
+    def add_market_overview_from_data_layer(self):
+        """
+        从统一数据层（data/market.json）加载市场概览数据
+        """
+        from utils.data_loader import get_indices_for_daily, get_market_sentiment
+        
+        indices_data = get_indices_for_daily()
+        sentiment = get_market_sentiment()
+        
+        # 转换格式
+        indices = []
+        for idx in indices_data:
+            indices.append({
+                'name': idx['name'],
+                'value': idx['price'],
+                'change': idx['change_pct_str'],
+                'up': idx['up']
+            })
+        
+        # 根据市场情绪判断市场状态
+        score = sentiment.get('score', 50)
+        if score >= 70:
+            market_status = "上涨"
+        elif score >= 40:
+            market_status = "震荡"
+        else:
+            market_status = "下跌"
+        
+        self.add_market_overview(indices=indices, market_status=market_status)
+    
+    def add_hot_sectors_from_data_layer(self, limit=5):
+        """
+        从统一数据层（data/market.json）加载热门板块数据
+        """
+        from utils.data_loader import get_hot_sectors
+        
+        sectors = get_hot_sectors(limit=limit)
+        # 转换为add_hot_topics格式
+        topics = []
+        for s in sectors:
+            topics.append({
+                'name': s['name'],
+                'change': s['change_pct'],
+                'up': s['up'],
+                'reason': f"领涨：{s['leader']}，资金流入{s['fund_flow']}"
+            })
+        
+        self.add_hot_topics(topics=topics)
+    
+    def add_decline_sectors_from_data_layer(self, limit=3):
+        """
+        从统一数据层（data/market.json）加载下跌板块数据
+        """
+        from utils.data_loader import get_cold_sectors
+        
+        sectors = get_cold_sectors(limit=limit)
+        # 转换为add_decline_sectors格式
+        sector_list = []
+        for s in sectors:
+            sector_list.append({
+                'name': s['name'],
+                'change': s['change_pct'],
+                'up': False,
+                'reason': f"领跌：{s['leader']}，资金流出{s['fund_flow']}"
+            })
+        
+        self.add_decline_sectors(sectors=sector_list)
+    
     def add_trading_strategy(self, strategy: str):
         """
         添加午盘操作策略

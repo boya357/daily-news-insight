@@ -303,11 +303,15 @@ class TimeMachineGenerator:
         <!-- 日期选择器 -->
         <div class="card-glass p-6 mb-6 fade-in">
             <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-4 flex-wrap">
                     <label class="font-semibold text-gray-700">选择日期：</label>
                     <select id="dateSelector" class="date-selector min-w-[200px]">
                         {date_options}
                     </select>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="compareToggle" class="w-5 h-5 accent-indigo-600">
+                        <span class="text-sm text-gray-600">对比前一日</span>
+                    </label>
                 </div>
                 <div class="flex items-center gap-2 text-sm text-gray-500">
                     <i class="fas fa-calendar-alt"></i>
@@ -339,13 +343,35 @@ class TimeMachineGenerator:
         </div>
         
         <!-- 市场情绪区域 -->
-        <div class="card-glass p-6 fade-in" id="sentimentSection">
+        <div class="card-glass p-6 mb-6 fade-in" id="sentimentSection">
             <h2 class="section-title">
                 <i class="fas fa-heartbeat text-red-500"></i>
                 市场情绪
             </h2>
             <div id="sentimentContent">
                 {self._generate_sentiment_section(market_data)}
+            </div>
+        </div>
+
+        <!-- 热门板块区域 -->
+        <div class="card-glass p-6 mb-6 fade-in" id="hotSectorsSection">
+            <h2 class="section-title">
+                <i class="fas fa-fire text-orange-500"></i>
+                热门板块
+            </h2>
+            <div id="hotSectorsCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                {self._generate_hot_sectors(market_data)}
+            </div>
+        </div>
+
+        <!-- 冷门板块区域 -->
+        <div class="card-glass p-6 mb-6 fade-in" id="coldSectorsSection">
+            <h2 class="section-title">
+                <i class="fas fa-snowflake text-blue-400"></i>
+                冷门板块
+            </h2>
+            <div id="coldSectorsCards" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {self._generate_cold_sectors(market_data)}
             </div>
         </div>
     </div>
@@ -363,39 +389,105 @@ class TimeMachineGenerator:
         const dateSelector = document.getElementById('dateSelector');
         
         dateSelector.addEventListener('change', function() {{
-            const selectedDate = this.value;
-            loadDateData(selectedDate);
+            currentDate = this.value;
+            loadAllData();
         }});
+
+        // 对比开关
+        const compareToggle = document.getElementById('compareToggle');
+        if (compareToggle) {{
+            compareToggle.addEventListener('change', function() {{
+                compareMode = this.checked;
+                loadAllData();
+            }});
+        }}
         
-        function loadDateData(dateStr) {{
-            // 加载持仓数据
-            fetch(`../../data/history/${{dateStr}}.json`)
+        // 全局状态
+        let currentDate = '';
+        let compareMode = false;
+
+        // 获取前一日日期
+        function getPrevDate(dateStr) {{
+            const date = new Date(dateStr);
+            date.setDate(date.getDate() - 1);
+            return date.toISOString().split('T')[0];
+        }}
+        
+        function loadAllData() {{
+            // 加载当日持仓数据
+            fetch(`../../data/history/${{currentDate}}.json`)
                 .then(response => response.json())
                 .then(data => {{
-                    renderPortfolioData(data);
+                    renderPortfolioData(data, null);
                 }})
                 .catch(error => {{
                     console.error('加载持仓数据失败:', error);
                     document.getElementById('portfolioCards').innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">暂无持仓数据</p>';
                 }});
-            
-            // 加载市场数据
-            fetch(`../../data/history/market/${{dateStr}}.json`)
+
+            // 加载当日市场数据
+            fetch(`../../data/history/market/${{currentDate}}.json`)
                 .then(response => response.json())
                 .then(data => {{
-                    renderMarketData(data);
-                    renderSentimentData(data);
+                    renderMarketData(data, null);
+                    renderSentimentData(data, null);
+                    if (typeof renderHotSectors === 'function') renderHotSectors(data, null);
+                    if (typeof renderColdSectors === 'function') renderColdSectors(data, null);
                 }})
                 .catch(error => {{
                     console.error('加载市场数据失败:', error);
                     document.getElementById('marketCards').innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">暂无市场数据</p>';
                     document.getElementById('sentimentContent').innerHTML = '<p class="text-gray-500 text-center py-4">暂无情绪数据</p>';
+                    const hotEl = document.getElementById('hotSectorsCards');
+                    if (hotEl) hotEl.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">暂无板块数据</p>';
+                    const coldEl = document.getElementById('coldSectorsCards');
+                    if (coldEl) coldEl.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">暂无板块数据</p>';
                 }});
+
+            // 如果是对比模式，加载前一日数据
+            if (compareMode) {{
+                const prevDate = getPrevDate(currentDate);
+                
+                fetch(`../../data/history/${{prevDate}}.json`)
+                    .then(response => response.json())
+                    .then(prevData => {{
+                        fetch(`../../data/history/${{currentDate}}.json`)
+                            .then(response => response.json())
+                            .then(currData => {{
+                                renderPortfolioData(currData, prevData);
+                            }});
+                    }})
+                    .catch(error => {{
+                        console.warn('前一日持仓数据不可用:', error);
+                    }});
+
+                fetch(`../../data/history/market/${{prevDate}}.json`)
+                    .then(response => response.json())
+                    .then(prevData => {{
+                        fetch(`../../data/history/market/${{currentDate}}.json`)
+                            .then(response => response.json())
+                            .then(currData => {{
+                                renderMarketData(currData, prevData);
+                                renderSentimentData(currData, prevData);
+                                if (typeof renderHotSectors === 'function') renderHotSectors(currData, prevData);
+                                if (typeof renderColdSectors === 'function') renderColdSectors(currData, prevData);
+                            }});
+                    }})
+                    .catch(error => {{
+                        console.warn('前一日市场数据不可用:', error);
+                    }});
+            }}
         }}
         
-        function renderPortfolioData(data) {{
+        function renderPortfolioData(data, prevData) {{
             const stocks = data.stocks || [];
             const container = document.getElementById('portfolioCards');
+
+            // 构建前一日数据映射
+            const prevMap = {{}};
+            if (prevData && prevData.stocks) {{
+                prevData.stocks.forEach(s => prevMap[s.code] = s);
+            }}
             
             if (stocks.length === 0) {{
                 container.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">暂无持仓数据</p>';
@@ -437,6 +529,12 @@ class TimeMachineGenerator:
                                 <span>风险等级</span>
                                 <span class="${{changeClass}}">${{stock.risk_level === 'high' ? '高风险' : stock.risk_level === 'medium' ? '中风险' : '低风险'}}</span>
                             </div>
+                            ${{prevMap[stock.code] ? `
+                            <div class="flex justify-between text-xs pt-1 border-t border-gray-100 mt-1">
+                                <span class="text-gray-400">日涨跌</span>
+                                <span class="${{((stock.current_price - prevMap[stock.code].current_price) / prevMap[stock.code].current_price) >= 0 ? 'text-green-500' : 'text-red-500'}}">${{((stock.current_price - prevMap[stock.code].current_price) / prevMap[stock.code].current_price * 100) >= 0 ? '+' : ''}}${{((stock.current_price - prevMap[stock.code].current_price) / prevMap[stock.code].current_price * 100).toFixed(2)}}%</span>
+                            </div>
+                            ` : ''}}
                         </div>
                     </div>
                 `;
@@ -445,7 +543,7 @@ class TimeMachineGenerator:
             container.innerHTML = html;
         }}
         
-        function renderMarketData(data) {{
+        function renderMarketData(data, prevData) {{
             const indices = data.indices || [];
             const container = document.getElementById('marketCards');
             
@@ -474,7 +572,7 @@ class TimeMachineGenerator:
             container.innerHTML = html;
         }}
         
-        function renderSentimentData(data) {{
+        function renderSentimentData(data, prevData) {{
             const sentiment = data.sentiment || {{}};
             const marketData = data.market_data || {{}};
             const container = document.getElementById('sentimentContent');
@@ -701,6 +799,91 @@ class TimeMachineGenerator:
         html += '</div>'
         return html
 
+
+
+    def _generate_hot_sectors(self, data):
+        """生成热门板块HTML"""
+        if not data:
+            return '<p class="text-gray-500 col-span-full text-center py-8">暂无板块数据</p>'
+        
+        sectors = data.get('sectors_hot', [])
+        if not sectors:
+            return '<p class="text-gray-500 col-span-full text-center py-8">暂无热门板块</p>'
+        
+        html = ''
+        for sector in sectors:
+            is_up = sector.get('up', True)
+            change_pct = sector.get('change_pct', 0) * 100
+            change_str = "+{:.2f}%".format(change_pct) if is_up else "{:.2f}%".format(change_pct)
+            text_color = 'text-green-600' if is_up else 'text-red-500'
+            name = sector.get('name', '')
+            leader = sector.get('leader', '-')
+            reason = sector.get('reason', '')
+            
+            html += '''
+                    <div class="stock-card" style="border-left: 4px solid;">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-bold text-gray-800">{}</span>
+                            <span class="{} font-semibold text-sm">
+                                {}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-500 space-y-1">
+                            <div class="flex justify-between">
+                                <span>龙头</span>
+                                <span class="text-gray-700">{}</span>
+                            </div>
+                            <div class="text-xs text-gray-400 mt-1">
+                                {}
+                            </div>
+                        </div>
+                    </div>
+                '''.format(name, text_color, change_str, leader, reason)
+        
+        return html
+
+    def _generate_cold_sectors(self, data):
+        """生成冷门板块HTML"""
+        if not data:
+            return '<p class="text-gray-500 col-span-full text-center py-8">暂无板块数据</p>'
+        
+        sectors = data.get('sectors_cold', [])
+        if not sectors:
+            return '<p class="text-gray-500 col-span-full text-center py-8">暂无冷门板块</p>'
+        
+        html = ''
+        for sector in sectors:
+            is_up = sector.get('up', False)
+            change_pct = sector.get('change_pct', 0) * 100
+            change_str = "+{:.2f}%".format(change_pct) if is_up else "{:.2f}%".format(change_pct)
+            text_color = 'text-green-600' if is_up else 'text-red-500'
+            name = sector.get('name', '')
+            leader = sector.get('leader', '-')
+            fund_flow = sector.get('fund_flow', '')
+            
+            fund_flow_html = ''
+            if fund_flow:
+                fund_flow_html = '<div class="flex justify-between"><span>资金流向</span><span class="text-green-600">{}</span></div>'.format(fund_flow)
+            
+            html += '''
+                    <div class="stock-card" style="border-left: 4px solid #60a5fa;">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-bold text-gray-800">{}</span>
+                            <span class="{} font-semibold text-sm">
+                                {}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-500 space-y-1">
+                            <div class="flex justify-between">
+                                <span>龙头</span>
+                                <span class="text-gray-700">{}</span>
+                            </div>
+                            {}
+                        </div>
+                    </div>
+                '''.format(name, text_color, change_str, leader, fund_flow_html)
+        
+        return html
 
 if __name__ == '__main__':
     generator = TimeMachineGenerator()

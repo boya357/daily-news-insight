@@ -455,6 +455,69 @@ class DailyReportGenerator:
         section = Section(title="💼 持仓跟踪", content=content, icon="briefcase")
         self._components.append(section)
     
+    def add_holdings_from_data_layer(self):
+        """
+        从统一数据层（data/portfolio.json）加载持仓数据并添加持仓跟踪
+        确保所有报告使用同源数据，杜绝数据不一致问题
+        """
+        from utils.data_loader import get_holdings_for_daily, get_position_info
+        
+        holdings = get_holdings_for_daily(include_comments=True)
+        position_info = get_position_info()
+        self.add_holdings_tracking(holdings=holdings, position_info=position_info)
+    
+    def add_market_sentiment_from_data_layer(self):
+        """
+        从统一数据层（data/market.json）加载市场情绪数据
+        """
+        from utils.data_loader import get_market_sentiment, get_market_summary
+        
+        sentiment = get_market_sentiment()
+        market_data = get_market_summary()
+        
+        # 根据情绪分数判断风险等级
+        score = sentiment.get('score', 50)
+        if score >= 70:
+            risk_level = "高"
+        elif score >= 40:
+            risk_level = "中"
+        else:
+            risk_level = "低"
+        
+        # 量比（暂时用成交量变化代替）
+        volume_change_str = market_data.get('volume_change', '+0%')
+        try:
+            volume_ratio = float(volume_change_str.replace('%', '').replace('+', '')) / 100 + 1
+        except:
+            volume_ratio = None
+        
+        self.add_market_sentiment(
+            sentiment_score=score,
+            risk_level=risk_level,
+            volume_ratio=round(volume_ratio, 2) if volume_ratio else None
+        )
+    
+    def add_hot_sectors_from_data_layer(self, limit=5):
+        """
+        从统一数据层（data/market.json）加载热门板块数据
+        """
+        from utils.data_loader import get_hot_sectors
+        
+        sectors = get_hot_sectors(limit=limit)
+        # 转换为add_sector_analysis需要的格式
+        sector_list = []
+        for s in sectors:
+            sector_list.append({
+                'name': s['name'],
+                'change': s['change_pct'],
+                'up': s['up'],
+                'leader': s['leader'],
+                'fund_flow': s['fund_flow'],
+                'description': f"领涨股：{s['leader']}，主力资金净流入{s['fund_flow']}"
+            })
+        
+        self.add_sector_analysis(sector_list, view_mode='card')
+    
     def add_risk_warning(self, risks: list):
         """添加风险提示"""
         if isinstance(risks, list):

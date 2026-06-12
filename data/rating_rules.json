@@ -1,0 +1,232 @@
+{
+  "version": "1.0",
+  "description": "题材分级规则与健康度评估标准",
+  "level_definitions": {
+    "S": {
+      "name": "最强主线",
+      "min_total_score": 90,
+      "min_dimension_score": 80,
+      "max_downside": 20,
+      "required_chain_stage": [
+        "爆发期",
+        "成长期",
+        "成长期后期"
+      ],
+      "allocation_range": "核心配置，15-30%仓位"
+    },
+    "A": {
+      "name": "重要支线",
+      "min_total_score": 75,
+      "min_dimension_score": 65,
+      "max_downside": 30,
+      "required_chain_stage": [
+        "成长期",
+        "成长期后期",
+        "启动期",
+        "导入期后期"
+      ],
+      "allocation_range": "中等配置，5-15%仓位"
+    },
+    "B": {
+      "name": "观察题材",
+      "min_total_score": 60,
+      "min_dimension_score": 50,
+      "max_downside": 40,
+      "required_chain_stage": [
+        "启动期",
+        "导入期",
+        "萌芽期"
+      ],
+      "allocation_range": "轻仓试探，<5%仓位"
+    },
+    "C": {
+      "name": "回避题材",
+      "min_total_score": 0,
+      "min_dimension_score": 0,
+      "max_downside": 100,
+      "required_chain_stage": [
+        "成熟期",
+        "衰退期"
+      ],
+      "allocation_range": "回避，不参与"
+    }
+  },
+  "health_dimensions": {
+    "policy": {
+      "name": "政策面",
+      "weight": 0.2,
+      "description": "政策支持力度与监管环境"
+    },
+    "industry": {
+      "name": "产业面",
+      "weight": 0.25,
+      "description": "行业景气度、供需关系、技术成熟度"
+    },
+    "capital": {
+      "name": "资金面",
+      "weight": 0.2,
+      "description": "主力资金流向、机构持仓、龙虎榜"
+    },
+    "sentiment": {
+      "name": "情绪面",
+      "weight": 0.15,
+      "description": "市场情绪、关注度、交投活跃度"
+    },
+    "valuation": {
+      "name": "估值面",
+      "weight": 0.1,
+      "description": "板块估值水平、相对性价比"
+    },
+    "catalyst": {
+      "name": "催化强度",
+      "weight": 0.1,
+      "description": "近期催化剂密度与重要性"
+    }
+  },
+  "downgrade_conditions": {
+    "S_to_A": {
+      "description": "S级降级到A级的条件（满足2项及以上触发）",
+      "conditions": [
+        {
+          "type": "total_score_below",
+          "value": 85,
+          "desc": "综合评分低于85分"
+        },
+        {
+          "type": "any_dimension_below",
+          "dimension": "industry",
+          "value": 75,
+          "desc": "产业面评分低于75分"
+        },
+        {
+          "type": "any_dimension_below",
+          "dimension": "capital",
+          "value": 70,
+          "desc": "资金面评分低于70分"
+        },
+        {
+          "type": "multi_dimensions_below",
+          "count": 2,
+          "value": 70,
+          "desc": "2个以上维度低于70分"
+        },
+        {
+          "type": "chain_stage_regress",
+          "desc": "产业链阶段倒退"
+        }
+      ],
+      "required_count": 2
+    },
+    "A_to_B": {
+      "description": "A级降级到B级的条件（满足2项及以上触发）",
+      "conditions": [
+        {
+          "type": "total_score_below",
+          "value": 70,
+          "desc": "综合评分低于70分"
+        },
+        {
+          "type": "any_dimension_below",
+          "dimension": "industry",
+          "value": 60,
+          "desc": "产业面评分低于60分"
+        },
+        {
+          "type": "multi_dimensions_below",
+          "count": 3,
+          "value": 65,
+          "desc": "3个以上维度低于65分"
+        },
+        {
+          "type": "no_catalyst_days",
+          "days": 30,
+          "desc": "连续30天无新催化"
+        }
+      ],
+      "required_count": 2
+    },
+    "B_to_C": {
+      "description": "B级降级到C级/移除的条件（满足1项及以上触发）",
+      "conditions": [
+        {
+          "type": "total_score_below",
+          "value": 55,
+          "desc": "综合评分低于55分"
+        },
+        {
+          "type": "core_logic_falsified",
+          "desc": "核心逻辑被证伪"
+        },
+        {
+          "type": "no_catalyst_days",
+          "value": 90,
+          "desc": "连续90天无新催化"
+        },
+        {
+          "type": "chain_stage_below",
+          "stage": "萌芽期",
+          "desc": "产业链进入衰退期"
+        }
+      ],
+      "required_count": 1
+    }
+  },
+  "upgrade_conditions": {
+    "B_to_A": {
+      "description": "B级升级到A级的条件（满足2项及以上触发）",
+      "conditions": [
+        {
+          "type": "total_score_above",
+          "value": 80,
+          "desc": "综合评分高于80分"
+        },
+        {
+          "type": "multi_dimensions_above",
+          "count": 3,
+          "value": 80,
+          "desc": "3个以上维度高于80分"
+        },
+        {
+          "type": "chain_stage_enter",
+          "stage": "成长期",
+          "desc": "产业链进入成长期"
+        }
+      ],
+      "required_count": 2
+    },
+    "A_to_S": {
+      "description": "A级升级到S级的条件（满足2项及以上触发）",
+      "conditions": [
+        {
+          "type": "total_score_above",
+          "value": 90,
+          "desc": "综合评分高于90分"
+        },
+        {
+          "type": "all_dimensions_above",
+          "value": 80,
+          "desc": "所有维度评分高于80分"
+        },
+        {
+          "type": "chain_stage_enter",
+          "stage": "爆发期",
+          "desc": "产业链进入爆发期"
+        },
+        {
+          "type": "catalyst_density",
+          "count": 3,
+          "days": 7,
+          "desc": "7天内出现3个以上重磅催化"
+        }
+      ],
+      "required_count": 2
+    }
+  },
+  "health_score_weights": {
+    "score_trend": 0.25,
+    "catalyst_activity": 0.2,
+    "chain_stage": 0.2,
+    "capital_flow": 0.2,
+    "prediction_accuracy": 0.15
+  }
+}

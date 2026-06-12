@@ -137,6 +137,56 @@ class WeeklyReviewGenerator:
         section = Section(title="💼 持仓周度回顾", content=content_html, icon="briefcase")
         self._components.append(section)
     
+    def add_holdings_from_data_layer(self):
+        """
+        从统一数据层（data/portfolio.json）加载持仓数据并添加周度回顾
+        确保所有报告使用同源数据，杜绝数据不一致问题
+        """
+        from utils.data_loader import get_holdings_for_weekly_review
+        
+        holdings = get_holdings_for_weekly_review()
+        self.add_holdings_review(holdings=holdings)
+    
+    def add_market_review_from_data_layer(self):
+        """
+        从统一数据层（data/market.json）加载本周市场表现数据
+        """
+        from utils.data_loader import get_indices_for_daily
+        
+        indices_data = get_indices_for_daily()
+        
+        # 转换格式（周涨跌幅暂时用日涨跌幅代替，后续完善）
+        indices = []
+        for idx in indices_data:
+            indices.append({
+                'name': idx['name'],
+                'current': idx['price'],
+                'change': idx['change_pct_str'],
+                'up': idx['up']
+            })
+        
+        self.add_market_review(indices=indices)
+    
+    def add_hot_topics_from_data_layer(self, limit=5):
+        """
+        从统一数据层（data/market.json）加载热门题材
+        """
+        from utils.data_loader import get_hot_sectors
+        
+        sectors = get_hot_sectors(limit=limit)
+        # 转换为add_hot_topics_review格式
+        topics = []
+        for s in sectors:
+            topics.append({
+                'name': s['name'],
+                'change': s['change_pct'],
+                'up': s['up'],
+                'highlight': f"领涨：{s['leader']}",
+                'description': f"本周{s['name']}板块表现活跃，{s['leader']}领涨，主力资金净流入{s['fund_flow']}。"
+            })
+        
+        self.add_hot_topics_review(topics=topics)
+    
     def add_next_week_outlook(self, outlook: str):
         """添加下周展望"""
         content = f'<div style="line-height: 1.8; color: #374151; font-size: 14px;">{outlook}</div>'

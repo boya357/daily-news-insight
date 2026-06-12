@@ -87,6 +87,124 @@ class AftermarketGenerator:
         section = Section(title="🌙 晚间重要新闻", content=news_html, icon="moon")
         self._components.append(section)
     
+    def add_holdings_tracking(self, holdings: list):
+        """
+        添加持仓股跟踪
+        
+        Args:
+            holdings: 持仓列表 [{"name": "英维克", "code": "002837", "price": "68.90", "change": "+1.2%", "up": True, "comment": "..."}, ...]
+        """
+        content_html = '<div style="display: flex; flex-direction: column; gap: 12px;">'
+        for h in holdings:
+            change_class = "#10b981" if h.get('up', True) else "#ef4444"
+            name = h["name"]
+            code = h.get("code", "")
+            price = h.get("price", "")
+            change = h.get("change", "")
+            comment = h.get("comment", "")
+            
+            content_html += f'''
+            <div style="background: white; border: 1px solid rgba(0, 0, 0, 0.06);
+                       border-radius: 14px; padding: 16px 18px;
+                       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);">
+                <div style="display: flex; align-items: center;">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                            <span style="font-size: 15px; font-weight: 600; color: #1f2937;">
+                                {name}
+                            </span>
+                            <span style="font-size: 12px; color: #9ca3af; margin-left: 8px;">
+                                {code}
+                            </span>
+                        </div>
+                        <div style="font-size: 12px; color: #6b7280; line-height: 1.5; max-width: 400px;">
+                            {comment}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 18px; font-weight: 700; color: {change_class};">
+                            {price}
+                        </div>
+                        <div style="font-size: 13px; font-weight: 500; color: {change_class};">
+                            {change}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            '''
+        content_html += '</div>'
+        
+        section = Section(
+            title="💼 持仓股跟踪",
+            content=content_html,
+            icon="briefcase"
+        )
+        self._components.append(section)
+    
+    def add_holdings_from_data_layer(self):
+        """
+        从统一数据层（data/portfolio.json）加载持仓数据并添加持仓跟踪
+        确保所有报告使用同源数据，杜绝数据不一致问题
+        """
+        from utils.data_loader import get_holdings_for_intraday
+        
+        holdings = get_holdings_for_intraday(include_comments=True)
+        self.add_holdings_tracking(holdings=holdings)
+    
+    def add_market_summary_from_data_layer(self):
+        """
+        从统一数据层（data/market.json）加载市场收盘总结数据
+        """
+        from utils.data_loader import get_indices_for_daily, get_market_summary
+        
+        indices_data = get_indices_for_daily()
+        market_data = get_market_summary()
+        
+        # 转换格式
+        indices = []
+        for idx in indices_data:
+            indices.append({
+                'name': idx['name'],
+                'value': idx['price'],
+                'change': idx['change_pct_str'],
+                'up': idx['up']
+            })
+        
+        volume = market_data.get('volume', '')
+        northbound = market_data.get('northbound', '')
+        
+        self.add_market_summary(indices=indices, volume=volume, northbound=northbound)
+    
+    def add_sector_performance_from_data_layer(self, up_limit=5, down_limit=3):
+        """
+        从统一数据层（data/market.json）加载板块涨跌排行
+        """
+        from utils.data_loader import get_hot_sectors, get_cold_sectors
+        
+        hot_sectors = get_hot_sectors(limit=up_limit)
+        cold_sectors = get_cold_sectors(limit=down_limit)
+        
+        # 转换格式
+        up_sectors = []
+        for s in hot_sectors:
+            up_sectors.append({
+                'name': s['name'],
+                'change': s['change_pct'],
+                'up': True,
+                'leader': s['leader']
+            })
+        
+        down_sectors = []
+        for s in cold_sectors:
+            down_sectors.append({
+                'name': s['name'],
+                'change': s['change_pct'],
+                'up': False,
+                'leader': s['leader']
+            })
+        
+        self.add_sector_performance(up_sectors=up_sectors, down_sectors=down_sectors)
+    
     def add_dragon_tiger_list(self, stocks: list):
         """添加龙虎榜数据"""
         from components.icons import icon_svg

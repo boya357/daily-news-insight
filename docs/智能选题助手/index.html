@@ -224,7 +224,91 @@
         color: #111827 !important;
     }
     /* ========== 防御结束 ========== */
+
+    /* ========== 移动端响应式优化 ========== */
+    @media (max-width: 768px) {
+        .max-w-6xl, .max-w-5xl, .max-w-4xl, .max-w-3xl {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+        
+        .px-6 { padding-left: 1rem !important; padding-right: 1rem !important; }
+        .px-8 { padding-left: 1.25rem !important; padding-right: 1.25rem !important; }
+        .py-8 { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+        .py-12 { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+        
+        .text-2xl { font-size: 1.25rem !important; }
+        .text-3xl { font-size: 1.5rem !important; }
+        .text-4xl { font-size: 1.75rem !important; }
+        .text-lg { font-size: 1rem !important; }
+        .text-xl { font-size: 1.1rem !important; }
+        
+        .gap-4 { gap: 0.75rem !important; }
+        .gap-6 { gap: 1rem !important; }
+        .gap-8 { gap: 1.25rem !important; }
+        
+        /* 网格布局自适应 */
+        .grid-cols-2 { grid-template-columns: 1fr !important; }
+        .grid-cols-3 { grid-template-columns: repeat(2, 1fr) !important; }
+        .grid-cols-4 { grid-template-columns: repeat(2, 1fr) !important; }
+        
+        /* 卡片优化 */
+        .card-glass {
+            border-radius: 16px !important;
+            padding: 1.25rem !important;
+        }
+        
+        .stat-card {
+            padding: 0.75rem !important;
+        }
+        
+        .stock-card {
+            padding: 0.75rem !important;
+        }
+        
+        /* 表格优化 */
+        table {
+            font-size: 0.8rem !important;
+        }
+        
+        th, td {
+            padding: 0.5rem !important;
+        }
+        
+        /* 按钮优化 */
+        .btn {
+            padding: 0.5rem 1rem !important;
+            font-size: 0.9rem !important;
+        }
+        
+        /* 导航栏优化 */
+        .nav-links {
+            display: none !important;
+        }
+        
+        .hamburger-btn {
+            display: block !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .grid-cols-2, .grid-cols-3, .grid-cols-4 {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .text-2xl { font-size: 1.1rem !important; }
+        .text-3xl { font-size: 1.25rem !important; }
+        
+        .px-4 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+        
+        .card-glass {
+            padding: 1rem !important;
+            border-radius: 12px !important;
+        }
+    }
 </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body class="pb-20">
     <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
@@ -275,12 +359,91 @@
             
         </div>
     </div>
+    
+    <!-- 题材评分雷达图 -->
+    <div class="card-glass p-6 mb-6">
+        <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <span class="w-3 h-8 rounded-full bg-gradient-to-b from-purple-500 to-indigo-600"></span>
+            S级题材多维评分
+        </h2>
+        <div style="height: 300px;">
+            <canvas id="topicRadarChart"></canvas>
+        </div>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('topicRadarChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['政策支持', '行业景气', '资金热度', '技术形态', '估值水平', '催化剂'],
+                    datasets: [
+                        {
+                            label: 'AI PC/智能体PC',
+                            data: [85, 92, 78, 88, 72, 90],
+                            borderColor: 'rgba(99, 102, 241, 1)',
+                            backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                            pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+                        },
+                        {
+                            label: '存储芯片超级周期',
+                            data: [75, 95, 88, 82, 68, 92],
+                            borderColor: 'rgba(249, 115, 22, 1)',
+                            backgroundColor: 'rgba(249, 115, 22, 0.2)',
+                            pointBackgroundColor: 'rgba(249, 115, 22, 1)',
+                        },
+                        {
+                            label: '人形机器人',
+                            data: [90, 85, 70, 75, 65, 88],
+                            borderColor: 'rgba(34, 197, 94, 1)',
+                            backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                            pointBackgroundColor: 'rgba(34, 197, 94, 1)',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20,
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+    </script>
+
     <div class="card-glass p-6 mb-6">
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <h1 class="text-2xl font-black text-gray-800 mb-1">题材优先级评估系统</h1>
                     <p class="text-gray-500 text-sm">政策强度×产业逻辑×资金关注 = 三维度综合评分</p>
-                    <p class="text-gray-400 text-xs mt-1">数据更新时间：2026年6月12日 07:50</p>
+                    <p class="text-gray-400 text-xs mt-1">数据更新时间：2026年06月12日 08:41</p>
                 </div>
                 <div class="flex items-center gap-6">
                     <div class="text-center">
@@ -363,7 +526,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-4xl font-black text-purple-600">92分</div>
+                            <div class="text-4xl font-black text-purple-600">91.5分</div>
                             <div class="text-sm text-gray-500">综合评分</div>
                         </div>
                     </div>
@@ -372,28 +535,28 @@
                         <div class="p-3 bg-white/60 rounded-xl">
                             <div class="flex items-center justify-between mb-1">
                                 <span class="text-xs text-gray-500">政策强度</span>
-                                <span class="font-bold text-purple-600">90分</span>
+                                <span class="font-bold text-purple-600">88.7分</span>
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full" style="width: 90%;"></div>
+                                <div class="h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full" style="width: 88.7%;"></div>
                             </div>
                         </div>
                         <div class="p-3 bg-white/60 rounded-xl">
                             <div class="flex items-center justify-between mb-1">
                                 <span class="text-xs text-gray-500">产业逻辑</span>
-                                <span class="font-bold text-purple-600">96分</span>
+                                <span class="font-bold text-purple-600">98.2分</span>
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full" style="width: 96%;"></div>
+                                <div class="h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full" style="width: 98.2%;"></div>
                             </div>
                         </div>
                         <div class="p-3 bg-white/60 rounded-xl">
                             <div class="flex items-center justify-between mb-1">
                                 <span class="text-xs text-gray-500">资金关注</span>
-                                <span class="font-bold text-purple-600">93分</span>
+                                <span class="font-bold text-purple-600">94.6分</span>
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full" style="width: 93%;"></div>
+                                <div class="h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full" style="width: 94.6%;"></div>
                             </div>
                         </div>
                     </div>
@@ -409,6 +572,14 @@
                         <span class="text-lg">⚡</span>
                         <span class="text-sm text-gray-700"><strong>今日催化：</strong>AI终端革命长期逻辑不变，但受美股科技股暴跌影响，短期情绪承压。建议观望等待市场企稳，关注位置相对较低的消费电子标的。</span>
                     </div>
+                    <a href="../题材深度/topic_s001_AI_PC_智能体PC.html" class="mt-4 block w-full py-3 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-center font-bold rounded-xl hover:shadow-lg transition-all hover:scale-[1.02]">
+                        🔍 查看题材深度分析
+                    </a>
+
+                    <a href="../题材深度/topic_s001_AI_PC____PC.html" class="mt-4 block w-full py-3 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-center font-bold rounded-xl hover:shadow-lg transition-all hover:scale-[1.02]">
+                        🔍 查看题材深度分析
+                    </a>
+
                 </div>
                 
                 <!-- 存储芯片 第二S级 -->
@@ -422,7 +593,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-4xl font-black text-red-600">96分</div>
+                            <div class="text-4xl font-black text-red-600">94.3分</div>
                             <div class="text-sm text-gray-500">综合评分</div>
                         </div>
                     </div>
@@ -431,28 +602,28 @@
                         <div class="p-3 bg-white/60 rounded-xl">
                             <div class="flex items-center justify-between mb-1">
                                 <span class="text-xs text-gray-500">政策强度</span>
-                                <span class="font-bold text-red-600">92分</span>
+                                <span class="font-bold text-red-600">89.6分</span>
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-red-400 to-red-600 rounded-full" style="width: 92%;"></div>
+                                <div class="h-full bg-gradient-to-r from-red-400 to-red-600 rounded-full" style="width: 89.6%;"></div>
                             </div>
                         </div>
                         <div class="p-3 bg-white/60 rounded-xl">
                             <div class="flex items-center justify-between mb-1">
                                 <span class="text-xs text-gray-500">产业逻辑</span>
-                                <span class="font-bold text-red-600">98分</span>
+                                <span class="font-bold text-red-600">97.3分</span>
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-red-400 to-red-600 rounded-full" style="width: 98%;"></div>
+                                <div class="h-full bg-gradient-to-r from-red-400 to-red-600 rounded-full" style="width: 97.3%;"></div>
                             </div>
                         </div>
                         <div class="p-3 bg-white/60 rounded-xl">
                             <div class="flex items-center justify-between mb-1">
                                 <span class="text-xs text-gray-500">资金关注</span>
-                                <span class="font-bold text-red-600">90分</span>
+                                <span class="font-bold text-red-600">89.2分</span>
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-red-400 to-red-600 rounded-full" style="width: 90%;"></div>
+                                <div class="h-full bg-gradient-to-r from-red-400 to-red-600 rounded-full" style="width: 89.2%;"></div>
                             </div>
                         </div>
                     </div>
@@ -476,7 +647,11 @@
                         <span class="text-lg">⚡</span>
                         <span class="text-sm text-gray-700"><strong>近期催化：</strong>雅克科技连续两日涨停，HBM需求爆发式增长，存储芯片周期反转确认。美光、三星相继提价，行业景气度持续上行。</span>
                     </div>
-                </div>
+                
+                    <a href="../题材深度/topic_s002_存储芯片超级周期.html" class="mt-4 block w-full py-3 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-center font-bold rounded-xl hover:shadow-lg transition-all hover:scale-[1.02]">
+                        🔍 查看题材深度分析
+                    </a>
+</div>
                 
                 <!-- 人形机器人 第三S级 -->
                 <div data-topic-id="topic_s003" class="topic-card p-6 bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200 rounded-2xl">
@@ -489,7 +664,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-4xl font-black text-orange-600">91分</div>
+                            <div class="text-4xl font-black text-orange-600">90.8分</div>
                             <div class="text-sm text-gray-500">综合评分</div>
                         </div>
                     </div>
@@ -498,28 +673,28 @@
                         <div class="p-3 bg-white/60 rounded-xl">
                             <div class="flex items-center justify-between mb-1">
                                 <span class="text-xs text-gray-500">政策强度</span>
-                                <span class="font-bold text-orange-600">92分</span>
+                                <span class="font-bold text-orange-600">94.5分</span>
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-orange-400 to-orange-600 rounded-full" style="width: 92%;"></div>
+                                <div class="h-full bg-gradient-to-r from-orange-400 to-orange-600 rounded-full" style="width: 94.5%;"></div>
                             </div>
                         </div>
                         <div class="p-3 bg-white/60 rounded-xl">
                             <div class="flex items-center justify-between mb-1">
                                 <span class="text-xs text-gray-500">产业逻辑</span>
-                                <span class="font-bold text-orange-600">88分</span>
+                                <span class="font-bold text-orange-600">85.5分</span>
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-orange-400 to-orange-600 rounded-full" style="width: 88%;"></div>
+                                <div class="h-full bg-gradient-to-r from-orange-400 to-orange-600 rounded-full" style="width: 85.5%;"></div>
                             </div>
                         </div>
                         <div class="p-3 bg-white/60 rounded-xl">
                             <div class="flex items-center justify-between mb-1">
                                 <span class="text-xs text-gray-500">资金关注</span>
-                                <span class="font-bold text-orange-600">90分</span>
+                                <span class="font-bold text-orange-600">88.8分</span>
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-orange-400 to-orange-600 rounded-full" style="width: 90%;"></div>
+                                <div class="h-full bg-gradient-to-r from-orange-400 to-orange-600 rounded-full" style="width: 88.8%;"></div>
                             </div>
                         </div>
                     </div>
@@ -530,6 +705,18 @@
                         <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">拓普集团（执行器）</span>
                         <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">三花智控（热管理）</span>
                     </div>
+                    <a href="../题材深度/topic_s003_人形机器人.html" class="mt-4 block w-full py-3 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-center font-bold rounded-xl hover:shadow-lg transition-all hover:scale-[1.02]">
+                        🔍 查看题材深度分析
+                    </a>
+
+                    <a href="../题材深度/topic_s003______.html" class="mt-4 block w-full py-3 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-center font-bold rounded-xl hover:shadow-lg transition-all hover:scale-[1.02]">
+                        🔍 查看题材深度分析
+                    </a>
+
+                    <a href="../题材深度/topic_s002_________.html" class="mt-4 block w-full py-3 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-center font-bold rounded-xl hover:shadow-lg transition-all hover:scale-[1.02]">
+                        🔍 查看题材深度分析
+                    </a>
+
                     
                     <div class="flex items-center gap-2 p-3 bg-orange-50 rounded-xl border border-orange-200 mt-4">
                         <span class="text-lg">⚡</span>
@@ -571,7 +758,15 @@
                             <span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full text-xs font-medium">蓝色光标</span>
                         </div>
                         <div class="text-xs text-gray-500 mt-2 pt-2 border-t border-yellow-100">⚡ AI应用从"讲故事"走向"卖铲子"，办公、营销、企业服务率先...</div>
-                    </div>
+                    
+                        <a href="../题材深度/topic_a001_AI___.html" class="mt-3 inline-block px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold rounded-lg hover:shadow-md transition-all">
+                            🔍 深度分析
+                        </a>
+
+                        <a href="../题材深度/topic_a001_AI应用端.html" class="mt-3 inline-block px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold rounded-lg hover:shadow-md transition-all">
+                            🔍 深度分析
+                        </a>
+</div>
 
                     
                                         <div data-topic-id="topic_a002" class="topic-card p-4 bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-xl">
@@ -596,7 +791,11 @@
                             <span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full text-xs font-medium">兖矿能源</span>
                         </div>
                         <div class="text-xs text-gray-500 mt-2 pt-2 border-t border-yellow-100">⚡ 迎峰度夏能源需求回升，高股息策略成市场避险首选</div>
-                    </div>
+                    
+                        <a href="../题材深度/topic_a002_煤炭_高股息.html" class="mt-3 inline-block px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold rounded-lg hover:shadow-md transition-all">
+                            🔍 深度分析
+                        </a>
+</div>
 
                     
                                         <div data-topic-id="topic_a003" class="topic-card p-4 bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-xl">
@@ -621,7 +820,11 @@
                             <span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full text-xs font-medium">思源电气</span>
                         </div>
                         <div class="text-xs text-gray-500 mt-2 pt-2 border-t border-yellow-100">⚡ AI算力需求爆发驱动电网升级，特高压建设加速推进</div>
-                    </div>
+                    
+                        <a href="../题材深度/topic_a003_电力_算电协同.html" class="mt-3 inline-block px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold rounded-lg hover:shadow-md transition-all">
+                            🔍 深度分析
+                        </a>
+</div>
 
                     
                                         <div data-topic-id="topic_a004" class="topic-card p-4 bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-xl">
@@ -646,7 +849,11 @@
                             <span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full text-xs font-medium">中国交建</span>
                         </div>
                         <div class="text-xs text-gray-500 mt-2 pt-2 border-t border-yellow-100">⚡ 城市更新"十五五"规划发布，15万亿投资规模带动建材基建需求</div>
-                    </div>
+                    
+                        <a href="../题材深度/topic_a004_城市更新_基建.html" class="mt-3 inline-block px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold rounded-lg hover:shadow-md transition-all">
+                            🔍 深度分析
+                        </a>
+</div>
 
                 </div>
             </div>
@@ -681,7 +888,11 @@
                             <span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-medium">新宙邦</span>
                         </div>
                         <div class="text-xs text-gray-500 mt-2 pt-2 border-t border-purple-100">⚡ 六氟磷酸锂价格触底反弹，行业开工率回升</div>
-                    </div>
+                    
+                        <a href="../题材深度/topic_b001_六氟磷酸锂_电解液.html" class="mt-3 inline-block px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold rounded-lg hover:shadow-md transition-all">
+                            🔍 深度分析
+                        </a>
+</div>
 
                 </div>
             </div>
