@@ -68,62 +68,62 @@ def update_alert_system():
     html = safe_replace(html, old_time_pattern, new_time_text, "更新时间戳")
     
     # 2. 更新大盘风险监控 - 风险事件
-    old_market_event = r'沪指失守4000点，创业板跌2.7%，超3800股下跌，电子板块领跌'
+    old_market_event = r'指数放量上涨，超3900股上涨，市场情绪回暖但分化持续'
     new_market_event = '指数微跌但个股普跌，超4000股下跌，结构性分化加剧'
     html = safe_replace(html, old_market_event, new_market_event, "大盘风险-风险事件")
     
     # 更新大盘风险-当前状态
-    old_market_status = r'6月10日A股震荡调整，沪指跌0.42%失守4000点，创业板指跌2.7%。两市成交2.62万亿缩量，超3800股下跌。大金融护盘，科技股、煤炭、电力领跌。电子板块主力净流出339亿，市场观望情绪浓厚'
+    old_market_status = r'6月12日A股放量上涨，沪指涨1.12%收4031.51点，创业板指涨0.50%。两市成交3.21万亿放量，超3900股上涨。有色金属、券商、低空经济领涨，半导体高开低走，AI硬件板块分化。市场情绪回暖，赚钱效应较好'
     new_market_status = '6月11日A股震荡分化，沪指跌0.16%收3987.01点，创业板指跌1.13%。两市成交2.55万亿缩量，超4000股下跌。半导体材料、小金属逆势走强，AI应用、文化传媒领跌。权重护盘但个股普跌，赚钱效应差'
     html = safe_replace(html, old_market_status, new_market_status, "大盘风险-当前状态")
     
     # 3. 更新资金流向监控 - 风险事件
-    old_money_event = r'主力资金单日净流出超千亿，电子板块遭大幅抛售，科技ETF持续赎回'
+    old_money_event = r'主力资金净流入超200亿，有色金属、电力设备获大幅流入，通信、电子遭抛售'
     new_money_event = '主力净流出超400亿，AI题材持续失血，防御板块获资金青睐'
     html = safe_replace(html, old_money_event, new_money_event, "资金流向-风险事件")
     
     # 更新资金流向-当前状态
-    old_money_status = r'今日主力净流出1050亿元，北向资金观望，资金向大金融防御板块切换，科技成长持续失血。电子板块净流出339亿居首，通信、电新板块也遭遇撤离。银行、保险获资金流入'
+    old_money_status = r'今日主力资金净流入约206亿元，创业板净流出23亿元，科创板净流入4.9亿元。有色金属板块净流入超140亿居首，电力设备、非银金融紧随其后。通信、电子板块净流出居前'
     new_money_status = '今日主力净流出约430亿元，北向资金小幅净流出。资金从高位AI题材向低位半导体材料、资源股切换。电子、计算机板块资金流出居前，银行、有色获小幅流入'
     html = safe_replace(html, old_money_status, new_money_status, "资金流向-当前状态")
     
     # 4. 更新持仓风险监控 - 风险事件
-    old_portfolio_event = r'英维克下跌2.55%浮亏扩大至-18.9%、铜冠铜箔涨4.22%创新高、*ST建艺震荡摘帽窗口临近、雅克科技涨停HBM逻辑强化'
+    old_portfolio_event = r'英维克弱势震荡接近止损位，铜冠铜箔再创历史新高，*ST建艺涨停，雅克科技高位震荡'
     new_portfolio_event = '英维克持续走弱浮亏扩大，雅克科技两连板累计涨21%，铜冠铜箔续创新高'
     html = safe_replace(html, old_portfolio_event, new_portfolio_event, "持仓风险-风险事件")
     
     # 更新持仓风险-当前状态
-    old_portfolio_status = r'英维克69.72元 vs 止损98元，浮亏约-14%，震荡整理；铜冠铜箔122.76元创历史新高，持有；*ST建艺13.33元摘帽审核中；雅克科技约113元，小幅浮盈'
+    old_portfolio_status = r'英维克66.08元（-1.58%）vs 止损位80元，浮亏约-17.45%，接近止损，走势偏弱；铜冠铜箔141.89元创历史新高，浮盈约+62.79%；*ST建艺13.64元涨停，摘帽审核中；雅克科技132.99元高位震荡，存储周期逻辑持续'
     new_portfolio_status = '英维克67.14元（-2.55%）vs 止损98元，浮亏约-31.5%，走势偏弱；铜冠铜箔127.98元（+4.22%）再创历史新高；*ST建艺12.99元（+1.88%）摘帽审核中；雅克科技134.81元（+10.00%）涨停，两连板累计涨21%'
     html = safe_replace(html, old_portfolio_status, new_portfolio_status, "持仓风险-当前状态")
     
     # 5. 更新题材热度监控 - 风险事件
-    old_topic_event = r'科技题材集体退潮，AI算力/液冷/CPO调整，市场热点散乱持续性差'
+    old_topic_event = r'市场风格切换，资源股、周期股爆发，AI硬件分化，低空经济、PCB概念活跃'
     new_topic_event = '市场风格切换，AI题材退潮，半导体材料、资源股逆势走强'
     html = safe_replace(html, old_topic_event, new_topic_event, "题材热度-风险事件")
     
     # 更新题材热度-当前状态
-    old_topic_status = r'英维克67.14元（-2.55%），铜冠铜箔127.98元（+4.22%）创历史新高，*ST建艺12.99元（+1.88%）摘帽审核中，雅克科技134.81元（+10.00%）涨停'
+    old_topic_status = r'今日有色金属、小金属、黄金、券商板块涨幅居前，AI应用、通信、电子板块领跌。铜冠铜箔（锂电铜箔）创新高，雅克科技（HBM）高位震荡，英维克（液冷）弱势整理。低空经济、PCB概念活跃'
     new_topic_status = '今日半导体材料、光刻机、小金属板块涨幅居前，AI应用、文化传媒、算力租赁领跌。雅克科技（HBM）涨停带动半导体材料板块，英维克（液冷）跌2.55%'
     html = safe_replace(html, old_topic_status, new_topic_status, "题材热度-当前状态")
     
     # 6. 更新消息面监控 - 重大事件
-    old_news_event = r'美国5月CPI同比升至4.2%超预期，美联储加息预期升温；工信部发布AI+信息通信创新发展意见'
+    old_news_event = r'美伊和平协议预期达成，原油暴跌；国内政策发力稳增长，央行净投放流动性；AI产业持续高景气'
     new_news_event = '美国5月CPI同比升至4.2%超预期，美联储降息预期降温；中东局势升级，霍尔木兹海峡关闭，油价大涨'
     html = safe_replace(html, old_news_event, new_news_event, "消息面-重大事件")
     
     # 更新消息面-市场反应
-    old_news_reaction = r'美股纳指跌0.97%，费城半导体跌1.93%；A股创业板跌2.7%，科技股承压；黄金油价齐跌'
+    old_news_reaction = r'美股大涨，纳指涨超2%；布伦特原油暴跌超4%；黄金创逾两个月最大涨幅；A股放量上涨，沪指站上4000点，有色金属板块爆发'
     new_news_reaction = '美股道指跌1.87%、纳指跌1.98%，费城半导体指数跌3.57%；A股创业板跌1.13%，半导体材料板块逆势上涨；布伦特原油涨超2%站上93美元'
     html = safe_replace(html, old_news_reaction, new_news_reaction, "消息面-市场反应")
     
     # 7. 更新事件日历监控 - 即将到来
-    old_event_upcoming = r'6月12日美加墨世界杯开幕、6月16-17日美联储FOMC会议、6月17日沃什首场发布会'
+    old_event_upcoming = r'6月12日SpaceX上市、6月18日美联储议息会议、*ST建艺摘帽结果待公布、中期经济数据陆续发布'
     new_event_upcoming = '6月12日SpaceX上市、6月18日美联储议息会议、*ST建艺摘帽结果待公布'
     html = safe_replace(html, old_event_upcoming, new_event_upcoming, "事件日历-即将到来")
     
     # 更新事件日历-风险提示
-    old_event_warning = r'警惕美联储议息会议释放鹰派信号，CPI超预期强化加息预期，中东局势持续紧张'
+    old_event_warning = r'SpaceX IPO虹吸全球资本流动性，美联储政策不确定性，关注国内经济数据与政策动向'
     new_event_warning = 'SpaceX IPO虹吸全球资本流动性，美联储政策不确定性，中东局势持续紧张升级'
     html = safe_replace(html, old_event_warning, new_event_warning, "事件日历-风险提示")
     
