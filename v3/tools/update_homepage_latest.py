@@ -276,12 +276,18 @@ def update_homepage(count=4, max_per_category=1):
     
     new_section = generate_latest_section_html(reports)
     
-    pattern = r'(\s*<!-- 【第一区】最新发布横幅.*?</div>\s*</div>\s*)'
+    # 用区块标记定位：从【第一区】开始，到【第二区】之前结束
+    start_marker = '<!-- 【第一区】最新发布横幅'
+    end_marker = '<!-- 【第二区】'
     
-    match = re.search(pattern, content, re.DOTALL)
-    if match:
-        old_section = match.group(1)
-        content = content.replace(old_section, '\n' + new_section + '\n')
+    start_idx = content.find(start_marker)
+    end_idx = content.find(end_marker)
+    
+    if start_idx != -1 and end_idx != -1:
+        # 替换两个标记之间的内容
+        before = content[:start_idx]
+        after = content[end_idx:]
+        content = before + new_section.strip() + '\n\n        ' + after
         
         with open(index_path, 'w', encoding='utf-8') as f:
             f.write(content)
