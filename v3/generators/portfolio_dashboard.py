@@ -1,542 +1,325 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-持仓智能预警仪表盘生成器
-数据驱动，UI完全沿用现有设计
+持仓监控仪表盘生成器 - V3.0 升级版
+增加：利好/利空因素分析、风险等级、操作建议、组合诊断、预判跟踪
 """
-
-import json
+import sys
 import os
-from datetime import datetime
-from html import escape
+import json
 
-def load_portfolio_data():
-    """加载持仓数据"""
-    data_path = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'portfolio.json')
-    with open(data_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-def format_percent(value):
-    """格式化百分比"""
-    if value >= 0:
-        return f"+{value*100:.2f}%"
-    else:
-        return f"{value*100:.2f}%"
+from core.report import Report
+from components.layout import Section
 
-def format_price(value):
-    """格式化价格"""
-    return f"{value:.2f}"
 
-def get_color_class(value, positive_is_good=True):
-    """根据正负返回颜色类"""
-    if positive_is_good:
-        return 'text-green-600' if value >= 0 else 'text-red-600'
-    else:
-        return 'text-red-600' if value >= 0 else 'text-green-600'
-
-def get_diagnosis_bg_class(status):
-    """根据诊断状态返回背景色"""
-    if status == 'good':
-        return 'bg-green-50 border-green-100'
-    elif status == 'bad':
-        return 'bg-red-50 border-red-100'
-    else:
-        return 'bg-gray-50 border-gray-100'
-
-def get_diagnosis_text_class(status):
-    """根据诊断状态返回文字颜色"""
-    if status == 'good':
-        return 'text-green-600'
-    elif status == 'bad':
-        return 'text-red-600'
-    else:
-        return 'text-gray-600'
-
-def generate_stock_card(stock):
-    """生成单个持仓卡片HTML"""
-    # 判断是用"距止损"还是"安全边际"
-    has_stop_loss_distance = 'distance_to_stop_loss' in stock
-    has_safety_margin = 'safety_margin' in stock
+class PortfolioDashboardGenerator:
+    """持仓监控仪表盘生成器"""
     
-    if has_stop_loss_distance:
-        margin_label = '距止损'
-        margin_value = format_percent(stock['distance_to_stop_loss'])
-        margin_color = get_color_class(stock['distance_to_stop_loss'], positive_is_good=False)
-    else:
-        margin_label = '安全边际'
-        margin_value = format_percent(stock['safety_margin'])
-        margin_color = get_color_class(stock['safety_margin'], positive_is_good=True)
+    def __init__(self, data_path: str = "data/portfolio.json"):
+        self.data_path = data_path
+        with open(data_path, 'r', encoding='utf-8') as f:
+            self.data = json.load(f)
+        self.portfolio = self.data.get('portfolio', {})
+        self.stocks = self.data.get('stocks', [])
+        
+        self.report = Report(
+            title="持仓监控仪表盘",
+            report_type="portfolio_dashboard",
+            subtitle="实时监控 · 风险预警 · 智能诊断"
+        )
+        self._components = []
     
-    # 今日涨跌颜色
-    today_change_color = get_color_class(stock['today_change'])
-    
-    # 最新价颜色（相对于成本价）
-    profit = stock['current_price'] - stock['cost_price']
-    price_color = get_color_class(profit)
-    
-    diagnosis = stock['diagnosis']
-    
-    card_html = f'''
-            <!-- {stock['name']} -->
-            <div class="stock-card card-glass p-6">
-                <div class="flex items-start justify-between mb-6">
-                    <div class="flex items-center gap-4">
-                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br {stock['gradient']} flex items-center justify-center">
-                            <span class="text-white text-3xl font-black">{stock['icon']}</span>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-3">
-                                <h2 class="text-2xl font-black text-gray-800">{stock['name']}</h2>
-                                <span class="text-gray-400">{stock['id']}</span>
-                                <span class="{stock['tag_color']} text-white text-xs px-3 py-1 rounded-full font-bold">{stock['tag']}</span>
-                            </div>
-                        </div>
+    def add_overview(self):
+        """添加组合总览"""
+        p = self.portfolio
+        total_return = p.get('total_return', 0) * 100
+        health_score = p.get('health_score', 0)
+        stock_count = p.get('stock_count', 0)
+        profit_count = p.get('profit_count', 0)
+        loss_count = p.get('loss_count', 0)
+        
+        return_color = '#10b981' if total_return >= 0 else '#ef4444'
+        return_sign = '+' if total_return >= 0 else ''
+        
+        html = f'''
+        <div style="background: linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%); 
+                    padding: 28px; border-radius: 20px; 
+                    border: 1px solid rgba(79, 70, 229, 0.15);">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 20px; align-items: center;">
+                <!-- 总收益率 -->
+                <div style="text-align: center;">
+                    <div style="font-size: 48px; font-weight: 900; color: {return_color}; line-height: 1;">
+                        {return_sign}{total_return:.1f}%
+                    </div>
+                    <div style="font-size: 14px; color: #6b7280; margin-top: 8px;">
+                        组合总收益率
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-6 gap-4 mb-6">
-                    <div class="p-4 bg-gray-50 rounded-xl text-center">
-                        <div class="text-xs text-gray-500 mb-1">成本价</div>
-                        <div class="text-xl font-bold text-gray-700">{format_price(stock['cost_price'])}</div>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-xl text-center">
-                        <div class="text-xs text-gray-500 mb-1">最新价</div>
-                        <div class="text-xl font-bold {price_color}">{format_price(stock['current_price'])}</div>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-xl text-center">
-                        <div class="text-xs text-gray-500 mb-1">止损价</div>
-                        <div class="text-xl font-bold text-gray-700">{format_price(stock['stop_loss_price'])}</div>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-xl text-center">
-                        <div class="text-xs text-gray-500 mb-1">{margin_label}</div>
-                        <div class="text-xl font-bold {margin_color}">{margin_value}</div>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-xl text-center">
-                        <div class="text-xs text-gray-500 mb-1">今日涨跌</div>
-                        <div class="text-xl font-bold {today_change_color}">{format_percent(stock['today_change'])}</div>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-xl text-center">
-                        <div class="text-xs text-gray-500 mb-1">主力资金</div>
-                        <div class="text-xl font-bold text-red-600">{stock['main_fund']}</div>
-                    </div>
+                <!-- 健康度 -->
+                <div style="text-align: center; background: rgba(255,255,255,0.7); border-radius: 16px; padding: 20px;">
+                    <div style="font-size: 32px; font-weight: 800; color: #4f46e5;">{health_score}</div>
+                    <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">健康度评分</div>
                 </div>
                 
-                <!-- 风险进度条 -->
-                <div class="mb-6">
-                    <div class="flex justify-between text-sm mb-2">
-                        <span class="text-gray-500">风险程度</span>
-                        <span class="{stock['risk_color']} font-bold">{stock['risk_level']}</span>
-                    </div>
-                    <div class="h-4 bg-gray-200 rounded-full overflow-hidden relative">
-                        <div class="h-full progress-bar rounded-full"></div>
-                        <div class="absolute top-0 h-full w-0.5 bg-white" style="left: 50%;"></div>
-                        <div class="absolute -top-1" style="left: {stock['risk_progress']}%;">
-                            <div class="w-4 h-4 bg-red-600 rounded-full border-2 border-white shadow-lg"></div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between text-xs text-gray-400 mt-1">
-                        <span>安全区</span><span>警戒区</span><span>止损区</span>
-                    </div>
+                <!-- 持仓数 -->
+                <div style="text-align: center; background: rgba(255,255,255,0.7); border-radius: 16px; padding: 20px;">
+                    <div style="font-size: 32px; font-weight: 800; color: #1f2937;">{stock_count}</div>
+                    <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">持仓标的</div>
                 </div>
                 
-                <!-- 四维诊断 -->
-                <div class="grid grid-cols-4 gap-4">
-                    <div class="p-4 {get_diagnosis_bg_class(diagnosis['technical']['status'])} border rounded-xl">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-lg">📈</span>
-                            <span class="text-sm font-semibold text-gray-700">{diagnosis['technical']['title']}</span>
-                        </div>
-                        <div class="text-lg font-bold {get_diagnosis_text_class(diagnosis['technical']['status'])}">{diagnosis['technical']['value']}</div>
-                        <div class="text-xs text-gray-500 mt-1">{diagnosis['technical']['desc']}</div>
+                <!-- 盈亏分布 -->
+                <div style="text-align: center; background: rgba(255,255,255,0.7); border-radius: 16px; padding: 20px;">
+                    <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 4px;">
+                        <span style="font-size: 20px; font-weight: 700; color: #10b981;">{profit_count}盈</span>
+                        <span style="font-size: 20px; font-weight: 700; color: #ef4444;">{loss_count}亏</span>
                     </div>
-                    <div class="p-4 {get_diagnosis_bg_class(diagnosis['fund']['status'])} border rounded-xl">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-lg">💰</span>
-                            <span class="text-sm font-semibold text-gray-700">{diagnosis['fund']['title']}</span>
-                        </div>
-                        <div class="text-lg font-bold {get_diagnosis_text_class(diagnosis['fund']['status'])}">{diagnosis['fund']['value']}</div>
-                        <div class="text-xs text-gray-500 mt-1">{diagnosis['fund']['desc']}</div>
-                    </div>
-                    <div class="p-4 {get_diagnosis_bg_class(diagnosis['news']['status'])} border rounded-xl">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-lg">📰</span>
-                            <span class="text-sm font-semibold text-gray-700">{diagnosis['news']['title']}</span>
-                        </div>
-                        <div class="text-lg font-bold {get_diagnosis_text_class(diagnosis['news']['status'])}">{diagnosis['news']['value']}</div>
-                        <div class="text-xs text-gray-500 mt-1">{diagnosis['news']['desc']}</div>
-                    </div>
-                    <div class="p-4 {get_diagnosis_bg_class(diagnosis['industry']['status'])} border rounded-xl">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-lg">🏭</span>
-                            <span class="text-sm font-semibold text-gray-700">{diagnosis['industry']['title']}</span>
-                        </div>
-                        <div class="text-lg font-bold {get_diagnosis_text_class(diagnosis['industry']['status'])}">{diagnosis['industry']['value']}</div>
-                        <div class="text-xs text-gray-500 mt-1">{diagnosis['industry']['desc']}</div>
-                    </div>
-                </div>
-            </div>
-'''
-    return card_html
-
-def generate_stress_test(stocks, portfolio):
-    """生成压力测试表格"""
-    rows_extreme = []
-    rows_neutral = []
-    
-    for stock in stocks:
-        rows_extreme.append(f'''
-                        <div class="p-3 bg-gray-50 rounded-lg text-center">
-                            <div class="text-gray-500 text-xs">{stock['name']}</div>
-                            <div class="text-lg font-bold text-red-600">{stock['stress_test']['extreme']}</div>
-                        </div>
-        ''')
-        rows_neutral.append(f'''
-                        <div class="p-3 bg-gray-50 rounded-lg text-center">
-                            <div class="text-gray-500 text-xs">{stock['name']}</div>
-                            <div class="text-lg font-bold text-yellow-600">{stock['stress_test']['neutral']}</div>
-                        </div>
-        ''')
-    
-    html = f'''
-        <!-- 【第三区：压力测试与调仓建议】 -->
-        <div class="card-glass p-6 mb-6">
-            <div class="flex items-center gap-3 mb-6">
-                <span class="text-2xl">🚨</span>
-                <h2 class="text-xl font-bold text-gray-800">压力测试情景</h2>
-            </div>
-            
-            <div class="space-y-4 mb-6">
-                <div>
-                    <div class="text-sm font-semibold text-gray-700 mb-2">极端情景（大盘跌10%）</div>
-                    <div class="grid grid-cols-4 gap-3">
-                        {''.join(rows_extreme)}
-                    </div>
-                </div>
-                <div>
-                    <div class="text-sm font-semibold text-gray-700 mb-2">中性情景（大盘震荡）</div>
-                    <div class="grid grid-cols-4 gap-3">
-                        {''.join(rows_neutral)}
-                    </div>
+                    <div style="font-size: 12px; color: #6b7280;">盈亏分布</div>
                 </div>
             </div>
             
-            <!-- 调仓建议 -->
-            <div class="border-t border-gray-200 pt-6">
-                <div class="flex items-center gap-3 mb-4">
-                    <span class="text-2xl">💡</span>
-                    <h2 class="text-xl font-bold text-gray-800">智能调仓建议</h2>
+            <!-- 总评 -->
+            <div style="margin-top: 20px; padding: 16px 20px; background: rgba(255,255,255,0.8); border-radius: 14px;
+                       border-left: 4px solid #4f46e5;">
+                <div style="font-size: 13px; font-weight: 600; color: #4f46e5; margin-bottom: 6px;">
+                    💡 组合诊断
                 </div>
-                <div class="space-y-3">
-'''
-    
-    # 每个股票的建议
-    for stock in stocks:
-        html += f'''
-                    <p class="text-sm text-gray-700">{stock['advice']}</p>
+                <div style="font-size: 14px; color: #374151; line-height: 1.7;">
+                    {p.get('overall_advice', '')}
+                </div>
+            </div>
+        </div>
         '''
+        
+        section = Section(title="📊 组合总览", content=html, icon="chart")
+        self._components.append(section)
     
-    # 总建议
-    html += f'''
-                    <p class="text-sm text-gray-700 font-medium pt-2 border-t border-gray-100">{portfolio['overall_advice']}</p>
+    def add_stock_detail(self, stock):
+        """生成单只股票的详细卡片"""
+        name = stock.get('name', '')
+        code = stock.get('code', '')
+        cost = stock.get('cost_price', 0)
+        current = stock.get('current_price', 0)
+        profit_pct = (current - cost) / cost * 100
+        today_change = stock.get('today_change', 0) * 100
+        stop_loss = stock.get('stop_loss_price', 0)
+        distance_sl = stock.get('distance_to_stop_loss', 0) * 100
+        risk_level = stock.get('risk_level', '')
+        risk_progress = stock.get('risk_progress', 0)
+        main_fund = stock.get('main_fund', '')
+        advice = stock.get('advice', '')
+        diagnosis = stock.get('diagnosis', {})
+        stress_test = stock.get('stress_test', {})
+        
+        profit_color = '#10b981' if profit_pct >= 0 else '#ef4444'
+        profit_sign = '+' if profit_pct >= 0 else ''
+        today_color = '#10b981' if today_change >= 0 else '#ef4444'
+        today_sign = '+' if today_change >= 0 else ''
+        
+        # 风险进度条颜色
+        if risk_progress < 50:
+            risk_bar_color = '#10b981'
+        elif risk_progress < 75:
+            risk_bar_color = '#f59e0b'
+        else:
+            risk_bar_color = '#ef4444'
+        
+        # 诊断信息
+        diag_items = []
+        for key, value in diagnosis.items():
+            if isinstance(value, dict):
+                status = value.get('status', 'normal')
+                status_colors = {
+                    'good': '#10b981',
+                    'normal': '#3b82f6',
+                    'bad': '#ef4444',
+                    'warning': '#f59e0b'
+                }
+                color = status_colors.get(status, '#6b7280')
+                diag_items.append({
+                    'title': value.get('title', key),
+                    'value': value.get('value', ''),
+                    'desc': value.get('desc', ''),
+                    'color': color
+                })
+        
+        diag_html = ''
+        for item in diag_items:
+            diag_html += f'''
+            <div style="text-align: center; flex: 1;">
+                <div style="font-size: 14px; font-weight: 600; color: {item['color']};">{item['value']}</div>
+                <div style="font-size: 11px; color: #6b7280; margin-top: 2px;">{item['title']}</div>
+            </div>
+            '''
+        
+        html = f'''
+        <div style="background: white; border-radius: 18px; padding: 24px; 
+                    border: 1px solid rgba(0,0,0,0.06);
+                    box-shadow: 0 2px 12px rgba(0,0,0,0.04);">
+            <!-- 头部 -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                        <span style="font-size: 20px; font-weight: 700; color: #1f2937;">{name}</span>
+                        <span style="font-size: 12px; color: #9ca3af;">{code}</span>
+                    </div>
+                    <div style="display: flex; gap: 16px; font-size: 13px;">
+                        <span style="color: #6b7280;">成本: <span style="color: #374151; font-weight: 500;">¥{cost:.2f}</span></span>
+                        <span style="color: #6b7280;">现价: <span style="color: #374151; font-weight: 500;">¥{current:.2f}</span></span>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 24px; font-weight: 800; color: {profit_color};">
+                        {profit_sign}{profit_pct:.1f}%
+                    </div>
+                    <div style="font-size: 12px; color: {today_color};">
+                        今日 {today_sign}{today_change:.1f}%
+                    </div>
                 </div>
             </div>
-        </div>
-'''
-    return html
-
-def generate_full_page(data):
-    """生成完整页面"""
-    portfolio = data['portfolio']
-    stocks = data['stocks']
-    
-    # 生成所有持仓卡片
-    stock_cards = ''.join([generate_stock_card(s) for s in stocks])
-    
-    # 生成压力测试区
-    stress_test_html = generate_stress_test(stocks, portfolio)
-    
-    # 计算组合数据
-    total_return_color = get_color_class(portfolio['total_return'])
-    health_color = 'text-green-600' if portfolio['health_score'] >= 60 else 'text-yellow-600'
-    
-    # 读取原页面的head和导航部分（保证UI一致）
-    # 这里直接内嵌完整的CSS和导航，确保与原版一致
-    html = f'''<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>持仓智能预警仪表盘</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <style>
-        /* ===== 标准导航栏样式 ===== */
-        .glass-nav {{
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            z-index: 2147483647 !important;
-            isolation: isolate !important;
-            pointer-events: auto !important;
-        }}
-.glass-nav * {{
-            position: relative;
-            z-index: 2147483647 !important;
-            pointer-events: auto !important;
-        }}
-.hamburger-btn {{
-            display: none;
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            width: 44px;
-            height: 44px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 20px;
-            z-index: 99999;
-        }}
-.mobile-menu {{
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(102,126,234,0.98) 0%, rgba(118,75,162,0.98) 100%);
-            z-index: 99998;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }}
-.mobile-menu.show {{
-            display: flex;
-        }}
-.mobile-menu-item {{
-            color: white;
-            font-size: 18px;
-            font-weight: 600;
-            padding: 15px 30px;
-            text-decoration: none;
-            text-align: center;
-            width: 100%;
-            max-width: 300px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            transition: all 0.3s;
-        }}
-.close-menu-btn {{
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            width: 44px;
-            height: 44px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 20px;
-        }}
-@media (max-width: 768px) {{
-            .nav-links {{
-                display: none !important;
-            }}
             
-            .hamburger-btn {{
-                display: block !important;
-        }}
-            }}
-
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
-        
-        * {{ font-family: 'Noto Sans SC', sans-serif; }}
-        
-        body {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }}
-        
-        .card-glass {{
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }}
-        
-        .stock-card {{ transition: transform 0.2s ease; }}
-        .stock-card:hover {{ transform: translateY(-2px); }}
-        
-        .progress-bar {{
-            background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%);
-            width: 100%;
-        }}
-        
-        .health-ring-green {{
-            --p: {portfolio['health_score']}%;
-            background: conic-gradient(#10b981 var(--p), #e5e7eb var(--p));
-        }}
-        
-        /* ===== V3.0 精致增强版样式 ===== */
-        .stat-card-hover {{
-            transition: all 0.3s ease;
-        }}
-        .stat-card-hover:hover {{
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }}
-    </style>
-</head>
-<body class="pb-20">
-    <!-- 导航栏 -->
-    <nav class="glass-nav fixed top-0 left-0 right-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <span class="text-2xl">📊</span>
-                <span class="text-white font-bold text-lg">持仓智能预警</span>
+            <!-- 多维度诊断 -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; padding: 14px; background: #f8fafc; border-radius: 12px;">
+                {diag_html}
             </div>
-            <button class="hamburger-btn" onclick="toggleMenu()">
-                <i class="fa fa-bars"></i>
-            </button>
-            <div class="nav-links flex items-center gap-6">
-                <a href="../index.html" class="text-white/80 hover:text-white text-sm font-medium transition">首页</a>
-                <a href="../news/latest.html" class="text-white/80 hover:text-white text-sm font-medium transition">每日新闻</a>
-                <a href="index.html" class="text-white font-bold text-sm">持仓预警</a>
-                <a href="../industry_chain/latest.html" class="text-white/80 hover:text-white text-sm font-medium transition">产业链</a>
-                <a href="../weekly_outlook/latest.html" class="text-white/80 hover:text-white text-sm font-medium transition">周前瞻</a>
-            </div>
-        </div>
-    </nav>
-    
-    <!-- 移动端菜单 -->
-    <div class="mobile-menu" id="mobileMenu">
-        <button class="close-menu-btn" onclick="toggleMenu()">
-            <i class="fa fa-times"></i>
-        </button>
-        <a href="../index.html" class="mobile-menu-item" onclick="toggleMenu()">首页</a>
-        <a href="../news/latest.html" class="mobile-menu-item" onclick="toggleMenu()">每日新闻</a>
-        <a href="index.html" class="mobile-menu-item" onclick="toggleMenu()">持仓预警</a>
-        <a href="../industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMenu()">产业链</a>
-        <a href="../weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMenu()">周前瞻</a>
-    </div>
-    
-    <!-- 主内容区 -->
-    <div class="max-w-6xl mx-auto px-4 pt-24">
-        <!-- 标题区 -->
-        <div class="card-glass p-6 mb-6">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                    <span class="text-2xl">📊</span>
+            
+            <!-- 风险预警 -->
+            <div style="margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;">
+                    <span style="color: #6b7280;">风险等级</span>
+                    <span style="color: #374151; font-weight: 500;">{risk_level}</span>
                 </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-xl font-bold text-gray-800">持仓智能预警仪表盘</h1>
-                        <span class="bg-purple-500 text-white text-xs px-2 py-0.5 rounded-full font-semibold">Pro</span>
-                    </div>
-                    <p class="text-gray-500 text-sm mt-1">数据更新时间：{portfolio['update_time']}</p>
+                <div style="width: 100%; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden;">
+                    <div style="height: 100%; width: {risk_progress}%; background: {risk_bar_color}; border-radius: 4px;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: #9ca3af; margin-top: 4px;">
+                    <span>安全区</span>
+                    <span>止损价: ¥{stop_loss:.2f} (距{distance_sl:.1f}%)</span>
+                </div>
+            </div>
+            
+            <!-- 操作建议 -->
+            <div style="background: #f0fdf4; border-radius: 12px; padding: 14px 16px;
+                       border-left: 3px solid #10b981;">
+                <div style="font-size: 12px; font-weight: 600; color: #059669; margin-bottom: 6px;">
+                    🎯 操作建议
+                </div>
+                <div style="font-size: 13px; color: #047857; line-height: 1.6;">
+                    {advice}
                 </div>
             </div>
         </div>
+        '''
         
-        <!-- 组合总览 -->
-        <div class="card-glass p-6 mb-6">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h1 class="text-2xl font-black text-gray-800 mb-1">投资组合健康度分析</h1>
-                    <p class="text-gray-500 text-sm">多维度持仓诊断 · 风险实时预警 · 智能调仓建议</p>
-                </div>
-                <div class="flex items-center gap-6">
-                    <div class="text-center">
-                        <div class="text-4xl font-black {total_return_color}">{format_percent(portfolio['total_return'])}</div>
-                        <div class="text-sm text-gray-500">组合总盈亏</div>
-                    </div>
-                    <div class="relative">
-                        <div class="health-ring-green w-24 h-24 rounded-full flex items-center justify-center">
-                            <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center">
-                                <div class="text-center">
-                                    <div class="text-2xl font-black {health_color}">{portfolio['health_score']}</div>
-                                    <div class="text-xs text-gray-500">健康分</div>
-                                </div>
-                            </div>
+        return html
+    
+    def add_holdings_list(self):
+        """添加持仓列表"""
+        html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px;">'
+        for stock in self.stocks:
+            html += self.add_stock_detail(stock)
+        html += '</div>'
+        
+        section = Section(title="💼 持仓明细", content=html, icon="briefcase")
+        self._components.append(section)
+    
+    def add_risk_warnings(self):
+        """添加风险预警列表"""
+        high_risk = [s for s in self.stocks if s.get('risk_progress', 0) >= 70]
+        
+        if not high_risk:
+            html = '''
+            <div style="background: #f0fdf4; border-radius: 16px; padding: 24px; text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 12px;">✅</div>
+                <div style="font-size: 16px; font-weight: 600; color: #059669;">暂无高风险预警</div>
+                <div style="font-size: 13px; color: #6b7280; margin-top: 6px;">所有持仓均在安全区间内</div>
+            </div>
+            '''
+        else:
+            html = '<div style="display: flex; flex-direction: column; gap: 12px;">'
+            for stock in high_risk:
+                html += f'''
+                <div style="background: #fef2f2; border-radius: 14px; padding: 16px 20px;
+                           border: 1px solid #fecaca; display: flex; align-items: center; gap: 16px;">
+                    <div style="font-size: 28px;">⚠️</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 15px; font-weight: 600; color: #b91c1c; margin-bottom: 4px;">
+                            {stock['name']} - {stock.get('risk_level', '')}
+                        </div>
+                        <div style="font-size: 12px; color: #6b7280;">
+                            距离止损价仅剩 {stock.get('distance_to_stop_loss', 0)*100:.1f}%，建议密切关注
                         </div>
                     </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 18px; font-weight: 700; color: #ef4444;">
+                            {stock.get('risk_progress', 0)}%
+                        </div>
+                        <div style="font-size: 11px; color: #9ca3af;">风险度</div>
+                    </div>
                 </div>
-            </div>
+                '''
+            html += '</div>'
+        
+        section = Section(title="🚨 风险预警", content=html, icon="alert-triangle")
+        self._components.append(section)
+    
+    def add_operation_plan(self):
+        """添加明日操作计划"""
+        # 基于持仓数据生成操作要点
+        key_points = []
+        
+        for stock in self.stocks:
+            name = stock['name']
+            risk = stock.get('risk_progress', 0)
+            profit = (stock.get('current_price', 0) - stock.get('cost_price', 0)) / stock.get('cost_price', 1) * 100
             
-            <div class="grid grid-cols-5 gap-4">
-                <div class="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl text-center stat-card-hover">
-                    <div class="text-2xl mb-1">📦</div>
-                    <div class="text-sm text-gray-600 mb-1">持仓标的</div>
-                    <div class="text-2xl font-black text-gray-800">{portfolio['stock_count']}只</div>
-                </div>
-                <div class="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 rounded-2xl text-center stat-card-hover">
-                    <div class="text-2xl mb-1">💰</div>
-                    <div class="text-sm text-gray-600 mb-1">盈利标的</div>
-                    <div class="text-2xl font-black text-green-600">{portfolio['profit_count']}只</div>
-                </div>
-                <div class="p-4 bg-gradient-to-br from-red-50 to-orange-50 border border-red-100 rounded-2xl text-center stat-card-hover">
-                    <div class="text-2xl mb-1">📉</div>
-                    <div class="text-sm text-gray-600 mb-1">亏损标的</div>
-                    <div class="text-2xl font-black text-red-600">{portfolio['loss_count']}只</div>
-                </div>
-                <div class="p-4 bg-gradient-to-br from-yellow-50 to-amber-50 border border-yellow-100 rounded-2xl text-center stat-card-hover">
-                    <div class="text-2xl mb-1">⚠️</div>
-                    <div class="text-sm text-gray-600 mb-1">跌破止损</div>
-                    <div class="text-2xl font-black text-yellow-600">{portfolio['stop_loss_break_count']}只</div>
-                </div>
-                <div class="p-4 bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-100 rounded-2xl text-center stat-card-hover">
-                    <div class="text-2xl mb-1">🏭</div>
-                    <div class="text-sm text-gray-600 mb-1">行业分布</div>
-                    <div class="text-2xl font-black text-purple-600">{portfolio['industry_count']}个</div>
-                </div>
-            </div>
-        </div>
+            if risk >= 70:
+                key_points.append(f"<strong>{name}</strong>：风险度较高，接近止损线，建议设置止损单，若有效跌破立即止损")
+            elif profit > 30:
+                key_points.append(f"<strong>{name}</strong>：盈利丰厚，建议分批止盈，锁定部分利润")
+            elif profit > 10:
+                key_points.append(f"<strong>{name}</strong>：盈利态势良好，持有为主，关注能否突破前高")
+            elif profit > -10:
+                key_points.append(f"<strong>{name}</strong>：小幅波动，耐心持有，等待催化")
+            else:
+                key_points.append(f"<strong>{name}</strong>：浮亏较大，关注支撑位，若基本面无变化可考虑补仓")
         
-        <!-- 【第二区：持仓深度卡片】 -->
-        <div class="space-y-6 mb-6">
-            {stock_cards}
-        </div>
+        html = '<div style="background: white; padding: 24px; border-radius: 18px; border: 1px solid rgba(0,0,0,0.06);">'
+        html += '<div style="font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 16px;">📋 明日操作要点</div>'
+        html += '<ol style="margin: 0; padding-left: 20px;">'
+        for point in key_points:
+            html += f'<li style="font-size: 14px; color: #374151; line-height: 1.8; margin-bottom: 8px;">{point}</li>'
+        html += '</ol></div>'
         
-        {stress_test_html}
-        
-        <!-- 页脚 -->
-        <div class="text-center text-white/60 text-xs mt-8">
-            <p>数据仅供参考，不构成投资建议 · 投资有风险，入市需谨慎</p>
-            <p class="mt-2">持仓智能预警仪表盘 · {portfolio['update_time']}</p>
-        </div>
-    </div>
+        section = Section(title="🎯 操作计划", content=html, icon="target")
+        self._components.append(section)
     
-    <script>
-        function toggleMenu() {{
-            document.getElementById('mobileMenu').classList.toggle('show');
-        }}
-    </script>
-</body>
-</html>'''
+    def generate(self) -> str:
+        """生成完整HTML"""
+        self.report.components.clear()
+        for comp in self._components:
+            self.report.add(comp)
+        return self.report.generate()
     
-    return html
+    def save(self, filepath: str) -> str:
+        """保存到文件"""
+        html = self.generate()
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(html)
+        return filepath
+    
+    def publish(self, output_path: str = "docs/持仓监控/index.html"):
+        """发布"""
+        self.save(output_path)
+        print(f'✓ 持仓监控仪表盘已发布: {output_path}')
+        return output_path
 
-def generate():
-    """主生成函数"""
-    data = load_portfolio_data()
-    html = generate_full_page(data)
-    
-    # 输出路径
-    output_path = os.path.join(os.path.dirname(__file__), '..', '..', 'docs', '持仓智能预警仪表盘', 'index.html')
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(html)
-    
-    print(f"✅ 持仓智能预警仪表盘已生成：{output_path}")
-    print(f"   持仓标的：{data['portfolio']['stock_count']}只")
-    print(f"   组合盈亏：{format_percent(data['portfolio']['total_return'])}")
-    print(f"   健康评分：{data['portfolio']['health_score']}分")
-    
-    return output_path
 
 if __name__ == '__main__':
-    generate()
+    gen = PortfolioDashboardGenerator()
+    gen.add_overview()
+    gen.add_holdings_list()
+    gen.add_risk_warnings()
+    gen.add_operation_plan()
+    gen.publish()
