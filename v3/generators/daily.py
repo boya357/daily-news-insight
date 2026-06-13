@@ -518,6 +518,56 @@ class DailyReportGenerator:
         
         self.add_sector_analysis(sector_list, view_mode='card')
     
+
+    def add_deep_dive(self, topic, logic_chain, current_position, catalysts):
+        """添加今日深度推演（V3.0新增）"""
+        content_html = '<div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); padding: 28px; border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 20px; box-shadow: 0 4px 16px rgba(245, 158, 11, 0.08), 0 1px 0 rgba(255, 255, 255, 0.6) inset;">'
+        content_html += '<div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">'
+        content_html += '<div style="font-size: 32px;">⚡</div>'
+        content_html += '<div><div style="font-weight: 700; color: #1f2937; font-size: 18px;">' + topic + '</div>'
+        content_html += '<div style="font-size: 13px; color: #6b7280;">深度推演 · 因果链分析</div></div></div>'
+        content_html += '<div style="font-size: 14px; color: #374151; line-height: 1.8;">'
+        content_html += '<p style="margin-bottom: 12px;"><strong>核心逻辑链：</strong>' + logic_chain + '</p>'
+        content_html += '<p style="margin-bottom: 12px;"><strong>当前位置：</strong>' + current_position + '</p>'
+        content_html += '<p><strong>潜在催化：</strong>' + catalysts + '</p>'
+        content_html += '</div></div>'
+        
+        section = Section(title="今日深度推演", content=content_html, icon="zap")
+        self._components.append(section)
+    
+    def add_tomorrow_prediction(self, predictions):
+        """添加明日关键预判（V3.0新增）
+        predictions: [{"name": "AI算力", "direction": "看涨", "confidence": 75, "reason": "..."}, ...]
+        """
+        direction_styles = {
+            '看涨': {'gradient': 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)', 'icon': '📈'},
+            '看跌': {'gradient': 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 'icon': '📉'},
+            '震荡': {'gradient': 'linear-gradient(135deg, #6b7280 0%, #475569 100%)', 'icon': '📊'},
+        }
+        
+        pred_html = '<div style="display: flex; flex-direction: column; gap: 16px;">'
+        for p in predictions:
+            direction = p.get('direction', '震荡')
+            style = direction_styles.get(direction, direction_styles['震荡'])
+            pred_html += '<div style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border-radius: 16px; padding: 20px; border: 1px solid rgba(0, 0, 0, 0.06);">'
+            pred_html += '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">'
+            pred_html += '<div style="display: flex; align-items: center; gap: 10px;">'
+            pred_html += '<span style="font-size: 22px;">' + style['icon'] + '</span>'
+            pred_html += '<span style="font-weight: 700; color: #1f2937;">' + p.get('name', '') + '</span></div>'
+            pred_html += '<span style="background: ' + style['gradient'] + '; color: white; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 20px;">'
+            pred_html += direction + ' · ' + str(p.get('confidence', 60)) + '%</span></div>'
+            pred_html += '<p style="font-size: 13px; color: #4b5563; line-height: 1.7; margin: 0;">' + p.get('reason', '') + '</p>'
+            pred_html += '</div>'
+        
+        pred_html += '</div>'
+        pred_html += '<div style="margin-top: 20px; text-align: center; font-size: 12px; color: #9ca3af;">⚠️ 预判仅供参考，不构成投资建议</div>'
+        
+        content_html = '<div style="background: linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%); padding: 28px; border: 1px solid rgba(79, 70, 229, 0.1); border-radius: 20px; box-shadow: 0 4px 16px rgba(79, 70, 229, 0.08), 0 1px 0 rgba(255, 255, 255, 0.6) inset;">'
+        content_html += pred_html + '</div>'
+        
+        section = Section(title="明日关键预判", content=content_html, icon="target")
+        self._components.append(section)
+
     def add_risk_warning(self, risks: list):
         """添加风险提示"""
         if isinstance(risks, list):

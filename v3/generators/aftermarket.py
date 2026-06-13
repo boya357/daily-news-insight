@@ -261,6 +261,124 @@ class AftermarketGenerator:
         section = Section(title="🏢 板块涨跌幅排行", content=content_html, icon="building")
         self._components.append(section)
     
+
+    def add_market_deep_analysis(self, strong_sectors, weak_sectors, core_view):
+        """添加盘面深度解读（V3.0新增）
+        
+        Args:
+            strong_sectors: 强势板块列表 [{"name": "AI算力", "reason": "..."}, ...]
+            weak_sectors: 弱势板块列表 [{"name": "消费电子", "reason": "..."}, ...]
+            core_view: 核心观点字符串
+        """
+        # 强势板块
+        strong_html = '<div style="background: linear-gradient(135deg, #fef2f2 0%, #fff7ed 100%); border-radius: 16px; padding: 20px; border: 1px solid rgba(239, 68, 68, 0.15);">'
+        strong_html += '<div style="font-size: 14px; font-weight: 700; color: #dc2626; margin-bottom: 10px;">📈 强势板块</div>'
+        strong_html += '<div style="font-size: 13px; color: #4b5563; line-height: 1.7;">'
+        for s in strong_sectors:
+            strong_html += '<p><strong>' + s.get('name', '') + '</strong>：' + s.get('reason', '') + '</p>'
+        strong_html += '</div></div>'
+        
+        # 弱势板块
+        weak_html = '<div style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border-radius: 16px; padding: 20px; border: 1px solid rgba(16, 185, 129, 0.15);">'
+        weak_html += '<div style="font-size: 14px; font-weight: 700; color: #059669; margin-bottom: 10px;">📉 弱势板块</div>'
+        weak_html += '<div style="font-size: 13px; color: #4b5563; line-height: 1.7;">'
+        for w in weak_sectors:
+            weak_html += '<p><strong>' + w.get('name', '') + '</strong>：' + w.get('reason', '') + '</p>'
+        weak_html += '</div></div>'
+        
+        # 核心观点
+        view_html = '<div style="background: linear-gradient(135deg, #eff6ff 0%, #eef2ff 100%); border-radius: 16px; padding: 20px; border: 1px solid rgba(59, 130, 246, 0.15);">'
+        view_html += '<div style="font-size: 14px; font-weight: 700; color: #2563eb; margin-bottom: 10px;">🎯 核心观点</div>'
+        view_html += '<p style="font-size: 13px; color: #4b5563; line-height: 1.8; margin: 0;">' + core_view + '</p>'
+        view_html += '</div>'
+        
+        content_html = '<div style="background: white; padding: 28px; border: 1px solid rgba(0, 0, 0, 0.06); border-radius: 20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 -1px 0 rgba(0, 0, 0, 0.02) inset;">'
+        content_html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">'
+        content_html += strong_html + weak_html
+        content_html += '</div>' + view_html + '</div>'
+        
+        section = Section(title="盘面深度解读", content=content_html, icon="chart")
+        self._components.append(section)
+    
+    def add_sentiment_thermometer(self, temperature, volume, up_count, down_count, limit_up_count):
+        """添加情绪温度计（V3.0新增）
+        
+        Args:
+            temperature: 情绪温度 0-100
+            volume: 成交额（字符串，如"3.24万亿"）
+            up_count: 上涨家数（字符串，如"2867↑"）
+            down_count: 下跌家数（字符串，如"2145↓"）
+            limit_up_count: 涨停数（字符串，如"62"）
+        """
+        # 判断情绪等级
+        if temperature >= 80:
+            level = "极度贪婪"
+        elif temperature >= 60:
+            level = "偏乐观"
+        elif temperature >= 40:
+            level = "中性"
+        elif temperature >= 20:
+            level = "偏悲观"
+        else:
+            level = "极度恐慌"
+        
+        content_html = '<div style="background: white; padding: 28px; border: 1px solid rgba(0, 0, 0, 0.06); border-radius: 20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 -1px 0 rgba(0, 0, 0, 0.02) inset;">'
+        
+        # 温度大数字
+        content_html += '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">'
+        content_html += '<div><div style="font-size: 48px; font-weight: 900; background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">' + str(temperature) + '°</div>'
+        content_html += '<div style="font-size: 13px; color: #6b7280; margin-top: 4px;">市场情绪温度</div></div>'
+        content_html += '<div style="text-align: right;"><div style="font-size: 16px; font-weight: 600; color: #f59e0b;">' + level + '</div>'
+        content_html += '<div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">20°=极度恐慌 · 100°=极度贪婪</div></div></div>'
+        
+        # 进度条
+        content_html += '<div style="width: 100%; height: 20px; background: #e5e7eb; border-radius: 12px; overflow: hidden; margin-bottom: 24px;">'
+        content_html += '<div style="height: 100%; width: ' + str(temperature) + '%; background: linear-gradient(90deg, #10b981 0%, #eab308 50%, #ef4444 100%); border-radius: 12px;"></div></div>'
+        
+        # 四项数据
+        content_html += '<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; text-align: center;">'
+        content_html += '<div><div style="font-size: 18px; font-weight: 800; color: #374151;">' + volume + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">成交额</div></div>'
+        content_html += '<div><div style="font-size: 18px; font-weight: 800; color: #ef4444;">' + up_count + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">上涨家数</div></div>'
+        content_html += '<div><div style="font-size: 18px; font-weight: 800; color: #10b981;">' + down_count + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">下跌家数</div></div>'
+        content_html += '<div><div style="font-size: 18px; font-weight: 800; color: #f59e0b;">' + str(limit_up_count) + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">涨停数</div></div>'
+        content_html += '</div></div>'
+        
+        section = Section(title="情绪温度计", content=content_html, icon="thermometer")
+        self._components.append(section)
+    
+    def add_tomorrow_prediction(self, predictions):
+        """添加明日关键预判（V3.0新增）
+        predictions: [{"name": "AI算力", "direction": "看涨", "confidence": 75, "reason": "..."}, ...]
+        """
+        direction_styles = {
+            '看涨': {'gradient': 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)', 'icon': '📈'},
+            '看跌': {'gradient': 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 'icon': '📉'},
+            '震荡': {'gradient': 'linear-gradient(135deg, #6b7280 0%, #475569 100%)', 'icon': '📊'},
+        }
+        
+        pred_html = '<div style="display: flex; flex-direction: column; gap: 16px;">'
+        for p in predictions:
+            direction = p.get('direction', '震荡')
+            style = direction_styles.get(direction, direction_styles['震荡'])
+            pred_html += '<div style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border-radius: 16px; padding: 20px; border: 1px solid rgba(0, 0, 0, 0.06);">'
+            pred_html += '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">'
+            pred_html += '<div style="display: flex; align-items: center; gap: 10px;">'
+            pred_html += '<span style="font-size: 22px;">' + style['icon'] + '</span>'
+            pred_html += '<span style="font-weight: 700; color: #1f2937;">' + p.get('name', '') + '</span></div>'
+            pred_html += '<span style="background: ' + style['gradient'] + '; color: white; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 20px;">'
+            pred_html += direction + ' · ' + str(p.get('confidence', 60)) + '%</span></div>'
+            pred_html += '<p style="font-size: 13px; color: #4b5563; line-height: 1.7; margin: 0;">' + p.get('reason', '') + '</p>'
+            pred_html += '</div>'
+        
+        pred_html += '</div>'
+        pred_html += '<div style="margin-top: 20px; text-align: center; font-size: 12px; color: #9ca3af;">⚠️ 预判仅供参考，不构成投资建议</div>'
+        
+        content_html = '<div style="background: linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%); padding: 28px; border: 1px solid rgba(79, 70, 229, 0.1); border-radius: 20px; box-shadow: 0 4px 16px rgba(79, 70, 229, 0.08), 0 1px 0 rgba(255, 255, 255, 0.6) inset;">'
+        content_html += pred_html + '</div>'
+        
+        section = Section(title="明日关键预判", content=content_html, icon="target")
+        self._components.append(section)
+
     def add_risk_warning(self, risks: list):
         """添加风险提示"""
         risk_text = "；".join(risks) if isinstance(risks, list) else risks
