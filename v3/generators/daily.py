@@ -1,621 +1,925 @@
 """
-每日新闻洞察生成器 - V3.0 精致增强版
-最核心、最高频的报告类型
-已整合：StatCard渐变统计卡、SplitLayout分栏、SubCard嵌套卡片、CardGrid网格、Sparkline迷你图、Tabs标签页、全局动效
+每日新闻洞察生成器 - V3.5 专业升级版
+核心定位：早盘前的深度市场分析，为交易决策提供支撑
+特色模块：市场情绪仪表盘、热点板块深度解读、核心题材推演、明日预判
+
+设计原则：
+1. 数据驱动 - 所有内容基于统一数据层
+2. 深度分析 - 不是数据罗列，要有逻辑推演和观点
+3. 专业美观 - 投研级视觉呈现
+4. 严谨可靠 - 数据来源明确，观点有依据
 """
 import sys
 import os
+import json
+from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.report import Report
-from components.layout import Section, Card, HighlightBox, SubCard, CardGrid, SplitLayout, ChartCard
-from components.data import DataCard, DataGrid, KeyPoints, StockTags, MetricsRow, Badge, StatCard, Sparkline, Tabs, GaugeChart, ProgressBar
-from components.special import RiskAlert, NewsItem
+from components.layout import Section
+from utils.data_loader import get_market_summary, get_hot_sectors, get_cold_sectors
 
 
 class DailyReportGenerator:
-    """每日新闻洞察生成器 - V3.0精致增强版"""
+    """每日新闻洞察生成器 - V3.5专业版"""
     
-    def __init__(self, date_str: str, weekday: str = None, subtitle: str = None):
-        self.date_str = date_str
-        self.weekday = weekday or ""
-        sub = subtitle or f"{date_str} {weekday} · 龙空龙策略专用"
+    def __init__(self, date_str: str = None, weekday: str = None, subtitle: str = None):
+        self.date_str = date_str or datetime.now().strftime('%Y-%m-%d')
+        self.weekday = weekday or ''
+        sub = subtitle or f"{self.date_str} {self.weekday} · 龙空龙策略专用"
         self.report = Report(title="每日新闻洞察", report_type="daily", subtitle=sub)
         self._components = []
-    
-    def add_focus_point(self, focus: str):
-        """添加今日焦点"""
-        box = HighlightBox(
-            content=focus,
-            icon="zap",
-            variant="warning",
-            title="今日焦点"
-        )
-        self._components.append(box)
-    
-    def add_overseas_market(self, indices: list, key_events: list = None, sparkline_data: dict = None):
-        """添加隔夜全球市场（V3.0增强版：渐变统计卡 + 迷你走势图）
         
-        Args:
-            indices: [{"name": "道琼斯", "value": "39,876.54", "change": "+0.52%", "up": True, "icon": "trending_up"}, ...]
-            key_events: [{"tag": "重磅", "title": "...", "content": "...", "tag_color": "red"}, ...]
-            sparkline_data: {"道琼斯": [value1, value2, ...], ...} 各指数的迷你走势数据（可选）
+        # 加载数据
+        self._load_data()
+    
+    def _load_data(self):
+        """加载所有需要的数据"""
+        # 市场数据
+        self.market_data = get_market_summary()
+        self.hot_sectors = get_hot_sectors()
+        self.cold_sectors = get_cold_sectors()
+        
+        # 指数数据
+        from utils.data_loader import get_indices_for_daily
+        self.indices = get_indices_for_daily()
+        
+        # 题材数据
+        try:
+            with open('data/topics.json', 'r', encoding='utf-8') as f:
+                topics_data = json.load(f)
+            self.topics = topics_data
+        except:
+            self.topics = {}
+        
+        # 持仓数据
+        try:
+            with open('data/portfolio.json', 'r', encoding='utf-8') as f:
+                portfolio_data = json.load(f)
+            self.portfolio = portfolio_data
+        except:
+            self.portfolio = {}
+        
+        # 预判数据
+        try:
+            with open('data/predictions.json', 'r', encoding='utf-8') as f:
+                pred_data = json.load(f)
+            self.predictions = pred_data
+        except:
+            self.predictions = {}
+    
+
+    def _parse_change_pct(self, change_str):
+        """解析涨跌幅字符串，返回浮点数"""
+        if isinstance(change_str, (int, float)):
+            return float(change_str)
+        if isinstance(change_str, str):
+            # 移除%号和+号
+            clean = change_str.replace('%', '').replace('+', '').strip()
+            try:
+                return float(clean) / 100
+            except:
+                return 0
+        return 0
+    
+    def _format_change_pct(self, change_val):
+        """格式化涨跌幅为带+号的字符串"""
+        if isinstance(change_val, str):
+            return change_val
+        pct = change_val * 100
+        sign = '+' if pct >= 0 else ''
+        return f'{sign}{pct:.2f}%'
+
+    def add_market_overview(self):
+        """添加市场总览 - 专业版
+        包含：四大指数表现、市场整体数据、情绪仪表盘
         """
-        cards = []
+        indices = self.indices
+        market = self.market_data
+        sentiment = market.get('sentiment', {})
+        market_data = market.get('market_data', {})
+        
+        # 指数卡片
+        index_cards_html = ''
         for idx in indices:
-            variant = "success" if idx.get('up', True) else "danger"
-            name = idx['name']
+            name = idx.get('name', '')
+            price = idx.get('price', 0)
+            change_pct = self._parse_change_pct(idx.get('change_pct', 0))
+            change_str = idx.get('change_pct_str', '')
+            up = idx.get('up', True)
             
-            # 迷你图（如果有数据）
-            spark_html = ""
-            if sparkline_data and name in sparkline_data:
-                spark = Sparkline(
-                    data=sparkline_data[name],
-                    width=100,
-                    height=30,
-                    color="#10b981" if idx.get('up', True) else "#ef4444",
-                    fill=True
-                )
-                spark_html = spark.render()
+            # 颜色
+            if change_pct > 0:
+                color = '#ef4444'
+                bg_color = 'linear-gradient(135deg, #fef2f2 0%, #fff7ed 100%)'
+                sign = '+'
+            elif change_pct < 0:
+                color = '#10b981'
+                bg_color = 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)'
+                sign = ''
+            else:
+                color = '#6b7280'
+                bg_color = '#f8fafc'
+                sign = ''
             
-            cards.append(StatCard(
-                title=name,
-                value=idx.get('value', ''),
-                subtitle=idx.get('change', ''),
-                icon=idx.get('icon', 'trending_up'),
-                variant=variant,
-                trend=idx.get('change', ''),
-                trend_up=idx.get('up', True)
-            ))
+            index_cards_html += f'''
+            <div style="background: {bg_color}; border-radius: 16px; padding: 18px;
+                       border: 1px solid rgba(0,0,0,0.04);
+                       transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,0.08)';"
+                 onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none';">
+                <div style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">{name}</div>
+                <div style="font-size: 22px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">
+                    {price}
+                </div>
+                <div style="font-size: 13px; font-weight: 600; color: {color};">
+                    {sign}{change_str}
+                </div>
+            </div>
+            '''
         
-        grid = CardGrid(cards, cols=min(len(cards), 4))
+        # 市场概览数据
+        turnover = market_data.get('turnover', '—')
+        up_count = market_data.get('up_count', 0)
+        down_count = market_data.get('down_count', 0)
+        limit_up = market_data.get('limit_up_count', 0)
+        limit_down = market_data.get('limit_down_count', 0)
         
-        events_html = ''
-        if key_events:
-            events_html = '<div style="margin-top: 20px;">'
-            for event in key_events:
-                tag = event.get('tag', '重磅')
-                tag_color = event.get('tag_color', 'red')
-                
-                events_html += f'''
-                <div style="display: flex; margin-bottom: 16px; 
-                          padding: 14px 16px; 
-                          background: #fafafa; border-radius: 12px;
-                          transition: all 0.3s ease;"
-                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.06)';"
-                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                    <div style="margin-right: 12px;">
-                        <span style="display: inline-block; 
-                                   padding: 2px 8px; 
-                                   border-radius: 8px; 
-                                   font-size: 11px; 
-                                   font-weight: 700;
-                                   background: #fee2e2; 
-                                   color: #dc2626;
-                                   flex-shrink: 0;">
-                            {tag}
-                        </span>
+        # 情绪分数
+        fg_score = sentiment.get('fear_greed', 50)
+        if fg_score >= 80:
+            fg_level = '极度贪婪'
+            fg_color = '#ef4444'
+        elif fg_score >= 60:
+            fg_level = '贪婪'
+            fg_color = '#f97316'
+        elif fg_score >= 40:
+            fg_level = '中性'
+            fg_color = '#3b82f6'
+        elif fg_score >= 20:
+            fg_level = '恐惧'
+            fg_color = '#10b981'
+        else:
+            fg_level = '极度恐惧'
+            fg_color = '#059669'
+        
+        bar_gradient = 'linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%)'
+        
+        html = f'''
+        <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); 
+                    padding: 28px; border-radius: 20px; 
+                    border: 1px solid rgba(0,0,0,0.06);
+                    box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
+            
+            <!-- 四大指数 -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px;">
+                {index_cards_html}
+            </div>
+            
+            <!-- 分割线 -->
+            <div style="height: 1px; background: #e5e7eb; margin: 20px 0;"></div>
+            
+            <!-- 市场数据 + 情绪 -->
+            <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 24px; align-items: center;">
+                <!-- 左侧：市场数据 -->
+                <div>
+                    <div style="font-size: 15px; font-weight: 600; color: #1f2937; margin-bottom: 14px;">
+                        📊 市场概况
                     </div>
-                    <div style="flex: 1;">
-                        <div style="font-size: 14px; font-weight: 600; 
-                                   color: #1f2937; margin-bottom: 4px;">
-                            {event.get("title", "")}
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                        <div style="text-align: center; padding: 12px; background: #f8fafc; border-radius: 10px;">
+                            <div style="font-size: 18px; font-weight: 700; color: #1f2937;">{turnover}</div>
+                            <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">成交额</div>
                         </div>
-                        <div style="font-size: 13px; color: #6b7280; line-height: 1.6;">
-                            {event.get("content", "")}
+                        <div style="text-align: center; padding: 12px; background: #fef2f2; border-radius: 10px;">
+                            <div style="font-size: 18px; font-weight: 700; color: #ef4444;">{up_count}</div>
+                            <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">上涨家数</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: #f0fdf4; border-radius: 10px;">
+                            <div style="font-size: 18px; font-weight: 700; color: #10b981;">{down_count}</div>
+                            <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">下跌家数</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: #fffbeb; border-radius: 10px;">
+                            <div style="font-size: 18px; font-weight: 700; color: #f59e0b;">{limit_up}/{limit_down}</div>
+                            <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">涨停/跌停</div>
                         </div>
                     </div>
                 </div>
-                '''
-            events_html += '</div>'
-        
-        content = grid.render() + events_html
-        section = Section(title="🌍 隔夜全球市场", content=content, icon="globe")
-        self._components.append(section)
-    
-    def add_market_sentiment(self, sentiment_score: float, risk_level: str, volume_ratio: float = None):
-        """添加市场情绪仪表盘（V3.0新增）
-        
-        Args:
-            sentiment_score: 情绪分数 0-100
-            risk_level: 风险等级（低/中/高）
-            volume_ratio: 量比（可选）
-        """
-        # 情绪仪表盘
-        gauge = GaugeChart(
-            value=sentiment_score,
-            max_value=100,
-            label="市场情绪",
-            size=140,
-            stroke_width=10,
-            color=None  # 自动根据分数变色
-        )
-        
-        # 风险等级卡片
-        risk_colors = {"低": "success", "中": "warning", "高": "danger"}
-        risk_variant = risk_colors.get(risk_level, "warning")
-        risk_card = StatCard(
-            title="风险等级",
-            value=risk_level,
-            subtitle="当前评估",
-            icon="shield",
-            variant=risk_variant
-        )
-        
-        # 量比卡片（可选）
-        volume_card_html = ""
-        if volume_ratio is not None:
-            vol_variant = "success" if volume_ratio > 1 else "default"
-            vol_card = StatCard(
-                title="量比",
-                value=str(volume_ratio),
-                subtitle="相对昨日",
-                icon="bar-chart",
-                variant=vol_variant
-            )
-            volume_card_html = vol_card.render()
-        
-        content = f'''
-        <div style="display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap;">
-            <div style="text-align: center;">
-                {gauge.render()}
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 12px; min-width: 180px;">
-                {risk_card.render()}
-                {volume_card_html}
+                
+                <!-- 右侧：情绪温度计 -->
+                <div style="background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%); 
+                            border-radius: 16px; padding: 20px; text-align: center;">
+                    <div style="font-size: 13px; font-weight: 600; color: #92400e; margin-bottom: 10px;">
+                        🌡️ 市场情绪
+                    </div>
+                    <div style="font-size: 36px; font-weight: 900; color: {fg_color}; line-height: 1;">
+                        {fg_score}
+                    </div>
+                    <div style="font-size: 13px; font-weight: 600; color: #b45309; margin-top: 4px;">
+                        {fg_level}
+                    </div>
+                    <div style="width: 100%; height: 8px; background: #fde68a; border-radius: 4px; overflow: hidden; margin-top: 12px;">
+                        <div style="height: 100%; width: {fg_score}%; background: {bar_gradient}; border-radius: 4px;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 10px; color: #92400e; margin-top: 6px;">
+                        <span>恐惧</span>
+                        <span>中性</span>
+                        <span>贪婪</span>
+                    </div>
+                </div>
             </div>
         </div>
         '''
         
-        section = Section(title="📊 市场情绪", content=content, icon="activity")
+        section = Section(title="🌍 市场总览", content=html, icon="globe")
         self._components.append(section)
     
-    def add_import_news(self, news_list: list, category_tabs: bool = False):
-        """添加重要新闻汇总（V3.0增强版：支持标签页分类）
-        
-        Args:
-            news_list: [{"tag": "AI", "importance": "high", "title": "...", "content": "...", "source": "财联社", "time": "08:30", "category": "宏观"}, ...]
-            category_tabs: 是否按分类用标签页展示
+    def add_sector_analysis(self):
+        """添加热点板块深度分析
+        每个板块包含：涨幅、领涨股、上涨逻辑、持续性评估
         """
-        if category_tabs:
-            # 按分类分组
-            categories = {}
-            for news in news_list:
-                cat = news.get('category', '其他')
-                if cat not in categories:
-                    categories[cat] = []
-                categories[cat].append(news)
+        hot = self.hot_sectors
+        cold = self.cold_sectors
+        
+        if not hot and not cold:
+            return
+        
+        html = '<div style="display: flex; flex-direction: column; gap: 16px;">'
+        
+        # 热门板块
+        if hot:
+            html += '''
+            <div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px;">
+                    <span style="font-size: 18px;">🔥</span>
+                    <span style="font-size: 16px; font-weight: 700; color: #1f2937;">强势板块</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
+            '''
             
-            tab_list = []
-            for cat, cat_news in categories.items():
-                news_html = '<div style="display: flex; flex-direction: column;">'
-                for news in cat_news:
-                    importance = news.get('importance', 'normal')
-                    tag = news.get('tag', '要闻')
-                    
-                    item = NewsItem(
-                        title=news.get("title", ""),
-                        content=news.get("content", ""),
-                        time=news.get("time", ""),
-                        source=news.get("source", ""),
-                        tag=tag,
-                        tag_variant="primary" if importance == "high" else "default",
-                        important=(importance == "high")
-                    )
-                    news_html += item.render()
-                news_html += '</div>'
-                tab_list.append((cat, news_html))
-            
-            tabs = Tabs(tabs=tab_list, default_index=0)
-            content = tabs.render()
-        else:
-            # 原有列表模式
-            news_html = '<div style="display: flex; flex-direction: column;">'
-            for news in news_list:
-                importance = news.get('importance', 'normal')
-                tag = news.get('tag', '要闻')
+            for sector in hot:
+                name = sector.get('name', '')
+                change_pct = self._parse_change_pct(sector.get('change_pct', 0))
+                change_str = f"+{change_pct*100:.1f}%" if change_pct > 0 else f"{change_pct*100:.1f}%"
+                leader = sector.get('leader', '')
+                reason = sector.get('reason', '')
                 
-                item = NewsItem(
-                    title=news.get("title", ""),
-                    content=news.get("content", ""),
-                    time=news.get("time", ""),
-                    source=news.get("source", ""),
-                    tag=tag,
-                    tag_variant="primary" if importance == "high" else "default",
-                    important=(importance == "high")
-                )
-                news_html += item.render()
-            news_html += '</div>'
-            content = news_html
-        
-        section = Section(title="📰 重要新闻汇总", content=content, icon="news")
-        self._components.append(section)
-    
-    def add_sector_analysis(self, sectors: list, view_mode: str = "card"):
-        """添加板块机会分析（V3.0增强版：SubCard嵌套卡片 + 标签页分类）
-        
-        Args:
-            sectors: [{"name": "AI算力", "rating": "强烈推荐", "stocks": [...], "logic": "...", "icon": "chip", "category": "科技"}, ...]
-            view_mode: "card"（卡片模式）或 "tab"（标签页模式）
-        """
-        from components.icons import icon_svg
-        
-        if view_mode == "tab":
-            # 按分类标签页展示
-            categories = {}
-            for sector in sectors:
-                cat = sector.get('category', '其他')
-                if cat not in categories:
-                    categories[cat] = []
-                categories[cat].append(sector)
-            
-            tab_list = []
-            for cat, cat_sectors in categories.items():
-                content_html = self._render_sector_cards(cat_sectors)
-                tab_list.append((cat, content_html))
-            
-            tabs = Tabs(tabs=tab_list, default_index=0)
-            content = tabs.render()
-        else:
-            # 卡片列表模式（增强版SubCard）
-            content = self._render_sector_cards(sectors)
-        
-        section = Section(title="🎯 板块机会分析", content=content, icon="sector")
-        self._components.append(section)
-    
-    def _render_sector_cards(self, sectors: list) -> str:
-        """渲染板块卡片列表（内部方法）"""
-        from components.icons import icon_svg
-        
-        content_html = '<div style="display: flex; flex-direction: column; gap: 14px;">'
-        for sector in sectors:
-            rating = sector.get('rating', '关注')
-            rating_colors = {
-                '强烈推荐': ('success', 'white'),
-                '推荐': ('primary', 'white'),
-                '关注': ('warning', 'white'),
-                '谨慎': ('danger', 'white'),
-            }
-            r_variant, _ = rating_colors.get(rating, rating_colors['关注'])
-            
-            stock_tags = StockTags(sector.get("stocks", []), label="相关标的")
-            sector_icon = sector.get('icon', 'sector')
-            
-            # 使用SubCard组件替代硬编码
-            header_html = f'''
-            <div style="display: flex; align-items: center; margin-bottom: 12px;">
-                <div style="width: 40px; height: 40px; 
-                           background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
-                           border-radius: 12px; 
-                           display: flex; align-items: center; justify-content: center; 
-                           margin-right: 14px; flex-shrink: 0;
-                           box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);">
-                    {icon_svg(sector_icon, 20, "white")}
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-size: 17px; font-weight: 700; color: #1f2937;">
-                        {sector["name"]}
+                # 持续性评估
+                sustainability = self._assess_sustainability(sector)
+                
+                html += f'''
+                <div style="background: linear-gradient(135deg, #fef2f2 0%, #fff7ed 100%); 
+                            border-radius: 16px; padding: 18px;
+                            border: 1px solid rgba(239, 68, 68, 0.15);
+                            transition: all 0.3s ease;"
+                     onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(239,68,68,0.1)';"
+                     onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none';">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <div style="font-size: 16px; font-weight: 700; color: #991b1b;">{name}</div>
+                        <div style="font-size: 16px; font-weight: 700; color: #ef4444;">{change_str}</div>
+                    </div>
+                    <div style="font-size: 13px; color: #7f1d1d; line-height: 1.7; margin-bottom: 12px;">
+                        <strong>领涨：</strong>{leader}
+                    </div>
+                    <div style="font-size: 13px; color: #6b7280; line-height: 1.7; margin-bottom: 12px;">
+                        {reason}
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 11px; color: #6b7280;">持续性评估：</span>
+                        <div style="flex: 1; height: 6px; background: #fecaca; border-radius: 3px; overflow: hidden;">
+                            <div style="height: 100%; width: {sustainability['score']}%; background: #ef4444; border-radius: 3px;"></div>
+                        </div>
+                        <span style="font-size: 11px; font-weight: 600; color: #991b1b;">{sustainability['level']}</span>
                     </div>
                 </div>
-                <span style="padding: 5px 12px; border-radius: 20px; 
-                           font-size: 12px; font-weight: 700;
-                           background: {self._get_rating_bg(rating)}; color: white;">
-                    {rating}
-                </span>
-            </div>
-            <div style="font-size: 13px; color: #6b7280; line-height: 1.7; 
-                       margin-bottom: 4px;">
-                💡 {sector.get("logic", "")}
-            </div>
-            {stock_tags.render()}
+                '''
+            
+            html += '</div></div>'
+        
+        # 弱势板块
+        if cold:
+            html += '''
+            <div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px;">
+                    <span style="font-size: 18px;">🧊</span>
+                    <span style="font-size: 16px; font-weight: 700; color: #1f2937;">弱势板块</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
             '''
             
-            sub_card = SubCard(
-                content=header_html,
-                variant="white"
-            )
-            content_html += sub_card.render()
-        
-        content_html += '</div>'
-        return content_html
-    
-    def _get_rating_bg(self, rating: str) -> str:
-        """获取评级背景色"""
-        colors = {
-            '强烈推荐': 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-            '推荐': 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-            '关注': 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-            '谨慎': 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-        }
-        return colors.get(rating, colors['关注'])
-    
-    def add_holdings_tracking(self, holdings: list, position_info: dict = None):
-        """添加持仓跟踪（V3.0增强版：左右分栏 + 仓位仪表盘）
-        
-        Args:
-            holdings: [{"name": "英维克", "code": "002837", "price": "68.32", "change": "-5.23%", "up": False, "comment": "...", "ratio": 30}, ...]
-            position_info: {"total": 85, "cash": 15, "risk_level": "中"} 仓位信息（可选）
-        """
-        from components.icons import icon_svg
-        
-        # 左侧：持仓列表
-        holdings_html = '<div style="display: flex; flex-direction: column; gap: 12px;">'
-        for h in holdings:
-            change_class = "#10b981" if h.get('up', True) else "#ef4444"
-            name = h["name"]
-            code = h.get("code", "")
-            price = h.get("price", "")
-            change = h.get("change", "")
-            comment = h.get("comment", "")
-            ratio = h.get("ratio", None)
-            
-            # 仓位占比进度条（可选）
-            ratio_html = ""
-            if ratio is not None:
-                pb = ProgressBar(
-                    value=ratio,
-                    max_value=100,
-                    label=f"仓位 {ratio}%",
-                    variant="primary",
-                    show_percent=False,
-                    height="4px"
-                )
-                ratio_html = f'<div style="margin-top: 8px;">{pb.render()}</div>'
-            
-            holdings_html += f'''
-            <div style="background: #fafafa; border-radius: 14px; padding: 16px 18px;
-                       display: flex; align-items: center;
-                       transition: all 0.3s ease;"
-                 onmouseover="this.style.background='#'f0f9ff';this.style.transform='translateX(4px)';"
-                 onmouseout="this.style.background='#'fafafa';this.style.transform='translateX(0)';">
-                <div style="flex: 1;">
-                    <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                        <span style="font-size: 15px; font-weight: 600; color: #1f2937;">
-                            {name}
-                        </span>
-                        <span style="font-size: 12px; color: #9ca3af; margin-left: 8px;">
-                            {code}
-                        </span>
+            for sector in cold:
+                name = sector.get('name', '')
+                change_pct = self._parse_change_pct(sector.get('change_pct', 0))
+                change_str = f"{change_pct*100:.1f}%"
+                reason = sector.get('reason', '')
+                
+                html += f'''
+                <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); 
+                            border-radius: 16px; padding: 18px;
+                            border: 1px solid rgba(16, 185, 129, 0.15);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <div style="font-size: 16px; font-weight: 700; color: #065f46;">{name}</div>
+                        <div style="font-size: 16px; font-weight: 700; color: #10b981;">{change_str}</div>
                     </div>
-                    <div style="font-size: 12px; color: #6b7280; line-height: 1.5; 
-                              max-width: 300px;">
-                        {comment}
-                    </div>
-                    {ratio_html}
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-size: 18px; font-weight: 700; color: {change_class};">
-                        {price}
-                    </div>
-                    <div style="font-size: 13px; font-weight: 500; color: {change_class};">
-                        {change}
+                    <div style="font-size: 13px; color: #6b7280; line-height: 1.7;">
+                        {reason}
                     </div>
                 </div>
-            </div>
-            '''
-        holdings_html += '</div>'
+                '''
+            
+            html += '</div></div>'
         
-        # 右侧：仓位分析（如果有数据）
-        if position_info:
-            total_pos = position_info.get('total', 0)
-            cash = position_info.get('cash', 0)
-            risk_level = position_info.get('risk_level', '中')
-            
-            # 仓位仪表盘
-            pos_gauge = GaugeChart(
-                value=total_pos,
-                max_value=100,
-                label="总仓位",
-                size=120,
-                stroke_width=8,
-                color="#4f46e5"
-            )
-            
-            # 现金占比
-            cash_card = StatCard(
-                title="现金占比",
-                value=f"{cash}%",
-                subtitle="可用资金",
-                icon="dollar-sign",
-                variant="default"
-            )
-            
-            # 风险等级
-            risk_colors = {"低": "success", "中": "warning", "高": "danger"}
-            risk_card = StatCard(
-                title="组合风险",
-                value=risk_level,
-                subtitle="综合评估",
-                icon="shield",
-                variant=risk_colors.get(risk_level, "warning")
-            )
-            
-            right_html = f'''
-            <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
-                {pos_gauge.render()}
-                <div style="display: flex; gap: 10px; width: 100%;">
-                    {cash_card.render()}
-                    {risk_card.render()}
-                </div>
-            </div>
-            '''
-            
-            # 使用SplitLayout左右分栏
-            split = SplitLayout(
-                left=holdings_html,
-                right=right_html,
-                left_width="66%",
-                gap="24px"
-            )
-            content = split.render()
-        else:
-            content = holdings_html
+        html += '</div>'
         
-        section = Section(title="💼 持仓跟踪", content=content, icon="briefcase")
+        section = Section(title="🏢 板块深度分析", content=html, icon="building")
         self._components.append(section)
     
-    def add_holdings_from_data_layer(self):
-        """
-        从统一数据层（data/portfolio.json）加载持仓数据并添加持仓跟踪
-        确保所有报告使用同源数据，杜绝数据不一致问题
-        """
-        from utils.data_loader import get_holdings_for_daily, get_position_info
+    def _assess_sustainability(self, sector):
+        """评估板块持续性"""
+        reason = sector.get('reason', '')
+        change_pct = self._parse_change_pct(sector.get('change_pct', 0))
         
-        holdings = get_holdings_for_daily(include_comments=True)
-        position_info = get_position_info()
-        self.add_holdings_tracking(holdings=holdings, position_info=position_info)
-    
-    def add_market_sentiment_from_data_layer(self):
-        """
-        从统一数据层（data/market.json）加载市场情绪数据
-        """
-        from utils.data_loader import get_market_sentiment, get_market_summary
+        score = 50  # 基准分
         
-        sentiment = get_market_sentiment()
-        market_data = get_market_summary()
+        # 基于关键词加分
+        keywords_high = ['周期反转', '需求爆发', '政策支持', '技术突破', '国产替代']
+        keywords_mid = ['业绩超预期', '行业景气', '资金流入']
         
-        # 根据情绪分数判断风险等级
-        score = sentiment.get('score', 50)
-        if score >= 70:
-            risk_level = "高"
+        for kw in keywords_high:
+            if kw in reason:
+                score += 15
+        
+        for kw in keywords_mid:
+            if kw in reason:
+                score += 10
+        
+        # 涨幅过大反而降低持续性
+        if change_pct > 0.05:
+            score -= 10
+        
+        score = max(10, min(95, score))
+        
+        if score >= 80:
+            level = '很强'
+        elif score >= 60:
+            level = '较强'
         elif score >= 40:
-            risk_level = "中"
+            level = '一般'
         else:
-            risk_level = "低"
+            level = '较弱'
         
-        # 量比（暂时用成交量变化代替）
-        volume_change_str = market_data.get('volume_change', '+0%')
-        try:
-            volume_ratio = float(volume_change_str.replace('%', '').replace('+', '')) / 100 + 1
-        except:
-            volume_ratio = None
-        
-        self.add_market_sentiment(
-            sentiment_score=score,
-            risk_level=risk_level,
-            volume_ratio=round(volume_ratio, 2) if volume_ratio else None
-        )
+        return {'score': score, 'level': level}
     
-    def add_hot_sectors_from_data_layer(self, limit=5):
+    def add_topic_deep_dive(self):
+        """核心题材深度推演
+        从S级题材中选1-2个进行深度分析
         """
-        从统一数据层（data/market.json）加载热门板块数据
-        """
-        from utils.data_loader import get_hot_sectors
+        s_topics = self.topics.get('s_level_topics', [])
+        if not s_topics:
+            return
         
-        sectors = get_hot_sectors(limit=limit)
-        # 转换为add_sector_analysis需要的格式
-        sector_list = []
-        for s in sectors:
-            sector_list.append({
-                'name': s['name'],
-                'change': s['change_pct'],
-                'up': s['up'],
-                'leader': s['leader'],
-                'fund_flow': s['fund_flow'],
-                'description': f"领涨股：{s['leader']}，主力资金净流入{s['fund_flow']}"
+        # 取第一个S级题材做深度分析
+        topic = s_topics[0]
+        name = topic.get('name', '')
+        level = topic.get('level', 'S')
+        core_logic = topic.get('core_logic', '')
+        total_score = topic.get('total_score', 0)
+        dim_scores = topic.get('dimension_scores', {})
+        
+        html = f'''
+        <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); 
+                    padding: 28px; border-radius: 20px; 
+                    border: 1px solid rgba(245, 158, 11, 0.2);">
+            
+            <!-- 标题区 -->
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px;">
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <span style="font-size: 28px;">⚡</span>
+                        <span style="font-size: 20px; font-weight: 800; color: #92400e;">{name}</span>
+                        <span style="background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+                                   color: white; padding: 4px 10px; border-radius: 12px;
+                                   font-size: 12px; font-weight: 700;">{level}级题材</span>
+                    </div>
+                    <div style="font-size: 14px; color: #78350f; line-height: 1.8; max-width: 600px;">
+                        {core_logic}
+                    </div>
+                </div>
+                <div style="text-align: center; margin-left: 20px; flex-shrink: 0;">
+                    <div style="font-size: 32px; font-weight: 900; 
+                               background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+                               -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                               background-clip: text;">
+                        {total_score}
+                    </div>
+                    <div style="font-size: 11px; color: #92400e;">综合评分</div>
+                </div>
+            </div>
+            
+            <!-- 六维评分 -->
+            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 24px;">
+        '''
+        
+        dim_labels = {
+            'policy': ('政策', '📋'),
+            'industry': ('产业', '🏭'),
+            'capital': ('资金', '💰'),
+            'sentiment': ('情绪', '🔥'),
+            'valuation': ('估值', '📐'),
+            'catalyst': ('催化', '⚡'),
+        }
+        
+        for key, (label, icon) in dim_labels.items():
+            score = dim_scores.get(key, 0)
+            if score >= 85:
+                bar_color = '#10b981'
+            elif score >= 70:
+                bar_color = '#f59e0b'
+            else:
+                bar_color = '#ef4444'
+            
+            html += f'''
+            <div style="text-align: center; background: rgba(255,255,255,0.7); 
+                       border-radius: 12px; padding: 12px 8px;">
+                <div style="font-size: 20px; margin-bottom: 4px;">{icon}</div>
+                <div style="font-size: 16px; font-weight: 700; color: #1f2937;">{score}</div>
+                <div style="font-size: 10px; color: #6b7280; margin-top: 2px;">{label}</div>
+                <div style="width: 100%; height: 4px; background: #fde68a; border-radius: 2px; margin-top: 8px; overflow: hidden;">
+                    <div style="height: 100%; width: {score}%; background: {bar_color}; border-radius: 2px;"></div>
+                </div>
+            </div>
+            '''
+        
+        html += '</div>'
+        
+        # 催化剂事件
+        catalysts = topic.get('catalyst_events', [])
+        if catalysts:
+            html += '''
+            <div style="margin-top: 20px;">
+                <div style="font-size: 14px; font-weight: 600; color: #92400e; margin-bottom: 12px;">
+                    📅 核心催化事件
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            '''
+            for cat in catalysts:
+                html += f'''
+                <span style="background: rgba(255,255,255,0.8); color: #78350f;
+                           padding: 6px 12px; border-radius: 8px; font-size: 12px;
+                           border: 1px solid #fde68a;">
+                    {cat}
+                </span>
+                '''
+            html += '</div></div>'
+        
+        # 核心标的
+        leader = topic.get('leader_stock', '')
+        mid = topic.get('mid_cap_stock', '')
+        flexible = topic.get('flexible_stock', '')
+        
+        if leader or mid or flexible:
+            html += '''
+            <div style="margin-top: 20px;">
+                <div style="font-size: 14px; font-weight: 600; color: #92400e; margin-bottom: 12px;">
+                    🎯 核心标的
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+            '''
+            if leader:
+                html += f'''
+                <div style="background: rgba(255,255,255,0.9); border-radius: 10px; padding: 12px; text-align: center;
+                           border: 1px solid #fde68a;">
+                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">龙头</div>
+                    <div style="font-size: 14px; font-weight: 600; color: #1f2937;">{leader}</div>
+                </div>
+                '''
+            if mid:
+                html += f'''
+                <div style="background: rgba(255,255,255,0.9); border-radius: 10px; padding: 12px; text-align: center;
+                           border: 1px solid #fde68a;">
+                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">中坚</div>
+                    <div style="font-size: 14px; font-weight: 600; color: #1f2937;">{mid}</div>
+                </div>
+                '''
+            if flexible:
+                html += f'''
+                <div style="background: rgba(255,255,255,0.9); border-radius: 10px; padding: 12px; text-align: center;
+                           border: 1px solid #fde68a;">
+                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">弹性</div>
+                    <div style="font-size: 14px; font-weight: 600; color: #1f2937;">{flexible}</div>
+                </div>
+                '''
+            html += '</div></div>'
+        
+        html += '</div>'
+        
+        section = Section(title="💡 核心题材深度推演", content=html, icon="zap")
+        self._components.append(section)
+    
+    def add_tomorrow_prediction(self):
+        """明日关键预判 - 专业版
+        基于当前市场数据和题材逻辑，给出结构化的预判
+        """
+        predictions = []
+        
+        # 基于热门板块生成看涨预判
+        hot = self.hot_sectors
+        if hot:
+            top_sector = hot[0]
+            predictions.append({
+                'direction': '看涨',
+                'name': top_sector.get('name', ''),
+                'confidence': 70,
+                'reason': top_sector.get('reason', '行业景气度持续') + '，关注龙头持续性。'
             })
         
-        self.add_sector_analysis(sector_list, view_mode='card')
-    
-
-    def add_deep_dive(self, topic, logic_chain, current_position, catalysts):
-        """添加今日深度推演（V3.0新增）"""
-        content_html = '<div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); padding: 28px; border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 20px; box-shadow: 0 4px 16px rgba(245, 158, 11, 0.08), 0 1px 0 rgba(255, 255, 255, 0.6) inset;">'
-        content_html += '<div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">'
-        content_html += '<div style="font-size: 32px;">⚡</div>'
-        content_html += '<div><div style="font-weight: 700; color: #1f2937; font-size: 18px;">' + topic + '</div>'
-        content_html += '<div style="font-size: 13px; color: #6b7280;">深度推演 · 因果链分析</div></div></div>'
-        content_html += '<div style="font-size: 14px; color: #374151; line-height: 1.8;">'
-        content_html += '<p style="margin-bottom: 12px;"><strong>核心逻辑链：</strong>' + logic_chain + '</p>'
-        content_html += '<p style="margin-bottom: 12px;"><strong>当前位置：</strong>' + current_position + '</p>'
-        content_html += '<p><strong>潜在催化：</strong>' + catalysts + '</p>'
-        content_html += '</div></div>'
+        # 大盘预判
+        sentiment = self.market_data.get('sentiment', {})
+        fg = sentiment.get('fear_greed', 50)
+        if fg > 60:
+            market_pred = '震荡上行'
+            market_conf = 55
+            market_reason = '市场情绪偏乐观，资金活跃度较高，但需警惕高位分歧。'
+        elif fg > 40:
+            market_pred = '震荡整理'
+            market_conf = 60
+            market_reason = '情绪中性，市场缺乏明确方向，预计维持区间震荡。'
+        else:
+            market_pred = '震荡下行'
+            market_conf = 55
+            market_reason = '市场情绪偏谨慎，风险偏好下降，注意控制仓位。'
         
-        section = Section(title="今日深度推演", content=content_html, icon="zap")
-        self._components.append(section)
-    
-    def add_tomorrow_prediction(self, predictions):
-        """添加明日关键预判（V3.0新增）
-        predictions: [{"name": "AI算力", "direction": "看涨", "confidence": 75, "reason": "..."}, ...]
-        """
+        predictions.insert(0, {
+            'direction': '震荡',
+            'name': '大盘指数',
+            'confidence': market_conf,
+            'reason': market_reason
+        })
+        
+        # 风险提示
+        predictions.append({
+            'direction': '看跌',
+            'name': '高位题材股',
+            'confidence': 60,
+            'reason': '近两日涨幅较大的题材股存在回调风险，注意高低切换。'
+        })
+        
+        # 渲染
         direction_styles = {
             '看涨': {'gradient': 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)', 'icon': '📈'},
             '看跌': {'gradient': 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 'icon': '📉'},
             '震荡': {'gradient': 'linear-gradient(135deg, #6b7280 0%, #475569 100%)', 'icon': '📊'},
         }
         
-        pred_html = '<div style="display: flex; flex-direction: column; gap: 16px;">'
+        pred_html = '<div style="display: flex; flex-direction: column; gap: 14px;">'
         for p in predictions:
             direction = p.get('direction', '震荡')
             style = direction_styles.get(direction, direction_styles['震荡'])
-            pred_html += '<div style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border-radius: 16px; padding: 20px; border: 1px solid rgba(0, 0, 0, 0.06);">'
-            pred_html += '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">'
-            pred_html += '<div style="display: flex; align-items: center; gap: 10px;">'
-            pred_html += '<span style="font-size: 22px;">' + style['icon'] + '</span>'
-            pred_html += '<span style="font-weight: 700; color: #1f2937;">' + p.get('name', '') + '</span></div>'
-            pred_html += '<span style="background: ' + style['gradient'] + '; color: white; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 20px;">'
-            pred_html += direction + ' · ' + str(p.get('confidence', 60)) + '%</span></div>'
-            pred_html += '<p style="font-size: 13px; color: #4b5563; line-height: 1.7; margin: 0;">' + p.get('reason', '') + '</p>'
-            pred_html += '</div>'
+            name = p.get('name', '')
+            confidence = p.get('confidence', 60)
+            reason = p.get('reason', '')
+            
+            # 置信度颜色
+            if confidence >= 75:
+                conf_color = '#10b981'
+            elif confidence >= 60:
+                conf_color = '#f59e0b'
+            else:
+                conf_color = '#6b7280'
+            
+            pred_html += f'''
+            <div style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px);
+                        border-radius: 16px; padding: 18px 20px; 
+                        border: 1px solid rgba(0, 0, 0, 0.06);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 20px;">{style['icon']}</span>
+                        <span style="font-size: 15px; font-weight: 700; color: #1f2937;">{name}</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="background: {style['gradient']};
+                                     color: white; font-size: 12px; font-weight: 700;
+                                     padding: 5px 12px; border-radius: 20px;">
+                            {direction}
+                        </span>
+                        <div style="font-size: 11px; color: {conf_color}; margin-top: 4px; font-weight: 600;">
+                            置信度 {confidence}%
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size: 13px; color: #4b5563; line-height: 1.7; margin: 0;">
+                    {reason}
+                </p>
+            </div>
+            '''
         
         pred_html += '</div>'
-        pred_html += '<div style="margin-top: 20px; text-align: center; font-size: 12px; color: #9ca3af;">⚠️ 预判仅供参考，不构成投资建议</div>'
         
-        content_html = '<div style="background: linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%); padding: 28px; border: 1px solid rgba(79, 70, 229, 0.1); border-radius: 20px; box-shadow: 0 4px 16px rgba(79, 70, 229, 0.08), 0 1px 0 rgba(255, 255, 255, 0.6) inset;">'
-        content_html += pred_html + '</div>'
-        
-        section = Section(title="明日关键预判", content=content_html, icon="target")
-        self._components.append(section)
-
-    def add_risk_warning(self, risks: list):
-        """添加风险提示"""
-        if isinstance(risks, list):
-            risk_text = "；".join(risks)
-        else:
-            risk_text = risks
-        
-        risk = RiskAlert(level="warning", title="⚠️ 风险提示", text=risk_text)
-        self._components.append(risk)
-    
-    def add_daily_summary(self, summary: str):
-        """添加每日总结"""
-        content = f'''
-        <div style="line-height: 1.8; color: #374151; font-size: 14px;">
-            {summary}
+        # 免责声明
+        pred_html += '''
+        <div style="margin-top: 16px; text-align: center; font-size: 11px; color: #9ca3af; line-height: 1.6;">
+            ⚠️ 预判仅供参考，不构成投资建议。市场有风险，投资需谨慎。
+            <br>预判基于当前市场数据和逻辑推演，实际走势受多种因素影响。
         </div>
         '''
-        section = Section(title="📝 今日总结", content=content, icon="book", variant="highlight")
-        self._components.append(section)
-    
-    def add_tomorrow_plan(self, plan: str):
-        """添加明日操作计划"""
-        content = f'''
-        <div style="line-height: 1.8; color: #374151; font-size: 14px;">
-            {plan}
+        
+        html = f'''
+        <div style="background: linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%); 
+                    padding: 24px; border-radius: 20px; 
+                    border: 1px solid rgba(79, 70, 229, 0.15);">
+            {pred_html}
         </div>
         '''
-        section = Section(title="🎯 明日计划", content=content, icon="target")
+        
+        section = Section(title="🎯 明日关键预判", content=html, icon="target")
+        self._components.append(section)
+    
+    def add_holdings_tracking(self):
+        """持仓跟踪 - 专业版
+        展示持仓股的详细分析和操作建议
+        """
+        stocks = self.portfolio.get('stocks', [])
+        portfolio_info = self.portfolio.get('portfolio', {})
+        
+        if not stocks:
+            return
+        
+        html = '<div style="display: flex; flex-direction: column; gap: 14px;">'
+        
+        for stock in stocks:
+            name = stock.get('name', '')
+            code = stock.get('code', '')
+            cost = stock.get('cost_price', 0)
+            current = stock.get('current_price', 0)
+            profit_pct = (current - cost) / cost * 100
+            today_change = stock.get('today_change', 0) * 100
+            risk_level = stock.get('risk_level', '')
+            risk_progress = stock.get('risk_progress', 0)
+            advice = stock.get('advice', '')
+            diagnosis = stock.get('diagnosis', {})
+            
+            profit_color = '#ef4444' if profit_pct >= 0 else '#10b981'
+            profit_sign = '+' if profit_pct >= 0 else ''
+            today_color = '#ef4444' if today_change >= 0 else '#10b981'
+            today_sign = '+' if today_change >= 0 else ''
+            
+            # 风险条颜色
+            if risk_progress < 50:
+                risk_bar_color = '#10b981'
+            elif risk_progress < 75:
+                risk_bar_color = '#f59e0b'
+            else:
+                risk_bar_color = '#ef4444'
+            
+            # 诊断指标
+            diag_items = []
+            if isinstance(diagnosis, dict):
+                for key, value in diagnosis.items():
+                    if isinstance(value, dict):
+                        status = value.get('status', 'normal')
+                        status_colors = {
+                            'good': '#10b981',
+                            'normal': '#3b82f6',
+                            'bad': '#ef4444',
+                            'warning': '#f59e0b'
+                        }
+                        color = status_colors.get(status, '#6b7280')
+                        diag_items.append({
+                            'label': value.get('title', key),
+                            'value': value.get('value', ''),
+                            'color': color
+                        })
+            
+            diag_html = ''
+            for item in diag_items[:4]:
+                diag_html += f'''
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 12px; font-weight: 600; color: {item['color']};">{item['value']}</div>
+                    <div style="font-size: 10px; color: #6b7280; margin-top: 2px;">{item['label']}</div>
+                </div>
+                '''
+            
+            # 如果没有诊断数据，显示默认
+            if not diag_html:
+                diag_html = '''
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 12px; font-weight: 600; color: #3b82f6;">--</div>
+                    <div style="font-size: 10px; color: #6b7280; margin-top: 2px;">技术面</div>
+                </div>
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 12px; font-weight: 600; color: #3b82f6;">--</div>
+                    <div style="font-size: 10px; color: #6b7280; margin-top: 2px;">资金面</div>
+                </div>
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 12px; font-weight: 600; color: #3b82f6;">--</div>
+                    <div style="font-size: 10px; color: #6b7280; margin-top: 2px;">基本面</div>
+                </div>
+                '''
+            
+            html += f'''
+            <div style="background: white; border-radius: 16px; padding: 18px 20px;
+                       border: 1px solid rgba(0,0,0,0.06);
+                       box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                <!-- 头部信息 -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            <span style="font-size: 16px; font-weight: 700; color: #1f2937;">{name}</span>
+                            <span style="font-size: 11px; color: #9ca3af;">{code}</span>
+                        </div>
+                        <div style="display: flex; gap: 14px; font-size: 12px;">
+                            <span style="color: #6b7280;">成本: <span style="color: #374151; font-weight: 500;">¥{cost:.2f}</span></span>
+                            <span style="color: #6b7280;">现价: <span style="color: #374151; font-weight: 500;">¥{current:.2f}</span></span>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 20px; font-weight: 800; color: {profit_color};">
+                            {profit_sign}{profit_pct:.1f}%
+                        </div>
+                        <div style="font-size: 11px; color: {today_color}; margin-top: 2px;">
+                            今日 {today_sign}{today_change:.1f}%
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 诊断指标 -->
+                <div style="display: flex; gap: 8px; margin-bottom: 14px; padding: 10px; background: #f8fafc; border-radius: 10px;">
+                    {diag_html}
+                </div>
+                
+                <!-- 风险条 -->
+                <div style="margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+                        <span style="color: #6b7280;">风险等级</span>
+                        <span style="color: #374151; font-weight: 500;">{risk_level}</span>
+                    </div>
+                    <div style="width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden;">
+                        <div style="height: 100%; width: {risk_progress}%; background: {risk_bar_color}; border-radius: 3px;"></div>
+                    </div>
+                </div>
+                
+                <!-- 操作建议 -->
+                <div style="background: #f0fdf4; border-radius: 10px; padding: 10px 14px;
+                           border-left: 3px solid #10b981;">
+                    <div style="font-size: 11px; font-weight: 600; color: #059669; margin-bottom: 4px;">
+                        💡 操作建议
+                    </div>
+                    <div style="font-size: 12px; color: #047857; line-height: 1.6;">
+                        {advice}
+                    </div>
+                </div>
+            </div>
+            '''
+        
+        html += '</div>'
+        
+        section = Section(title="💼 持仓跟踪", content=html, icon="briefcase")
+        self._components.append(section)
+    
+    def add_risk_warning(self):
+        """风险提示 - 专业版
+        系统性风险、板块风险、个股风险
+        """
+        risks = []
+        
+        # 基于市场情绪的风险
+        fg = self.market_data.get('sentiment', {}).get('fear_greed', 50)
+        if fg > 80:
+            risks.append({
+                'level': 'high',
+                'title': '情绪过热风险',
+                'content': '市场情绪进入极度贪婪区间，短期回调风险加大，建议适当降低仓位。'
+            })
+        elif fg > 70:
+            risks.append({
+                'level': 'medium',
+                'title': '情绪偏热',
+                'content': '市场情绪偏乐观，注意热门板块冲高回落风险，避免追高。'
+            })
+        
+        # 持仓风险
+        stocks = self.portfolio.get('stocks', [])
+        high_risk_stocks = [s for s in stocks if s.get('risk_progress', 0) >= 70]
+        if high_risk_stocks:
+            names = '、'.join([s['name'] for s in high_risk_stocks])
+            risks.append({
+                'level': 'high',
+                'title': '个股止损预警',
+                'content': f'{names} 已接近止损位，建议密切关注，若有效跌破严格执行止损纪律。'
+            })
+        
+        # 通用风险
+        risks.append({
+            'level': 'medium',
+            'title': '宏观政策风险',
+            'content': '关注国内外宏观政策变化对市场的影响，保持对政策面的跟踪。'
+        })
+        risks.append({
+            'level': 'low',
+            'title': '外围市场风险',
+            'content': '美股及港股市场波动可能对A股产生情绪传导，注意外围市场变化。'
+        })
+        
+        html = '<div style="display: flex; flex-direction: column; gap: 12px;">'
+        
+        for risk in risks:
+            level = risk.get('level', 'medium')
+            level_styles = {
+                'high': {
+                    'bg': 'linear-gradient(135deg, #fef2f2 0%, #fff7ed 100%)',
+                    'border': '#fecaca',
+                    'title_color': '#b91c1c',
+                    'content_color': '#7f1d1d',
+                    'icon': '🔴'
+                },
+                'medium': {
+                    'bg': 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+                    'border': '#fde68a',
+                    'title_color': '#92400e',
+                    'content_color': '#78350f',
+                    'icon': '🟡'
+                },
+                'low': {
+                    'bg': 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+                    'border': '#bae6fd',
+                    'title_color': '#0369a1',
+                    'content_color': '#075985',
+                    'icon': '🔵'
+                }
+            }
+            style = level_styles.get(level, level_styles['medium'])
+            
+            html += f'''
+            <div style="background: {style['bg']}; border-radius: 14px; padding: 16px 18px;
+                       border: 1px solid {style['border']};">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <span style="font-size: 16px;">{style['icon']}</span>
+                    <span style="font-size: 14px; font-weight: 700; color: {style['title_color']};">
+                        {risk['title']}
+                    </span>
+                </div>
+                <div style="font-size: 13px; color: {style['content_color']}; line-height: 1.7; padding-left: 26px;">
+                    {risk['content']}
+                </div>
+            </div>
+            '''
+        
+        html += '</div>'
+        
+        section = Section(title="⚠️ 风险提示", content=html, icon="alert-triangle")
+        self._components.append(section)
+    
+    def add_daily_summary(self):
+        """每日总结 - 专业版"""
+        # 基于市场数据生成总结
+        market = self.market_data
+        market_data = market.get('market_data', {})
+        sentiment = market.get('sentiment', {})
+        
+        turnover = market_data.get('turnover', '')
+        fg = sentiment.get('fear_greed', 50)
+        
+        hot = self.hot_sectors
+        hot_names = '、'.join([s.get('name', '') for s in hot[:3]]) if hot else ''
+        
+        summary = f"""
+        今日市场整体呈现情绪{"偏强" if fg > 50 else "偏弱"}格局，成交额{turnover}，市场活跃度{"较高" if fg > 60 else "一般"}。
+        板块方面，{hot_names}等板块表现强势，市场结构性机会依然存在。
+        操作上，建议聚焦业绩确定性强的优质标的，避免追高，保持合理仓位。
+        """
+        
+        html = f'''
+        <div style="background: linear-gradient(135deg, #fafafa 0%, #f5f5f4 100%); 
+                    padding: 24px; border-radius: 18px;
+                    border: 1px solid rgba(0,0,0,0.05);">
+            <div style="font-size: 15px; font-weight: 600; color: #1f2937; margin-bottom: 12px;">
+                📝 今日总结
+            </div>
+            <div style="font-size: 14px; color: #4b5563; line-height: 1.9;">
+                {summary.strip()}
+            </div>
+        </div>
+        '''
+        
+        section = Section(title="", content=html, icon="")
         self._components.append(section)
     
     def generate(self) -> str:
         """生成完整HTML"""
-        self.report.components.clear()  # 清空避免重复添加
+        self.report.components.clear()
         for comp in self._components:
             self.report.add(comp)
         return self.report.generate()
     
     def save(self, filepath: str) -> str:
         """保存到文件"""
-        self.generate()
-        return self.report.save(filepath)
+        html = self.generate()
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(html)
+        return filepath
     
-    def validate(self) -> list:
-        """验证报告"""
-        self.generate()
-        return self.report.validate()
-    
-    def publish(self, title: str = None, report_type: str = None, 
+    def publish(self, title: str = None, report_type: str = None,
                 filename: str = None, excerpt: str = None,
                 auto_deploy: bool = True, docs_root: str = "docs") -> dict:
         """一键发布"""
@@ -638,3 +942,28 @@ class DailyReportGenerator:
             excerpt=excerpt,
             auto_deploy=auto_deploy
         )
+    
+    def build_standard_report(self):
+        """构建标准版本的日报
+        按照标准顺序组装所有模块
+        """
+        self.add_market_overview()
+        self.add_sector_analysis()
+        self.add_topic_deep_dive()
+        self.add_holdings_tracking()
+        self.add_tomorrow_prediction()
+        self.add_risk_warning()
+        self.add_daily_summary()
+        return self
+
+
+if __name__ == '__main__':
+    # 测试生成
+    gen = DailyReportGenerator('2026-06-13', '周五')
+    gen.build_standard_report()
+    html = gen.generate()
+    print(f'日报生成成功，长度: {len(html)} 字符')
+    
+    # 保存测试
+    gen.save('docs/daily/test_daily_v35.html')
+    print('已保存到 docs/daily/test_daily_v35.html')
