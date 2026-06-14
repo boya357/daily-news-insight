@@ -130,7 +130,9 @@ class AlertSystemProGenerator(ProGenerator):
             
             items_html = ''
             for item in items[:3]:
-                items_html += f'<div class="text-sm text-white/70 mb-1">• {item}</div>'
+                label = item.get("label", "")
+                value = item.get("value", str(item))
+                items_html += f'<div class="text-sm text-white/70 mb-1">• <span class="text-white/50">{label}：</span>{value}</div>'
             
             cards_html += f'''
             <div class="bg-white/5 border border-white/10 rounded-xl p-5">
