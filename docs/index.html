@@ -472,15 +472,15 @@
                     </div>
                     <span class="text-yellow-300 font-bold text-sm">✨ 最新发布</span>
                 </div>
-                <span class="text-white/60 text-xs">2026-06-13 13:54 更新</span>
+                <span class="text-white/60 text-xs">刚刚更新</span>
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <a href="weekly_review/20260613_周复盘.html" class="block bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-400/30 rounded-xl p-4 hover:from-blue-500/30 hover:to-cyan-500/30 transition-all group">
+                <a href="s级催化扫描/20260612_长鑫科技IPO注册获证监会同意.html" class="block bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-400/30 rounded-xl p-4 hover:from-blue-500/30 hover:to-cyan-500/30 transition-all group">
     <div class="flex items-center gap-3 mb-2">
-        <span class="text-3xl">📋</span>
+        <span class="text-3xl">⭐</span>
         <div>
-            <h3 class="font-bold text-lg group-hover:text-yellow-300 transition-colors">周复盘</h3>
-            <p class="text-white/70 text-sm">一周市场回顾与总结</p>
+            <h3 class="font-bold text-lg group-hover:text-yellow-300 transition-colors">20260612 S级催化扫描</h3>
+            <p class="text-white/70 text-sm">超级催化事件深度挖掘</p>
         </div>
     </div>
 </a>
@@ -489,33 +489,16 @@
     <div class="flex items-center gap-3 mb-2">
         <span class="text-3xl">📰</span>
         <div>
-            <h3 class="font-bold text-lg group-hover:text-yellow-300 transition-colors">每日新闻洞察</h3>
+            <h3 class="font-bold text-lg group-hover:text-yellow-300 transition-colors">20260613 每日新闻洞察</h3>
             <p class="text-white/70 text-sm">早间市场综述与机会挖掘</p>
         </div>
     </div>
 </a>
 
-<a href="题材深度/topic_a004_城市更新_基建.html" class="block bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-400/30 rounded-xl p-4 hover:from-blue-500/30 hover:to-cyan-500/30 transition-all group">
-    <div class="flex items-center gap-3 mb-2">
-        <span class="text-3xl">🎯</span>
-        <div>
-            <h3 class="font-bold text-lg group-hover:text-yellow-300 transition-colors">城市更新/基建 - 题材深度分析 |...</h3>
-            <p class="text-white/70 text-sm">热点题材深度研究</p>
-        </div>
-    </div>
-</a>
-
-<a href="明日催化剂/20260613_明日催化剂.html" class="block bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-400/30 rounded-xl p-4 hover:from-blue-500/30 hover:to-cyan-500/30 transition-all group">
-    <div class="flex items-center gap-3 mb-2">
-        <span class="text-3xl">⏰</span>
-        <div>
-            <h3 class="font-bold text-lg group-hover:text-yellow-300 transition-colors">明日催化剂</h3>
-            <p class="text-white/70 text-sm">明日重要事件与催化</p>
-        </div>
-    </div>
-</a>
             </div>
         </div>
+
+        
 
         <!-- 【第二区】核心S级产业链 + 持仓概览 两列布局 -->
         <div class="grid grid-cols-3 gap-6 mb-6">
@@ -823,6 +806,64 @@
         const now = new Date();
         const weekDay = ['周日','周一','周二','周三','周四','周五','周六'][now.getDay()];
         document.getElementById('todayDate').textContent = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 ${weekDay}`;
-    </script>
+    
+        
+        // ===== 卡片入场动画 =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card-glass');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 + index * 100);
+            });
+            
+            // 数字滚动动画
+            const numbers = document.querySelectorAll('.text-2xl, .text-3xl, .text-4xl, .font-bold');
+            numbers.forEach(el => {
+                const text = el.textContent.trim();
+                if (/^[\d,]+(\.\d+)?$/.test(text.replace(/%/g, '').replace(/元/g, ''))) {
+                    // 是数字，添加滚动效果
+                    const numStr = text.replace(/,/g, '').replace('%', '').replace('元', '');
+                    const target = parseFloat(numStr);
+                    if (isFinite(target) && target > 0) {
+                        el.dataset.target = target;
+                        el.dataset.original = text;
+                        
+                        let current = 0;
+                        const duration = 1500;
+                        const startTime = performance.now();
+                        
+                        function animate(currentTime) {
+                            const elapsed = currentTime - startTime;
+                            const progress = Math.min(elapsed / duration, 1);
+                            const easeOut = 1 - Math.pow(1 - progress, 3);
+                            current = target * easeOut;
+                            
+                            if (text.includes('%')) {
+                                el.textContent = current.toFixed(2) + '%';
+                            } else if (text.includes(',')) {
+                                el.textContent = Math.floor(current).toLocaleString();
+                            } else {
+                                el.textContent = current.toFixed(2);
+                            }
+                            
+                            if (progress < 1) {
+                                requestAnimationFrame(animate);
+                            } else {
+                                el.textContent = text; // 恢复原始文本
+                            }
+                        }
+                        
+                        setTimeout(() => requestAnimationFrame(animate), 500);
+                    }
+                }
+            });
+        });
+</script>
 </body>
 </html>
