@@ -26,7 +26,8 @@ class WeeklyEvolutionProGenerator(ProGenerator):
             title="WeeklyEvolution",
             active_page="周复盘",
             footer_text="",
-            data_dir=data_dir
+            data_dir=data_dir,
+            show_toc=True,
         )
     def load_data(self):
         """加载数据"""

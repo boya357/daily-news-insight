@@ -29,12 +29,16 @@ class ProGenerator(ProPage):
                  title: str = "投资研究中心", 
                  active_page: str = "", 
                  footer_text: str = "",
-                 data_dir: str = "data"):
+                 data_dir: str = "data",
+                 show_toc: bool = False,
+                 toc_position: str = "right"):
         super().__init__(
             title=title,
             active_page=active_page,
             footer_text=footer_text,
-            update_time=""
+            update_time="",
+            show_toc=show_toc,
+            toc_position=toc_position
         )
         self.data_loader: DataLoader = get_data_loader(data_dir)
         self._data_loaded = False

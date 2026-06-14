@@ -25,7 +25,8 @@ class IndustryChainClockProGenerator(ProGenerator):
             title="产业链时钟",
             active_page="产业链",
             footer_text="产业链时钟 · 把握产业脉动",
-            data_dir=data_dir
+            data_dir=data_dir,
+            show_toc=True,
         )
 
     def load_data(self):

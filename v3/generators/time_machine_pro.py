@@ -22,7 +22,8 @@ class TimeMachinePage(ProPage):
         super().__init__(
             title="数据时光机",
             active_page="首页",
-            footer_text="数据时光机 · 回溯历史 · 见证成长"
+            footer_text="数据时光机 · 回溯历史 · 见证成长",
+            show_toc=True,
         )
         self.data_dir = data_dir
         self.dates = self._get_available_dates()

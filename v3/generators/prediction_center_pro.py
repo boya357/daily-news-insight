@@ -26,7 +26,8 @@ class PredictionCenterProGenerator(ProGenerator):
             title="PredictionCenter",
             active_page="首页",
             footer_text="",
-            data_dir=data_dir
+            data_dir=data_dir,
+            show_toc=True,
         )
     def load_data(self):
         """加载预判数据"""

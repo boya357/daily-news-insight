@@ -25,7 +25,8 @@ class LonghuBangProGenerator(ProGenerator):
             title="龙虎榜追踪",
             active_page="盘后",
             footer_text="龙虎榜追踪 · 洞察主力动向",
-            data_dir=data_dir
+            data_dir=data_dir,
+            show_toc=True,
         )
     def load_data(self):
         """加载龙虎榜数据"""

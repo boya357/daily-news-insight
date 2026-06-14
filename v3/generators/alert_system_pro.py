@@ -26,7 +26,8 @@ class AlertSystemProGenerator(ProGenerator):
             title="智能预警系统",
             active_page="首页",
             footer_text="智能预警系统 · 实时监控风险机会",
-            data_dir=data_dir
+            data_dir=data_dir,
+            show_toc=True,
         )
     def load_data(self):
         """加载预警数据"""

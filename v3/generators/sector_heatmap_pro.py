@@ -25,7 +25,8 @@ class SectorHeatmapProGenerator(ProGenerator):
             title="板块热力图",
             active_page="日报",
             footer_text="板块热力图 · 洞察市场热点轮动",
-            data_dir=data_dir
+            data_dir=data_dir,
+            show_toc=True,
         )
     
     def load_data(self):

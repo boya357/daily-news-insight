@@ -672,7 +672,144 @@ def get_pro_theme_css() -> str:
                     transition-duration: 0.01ms !important;
                 }
             }
-        </style>
+        
+            /* ===== 悬浮目录导航 ===== */
+            .toc-wrapper {
+                position: fixed;
+                top: 120px;
+                width: 220px;
+                max-height: calc(100vh - 160px);
+                background: rgba(139, 92, 246, 0.15);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 16px;
+                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+                z-index: 90;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .toc-right {
+                right: 20px;
+            }
+            
+            .toc-left {
+                left: 20px;
+            }
+            
+            .toc-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                cursor: pointer;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                user-select: none;
+            }
+            
+            .toc-title {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: white;
+            }
+            
+            .toc-header svg {
+                color: rgba(255, 255, 255, 0.7);
+                transition: transform 0.3s ease;
+            }
+            
+            .toc-wrapper.collapsed .toc-header svg {
+                transform: rotate(-90deg);
+            }
+            
+            .toc-content {
+                max-height: calc(100vh - 220px);
+                overflow-y: auto;
+                padding: 8px 0;
+                transition: max-height 0.3s ease;
+            }
+            
+            .toc-wrapper.collapsed .toc-content {
+                max-height: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            
+            .toc-item {
+                display: block;
+                padding: 8px 16px;
+                font-size: 0.8125rem;
+                color: rgba(255, 255, 255, 0.7);
+                text-decoration: none;
+                border-left: 3px solid transparent;
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+            
+            .toc-item:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.08);
+                border-left-color: rgba(255, 255, 255, 0.3);
+            }
+            
+            .toc-item.active {
+                color: white;
+                font-weight: 500;
+                background: rgba(102, 126, 234, 0.3);
+                border-left-color: #667eea;
+            }
+            
+            .toc-item.pl-4 {
+                padding-left: 32px;
+                font-size: 0.75rem;
+            }
+            
+            /* 滚动条样式 */
+            .toc-content::-webkit-scrollbar {
+                width: 4px;
+            }
+            
+            .toc-content::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            
+            .toc-content::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 2px;
+            }
+            
+            .toc-content::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.4);
+            }
+            
+            /* 大屏显示优化 */
+            @media (min-width: 1400px) {
+                .toc-wrapper {
+                    width: 260px;
+                }
+                .toc-right {
+                    right: calc((100vw - 64rem) / 2 - 300px);
+                }
+                .toc-left {
+                    left: calc((100vw - 64rem) / 2 - 300px);
+                }
+            }
+            
+            /* 平板端隐藏目录 */
+            @media (max-width: 1200px) {
+                .toc-wrapper {
+                    display: none;
+                }
+            }
+            
+            /* 页面内容区域适配 - 避免被目录遮挡 */
+            @media (min-width: 1200px) {
+                .pro-container.has-toc {
+                    max-width: 48rem;
+                }
+            }
+</style>
     '''
 
 
@@ -771,6 +908,62 @@ class FloatingButtons(Component):
             back_to_top = '<button id="backToTop" onclick="scrollToTop()" title="回到顶部"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg></button>'
         
         return progress_bar + action_buttons + back_to_top
+
+
+
+class TableOfContents(Component):
+    """悬浮目录导航 - 页面内锚点跳转+滚动高亮
+    
+    支持自动提取标题或手动传入目录项
+    """
+    
+    def __init__(self, items: list = None, title: str = "目录", 
+                 position: str = "right", auto_extract: bool = True,
+                 max_depth: int = 2):
+        """
+        Args:
+            items: 手动目录项列表，每项为 {"title": "", "id": "", "level": 2}
+                   为None时自动提取页面h2/h3标题
+            title: 目录标题
+            position: 位置: left 或 right
+            max_depth: 自动提取时的最大深度（2=h2, 3=h2+h3）
+        """
+        self.items = items or []
+        self.title = title
+        self.position = position
+        self.auto_extract = auto_extract
+        self.max_depth = max_depth
+    
+    def render(self) -> str:
+        position_class = 'toc-right' if self.position == 'right' else 'toc-left'
+        
+        # 生成目录项HTML
+        items_html = ''
+        if self.items:
+            for item in self.items:
+                level = item.get('level', 2)
+                indent = 'pl-4' if level == 3 else ''
+                item_html = '<a href="#' + item['id'] + '" class="toc-item ' + indent + '" data-level="' + str(level) + '">' + item['title'] + '</a>'
+                items_html += item_html + '\n'
+        
+        # 如果自动提取，添加空容器由JS填充
+        if self.auto_extract and not self.items:
+            items_html = '<div id="tocContainer" class="toc-container"></div>'
+        
+        html = '<!-- 悬浮目录导航 -->\n'
+        html += '<div id="tableOfContents" class="toc-wrapper ' + position_class + '">\n'
+        html += '  <div class="toc-header" onclick="toggleTOC()">\n'
+        html += '    <span class="toc-title">' + self.title + '</span>\n'
+        html += '    <svg id="tocToggleIcon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="transition-transform duration-300">\n'
+        html += '      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>\n'
+        html += '    </svg>\n'
+        html += '  </div>\n'
+        html += '  <div id="tocContent" class="toc-content">\n'
+        html += '    ' + items_html + '\n'
+        html += '  </div>\n'
+        html += '</div>\n'
+        
+        return html
 
 class RiskBar(Component):
     """风险进度条
@@ -1235,7 +1428,114 @@ class PageScript(Component):
             });
         }
         
-        // ==================== 页面加载完成后初始化 ====================
+        
+        // ==================== 悬浮目录导航 ====================
+        function toggleTOC() {
+            const toc = document.getElementById('tableOfContents');
+            const icon = document.getElementById('tocToggleIcon');
+            if (toc) {
+                toc.classList.toggle('collapsed');
+            }
+        }
+        
+        function initTableOfContents() {
+            const tocContainer = document.getElementById('tocContainer');
+            if (!tocContainer) return;
+            
+            // 自动提取页面中的h2和h3标题
+            const headings = document.querySelectorAll('.pro-container h2, .pro-container h3');
+            if (headings.length === 0) {
+                // 没有标题则隐藏目录
+                const toc = document.getElementById('tableOfContents');
+                if (toc) toc.style.display = 'none';
+                return;
+            }
+            
+            // 为标题生成id（如果没有的话）
+            headings.forEach(function(heading, index) {
+                if (!heading.id) {
+                    const text = heading.textContent || heading.innerText;
+                    heading.id = 'section-' + index + '-' + text.trim().replace(/\s+/g, '-').replace(/[^\w\-\u4e00-\u9fa5]/g, '').substring(0, 30);
+                }
+            });
+            
+            // 生成目录HTML
+            var tocHTML = '';
+            headings.forEach(function(heading) {
+                const level = parseInt(heading.tagName.substring(1));
+                const title = heading.textContent || heading.innerText;
+                const indent = level === 3 ? 'pl-4' : '';
+                tocHTML += '<a href="#' + heading.id + '" class="toc-item ' + indent + '" data-level="' + level + '">' + title.trim() + '</a>';
+            });
+            
+            tocContainer.innerHTML = tocHTML;
+            
+            // 为目录项添加平滑滚动
+            tocContainer.querySelectorAll('.toc-item').forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        // 考虑导航栏高度
+                        var offset = 100;
+                        var targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // 初始化滚动高亮
+            initTOCScrollSpy();
+        }
+        
+        function initTOCScrollSpy() {
+            const tocItems = document.querySelectorAll('.toc-item');
+            if (tocItems.length === 0) return;
+            
+            // 获取所有章节
+            const sections = [];
+            tocItems.forEach(function(item) {
+                const id = item.getAttribute('href').substring(1);
+                const section = document.getElementById(id);
+                if (section) {
+                    sections.push({
+                        element: section,
+                        navItem: item,
+                        top: section.offsetTop - 120
+                    });
+                }
+            });
+            
+            if (sections.length === 0) return;
+            
+            // 滚动时更新高亮
+            function updateActiveTOC() {
+                const scrollPosition = window.pageYOffset;
+                
+                // 找到当前处于视口的章节
+                var currentIndex = 0;
+                for (var i = 0; i < sections.length; i++) {
+                    if (scrollPosition >= sections[i].top) {
+                        currentIndex = i;
+                    }
+                }
+                
+                // 更新高亮状态
+                tocItems.forEach(function(item, index) {
+                    item.classList.remove('active');
+                });
+                if (sections[currentIndex]) {
+                    sections[currentIndex].navItem.classList.add('active');
+                }
+            }
+            
+            window.addEventListener('scroll', updateActiveTOC);
+            updateActiveTOC();
+        }
+// ==================== 页面加载完成后初始化 ====================
         function initAllAnimations() {
             initProgressAndBackToTop();
             initScrollReveal();
@@ -1243,6 +1543,8 @@ class PageScript(Component):
             initProgressBars();
             initCardAnimations();
             initSmoothScroll();
+            initTableOfContents();
+
         }
         
         document.addEventListener('DOMContentLoaded', function() {
@@ -1274,11 +1576,16 @@ class ProPage:
     """
     
     def __init__(self, title: str = "投资研究中心", active_page: str = "", 
-                 footer_text: str = "", update_time: str = ""):
+                 footer_text: str = "", update_time: str = "",
+                 show_toc: bool = False, toc_items: list = None,
+                 toc_position: str = "right"):
         self.title = title
         self.active_page = active_page
         self.footer_text = footer_text
         self.update_time = update_time
+        self.show_toc = show_toc
+        self.toc_items = toc_items
+        self.toc_position = toc_position
     
     def _content(self) -> str:
         """页面主要内容 - 子类重写此方法"""
@@ -1292,6 +1599,12 @@ class ProPage:
         script = PageScript().render()
         floating = FloatingButtons().render()
         content = self._content()
+        
+        # 渲染目录（如果启用）
+        toc_html = ""
+        if self.show_toc:
+            toc = TableOfContents(items=self.toc_items, position=self.toc_position)
+            toc_html = toc.render()
         
         return f'''<!DOCTYPE html>
 <html lang="zh-CN">
@@ -1320,6 +1633,7 @@ class ProPage:
     </div>
     
     {floating}
+    {toc_html}
     {script}
 </body>
 </html>
