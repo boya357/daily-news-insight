@@ -176,9 +176,9 @@ def update_topic_helper():
     
     print("📊 更新智能选题助手...")
     
-    # 更新最后更新时间
-    old_time_pattern = r'数据更新时间：\d+年\d+月\d+日 \d+:\d+'
-    new_time_text = f'数据更新时间：{update_time}'
+    # 更新最后更新时间 - 适配V2.0页面结构（导航栏右侧，"最后更新"下方显示时间）
+    old_time_pattern = r'最后更新</div>\s*<div style="font-size: 14px; font-weight: 700; color: #374151; margin-top: 2px;">\d+年\d+月\d+日 \d+:\d+'
+    new_time_text = f'最后更新</div>\n                    <div style="font-size: 14px; font-weight: 700; color: #374151; margin-top: 2px;">{update_time}'
     html = safe_replace(html, old_time_pattern, new_time_text, "更新时间戳")
     
     write_file(filepath, html)
