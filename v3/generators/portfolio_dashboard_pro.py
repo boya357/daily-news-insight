@@ -399,10 +399,14 @@ class PortfolioDashboardProGenerator:
             <div style="margin-bottom: 20px;">
                 <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
                     <span style="opacity: 0.8;">风险程度</span>
-                    <span style="font-weight: 600;">{risk_level}</span>
+                    <span style="font-weight: 700; color: {risk_bar_color};">{risk_level}</span>
                 </div>
-                <div class="risk-bar">
-                    <div class="risk-bar-fill" style="width: {risk_progress}%; background: {risk_bar_color};"></div>
+                <div style="height: 12px; background: rgba(255,255,255,0.15); border-radius: 6px; overflow: hidden; position: relative;">
+                    <div style="height: 100%; width: {risk_progress}%; background: {risk_bar_color}; border-radius: 6px; transition: width 0.5s ease;"></div>
+                    <!-- 50% 标记线 -->
+                    <div style="position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: rgba(255,255,255,0.5);"></div>
+                    <!-- 滑块指示器 -->
+                    <div style="position: absolute; top: 50%; left: {risk_progress}%; transform: translate(-50%, -50%); width: 16px; height: 16px; background: {risk_bar_color}; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>
                 </div>
                 <div style="display: flex; justify-content: space-between; font-size: 11px; opacity: 0.6; margin-top: 6px;">
                     <span>安全区</span>
