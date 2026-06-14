@@ -9,7 +9,8 @@ import json
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.report import Report
-from components.layout import Section, Navbar, Footer
+from components.layout import Section, Footer
+from components.pro import NavBar, FloatingButtons, get_pro_theme_css
 from components.base import get_animation_css, get_animation_js
 
 
@@ -881,10 +882,13 @@ class PortfolioDashboardProGenerator:
     def generate(self) -> str:
         """生成完整的HTML页面"""
         # 导航栏
-        navbar_html = Navbar(active_key='portfolio_dashboard').render()
+        navbar_html = NavBar(active_page='').render()
         
         # 页脚
         footer_html = Footer().render()
+        
+        # 悬浮按钮
+        floating_buttons_html = FloatingButtons().render()
         
         # 内容区
         content_html = ''
@@ -892,10 +896,13 @@ class PortfolioDashboardProGenerator:
         content_html += self.add_stock_cards()
         content_html += self.add_stress_test()
         content_html += self.add_position_advice()
-        content_html += self.add_longhubang()
+        # content_html += self.add_longhubang()  # 已移除，独立为龙虎榜工具页面
         content_html += self.add_risk_alert_panel()
         content_html += self.add_industry_analysis()
         content_html += self.add_fund_flow_monitor()
+        
+        # Pro主题CSS（含导航栏样式）
+        pro_theme_css = get_pro_theme_css()
         
         # 深色主题CSS
         dark_css = self._generate_dark_theme_css()
@@ -912,6 +919,7 @@ class PortfolioDashboardProGenerator:
     <title>持仓智能预警仪表盘 - 投资研究中心</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    {pro_theme_css}
     {dark_css}
     {animation_css}
 </head>
@@ -923,6 +931,7 @@ class PortfolioDashboardProGenerator:
     </div>
     
     {footer_html}
+    {floating_buttons_html}
     {animation_js}
 </body>
 </html>
