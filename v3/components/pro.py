@@ -391,6 +391,115 @@ def get_pro_theme_css() -> str:
                 box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
             }
             
+
+            /* 阅读进度条 */
+            #progressBar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+                z-index: 9999;
+                width: 0%;
+                transition: width 0.1s ease;
+            }
+            
+            /* 回到顶部按钮 */
+            #backToTop {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                width: 50px;
+                height: 50px;
+                background: linear-gradient(135deg, #6366f1, #a855f7);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                z-index: 9998;
+                opacity: 0;
+                transform: translateY(20px);
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+                border: none;
+            }
+            #backToTop:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            }
+            #backToTop.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            /* 操作按钮组 */
+            .action-buttons {
+                position: fixed;
+                bottom: 30px;
+                left: 30px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                z-index: 9998;
+            }
+            .action-btn {
+                width: 50px;
+                height: 50px;
+                background: rgba(30, 30, 50, 0.8);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            }
+            .action-btn:hover {
+                background: rgba(99, 102, 241, 0.8);
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            }
+            
+            /* 打印优化 */
+            @media print {
+                #progressBar, #backToTop, .action-buttons, .glass-nav, .pro-footer {
+                    display: none !important;
+                }
+                body {
+                    background: white !important;
+                    color: black !important;
+                }
+                .card-glass {
+                    background: white !important;
+                    border: 1px solid #ddd !important;
+                    box-shadow: none !important;
+                }
+            }
+            
+            /* 移动端适配 */
+            @media (max-width: 768px) {
+                #backToTop {
+                    bottom: 20px;
+                    right: 20px;
+                    width: 44px;
+                    height: 44px;
+                }
+                .action-buttons {
+                    bottom: 20px;
+                    left: 20px;
+                    gap: 10px;
+                }
+                .action-btn {
+                    width: 44px;
+                    height: 44px;
+                }
+            }
             /* 进度条动画增强 */
             .risk-bar-fill {
                 transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
@@ -634,6 +743,34 @@ class TagBadge(Component):
         color_class = color_map.get(self.color, color_map['purple'])
         return f'<span class="tag-badge {color_class}">{self.text}</span>'
 
+
+
+
+class FloatingButtons(Component):
+    """悬浮按钮组 - 阅读进度条、回到顶部、操作按钮"""
+    
+    def __init__(self, show_print=True, show_share=True, show_back_to_top=True):
+        self.show_print = show_print
+        self.show_share = show_share
+        self.show_back_to_top = show_back_to_top
+    
+    def render(self):
+        progress_bar = '<div id="progressBar"></div>'
+        
+        action_buttons = ''
+        if self.show_print or self.show_share:
+            buttons_html = ''
+            if self.show_print:
+                buttons_html += '<button onclick="exportPDF()" class="action-btn" title="打印/导出PDF"><span style="font-size:20px">&#x1F4C4;</span></button>'
+            if self.show_share:
+                buttons_html += '<button onclick="shareReport()" class="action-btn" title="分享报告"><span style="font-size:20px">&#x1F517;</span></button>'
+            action_buttons = '<div class="action-buttons">' + buttons_html + '</div>'
+        
+        back_to_top = ''
+        if self.show_back_to_top:
+            back_to_top = '<button id="backToTop" onclick="scrollToTop()" title="回到顶部"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg></button>'
+        
+        return progress_bar + action_buttons + back_to_top
 
 class RiskBar(Component):
     """风险进度条
@@ -1033,6 +1170,55 @@ class PageScript(Component):
             });
         }
         
+
+        // ==================== 阅读进度条 & 回到顶部 ====================
+        function initProgressAndBackToTop() {
+            const progressBar = document.getElementById('progressBar');
+            const backToTop = document.getElementById('backToTop');
+            
+            function updateProgress() {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+                
+                if (progressBar) {
+                    progressBar.style.width = scrolled + '%';
+                }
+                
+                if (backToTop) {
+                    if (winScroll > 300) {
+                        backToTop.classList.add('visible');
+                    } else {
+                        backToTop.classList.remove('visible');
+                    }
+                }
+            }
+            
+            window.addEventListener('scroll', updateProgress);
+            updateProgress();
+        }
+        
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function exportPDF() {
+            window.print();
+        }
+        
+        function shareReport() {
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({ title: document.title, url: url });
+            } else {
+                navigator.clipboard.writeText(url).then(function() {
+                    alert('链接已复制到剪贴板！');
+                }).catch(function() {
+                    prompt('复制以下链接分享：', url);
+                });
+            }
+        }
+        
         // ==================== 平滑滚动 ====================
         function initSmoothScroll() {
             document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
@@ -1051,6 +1237,7 @@ class PageScript(Component):
         
         // ==================== 页面加载完成后初始化 ====================
         function initAllAnimations() {
+            initProgressAndBackToTop();
             initScrollReveal();
             initCounters();
             initProgressBars();
@@ -1103,6 +1290,7 @@ class ProPage:
         nav = NavBar(active_page=self.active_page).render()
         footer = Footer(text=self.footer_text, update_time=self.update_time).render()
         script = PageScript().render()
+        floating = FloatingButtons().render()
         content = self._content()
         
         return f'''<!DOCTYPE html>
@@ -1131,6 +1319,7 @@ class ProPage:
         {footer}
     </div>
     
+    {floating}
     {script}
 </body>
 </html>
