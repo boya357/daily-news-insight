@@ -1903,5 +1903,106 @@ if (document.readyState === 'loading') {
     setTimeout(initTableOfContents, 100);
 }
 </script>
+
+<!-- 悬浮按钮组 -->
+<div id="floatingButtons" class="fixed right-6 bottom-6 flex flex-col gap-2 z-50">
+    <!-- 阅读进度条 -->
+    <div class="reading-progress-bar fixed top-0 left-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-600 z-50" id="readingProgress" style="width: 0%;"></div>
+    
+    <!-- 回到顶部按钮 -->
+    <button id="backToTop" class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center text-gray-600 hover:text-indigo-600 opacity-0 translate-y-4 pointer-events-none" onclick="scrollToTop()" title="回到顶部">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+        </svg>
+    </button>
+    
+    <!-- 打印按钮 -->
+    <button class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center text-gray-600 hover:text-indigo-600" onclick="window.print()" title="打印页面">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+        </svg>
+    </button>
+    
+    <!-- 分享按钮 -->
+    <button class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center text-gray-600 hover:text-indigo-600" onclick="sharePage()" title="分享">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+        </svg>
+    </button>
+</div>
+
+<style>
+    .reading-progress-bar {
+        transition: width 0.1s ease-out;
+    }
+    
+    #backToTop.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+    
+    #floatingButtons button {
+        transition: all 0.3s ease;
+    }
+    
+    #floatingButtons button:hover {
+        transform: scale(1.1);
+    }
+    
+    @media print {
+        #floatingButtons, .reading-progress-bar {
+            display: none !important;
+        }
+    }
+</style>
+
+<script>
+    // 回到顶部
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // 分享页面
+    function sharePage() {
+        if (navigator.share) {
+            navigator.share({
+                title: document.title,
+                url: window.location.href
+            });
+        } else {
+            // 复制链接到剪贴板
+            navigator.clipboard.writeText(window.location.href).then(function() {
+                alert('链接已复制到剪贴板');
+            }).catch(function() {
+                prompt('复制链接：', window.location.href);
+            });
+        }
+    }
+    
+    // 滚动监听 - 更新进度条和回到顶部按钮
+    window.addEventListener('scroll', function() {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        
+        // 更新进度条
+        const progressBar = document.getElementById('readingProgress');
+        if (progressBar) {
+            progressBar.style.width = scrollPercent + '%';
+        }
+        
+        // 显示/隐藏回到顶部按钮
+        const backToTop = document.getElementById('backToTop');
+        if (backToTop) {
+            if (scrollTop > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        }
+    });
+</script>
+
 </body>
 </html>
