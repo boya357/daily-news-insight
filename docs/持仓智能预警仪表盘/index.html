@@ -360,6 +360,115 @@
                 box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
             }
             
+
+            /* 阅读进度条 */
+            #progressBar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+                z-index: 9999;
+                width: 0%;
+                transition: width 0.1s ease;
+            }
+            
+            /* 回到顶部按钮 */
+            #backToTop {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                width: 50px;
+                height: 50px;
+                background: linear-gradient(135deg, #6366f1, #a855f7);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                z-index: 9998;
+                opacity: 0;
+                transform: translateY(20px);
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+                border: none;
+            }
+            #backToTop:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            }
+            #backToTop.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            /* 操作按钮组 */
+            .action-buttons {
+                position: fixed;
+                bottom: 30px;
+                left: 30px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                z-index: 9998;
+            }
+            .action-btn {
+                width: 50px;
+                height: 50px;
+                background: rgba(30, 30, 50, 0.8);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            }
+            .action-btn:hover {
+                background: rgba(99, 102, 241, 0.8);
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            }
+            
+            /* 打印优化 */
+            @media print {
+                #progressBar, #backToTop, .action-buttons, .glass-nav, .pro-footer {
+                    display: none !important;
+                }
+                body {
+                    background: white !important;
+                    color: black !important;
+                }
+                .card-glass {
+                    background: white !important;
+                    border: 1px solid #ddd !important;
+                    box-shadow: none !important;
+                }
+            }
+            
+            /* 移动端适配 */
+            @media (max-width: 768px) {
+                #backToTop {
+                    bottom: 20px;
+                    right: 20px;
+                    width: 44px;
+                    height: 44px;
+                }
+                .action-buttons {
+                    bottom: 20px;
+                    left: 20px;
+                    gap: 10px;
+                }
+                .action-btn {
+                    width: 44px;
+                    height: 44px;
+                }
+            }
             /* 进度条动画增强 */
             .risk-bar-fill {
                 transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
@@ -532,7 +641,217 @@
                     transition-duration: 0.01ms !important;
                 }
             }
-        </style>
+        
+            /* ===== 悬浮目录导航 ===== */
+            .toc-wrapper {
+                position: fixed;
+                top: 120px;
+                width: 220px;
+                max-height: calc(100vh - 160px);
+                background: rgba(139, 92, 246, 0.15);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 16px;
+                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+                z-index: 90;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .toc-right {
+                right: 20px;
+            }
+            
+            .toc-left {
+                left: 20px;
+            }
+            
+            .toc-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                cursor: pointer;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                user-select: none;
+            }
+            
+            .toc-title {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: white;
+            }
+            
+            .toc-header svg {
+                color: rgba(255, 255, 255, 0.7);
+                transition: transform 0.3s ease;
+            }
+            
+            .toc-wrapper.collapsed .toc-header svg {
+                transform: rotate(-90deg);
+            }
+            
+            .toc-content {
+                max-height: calc(100vh - 220px);
+                overflow-y: auto;
+                padding: 8px 0;
+                transition: max-height 0.3s ease;
+            }
+            
+            .toc-wrapper.collapsed .toc-content {
+                max-height: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            
+            .toc-item {
+                display: block;
+                padding: 8px 16px;
+                font-size: 0.8125rem;
+                color: rgba(255, 255, 255, 0.7);
+                text-decoration: none;
+                border-left: 3px solid transparent;
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+            
+            .toc-item:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.08);
+                border-left-color: rgba(255, 255, 255, 0.3);
+            }
+            
+            .toc-item.active {
+                color: white;
+                font-weight: 500;
+                background: rgba(102, 126, 234, 0.3);
+                border-left-color: #667eea;
+            }
+            
+            .toc-item.pl-4 {
+                padding-left: 32px;
+                font-size: 0.75rem;
+            }
+            
+            /* 滚动条样式 */
+            .toc-content::-webkit-scrollbar {
+                width: 4px;
+            }
+            
+            .toc-content::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            
+            .toc-content::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 2px;
+            }
+            
+            .toc-content::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.4);
+            }
+            
+            /* 大屏显示优化 */
+            @media (min-width: 1400px) {
+                .toc-wrapper {
+                    width: 260px;
+                }
+                .toc-right {
+                    right: calc((100vw - 64rem) / 2 - 300px);
+                }
+                .toc-left {
+                    left: calc((100vw - 64rem) / 2 - 300px);
+                }
+            }
+            
+                        /* 平板端优化 - 折叠为悬浮按钮 */
+            @media (max-width: 1200px) {
+                .toc-wrapper {
+                    top: auto;
+                    bottom: 80px;
+                    right: 16px;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 240px;
+                    height: auto;
+                    max-height: 60vh;
+                    border-radius: 16px;
+                    top: auto;
+                    bottom: 80px;
+                }
+                
+                .toc-wrapper .toc-header {
+                    justify-content: center;
+                    padding: 12px;
+                    border-bottom: none;
+                }
+                
+                .toc-wrapper.expanded .toc-header {
+                    justify-content: space-between;
+                    padding: 12px 16px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                
+                .toc-wrapper .toc-title {
+                    display: none;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    display: block;
+                    font-size: 0.875rem;
+                }
+                
+                .toc-wrapper .toc-content {
+                    max-height: 0;
+                    padding: 0;
+                    opacity: 0;
+                    transition: all 0.3s ease;
+                }
+                
+                .toc-wrapper.expanded .toc-content {
+                    max-height: calc(60vh - 56px);
+                    padding: 8px 0;
+                    opacity: 1;
+                }
+                
+                .toc-wrapper .toc-header svg {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+            
+            /* 手机端 - 更小的悬浮按钮 */
+            @media (max-width: 480px) {
+                .toc-wrapper {
+                    width: 40px;
+                    height: 40px;
+                    bottom: 70px;
+                    right: 12px;
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 200px;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    font-size: 0.8rem;
+                }
+            }
+            
+            /* 页面内容区域适配 - 避免被目录遮挡 */
+            @media (min-width: 1200px) {
+                .pro-container.has-toc {
+                    max-width: 48rem;
+                }
+            }
+</style>
     
     
 <style>
@@ -799,30 +1118,32 @@
                 </div>
             </div>
             
-            <!-- 关键数据 -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">成本价</div>
-                    <div style="font-size: 16px; font-weight: 600;">¥80.05</div>
+            <!-- 关键数据 6项 -->
+            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 20px;">
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">成本价</div>
+                    <div style="font-size: 15px; font-weight: 700;">¥80.05</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">最新价</div>
-                    <div style="font-size: 16px; font-weight: 600;">¥66.08</div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">最新价</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #ef4444;">¥66.08</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">止损价</div>
-                    <div style="font-size: 16px; font-weight: 600;">¥64.04</div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">止损价</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #f59e0b;">¥64.04</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">距止损</div>
-                    <div style="font-size: 16px; font-weight: 600; color: #ef4444;">3.2%</div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">距止损</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #ef4444;">3.2%</div>
                 </div>
-            </div>
-            
-            <!-- 主力资金 -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 10px 14px; background: rgba(255,255,255,0.08); border-radius: 10px;">
-                <span style="font-size: 13px; opacity: 0.8;">主力资金</span>
-                <span style="font-size: 14px; font-weight: 600; color: #ef4444;">-1.80亿</span>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">今日涨跌</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #ef4444;">-1.58%</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">主力资金</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #ef4444;">-1.80亿</div>
+                </div>
             </div>
             
             <!-- 风险等级 -->
@@ -844,40 +1165,40 @@
             <!-- 四维诊断 -->
             <div style="display: flex; gap: 10px;">
                 
-            <div style="flex: 1; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">📈</span>
-                    <span style="font-weight: 700; color: #ef4444; font-size: 15px;">技术面</span>
+            <div style="flex: 1; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">📈</span>
+                    <span style="font-weight: 800; color: #ef4444; font-size: 14px;">技术面</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: #ef4444; margin-bottom: 4px;">调整</div>
-                <p style="font-size: 12px; color: rgba(239, 68, 68, 0.8); line-height: 1.5;">跌破均线支撑</p>
+                <div style="font-size: 14px; font-weight: 800; color: #ef4444; margin-bottom: 6px;">调整</div>
+                <p style="font-size: 12px; color: rgba(239, 68, 68, 0.8); line-height: 1.5; margin: 0;">跌破均线支撑</p>
             </div>
             
-            <div style="flex: 1; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">💰</span>
-                    <span style="font-weight: 700; color: #ef4444; font-size: 15px;">资金面</span>
+            <div style="flex: 1; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">💰</span>
+                    <span style="font-weight: 800; color: #ef4444; font-size: 14px;">资金面</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: #ef4444; margin-bottom: 4px;">流出</div>
-                <p style="font-size: 12px; color: rgba(239, 68, 68, 0.8); line-height: 1.5;">主力资金持续流出</p>
+                <div style="font-size: 14px; font-weight: 800; color: #ef4444; margin-bottom: 6px;">流出</div>
+                <p style="font-size: 12px; color: rgba(239, 68, 68, 0.8); line-height: 1.5; margin: 0;">主力资金持续流出</p>
             </div>
             
-            <div style="flex: 1; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">📰</span>
-                    <span style="font-weight: 700; color: #f59e0b; font-size: 15px;">消息面</span>
+            <div style="flex: 1; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">📰</span>
+                    <span style="font-weight: 800; color: #f59e0b; font-size: 14px;">消息面</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: #f59e0b; margin-bottom: 4px;">中性</div>
-                <p style="font-size: 12px; color: rgba(245, 158, 11, 0.8); line-height: 1.5;">行业消息面平稳</p>
+                <div style="font-size: 14px; font-weight: 800; color: #f59e0b; margin-bottom: 6px;">中性</div>
+                <p style="font-size: 12px; color: rgba(245, 158, 11, 0.8); line-height: 1.5; margin: 0;">行业消息面平稳</p>
             </div>
             
-            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">🏭</span>
-                    <span style="font-weight: 700; color: #10b981; font-size: 15px;">产业面</span>
+            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">🏭</span>
+                    <span style="font-weight: 800; color: #10b981; font-size: 14px;">产业面</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: #10b981; margin-bottom: 4px;">向好</div>
-                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5;">液冷需求持续增长</p>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-bottom: 6px;">向好</div>
+                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5; margin: 0;">液冷需求持续增长</p>
             </div>
             
             </div>
@@ -906,30 +1227,32 @@
                 </div>
             </div>
             
-            <!-- 关键数据 -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">成本价</div>
-                    <div style="font-size: 16px; font-weight: 600;">¥87.16</div>
+            <!-- 关键数据 6项 -->
+            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 20px;">
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">成本价</div>
+                    <div style="font-size: 15px; font-weight: 700;">¥87.16</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">最新价</div>
-                    <div style="font-size: 16px; font-weight: 600;">¥141.80</div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">最新价</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #10b981;">¥141.80</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">止损价</div>
-                    <div style="font-size: 16px; font-weight: 600;">¥69.73</div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">止损价</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #f59e0b;">¥69.73</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">安全边际</div>
-                    <div style="font-size: 16px; font-weight: 600; color: #10b981;">+21.9%</div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">安全边际</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #10b981;">+21.9%</div>
                 </div>
-            </div>
-            
-            <!-- 主力资金 -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 10px 14px; background: rgba(255,255,255,0.08); border-radius: 10px;">
-                <span style="font-size: 13px; opacity: 0.8;">主力资金</span>
-                <span style="font-size: 14px; font-weight: 600; color: #10b981;">+2.35亿</span>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">今日涨跌</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #10b981;">+10.80%</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">主力资金</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #10b981;">+2.35亿</div>
+                </div>
             </div>
             
             <!-- 风险等级 -->
@@ -951,40 +1274,40 @@
             <!-- 四维诊断 -->
             <div style="display: flex; gap: 10px;">
                 
-            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">📈</span>
-                    <span style="font-weight: 700; color: #10b981; font-size: 15px;">技术面</span>
+            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">📈</span>
+                    <span style="font-weight: 800; color: #10b981; font-size: 14px;">技术面</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: #10b981; margin-bottom: 4px;">强势</div>
-                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5;">均线多头排列</p>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-bottom: 6px;">强势</div>
+                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5; margin: 0;">均线多头排列</p>
             </div>
             
-            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">💰</span>
-                    <span style="font-weight: 700; color: #10b981; font-size: 15px;">资金面</span>
+            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">💰</span>
+                    <span style="font-weight: 800; color: #10b981; font-size: 14px;">资金面</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: #10b981; margin-bottom: 4px;">流入</div>
-                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5;">主力资金持续流入</p>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-bottom: 6px;">流入</div>
+                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5; margin: 0;">主力资金持续流入</p>
             </div>
             
-            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">📰</span>
-                    <span style="font-weight: 700; color: #10b981; font-size: 15px;">消息面</span>
+            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">📰</span>
+                    <span style="font-weight: 800; color: #10b981; font-size: 14px;">消息面</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: #10b981; margin-bottom: 4px;">利好</div>
-                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5;">AI服务器铜箔需求爆发</p>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-bottom: 6px;">利好</div>
+                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5; margin: 0;">AI服务器铜箔需求爆发</p>
             </div>
             
-            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">🏭</span>
-                    <span style="font-weight: 700; color: #10b981; font-size: 15px;">产业面</span>
+            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">🏭</span>
+                    <span style="font-weight: 800; color: #10b981; font-size: 14px;">产业面</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: #10b981; margin-bottom: 4px;">向好</div>
-                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5;">储能+AI双轮驱动</p>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-bottom: 6px;">向好</div>
+                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5; margin: 0;">储能+AI双轮驱动</p>
             </div>
             
             </div>
@@ -1013,30 +1336,32 @@
                 </div>
             </div>
             
-            <!-- 关键数据 -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">成本价</div>
-                    <div style="font-size: 16px; font-weight: 600;">¥13.45</div>
+            <!-- 关键数据 6项 -->
+            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 20px;">
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">成本价</div>
+                    <div style="font-size: 15px; font-weight: 700;">¥13.45</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">最新价</div>
-                    <div style="font-size: 16px; font-weight: 600;">¥13.64</div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">最新价</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #10b981;">¥13.64</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">止损价</div>
-                    <div style="font-size: 16px; font-weight: 600;">¥10.76</div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">止损价</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #f59e0b;">¥10.76</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">安全边际</div>
-                    <div style="font-size: 16px; font-weight: 600; color: #10b981;">+3.9%</div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">安全边际</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #10b981;">+3.9%</div>
                 </div>
-            </div>
-            
-            <!-- 主力资金 -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 10px 14px; background: rgba(255,255,255,0.08); border-radius: 10px;">
-                <span style="font-size: 13px; opacity: 0.8;">主力资金</span>
-                <span style="font-size: 14px; font-weight: 600; color: #ef4444;">-0.28亿</span>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">今日涨跌</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #10b981;">+5.00%</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">主力资金</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #ef4444;">-0.28亿</div>
+                </div>
             </div>
             
             <!-- 风险等级 -->
@@ -1058,40 +1383,40 @@
             <!-- 四维诊断 -->
             <div style="display: flex; gap: 10px;">
                 
-            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">📈</span>
-                    <span style="font-weight: 700; color: #10b981; font-size: 15px;">技术面</span>
+            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">📈</span>
+                    <span style="font-weight: 800; color: #10b981; font-size: 14px;">技术面</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: #10b981; margin-bottom: 4px;">上涨</div>
-                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5;">横盘整理等待方向</p>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-bottom: 6px;">上涨</div>
+                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5; margin: 0;">横盘整理等待方向</p>
             </div>
             
-            <div style="flex: 1; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">💰</span>
-                    <span style="font-weight: 700; color: #f59e0b; font-size: 15px;">资金面</span>
+            <div style="flex: 1; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">💰</span>
+                    <span style="font-weight: 800; color: #f59e0b; font-size: 14px;">资金面</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: #f59e0b; margin-bottom: 4px;">平稳</div>
-                <p style="font-size: 12px; color: rgba(245, 158, 11, 0.8); line-height: 1.5;">ST板块整体平稳</p>
+                <div style="font-size: 14px; font-weight: 800; color: #f59e0b; margin-bottom: 6px;">平稳</div>
+                <p style="font-size: 12px; color: rgba(245, 158, 11, 0.8); line-height: 1.5; margin: 0;">ST板块整体平稳</p>
             </div>
             
-            <div style="flex: 1; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">📰</span>
-                    <span style="font-weight: 700; color: #f59e0b; font-size: 15px;">消息面</span>
+            <div style="flex: 1; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">📰</span>
+                    <span style="font-weight: 800; color: #f59e0b; font-size: 14px;">消息面</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: #f59e0b; margin-bottom: 4px;">等待</div>
-                <p style="font-size: 12px; color: rgba(245, 158, 11, 0.8); line-height: 1.5;">摘帽审核进行中</p>
+                <div style="font-size: 14px; font-weight: 800; color: #f59e0b; margin-bottom: 6px;">等待</div>
+                <p style="font-size: 12px; color: rgba(245, 158, 11, 0.8); line-height: 1.5; margin: 0;">摘帽审核进行中</p>
             </div>
             
-            <div style="flex: 1; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">🏭</span>
-                    <span style="font-weight: 700; color: #f59e0b; font-size: 15px;">产业面</span>
+            <div style="flex: 1; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">🏭</span>
+                    <span style="font-weight: 800; color: #f59e0b; font-size: 14px;">产业面</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: #f59e0b; margin-bottom: 4px;">平稳</div>
-                <p style="font-size: 12px; color: rgba(245, 158, 11, 0.8); line-height: 1.5;">建筑装饰行业平稳</p>
+                <div style="font-size: 14px; font-weight: 800; color: #f59e0b; margin-bottom: 6px;">平稳</div>
+                <p style="font-size: 12px; color: rgba(245, 158, 11, 0.8); line-height: 1.5; margin: 0;">建筑装饰行业平稳</p>
             </div>
             
             </div>
@@ -1120,30 +1445,32 @@
                 </div>
             </div>
             
-            <!-- 关键数据 -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">成本价</div>
-                    <div style="font-size: 16px; font-weight: 600;">¥108.80</div>
+            <!-- 关键数据 6项 -->
+            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 20px;">
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">成本价</div>
+                    <div style="font-size: 15px; font-weight: 700;">¥108.80</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">最新价</div>
-                    <div style="font-size: 16px; font-weight: 600;">¥132.99</div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">最新价</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #ef4444;">¥132.99</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">止损价</div>
-                    <div style="font-size: 16px; font-weight: 600;">¥87.04</div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">止损价</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #f59e0b;">¥87.04</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">安全边际</div>
-                    <div style="font-size: 16px; font-weight: 600; color: #10b981;">+37.6%</div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">安全边际</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #10b981;">+37.6%</div>
                 </div>
-            </div>
-            
-            <!-- 主力资金 -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 10px 14px; background: rgba(255,255,255,0.08); border-radius: 10px;">
-                <span style="font-size: 13px; opacity: 0.8;">主力资金</span>
-                <span style="font-size: 14px; font-weight: 600; color: #10b981;">+3.12亿</span>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">今日涨跌</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #ef4444;">-1.35%</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">主力资金</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #10b981;">+3.12亿</div>
+                </div>
             </div>
             
             <!-- 风险等级 -->
@@ -1165,40 +1492,40 @@
             <!-- 四维诊断 -->
             <div style="display: flex; gap: 10px;">
                 
-            <div style="flex: 1; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">📈</span>
-                    <span style="font-weight: 700; color: #ef4444; font-size: 15px;">技术面</span>
+            <div style="flex: 1; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">📈</span>
+                    <span style="font-weight: 800; color: #ef4444; font-size: 14px;">技术面</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: #ef4444; margin-bottom: 4px;">调整</div>
-                <p style="font-size: 12px; color: rgba(239, 68, 68, 0.8); line-height: 1.5;">放量涨停突破</p>
+                <div style="font-size: 14px; font-weight: 800; color: #ef4444; margin-bottom: 6px;">调整</div>
+                <p style="font-size: 12px; color: rgba(239, 68, 68, 0.8); line-height: 1.5; margin: 0;">放量涨停突破</p>
             </div>
             
-            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">💰</span>
-                    <span style="font-weight: 700; color: #10b981; font-size: 15px;">资金面</span>
+            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">💰</span>
+                    <span style="font-weight: 800; color: #10b981; font-size: 14px;">资金面</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: #10b981; margin-bottom: 4px;">流入</div>
-                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5;">主力资金大幅流入</p>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-bottom: 6px;">流入</div>
+                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5; margin: 0;">主力资金大幅流入</p>
             </div>
             
-            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">📰</span>
-                    <span style="font-weight: 700; color: #10b981; font-size: 15px;">消息面</span>
+            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">📰</span>
+                    <span style="font-weight: 800; color: #10b981; font-size: 14px;">消息面</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: #10b981; margin-bottom: 4px;">利好</div>
-                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5;">存储超级周期确认</p>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-bottom: 6px;">利好</div>
+                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5; margin: 0;">存储超级周期确认</p>
             </div>
             
-            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">🏭</span>
-                    <span style="font-weight: 700; color: #10b981; font-size: 15px;">产业面</span>
+            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">🏭</span>
+                    <span style="font-weight: 800; color: #10b981; font-size: 14px;">产业面</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: #10b981; margin-bottom: 4px;">爆发</div>
-                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5;">HBM需求井喷</p>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-bottom: 6px;">爆发</div>
+                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5; margin: 0;">HBM需求井喷</p>
             </div>
             
             </div>

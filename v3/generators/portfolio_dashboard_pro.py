@@ -325,13 +325,13 @@ class PortfolioDashboardProGenerator:
             desc = d.get('desc', '')
             
             diag_html += f'''
-            <div style="flex: 1; background: {bg_color}; border: 1px solid {border_color}; border-radius: 12px; padding: 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <span style="font-size: 20px;">{icon}</span>
-                    <span style="font-weight: 700; color: {text_color}; font-size: 15px;">{title}</span>
+            <div style="flex: 1; background: {bg_color}; border: 1px solid {border_color}; border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">{icon}</span>
+                    <span style="font-weight: 800; color: {text_color}; font-size: 14px;">{title}</span>
                 </div>
-                <div style="font-size: 14px; font-weight: 700; color: {text_color}; margin-bottom: 4px;">{value}</div>
-                <p style="font-size: 12px; color: {desc_color}; line-height: 1.5;">{desc}</p>
+                <div style="font-size: 14px; font-weight: 800; color: {text_color}; margin-bottom: 6px;">{value}</div>
+                <p style="font-size: 12px; color: {desc_color}; line-height: 1.5; margin: 0;">{desc}</p>
             </div>
             '''
         
@@ -367,30 +367,32 @@ class PortfolioDashboardProGenerator:
                 </div>
             </div>
             
-            <!-- 关键数据 -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">成本价</div>
-                    <div style="font-size: 16px; font-weight: 600;">¥{cost:.2f}</div>
+            <!-- 关键数据 6项 -->
+            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 20px;">
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">成本价</div>
+                    <div style="font-size: 15px; font-weight: 700;">¥{cost:.2f}</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">最新价</div>
-                    <div style="font-size: 16px; font-weight: 600;">¥{current:.2f}</div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">最新价</div>
+                    <div style="font-size: 15px; font-weight: 700; color: {today_color};">¥{current:.2f}</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">止损价</div>
-                    <div style="font-size: 16px; font-weight: 600;">¥{stop_loss:.2f}</div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">止损价</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #f59e0b;">¥{stop_loss:.2f}</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; text-align: center;">
-                    <div style="font-size: 12px; opacity: 0.7; margin-bottom: 4px;">{sl_label}</div>
-                    <div style="font-size: 16px; font-weight: 600; color: {profit_color};">{sl_value}</div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">{sl_label}</div>
+                    <div style="font-size: 15px; font-weight: 700; color: {profit_color};">{sl_value}</div>
                 </div>
-            </div>
-            
-            <!-- 主力资金 -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 10px 14px; background: rgba(255,255,255,0.08); border-radius: 10px;">
-                <span style="font-size: 13px; opacity: 0.8;">主力资金</span>
-                <span style="font-size: 14px; font-weight: 600; color: {'#10b981' if '+' in main_fund else '#ef4444'};">{main_fund}</span>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">今日涨跌</div>
+                    <div style="font-size: 15px; font-weight: 700; color: {today_color};">{today_sign}{today_change:.2f}%</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">主力资金</div>
+                    <div style="font-size: 15px; font-weight: 700; color: {'#10b981' if '+' in main_fund else '#ef4444'};">{main_fund}</div>
+                </div>
             </div>
             
             <!-- 风险等级 -->
