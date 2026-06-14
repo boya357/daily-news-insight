@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作流监控 - 投资研究中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .card-glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .status-running { color: #3b82f6; }
+        .status-success { color: #10b981; }
+        .status-failed { color: #ef4444; }
+        .status-pending { color: #6b7280; }
+        
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .pulse-running {
+            background: #3b82f6;
+            animation: pulse 2s infinite;
+        }
+        .pulse-success { background: #10b981; }
+        .pulse-failed { background: #ef4444; }
+        .pulse-pending { background: #6b7280; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- 头部 -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-white mb-2">🤖 自动化工作流监控</h1>
+            <p class="text-white/70">实时监控所有自动化任务执行状态</p>
+        </div>
+        
+        <!-- 总览卡片 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="card-glass p-4 text-center">
+                <div class="text-3xl font-bold text-gray-800" id="totalTasks">8</div>
+                <div class="text-sm text-gray-500">总任务数</div>
+            </div>
+            <div class="card-glass p-4 text-center">
+                <div class="text-3xl font-bold text-green-500" id="successTasks">0</div>
+                <div class="text-sm text-gray-500">今日成功</div>
+            </div>
+            <div class="card-glass p-4 text-center">
+                <div class="text-3xl font-bold text-red-500" id="failedTasks">0</div>
+                <div class="text-sm text-gray-500">今日失败</div>
+            </div>
+            <div class="card-glass p-4 text-center">
+                <div class="text-3xl font-bold text-blue-500" id="runningTasks">0</div>
+                <div class="text-sm text-gray-500">运行中</div>
+            </div>
+        </div>
+        
+        <!-- 任务列表 -->
+        <div class="card-glass p-6 mb-6">
+            <h2 class="text-lg font-bold text-gray-800 mb-4">📋 任务调度列表</h2>
+            <div class="space-y-3" id="taskList">
+                <!-- 任务卡片将通过JS动态生成 -->
+            </div>
+        </div>
+        
+        <!-- 最近执行记录 -->
+        <div class="card-glass p-6">
+            <h2 class="text-lg font-bold text-gray-800 mb-4">📊 最近执行记录</h2>
+            <div class="space-y-2" id="recentRuns">
+                <div class="text-center text-gray-400 py-8">暂无执行记录</div>
+            </div>
+        </div>
+        
+        <!-- 页脚 -->
+        <div class="text-center mt-8 text-white/50 text-sm">
+            <p>最后更新: <span id="lastUpdate">--</span></p>
+        </div>
+    </div>
+    
+    <script>
+        // 任务配置
+        const tasks = [
+            { id: 'daily_report', name: '每日新闻洞察', cron: '每天 08:00', desc: '生成每日新闻洞察报告', icon: '📰' },
+            { id: 'intraday_report', name: '盘中快报', cron: '每天 12:30', desc: '午间盘中动态速递', icon: '⚡' },
+            { id: 'aftermarket_report', name: '盘后速递', cron: '每天 15:30', desc: '收盘后市场总结', icon: '📈' },
+            { id: 'weekly_review', name: '周复盘', cron: '每周六 09:00', desc: '一周市场复盘总结', icon: '📊' },
+            { id: 'weekly_outlook', name: '周三前瞻', cron: '每周三 08:00', desc: '下周市场前瞻分析', icon: '🔮' },
+            { id: 's_level_scan', name: 'S级催化扫描', cron: '每周日 10:00', desc: '扫描S级催化机会', icon: '⭐' },
+            { id: 'daily_pro_pages', name: 'Pro页面更新', cron: '每天 06:00', desc: '更新所有Pro工具页面', icon: '🔧' },
+            { id: 'daily_market_update', name: '行情数据更新', cron: '每天 09:00', desc: '获取最新行情数据', icon: '💹' },
+        ];
+        
+        // 模拟任务状态（实际应从API获取）
+        function getTaskStatus(taskId) {
+            const now = new Date();
+            const hour = now.getHours();
+            
+            // 简单模拟：早于执行时间的任务状态为已完成
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return 'pending';
+            
+            const cronHour = parseInt(task.cron.match(/\d+/)?.[0] || '0');
+            if (hour > cronHour) {
+                return Math.random() > 0.1 ? 'success' : 'failed';
+            } else if (hour === cronHour) {
+                return 'running';
+            }
+            return 'pending';
+        }
+        
+        // 渲染任务列表
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = tasks.map(task => {
+                const status = getTaskStatus(task.id);
+                const statusText = {
+                    'running': '运行中',
+                    'success': '已完成',
+                    'failed': '失败',
+                    'pending': '等待中'
+                }[status];
+                
+                return `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">${task.icon}</span>
+                            <div>
+                                <div class="font-semibold text-gray-800">${task.name}</div>
+                                <div class="text-xs text-gray-500">${task.desc}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm status-${status}">
+                                <span class="pulse-dot pulse-${status}"></span>${statusText}
+                            </div>
+                            <div class="text-xs text-gray-400">${task.cron}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // 更新统计
+            const statuses = tasks.map(t => getTaskStatus(t.id));
+            document.getElementById('successTasks').textContent = statuses.filter(s => s === 'success').length;
+            document.getElementById('failedTasks').textContent = statuses.filter(s => s === 'failed').length;
+            document.getElementById('runningTasks').textContent = statuses.filter(s => s === 'running').length;
+        }
+        
+        // 更新时间
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleString('zh-CN');
+        }
+        
+        // 初始化
+        renderTasks();
+        updateTime();
+        setInterval(renderTasks, 30000);  // 每30秒刷新
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>

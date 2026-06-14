@@ -321,6 +321,9 @@ class PredictionCenterProGenerator(ProGenerator):
     
     def generate(self) -> str:
         """生成完整的HTML页面"""
+        if not self._data_loaded:
+            self.load_data()
+
         # 主题CSS
         theme_css = get_pro_theme_css()
         
