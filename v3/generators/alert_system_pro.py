@@ -24,7 +24,7 @@ class AlertSystemProGenerator(ProGenerator):
     def __init__(self, data_dir: str = "data"):
         super().__init__(
             title="智能预警系统",
-            active_page="",
+            active_page="首页",
             footer_text="智能预警系统 · 实时监控风险机会",
             data_dir=data_dir
         )

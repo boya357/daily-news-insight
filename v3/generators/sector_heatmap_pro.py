@@ -23,7 +23,7 @@ class SectorHeatmapProGenerator(ProGenerator):
     def __init__(self, data_dir: str = "data"):
         super().__init__(
             title="板块热力图",
-            active_page="",
+            active_page="日报",
             footer_text="板块热力图 · 洞察市场热点轮动",
             data_dir=data_dir
         )

@@ -23,7 +23,7 @@ class LonghuBangProGenerator(ProGenerator):
     def __init__(self, data_dir: str = "data"):
         super().__init__(
             title="龙虎榜追踪",
-            active_page="",
+            active_page="盘后",
             footer_text="龙虎榜追踪 · 洞察主力动向",
             data_dir=data_dir
         )

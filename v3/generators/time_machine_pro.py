@@ -21,7 +21,7 @@ class TimeMachinePage(ProPage):
     def __init__(self, data_dir: str = "data/history"):
         super().__init__(
             title="数据时光机",
-            active_page="",
+            active_page="首页",
             footer_text="数据时光机 · 回溯历史 · 见证成长"
         )
         self.data_dir = data_dir

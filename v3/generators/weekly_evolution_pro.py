@@ -24,7 +24,7 @@ class WeeklyEvolutionProGenerator(ProGenerator):
     def __init__(self, data_dir: str = "data"):
         super().__init__(
             title="WeeklyEvolution",
-            active_page="",
+            active_page="周复盘",
             footer_text="",
             data_dir=data_dir
         )

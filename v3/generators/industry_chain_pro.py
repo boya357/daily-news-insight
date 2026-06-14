@@ -23,7 +23,7 @@ class IndustryChainClockProGenerator(ProGenerator):
     def __init__(self, data_dir: str = "data"):
         super().__init__(
             title="产业链时钟",
-            active_page="",
+            active_page="产业链",
             footer_text="产业链时钟 · 把握产业脉动",
             data_dir=data_dir
         )

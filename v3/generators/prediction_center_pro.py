@@ -24,7 +24,7 @@ class PredictionCenterProGenerator(ProGenerator):
     def __init__(self, data_dir: str = "data"):
         super().__init__(
             title="PredictionCenter",
-            active_page="",
+            active_page="首页",
             footer_text="",
             data_dir=data_dir
         )
