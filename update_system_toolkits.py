@@ -13,6 +13,9 @@
 - 题材健康度报告 (topic_health_pro)
 - 板块热力图 (sector_heatmap_pro)
 - 龙虎榜透视 (longhubang_pro)
+- 首页 (home_page_pro)
+- 工作流监控中心 (workflow_status_pro)
+- 周三前瞻 (weekly_outlook_pro)
 """
 
 import os
@@ -24,6 +27,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 V3_DIR = os.path.join(BASE_DIR, 'v3')
 DATA_DIR = os.path.join(BASE_DIR, 'data')
 DOCS_DIR = os.path.join(BASE_DIR, 'docs')
+CONFIG_DIR = os.path.join(BASE_DIR, 'config')
 
 # 添加v3目录到路径
 sys.path.insert(0, V3_DIR)
@@ -170,6 +174,54 @@ def update_longhubang():
         print(f"   ❌ 更新失败: {e}")
         return False
 
+def update_home_page():
+    """更新首页 - Pro版"""
+    from generators.home_page_pro import HomePageProGenerator
+    
+    print("🏠 更新首页...")
+    try:
+        generator = HomePageProGenerator(data_dir=DATA_DIR, config_dir=CONFIG_DIR)
+        output_path = os.path.join(DOCS_DIR, 'index.html')
+        result = generator.publish(output_path)
+        print(f"   ✅ 更新完成")
+        print(f"   输出路径: {output_path}")
+        return True
+    except Exception as e:
+        print(f"   ❌ 更新失败: {e}")
+        return False
+
+def update_workflow_status():
+    """更新工作流监控中心 - Pro版"""
+    from generators.workflow_status_pro import WorkflowStatusProGenerator
+    
+    print("⚙️ 更新工作流监控中心...")
+    try:
+        generator = WorkflowStatusProGenerator(data_dir=DATA_DIR, config_dir=CONFIG_DIR)
+        output_path = os.path.join(DOCS_DIR, 'workflow_status.html')
+        result = generator.publish(output_path)
+        print(f"   ✅ 更新完成")
+        print(f"   输出路径: {output_path}")
+        return True
+    except Exception as e:
+        print(f"   ❌ 更新失败: {e}")
+        return False
+
+def update_weekly_outlook():
+    """更新周三前瞻 - Pro版"""
+    from generators.weekly_outlook_pro import WeeklyOutlookProGenerator
+    
+    print("🔭 更新周三前瞻...")
+    try:
+        generator = WeeklyOutlookProGenerator(data_dir=DATA_DIR)
+        output_path = os.path.join(DOCS_DIR, 'weekly_outlook', 'latest.html')
+        result = generator.publish(output_path)
+        print(f"   ✅ 更新完成")
+        print(f"   输出路径: {output_path}")
+        return True
+    except Exception as e:
+        print(f"   ❌ 更新失败: {e}")
+        return False
+
 # ============================================================
 # 工具映射表
 # ============================================================
@@ -183,6 +235,9 @@ TOOL_MAP = {
     'health': ('题材健康度报告', update_topic_health),
     'heatmap': ('板块热力图', update_sector_heatmap),
     'longhubang': ('龙虎榜透视', update_longhubang),
+    'home': ('首页', update_home_page),
+    'workflow': ('工作流监控中心', update_workflow_status),
+    'weekly_outlook': ('周三前瞻', update_weekly_outlook),
 }
 
 # ============================================================
