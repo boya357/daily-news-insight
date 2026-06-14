@@ -323,12 +323,17 @@ class Navbar(Component):
                 left: 0;
                 right: 0;
                 z-index: 2147483647 !important;
-                background: rgba(255, 255, 255, 0.1);
+                background: rgba(0, 0, 0, 0.3);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
-                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                transition: background 0.3s ease;
                 isolation: isolate !important;
                 pointer-events: auto !important;
+            }
+            
+            .glass-nav.scrolled {
+                background: rgba(0, 0, 0, 0.7);
             }
             
             .glass-nav * {
@@ -518,6 +523,18 @@ class Navbar(Component):
                 const menu = document.getElementById('mobileMenu');
                 menu.classList.toggle('show');
             }}
+            
+            // 导航栏滚动加深效果
+            window.addEventListener('scroll', function() {{
+                const nav = document.querySelector('.glass-nav');
+                if (nav) {{
+                    if (window.scrollY > 50) {{
+                        nav.classList.add('scrolled');
+                    }} else {{
+                        nav.classList.remove('scrolled');
+                    }}
+                }}
+            }});
         </script>
         """
 

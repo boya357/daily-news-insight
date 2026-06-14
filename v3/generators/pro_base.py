@@ -1,0 +1,154 @@
+"""
+生成器基类模块 - 标准化生成器接口
+所有Pro版生成器都应继承自此基类
+"""
+import sys
+import os
+from typing import Dict, List, Optional, Any
+from datetime import datetime
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from components.pro import ProPage
+from utils.data_loader import DataLoader, get_data_loader
+
+
+class ProGenerator(ProPage):
+    """Pro版生成器基类
+    
+    统一所有Pro版生成器的接口规范：
+    - 标准化的数据加载方式
+    - 统一的发布流程
+    - 一致的错误处理
+    """
+    
+    # 子类必须设置的数据类型
+    data_type: str = ""  # 数据类型标识，如 "portfolio"、"topics" 等
+    
+    def __init__(self, 
+                 title: str = "投资研究中心", 
+                 active_page: str = "", 
+                 footer_text: str = "",
+                 data_dir: str = "data"):
+        super().__init__(
+            title=title,
+            active_page=active_page,
+            footer_text=footer_text,
+            update_time=""
+        )
+        self.data_loader: DataLoader = get_data_loader(data_dir)
+        self._data_loaded = False
+        self._output_path = ""
+    
+    def load_data(self):
+        """加载数据 - 子类可重写此方法加载特定数据
+        
+        子类应在此方法中：
+        1. 从data_loader获取所需数据
+        2. 进行数据预处理和计算
+        3. 设置self.update_time
+        """
+        # 默认从数据加载器获取更新时间
+        if self.data_type:
+            update_time = self.data_loader.get_update_time(self.data_type)
+            if update_time:
+                self.update_time = update_time
+        
+        if not self.update_time:
+            self.update_time = datetime.now().strftime('%Y年%m月%d日 %H:%M')
+        
+        self._data_loaded = True
+    
+    def render(self) -> str:
+        """渲染完整HTML页面（确保数据已加载）"""
+        if not self._data_loaded:
+            self.load_data()
+        return super().render()
+    
+    def _content(self) -> str:
+        """页面主要内容 - 子类必须重写此方法"""
+        raise NotImplementedError("子类必须实现 _content 方法")
+    
+    def save(self, filepath: str) -> str:
+        """保存到文件"""
+        self._output_path = filepath
+        return super().save(filepath)
+    
+    def validate(self) -> List[str]:
+        """验证生成的页面
+        
+        Returns:
+            错误列表，如果为空则表示验证通过
+        """
+        errors = []
+        html = self.render()
+        
+        # 基本验证
+        if '<!DOCTYPE html>' not in html:
+            errors.append("缺少DOCTYPE声明")
+        if 'glass-nav' not in html:
+            errors.append("缺少导航栏")
+        if 'pro-container' not in html:
+            errors.append("缺少内容容器")
+        
+        # 检查是否有实际内容
+        if len(html.strip()) < 1000:
+            errors.append("页面内容过少")
+        
+        return errors
+    
+    def publish(self, output_path: str) -> Dict[str, Any]:
+        """发布页面
+        
+        Args:
+            output_path: 输出文件路径
+            
+        Returns:
+            发布结果字典
+        """
+        try:
+            # 确保数据已加载
+            if not self._data_loaded:
+                self.load_data()
+            
+            # 渲染HTML
+            html = self.render()
+            
+            # 验证
+            errors = self.validate()
+            if errors:
+                return {
+                    'success': False,
+                    'errors': errors,
+                    'output_path': output_path
+                }
+            
+            # 保存文件
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(html)
+            
+            return {
+                'success': True,
+                'output_path': output_path,
+                'file_size': len(html),
+                'update_time': self.update_time
+            }
+            
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e),
+                'output_path': output_path
+            }
+    
+    def refresh_data(self):
+        """刷新数据缓存"""
+        self.data_loader.refresh()
+        self._data_loaded = False
+
+
+# 便捷函数
+def create_generator(generator_class, **kwargs) -> ProGenerator:
+    """创建生成器实例"""
+    return generator_class(**kwargs)

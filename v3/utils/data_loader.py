@@ -519,3 +519,276 @@ def get_index_catalysts(limit=5):
     
     return result
 
+
+
+# ==================== 面向对象统一数据访问层 ====================
+
+class DataLoader:
+    """统一数据加载器 - 面向对象的统一数据访问接口
+    
+    提供标准化的数据访问方式，支持缓存，避免重复读取文件
+    所有Pro版生成器都应使用此接口获取数据
+    """
+    
+    _instance = None
+    _cache = {}
+    _cache_time = {}
+    
+    def __new__(cls, data_dir: str = None):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.data_dir = data_dir or str(get_data_dir())
+        return cls._instance
+    
+    def __init__(self, data_dir: str = None):
+        if not hasattr(self, 'data_dir'):
+            self.data_dir = data_dir or str(get_data_dir())
+    
+    def _load_json(self, filename: str, force_reload: bool = False):
+        """加载JSON文件，支持缓存"""
+        filepath = os.path.join(self.data_dir, filename)
+        
+        if not force_reload and filename in self._cache:
+            mtime = os.path.getmtime(filepath)
+            if filename in self._cache_time and self._cache_time[filename] == mtime:
+                return self._cache[filename]
+        
+        with open(filepath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        self._cache[filename] = data
+        self._cache_time[filename] = os.path.getmtime(filepath)
+        
+        return data
+    
+    def refresh(self):
+        """清空缓存，强制重新加载所有数据"""
+        self._cache.clear()
+        self._cache_time.clear()
+    
+    def get_data(self, data_type: str) -> dict:
+        """通用数据获取方法
+        
+        Args:
+            data_type: 数据类型标识，如 'portfolio'、'market'、'topics' 等
+            
+        Returns:
+            对应的数据字典
+        """
+        mapping = {
+            'portfolio': 'get_portfolio',
+            'market': 'get_market',
+            'topics': 'get_topics',
+            'alerts': 'get_alerts',
+            'predictions': 'get_predictions',
+            'industry_chain': 'get_industry_chains',
+            'topic_details': 'get_topic_details',
+        }
+        
+        if data_type not in mapping:
+            raise ValueError(f"不支持的数据类型: {data_type}")
+        
+        method = getattr(self, mapping[data_type], None)
+        if method:
+            return method()
+        return {}
+    
+    # ============ 持仓数据 ============
+    def get_portfolio(self) -> dict:
+        """获取完整持仓数据"""
+        return self._load_json("portfolio.json")
+    
+    def get_stocks(self) -> list:
+        """获取持仓股票列表"""
+        data = self.get_portfolio()
+        return data.get('stocks', [])
+    
+    def get_portfolio_overview(self) -> dict:
+        """获取组合概览"""
+        data = self.get_portfolio()
+        return data.get('portfolio', {})
+    
+    def get_longhubang(self) -> dict:
+        """获取龙虎榜数据"""
+        data = self.get_portfolio()
+        return data.get('longhubang', {})
+    
+    # ============ 题材数据 ============
+    def get_topics(self) -> dict:
+        """获取所有题材数据"""
+        return self._load_json("topics.json")
+    
+    def get_s_level_topics(self) -> list:
+        """获取S级题材"""
+        data = self.get_topics()
+        return data.get('s_level_topics', [])
+    
+    def get_a_level_topics(self) -> list:
+        """获取A级题材"""
+        data = self.get_topics()
+        return data.get('a_level_topics', [])
+    
+    def get_b_level_topics(self) -> list:
+        """获取B级题材"""
+        data = self.get_topics()
+        return data.get('b_level_topics', [])
+    
+    def get_all_topics(self) -> list:
+        """获取所有题材（按级别排序：S > A > B）"""
+        return self.get_s_level_topics() + self.get_a_level_topics() + self.get_b_level_topics()
+    
+    def get_topic_by_id(self, topic_id: str):
+        """根据ID获取题材"""
+        for topic in self.get_all_topics():
+            if topic.get('id') == topic_id:
+                return topic
+        return None
+    
+    def get_topic_details(self) -> dict:
+        """获取题材详情数据"""
+        return self._load_json("topic_details.json")
+    
+    def get_catalyst_calendar(self, days: int = 7) -> list:
+        """获取催化日历"""
+        return get_catalyst_calendar(days)  # 复用现有函数
+    
+    # ============ 市场数据 ============
+    def get_market(self) -> dict:
+        """获取完整市场数据"""
+        return self._load_json("market.json")
+    
+    def get_indices(self) -> list:
+        """获取指数数据"""
+        data = self.get_market()
+        return data.get('indices', [])
+    
+    def get_hot_sectors(self, limit: int = None) -> list:
+        """获取热门板块"""
+        data = self.get_market()
+        sectors = data.get('sectors_hot', [])
+        return sectors[:limit] if limit else sectors
+    
+    def get_cold_sectors(self, limit: int = None) -> list:
+        """获取弱势板块"""
+        data = self.get_market()
+        sectors = data.get('sectors_cold', [])
+        return sectors[:limit] if limit else sectors
+    
+    def get_market_sentiment(self) -> dict:
+        """获取市场情绪数据"""
+        data = self.get_market()
+        return data.get('sentiment', {})
+    
+    def get_market_data(self) -> dict:
+        """获取市场概览数据"""
+        data = self.get_market()
+        return data.get('market_data', {})
+    
+    # ============ 预警数据 ============
+    def get_alerts(self) -> dict:
+        """获取预警数据"""
+        return self._load_json("alerts.json")
+    
+    def get_critical_alerts(self) -> list:
+        """获取紧急预警"""
+        data = self.get_alerts()
+        return data.get('critical_alerts', [])
+    
+    def get_warning_alerts(self) -> list:
+        """获取警告级预警"""
+        data = self.get_alerts()
+        return data.get('warning_alerts', [])
+    
+    def get_info_alerts(self) -> list:
+        """获取提示级预警"""
+        data = self.get_alerts()
+        return data.get('info_alerts', [])
+    
+    # ============ 预判数据 ============
+    def get_predictions(self) -> dict:
+        """获取预判数据"""
+        return self._load_json("predictions.json")
+    
+    def get_pending_predictions(self) -> list:
+        """获取待验证预判"""
+        data = self.get_predictions()
+        return data.get('pending_predictions', [])
+    
+    def get_prediction_history(self) -> list:
+        """获取历史预判记录"""
+        data = self.get_predictions()
+        return data.get('history_records', [])
+    
+    def get_accuracy_trends(self) -> dict:
+        """获取准确率趋势"""
+        data = self.get_predictions()
+        return data.get('accuracy_trends', {})
+    
+    # ============ 产业链数据 ============
+    def get_industry_chains(self) -> dict:
+        """获取产业链数据"""
+        return self._load_json("industry_chain.json")
+    
+    def get_chain_list(self) -> list:
+        """获取产业链列表"""
+        data = self.get_industry_chains()
+        return data.get('chains', [])
+    
+    # ============ 历史数据 ============
+    def get_history_snapshot(self, date: str) -> dict:
+        """获取指定日期的历史快照"""
+        filename = f"history/{date}.json"
+        try:
+            return self._load_json(filename)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return {}
+    
+    def get_available_history_dates(self) -> list:
+        """获取可用的历史快照日期列表"""
+        history_dir = os.path.join(self.data_dir, "history")
+        if not os.path.exists(history_dir):
+            return []
+        
+        dates = []
+        for f in os.listdir(history_dir):
+            if f.endswith('.json'):
+                dates.append(f.replace('.json', ''))
+        
+        return sorted(dates, reverse=True)
+    
+    # ============ 通用方法 ============
+    def get_update_time(self, data_type: str) -> str:
+        """获取指定数据的更新时间"""
+        mapping = {
+            'portfolio': ('portfolio.json', 'update_time'),
+            'market': ('market.json', 'update_time'),
+            'topics': ('topics.json', 'update_time'),
+            'alerts': ('alerts.json', 'update_time'),
+            'predictions': ('predictions.json', 'system_info.update_time'),
+            'industry_chain': ('industry_chain.json', 'update_time'),
+        }
+        
+        if data_type not in mapping:
+            return ""
+        
+        filename, key_path = mapping[data_type]
+        try:
+            data = self._load_json(filename)
+        except:
+            return ""
+        
+        keys = key_path.split('.')
+        result = data
+        for key in keys:
+            if isinstance(result, dict):
+                result = result.get(key, {})
+            else:
+                return ""
+        
+        return result if isinstance(result, str) else ""
+
+
+# 便捷访问函数
+def get_data_loader(data_dir: str = None) -> DataLoader:
+    """获取数据加载器单例"""
+    return DataLoader(data_dir)
