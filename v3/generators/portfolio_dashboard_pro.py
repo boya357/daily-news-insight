@@ -249,6 +249,104 @@ class PortfolioDashboardProGenerator:
         '''
         return html
     
+    def _get_diagnosis_details(self, dim_key, status, stock):
+        """获取诊断维度的详细要点"""
+        details_map = {
+            'technical': {
+                'good': [
+                    {'icon': '✓', 'text': '均线多头排列，趋势向上', 'positive': True},
+                    {'icon': '✓', 'text': '成交量温和放大，资金关注', 'positive': True},
+                    {'icon': '✓', 'text': '短期技术指标处于强势区间', 'positive': True},
+                ],
+                'bad': [
+                    {'icon': '✗', 'text': '跌破关键均线支撑', 'positive': False},
+                    {'icon': '✗', 'text': '成交量萎缩，缺乏买盘', 'positive': False},
+                    {'icon': '✗', 'text': 'MACD死叉，短期趋势走弱', 'positive': False},
+                ],
+                'neutral': [
+                    {'icon': '⚪', 'text': '震荡整理，方向不明朗', 'positive': None},
+                    {'icon': '⚪', 'text': '多空博弈，均线交织', 'positive': None},
+                    {'icon': '✓', 'text': '中长期趋势依然完好', 'positive': True},
+                ],
+                'warning': [
+                    {'icon': '✗', 'text': '短期技术面有回调压力', 'positive': False},
+                    {'icon': '⚪', 'text': '接近支撑位，关注能否企稳', 'positive': None},
+                    {'icon': '✓', 'text': '中期趋势尚未破坏', 'positive': True},
+                ],
+            },
+            'fund': {
+                'good': [
+                    {'icon': '✓', 'text': '主力资金持续流入', 'positive': True},
+                    {'icon': '✓', 'text': '机构持仓比例提升', 'positive': True},
+                    {'icon': '✓', 'text': '北向资金持续加仓', 'positive': True},
+                ],
+                'bad': [
+                    {'icon': '✗', 'text': '主力资金净流出', 'positive': False},
+                    {'icon': '✗', 'text': '机构减持，抛压较重', 'positive': False},
+                    {'icon': '✗', 'text': '资金关注度下降', 'positive': False},
+                ],
+                'neutral': [
+                    {'icon': '⚪', 'text': '资金进出平衡', 'positive': None},
+                    {'icon': '⚪', 'text': '机构持仓稳定', 'positive': None},
+                    {'icon': '✓', 'text': '北向资金小幅流入', 'positive': True},
+                ],
+                'warning': [
+                    {'icon': '✗', 'text': '主力资金有流出迹象', 'positive': False},
+                    {'icon': '⚪', 'text': '散户资金参与度较高', 'positive': None},
+                    {'icon': '✓', 'text': '长期资金仍在布局', 'positive': True},
+                ],
+            },
+            'news': {
+                'good': [
+                    {'icon': '✓', 'text': '行业利好政策频出', 'positive': True},
+                    {'icon': '✓', 'text': '公司基本面持续向好', 'positive': True},
+                    {'icon': '✓', 'text': '市场情绪乐观', 'positive': True},
+                ],
+                'bad': [
+                    {'icon': '✗', 'text': '行业负面消息扰动', 'positive': False},
+                    {'icon': '✗', 'text': '公司基本面有隐忧', 'positive': False},
+                    {'icon': '✗', 'text': '市场情绪偏谨慎', 'positive': False},
+                ],
+                'neutral': [
+                    {'icon': '⚪', 'text': '消息面平静，无重大事件', 'positive': None},
+                    {'icon': '⚪', 'text': '行业消息喜忧参半', 'positive': None},
+                    {'icon': '✓', 'text': '公司经营情况稳定', 'positive': True},
+                ],
+                'warning': [
+                    {'icon': '✗', 'text': '需关注潜在利空消息', 'positive': False},
+                    {'icon': '⚪', 'text': '消息面存在不确定性', 'positive': None},
+                    {'icon': '✓', 'text': '长期逻辑未变', 'positive': True},
+                ],
+            },
+            'industry': {
+                'good': [
+                    {'icon': '✓', 'text': '行业景气度持续提升', 'positive': True},
+                    {'icon': '✓', 'text': '下游需求旺盛', 'positive': True},
+                    {'icon': '✓', 'text': '政策支持力度加大', 'positive': True},
+                ],
+                'bad': [
+                    {'icon': '✗', 'text': '行业景气度下行', 'positive': False},
+                    {'icon': '✗', 'text': '下游需求疲软', 'positive': False},
+                    {'icon': '✗', 'text': '行业竞争加剧', 'positive': False},
+                ],
+                'neutral': [
+                    {'icon': '⚪', 'text': '行业增速平稳', 'positive': None},
+                    {'icon': '⚪', 'text': '供需基本平衡', 'positive': None},
+                    {'icon': '✓', 'text': '长期发展空间广阔', 'positive': True},
+                ],
+                'warning': [
+                    {'icon': '✗', 'text': '行业短期面临调整压力', 'positive': False},
+                    {'icon': '⚪', 'text': '产业链利润分配变化', 'positive': None},
+                    {'icon': '✓', 'text': '龙头公司优势明显', 'positive': True},
+                ],
+            },
+        }
+        
+        dim_details = details_map.get(dim_key, {})
+        status_details = dim_details.get(status, dim_details.get('neutral', []))
+        
+        return status_details
+
     def _generate_stock_card(self, stock) -> str:
         """生成单只股票的详细卡片"""
         name = stock.get('name', '')
@@ -324,6 +422,26 @@ class PortfolioDashboardProGenerator:
             value = d.get('value', '')
             desc = d.get('desc', '')
             
+            # 生成详细诊断要点
+            detail_items = self._get_diagnosis_details(key, status, stock)
+            items_html = ''
+            for item in detail_items:
+                item_icon = item.get('icon', '⚪')
+                item_text = item.get('text', '')
+                item_positive = item.get('positive', None)
+                if item_positive == True:
+                    item_color = '#10b981'  # 绿色
+                elif item_positive == False:
+                    item_color = '#ef4444'  # 红色
+                else:
+                    item_color = '#f59e0b'  # 黄色/中性
+                items_html += f'''
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: {item_color}; flex-shrink: 0; margin-top: 1px;">{item_icon}</span>
+                    <span style="font-size: 11px; color: {desc_color}; line-height: 1.4;">{item_text}</span>
+                </div>
+                '''
+            
             diag_html += f'''
             <div style="flex: 1; background: {bg_color}; border: 1px solid {border_color}; border-radius: 12px; padding: 14px 12px;">
                 <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
@@ -332,6 +450,7 @@ class PortfolioDashboardProGenerator:
                 </div>
                 <div style="font-size: 14px; font-weight: 800; color: {text_color}; margin-bottom: 6px;">{value}</div>
                 <p style="font-size: 12px; color: {desc_color}; line-height: 1.5; margin: 0;">{desc}</p>
+                {items_html}
             </div>
             '''
         
