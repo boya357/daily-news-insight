@@ -393,6 +393,213 @@
             }
         }
     </style>
+
+
+
+<style>
+/* ===== 悬浮目录导航 ===== */
+.toc-wrapper {
+    position: fixed;
+    top: 120px;
+    width: 220px;
+    max-height: calc(100vh - 160px);
+    background: rgba(139, 92, 246, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+    z-index: 90;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.toc-right {
+    right: 20px;
+}
+
+.toc-left {
+    left: 20px;
+}
+
+.toc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    user-select: none;
+}
+
+.toc-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+}
+
+.toc-header svg {
+    color: rgba(255, 255, 255, 0.7);
+    transition: transform 0.3s ease;
+}
+
+.toc-wrapper.collapsed .toc-header svg {
+    transform: rotate(-90deg);
+}
+
+.toc-content {
+    max-height: calc(100vh - 220px);
+    overflow-y: auto;
+    padding: 8px 0;
+    transition: max-height 0.3s ease;
+}
+
+.toc-wrapper.collapsed .toc-content {
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.toc-item {
+    display: block;
+    padding: 8px 16px;
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.toc-item:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.08);
+    border-left-color: rgba(255, 255, 255, 0.3);
+}
+
+.toc-item.active {
+    color: white;
+    font-weight: 500;
+    background: rgba(102, 126, 234, 0.3);
+    border-left-color: #667eea;
+}
+
+.toc-item.pl-4 {
+    padding-left: 32px;
+    font-size: 0.75rem;
+}
+
+/* 滚动条样式 */
+.toc-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.toc-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.toc-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.toc-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* 大屏显示优化 */
+@media (min-width: 1400px) {
+    .toc-wrapper {
+        width: 260px;
+    }
+    .toc-right {
+        right: calc((100vw - 64rem) / 2 - 300px);
+    }
+    .toc-left {
+        left: calc((100vw - 64rem) / 2 - 300px);
+    }
+}
+
+            /* 平板端优化 - 折叠为悬浮按钮 */
+            @media (max-width: 1200px) {
+                .toc-wrapper {
+                    top: auto;
+                    bottom: 80px;
+                    right: 16px;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 240px;
+                    height: auto;
+                    max-height: 60vh;
+                    border-radius: 16px;
+                    top: auto;
+                    bottom: 80px;
+                }
+                
+                .toc-wrapper .toc-header {
+                    justify-content: center;
+                    padding: 12px;
+                    border-bottom: none;
+                }
+                
+                .toc-wrapper.expanded .toc-header {
+                    justify-content: space-between;
+                    padding: 12px 16px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                
+                .toc-wrapper .toc-title {
+                    display: none;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    display: block;
+                    font-size: 0.875rem;
+                }
+                
+                .toc-wrapper .toc-content {
+                    max-height: 0;
+                    padding: 0;
+                    opacity: 0;
+                    transition: all 0.3s ease;
+                }
+                
+                .toc-wrapper.expanded .toc-content {
+                    max-height: calc(60vh - 56px);
+                    padding: 8px 0;
+                    opacity: 1;
+                }
+                
+                .toc-wrapper .toc-header svg {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+            
+            /* 手机端 - 更小的悬浮按钮 */
+            @media (max-width: 480px) {
+                .toc-wrapper {
+                    width: 40px;
+                    height: 40px;
+                    bottom: 70px;
+                    right: 12px;
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 200px;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    font-size: 0.8rem;
+                }
+            }
+</style>
 </head>
 <body>
         <nav class="glass-nav">
@@ -1606,5 +1813,153 @@ function toggleCollapse(id) {
 }
 </script>
 
+
+
+</div>
+
+
+
+<!-- 悬浮目录导航 -->
+<div id="tableOfContents" class="toc-wrapper toc-right">
+    <div class="toc-header" onclick="toggleTOC()">
+        <span class="toc-title">目录导航</span>
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+    </div>
+    <div id="tocContent" class="toc-content">
+        <div id="tocContainer" class="toc-container"></div>
+    </div>
+</div>
+
+<script>
+// ==================== 悬浮目录导航 ====================
+function toggleTOC() {
+    const toc = document.getElementById('tableOfContents');
+    if (toc) {
+        // 移动端使用expanded类，桌面端使用collapsed类
+        if (window.innerWidth <= 1200) {
+            toc.classList.toggle('expanded');
+        } else {
+            toc.classList.toggle('collapsed');
+        }
+    }
+}
+
+// 监听窗口大小变化，重置TOC状态
+window.addEventListener('resize', function() {
+    const toc = document.getElementById('tableOfContents');
+    if (toc) {
+        if (window.innerWidth > 1200) {
+            toc.classList.remove('expanded');
+        } else {
+            // 移动端默认收起
+            toc.classList.remove('expanded');
+        }
+    }
+});
+
+function initTableOfContents() {
+    const tocContainer = document.getElementById('tocContainer');
+    if (!tocContainer) return;
+    
+    // 自动提取页面中的h2和h3标题（在main内容区域内）
+    const contentArea = document.querySelector('.pro-container, .report-content, main, .content');
+    const headings = contentArea 
+        ? contentArea.querySelectorAll('h2, h3') 
+        : document.querySelectorAll('h2, h3');
+    
+    if (headings.length === 0) {
+        const toc = document.getElementById('tableOfContents');
+        if (toc) toc.style.display = 'none';
+        return;
+    }
+    
+    // 为标题生成id
+    headings.forEach(function(heading, index) {
+        if (!heading.id) {
+            const text = heading.textContent || heading.innerText;
+            const slug = text.trim().replace(/\s+/g, '-').replace(/[^\w\-\u4e00-\u9fa5]/g, '').substring(0, 30);
+            heading.id = 'section-' + index + '-' + slug;
+        }
+    });
+    
+    // 生成目录HTML
+    var tocHTML = '';
+    headings.forEach(function(heading) {
+        const level = parseInt(heading.tagName.substring(1));
+        const title = heading.textContent || heading.innerText;
+        const indent = level === 3 ? 'pl-4' : '';
+        tocHTML += '<a href="#' + heading.id + '" class="toc-item ' + indent + '" data-level="' + level + '">' + title.trim() + '</a>';
+    });
+    
+    tocContainer.innerHTML = tocHTML;
+    
+    // 为目录项添加平滑滚动
+    tocContainer.querySelectorAll('.toc-item').forEach(function(item) {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            var target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                var offset = 100;
+                var targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    
+    // 初始化滚动高亮
+    initTOCScrollSpy();
+}
+
+function initTOCScrollSpy() {
+    const tocItems = document.querySelectorAll('.toc-item');
+    if (tocItems.length === 0) return;
+    
+    const sections = [];
+    tocItems.forEach(function(item) {
+        const id = item.getAttribute('href').substring(1);
+        const section = document.getElementById(id);
+        if (section) {
+            sections.push({
+                element: section,
+                navItem: item,
+                top: section.offsetTop - 120
+            });
+        }
+    });
+    
+    if (sections.length === 0) return;
+    
+    function updateActiveTOC() {
+        const scrollPosition = window.pageYOffset;
+        var currentIndex = 0;
+        for (var i = 0; i < sections.length; i++) {
+            if (scrollPosition >= sections[i].top) {
+                currentIndex = i;
+            }
+        }
+        tocItems.forEach(function(item) {
+            item.classList.remove('active');
+        });
+        if (sections[currentIndex]) {
+            sections[currentIndex].navItem.classList.add('active');
+        }
+    }
+    
+    window.addEventListener('scroll', updateActiveTOC);
+    updateActiveTOC();
+}
+
+// 页面加载完成后初始化
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTableOfContents);
+} else {
+    setTimeout(initTableOfContents, 100);
+}
+</script>
 </body>
 </html>
