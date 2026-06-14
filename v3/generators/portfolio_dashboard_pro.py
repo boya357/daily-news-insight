@@ -9,8 +9,7 @@ import json
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.report import Report
-from components.layout import Section, Footer
-from components.pro import NavBar, FloatingButtons, get_pro_theme_css
+from components.pro import NavBar, Footer, get_pro_theme_css
 from components.base import get_animation_css, get_animation_js
 
 
@@ -283,35 +282,56 @@ class PortfolioDashboardProGenerator:
         
         # 四维诊断
         diag_html = ''
-        diag_order = ['technical', 'fund', 'news', 'industry']
-        status_icons = {
-            'good': '✓',
-            'bad': '✗',
-            'neutral': '○',
-            'warning': '△'
+        diag_order = [
+            ('technical', '📈', '技术面'),
+            ('fund', '💰', '资金面'),
+            ('news', '📰', '消息面'),
+            ('industry', '🏭', '产业面')
+        ]
+        status_bg_colors = {
+            'good': 'rgba(16, 185, 129, 0.15)',
+            'bad': 'rgba(239, 68, 68, 0.15)',
+            'neutral': 'rgba(245, 158, 11, 0.15)',
+            'warning': 'rgba(249, 115, 22, 0.15)'
         }
-        status_colors = {
+        status_border_colors = {
+            'good': 'rgba(16, 185, 129, 0.3)',
+            'bad': 'rgba(239, 68, 68, 0.3)',
+            'neutral': 'rgba(245, 158, 11, 0.3)',
+            'warning': 'rgba(249, 115, 22, 0.3)'
+        }
+        status_text_colors = {
             'good': '#10b981',
             'bad': '#ef4444',
             'neutral': '#f59e0b',
             'warning': '#f97316'
         }
+        status_desc_colors = {
+            'good': 'rgba(16, 185, 129, 0.8)',
+            'bad': 'rgba(239, 68, 68, 0.8)',
+            'neutral': 'rgba(245, 158, 11, 0.8)',
+            'warning': 'rgba(249, 115, 22, 0.8)'
+        }
         
-        for key in diag_order:
+        for key, icon, default_title in diag_order:
             d = diagnosis.get(key, {})
             status = d.get('status', 'neutral')
-            icon_char = status_icons.get(status, '○')
-            color = status_colors.get(status, '#9ca3af')
-            title = d.get('title', key)
+            bg_color = status_bg_colors.get(status, 'rgba(255,255,255,0.1)')
+            border_color = status_border_colors.get(status, 'rgba(255,255,255,0.2)')
+            text_color = status_text_colors.get(status, 'white')
+            desc_color = status_desc_colors.get(status, 'rgba(255,255,255,0.7)')
+            title = d.get('title', default_title)
             value = d.get('value', '')
             desc = d.get('desc', '')
             
             diag_html += f'''
-            <div class="diagnosis-item" style="flex: 1;">
-                <div style="font-size: 20px; color: {color}; margin-bottom: 4px;">{icon_char}</div>
-                <div style="font-size: 14px; font-weight: 600; margin-bottom: 2px;">{title}</div>
-                <div style="font-size: 12px; opacity: 0.8;">{value}</div>
-                <div style="font-size: 11px; opacity: 0.6; margin-top: 2px;">{desc}</div>
+            <div style="flex: 1; background: {bg_color}; border: 1px solid {border_color}; border-radius: 12px; padding: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: 20px;">{icon}</span>
+                    <span style="font-weight: 700; color: {text_color}; font-size: 15px;">{title}</span>
+                </div>
+                <div style="font-size: 14px; font-weight: 700; color: {text_color}; margin-bottom: 4px;">{value}</div>
+                <p style="font-size: 12px; color: {desc_color}; line-height: 1.5;">{desc}</p>
             </div>
             '''
         
@@ -881,14 +901,11 @@ class PortfolioDashboardProGenerator:
     
     def generate(self) -> str:
         """生成完整的HTML页面"""
-        # 导航栏
-        navbar_html = NavBar(active_page='').render()
+        # 导航栏（Pro版统一组件）
+        navbar_html = NavBar(active_page='首页').render()
         
-        # 页脚
-        footer_html = Footer().render()
-        
-        # 悬浮按钮
-        floating_buttons_html = FloatingButtons().render()
+        # 页脚（Pro版统一组件）
+        footer_html = Footer(text='持仓智能预警仪表盘 · 专业投资决策辅助').render()
         
         # 内容区
         content_html = ''
@@ -896,20 +913,148 @@ class PortfolioDashboardProGenerator:
         content_html += self.add_stock_cards()
         content_html += self.add_stress_test()
         content_html += self.add_position_advice()
-        # content_html += self.add_longhubang()  # 已移除，独立为龙虎榜工具页面
+        # content_html += self.add_longhubang()  # 龙虎榜已独立为专门工具页面，此处移除
         content_html += self.add_risk_alert_panel()
         content_html += self.add_industry_analysis()
         content_html += self.add_fund_flow_monitor()
         
-        # Pro主题CSS（含导航栏样式）
-        pro_theme_css = get_pro_theme_css()
-        
-        # 深色主题CSS
-        dark_css = self._generate_dark_theme_css()
+        # Pro主题CSS
+        theme_css = get_pro_theme_css()
         
         # 动效CSS和JS
         animation_css = get_animation_css()
         animation_js = get_animation_js()
+        
+        # 悬浮按钮HTML
+        floating_html = '''
+<div id="progressBar"></div>
+<div class="action-buttons">
+    <button onclick="window.print()" class="action-btn" title="打印/导出PDF">
+        <span style="font-size:20px">&#x1F4C4;</span>
+    </button>
+    <button onclick="shareReport()" class="action-btn" title="分享报告">
+        <span style="font-size:20px">&#x1F517;</span>
+    </button>
+</div>
+<button id="backToTop" onclick="scrollToTop()" title="回到顶部">
+    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+    </svg>
+</button>
+'''
+        
+        # 悬浮按钮CSS
+        floating_css = '''
+<style>
+    #progressBar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+        z-index: 9999;
+        width: 0%;
+        transition: width 0.1s ease;
+    }
+    
+    .action-buttons {
+        position: fixed;
+        bottom: 90px;
+        right: 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 9997;
+    }
+    
+    .action-btn {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        transition: all 0.3s ease;
+    }
+    
+    .action-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+    
+    #backToTop {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        z-index: 9998;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+    
+    #backToTop.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    #backToTop:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+</style>
+'''
+        
+        # 悬浮按钮JS
+        floating_js = '''
+<script>
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    function shareReport() {
+        if (navigator.share) {
+            navigator.share({
+                title: document.title,
+                url: window.location.href
+            });
+        } else {
+            navigator.clipboard.writeText(window.location.href).then(function() {
+                alert('链接已复制到剪贴板');
+            });
+        }
+    }
+    
+    window.addEventListener('scroll', function() {
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const progress = (scrollTop / scrollHeight) * 100;
+        document.getElementById('progressBar').style.width = progress + '%';
+        
+        const backToTop = document.getElementById('backToTop');
+        if (scrollTop > 300) {
+            backToTop.classList.add('show');
+        } else {
+            backToTop.classList.remove('show');
+        }
+    });
+</script>
+'''
         
         html = f'''<!DOCTYPE html>
 <html lang="zh-CN">
@@ -919,20 +1064,22 @@ class PortfolioDashboardProGenerator:
     <title>持仓智能预警仪表盘 - 投资研究中心</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    {pro_theme_css}
-    {dark_css}
+    {theme_css}
     {animation_css}
+    {floating_css}
 </head>
 <body>
     {navbar_html}
     
-    <div class="pro-container">
+    <div class="pro-container pt-20">
         {content_html}
+        
+        {footer_html}
     </div>
     
-    {footer_html}
-    {floating_buttons_html}
+    {floating_html}
     {animation_js}
+    {floating_js}
 </body>
 </html>
 '''
