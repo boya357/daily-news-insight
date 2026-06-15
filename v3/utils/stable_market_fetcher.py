@@ -58,11 +58,17 @@ def _http_get(url, timeout=10, max_retries=2, encoding='utf-8'):
 # ==================== 腾讯财经接口（主数据源）====================
 
 def _detect_prefix(code):
-    """判断股票代码属于沪市还是深市"""
-    if code.startswith('6') or code.startswith('9') or code.startswith('000') or code.startswith('001'):
+    """判断股票代码属于沪市还是深市
+    沪市：60开头（主板）、68开头（科创板）、900开头（B股）
+    深市：00开头（主板）、30开头（创业板）、200开头（B股）
+    北交所：8开头、4开头
+    """
+    if code.startswith('6') or code.startswith('900'):
         return 'sh'
-    elif code.startswith('0') or code.startswith('3'):
+    elif code.startswith('0') or code.startswith('3') or code.startswith('200'):
         return 'sz'
+    elif code.startswith('8') or code.startswith('4'):
+        return 'bj'  # 北交所
     else:
         return 'sh'  # 默认沪市
 
