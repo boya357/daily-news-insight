@@ -573,18 +573,50 @@ class DailyReportProGenerator(ReportProGenerator):
                 </div>
                 
                 <!-- 操作建议 -->
-                {f'''
-                <div class="mt-3 pt-3 border-t border-white/10">
-                    <div class="text-xs text-white/50 mb-1">操作建议</div>
-                    <div class="text-sm text-white/80">{advice or '持有观察'}</div>
-                </div>
-                ''' if advice else ''}
+                {self._render_advice(advice)}
             </div>
             '''
         
         html += '</div>'
         
         self.add_section("持仓跟踪", html, "📈")
+    
+    def _render_advice(self, advice):
+        """渲染操作建议 - 支持字典和字符串两种格式"""
+        if not advice:
+            return ''
+        
+        # 如果是字典，渲染成带标签的样式
+        if isinstance(advice, dict):
+            type_label = advice.get('type_label', '操作建议')
+            text = advice.get('text', '')
+            color = advice.get('color', 'blue')
+            
+            # 颜色映射
+            color_classes = {
+                'red': 'bg-red-500/20 text-red-400 border-red-500/30',
+                'green': 'bg-green-500/20 text-green-400 border-green-500/30',
+                'yellow': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+                'blue': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+            }
+            tag_class = color_classes.get(color, color_classes['blue'])
+            
+            return f'''
+            <div class="mt-3 pt-3 border-t border-white/10">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-xs px-2 py-0.5 rounded-full border {tag_class}">{type_label}</span>
+                </div>
+                <div class="text-sm text-white/80 leading-relaxed">{text}</div>
+            </div>
+            '''
+        
+        # 如果是字符串，直接渲染
+        return f'''
+        <div class="mt-3 pt-3 border-t border-white/10">
+            <div class="text-xs text-white/50 mb-1">操作建议</div>
+            <div class="text-sm text-white/80">{advice}</div>
+        </div>
+        '''
     
     def add_tomorrow_prediction(self):
         """明日关键预判 - Pro版"""

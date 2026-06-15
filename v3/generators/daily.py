@@ -760,15 +760,7 @@ class DailyReportGenerator:
                 </div>
                 
                 <!-- 操作建议 -->
-                <div style="background: #f0fdf4; border-radius: 10px; padding: 10px 14px;
-                           border-left: 3px solid #10b981;">
-                    <div style="font-size: 11px; font-weight: 600; color: #059669; margin-bottom: 4px;">
-                        💡 操作建议
-                    </div>
-                    <div style="font-size: 12px; color: #047857; line-height: 1.6;">
-                        {advice}
-                    </div>
-                </div>
+                {self._render_advice_html(advice)}
             </div>
             '''
         
@@ -776,6 +768,51 @@ class DailyReportGenerator:
         
         section = Section(title="💼 持仓跟踪", content=html, icon="briefcase")
         self._components.append(section)
+    
+    def _render_advice_html(self, advice):
+        """渲染操作建议HTML - 支持字典和字符串两种格式"""
+        if not advice:
+            return ''
+        
+        # 如果是字典，渲染成带标签的样式
+        if isinstance(advice, dict):
+            type_label = advice.get('type_label', '操作建议')
+            text = advice.get('text', '')
+            color = advice.get('color', 'green')
+            
+            # 颜色映射
+            color_map = {
+                'red': ('#fef2f2', '#dc2626', '#b91c1c'),
+                'green': ('#f0fdf4', '#10b981', '#047857'),
+                'yellow': ('#fefce8', '#ca8a04', '#854d0e'),
+                'blue': ('#eff6ff', '#2563eb', '#1d4ed8'),
+            }
+            bg_color, border_color, text_color = color_map.get(color, color_map['green'])
+            
+            return f'''
+            <div style="background: {bg_color}; border-radius: 10px; padding: 10px 14px;
+                       border-left: 3px solid {border_color};">
+                <div style="font-size: 11px; font-weight: 600; color: {text_color}; margin-bottom: 4px;">
+                    {type_label}
+                </div>
+                <div style="font-size: 12px; color: {text_color}; line-height: 1.6; opacity: 0.9;">
+                    {text}
+                </div>
+            </div>
+            '''
+        
+        # 如果是字符串，直接渲染
+        return f'''
+        <div style="background: #f0fdf4; border-radius: 10px; padding: 10px 14px;
+                   border-left: 3px solid #10b981;">
+            <div style="font-size: 11px; font-weight: 600; color: #059669; margin-bottom: 4px;">
+                💡 操作建议
+            </div>
+            <div style="font-size: 12px; color: #047857; line-height: 1.6;">
+                {advice}
+            </div>
+        </div>
+        '''
     
     def add_risk_warning(self):
         """风险提示 - 专业版
