@@ -57,26 +57,48 @@ def _http_get(url, timeout=10, max_retries=2, encoding='utf-8'):
 
 # ==================== 腾讯财经接口（主数据源）====================
 
-def _detect_prefix(code):
+def _detect_prefix(code, type_='stock'):
     """判断股票代码属于沪市还是深市
-    沪市：60开头（主板）、68开头（科创板）、900开头（B股）
-    深市：00开头（主板）、30开头（创业板）、200开头（B股）
-    北交所：8开头、4开头
+    
+    Args:
+        code: 股票/指数代码
+        type_: 'stock' 或 'index'
+    
+    股票：
+    - 沪市：60开头（主板）、68开头（科创板）、900开头（B股）
+    - 深市：00开头（主板）、30开头（创业板）、200开头（B股）
+    - 北交所：8开头、4开头
+    
+    指数：
+    - 沪市指数：000开头（上证指数）、001开头、00688（科创50）
+    - 深市指数：399开头（深证成指、创业板指等）
     """
-    if code.startswith('6') or code.startswith('900'):
-        return 'sh'
-    elif code.startswith('0') or code.startswith('3') or code.startswith('200'):
-        return 'sz'
-    elif code.startswith('8') or code.startswith('4'):
-        return 'bj'  # 北交所
+    if type_ == 'index':
+        # 指数判断
+        if code.startswith('000') or code.startswith('001') or code.startswith('006'):
+            return 'sh'  # 上证指数、科创50等沪市指数
+        elif code.startswith('399'):
+            return 'sz'  # 深证成指、创业板指等深市指数
+        elif code.startswith('8') or code.startswith('4'):
+            return 'bj'  # 北交所指数
+        else:
+            return 'sh'
     else:
-        return 'sh'  # 默认沪市
+        # 股票判断
+        if code.startswith('6') or code.startswith('900'):
+            return 'sh'
+        elif code.startswith('0') or code.startswith('3') or code.startswith('200'):
+            return 'sz'
+        elif code.startswith('8') or code.startswith('4'):
+            return 'bj'  # 北交所
+        else:
+            return 'sh'  # 默认沪市
 
 
 def _fetch_tencent(code, name, type_='stock'):
     """腾讯财经 - 通用获取函数"""
     try:
-        prefix = _detect_prefix(code)
+        prefix = _detect_prefix(code, type_)
         qq_code = f"{prefix}{code}"
         url = f"https://qt.gtimg.cn/q={qq_code}"
         
