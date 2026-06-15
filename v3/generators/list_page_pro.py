@@ -114,7 +114,7 @@ class ListPageProGenerator(ProGenerator):
         self.docs_dir = Path(docs_dir).resolve()
         
         super().__init__(
-            title=f"{self.config['title']} - 投资研究中心",
+            title=self.config["title"],
             active_page=self.config['nav_text'],
             footer_text=f"{self.config['title']} · 投资研究中心",
             data_dir=data_dir,
