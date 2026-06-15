@@ -278,6 +278,36 @@ class TimeMachinePage(ProPage):
         '''
 
 
+
+    def publish(self, output_path: str = None):
+        """发布页面
+
+        Args:
+            output_path: 输出文件路径
+
+        Returns:
+            发布结果字典
+        """
+        try:
+            if output_path is None:
+                output_path = "docs/time-machine/index.html"
+            html = self.render()
+            import os
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(html)
+            return {
+                'success': True,
+                'output_path': output_path,
+                'file_size': len(html),
+            }
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e),
+                'output_path': output_path
+            }
+
 if __name__ == '__main__':
     page = TimeMachinePage()
     html = page.render()

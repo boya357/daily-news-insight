@@ -549,6 +549,17 @@ class PortfolioDashboardProGenerator:
             html += self._generate_stock_card(stock)
         return html
     
+    def _safe_float(self, val, default=0.0):
+        """安全转换为float，处理带%的字符串"""
+        if val is None or val == 'N/A':
+            return default
+        try:
+            if isinstance(val, str) and '%' in val:
+                return float(val.replace('%', ''))
+            return float(val)
+        except:
+            return default
+
     def add_stress_test(self) -> str:
         """添加压力测试情景"""
         # 收集压力测试数据
@@ -567,10 +578,13 @@ class PortfolioDashboardProGenerator:
                 'price': neutral
             })
         
-        # 计算组合最大回撤（估算）
-        total_current = sum(s.get('current_price', 0) for s in self.stocks)
-        total_extreme = sum(float(s.get('price', 0)) for s in extreme_scenarios if s.get('price', 'N/A') != 'N/A')
-        max_drawdown = ((total_extreme - total_current) / total_current * 100) if total_current > 0 else 0
+        # 计算组合最大回撤（估算）- 使用极端情景的平均回撤比例
+        extreme_values = []
+        for s in extreme_scenarios:
+            pct = self._safe_float(s.get('price', 'N/A'), None)
+            if pct is not None:
+                extreme_values.append(pct)
+        max_drawdown = sum(extreme_values) / len(extreme_values) if extreme_values else 0
         
         html = f'''
         <div class="card-glass p-6 mb-6">
@@ -1220,7 +1234,22 @@ class PortfolioDashboardProGenerator:
     
     def publish(self, output_path: str = "docs/持仓智能预警仪表盘/index.html"):
         """发布到生产路径"""
-        return self.save(output_path)
+        try:
+            html = self.generate()
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(html)
+            return {
+                'success': True,
+                'output_path': output_path,
+                'file_size': len(html),
+            }
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e),
+                'output_path': output_path
+            }
 
 
 if __name__ == '__main__':
