@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>持仓智能预警仪表盘 - Pro</title>
+    <title>持仓智能预警仪表盘 - 投资研究中心</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
@@ -853,11 +853,178 @@
             }
 </style>
     
+    
+<style>
+/* 卡片悬停上浮效果 */
+.card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* 入场淡入上移动画 */
+.fade-in-up {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.fade-in-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 数字滚动动画 */
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 徽章标签系统 */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+.badge-hot {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #d97706;
+}
+.badge-good {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #059669;
+}
+.badge-risk {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #dc2626;
+}
+.badge-info {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #2563eb;
+}
+
+/* 表格悬停高亮 */
+.table-hover tbody tr:hover {
+    background: #f9fafb !important;
+}
+
+/* 折叠面板 */
+.collapse-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+.collapse-content.open {
+    max-height: 2000px;
+}
+.collapse-toggle {
+    cursor: pointer;
+    user-select: none;
+}
+.collapse-arrow {
+    transition: transform 0.3s ease;
+}
+.collapse-arrow.open {
+    transform: rotate(180deg);
+}
+
+/* 渐变进度条 */
+.progress-gradient {
+    background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%);
+}
+
+/* 玻璃态悬浮效果 */
+.glass-effect {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+</style>
+
+    
+<style>
+    #progressBar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+        z-index: 9999;
+        width: 0%;
+        transition: width 0.1s ease;
+    }
+    
+    .action-buttons {
+        position: fixed;
+        bottom: 90px;
+        right: 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 9997;
+    }
+    
+    .action-btn {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        transition: all 0.3s ease;
+    }
+    
+    .action-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+    
+    #backToTop {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        z-index: 9998;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+    
+    #backToTop.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    #backToTop:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+</style>
+
 </head>
 <body>
     
     <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                     <span class="text-white text-sm font-bold">📊</span>
@@ -865,17 +1032,7 @@
                 <span class="text-white font-bold text-lg">投资研究中心</span>
             </div>
             <div class="nav-links flex items-center space-x-1 flex-wrap gap-1">
-                <a href="/daily-news-insight/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a>
-                <a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a>
-                <a href="/daily-news-insight/intraday/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a>
-                <a href="/daily-news-insight/aftermarket/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a>
-                <a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a>
-                <a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a>
-                <a href="/daily-news-insight/weekly_outlook/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周三前瞻</a>
-                <a href="/daily-news-insight/周末速递/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a>
-                <a href="/daily-news-insight/明日催化剂/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a>
-                <a href="/daily-news-insight/s级催化扫描/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a>
-                <a href="/daily-news-insight/monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
+                <a href="/daily-news-insight/index.html" class="text-white bg-white/20 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a><a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a><a href="/daily-news-insight/intraday/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a><a href="/daily-news-insight/aftermarket/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a><a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a><a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a><a href="/daily-news-insight/weekly_outlook/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周三前瞻</a><a href="/daily-news-insight/周末速递/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a><a href="/daily-news-insight/明日催化剂/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a><a href="/daily-news-insight/s级催化扫描/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a><a href="/daily-news-insight/monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
             </div>
             <button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
         </div>
@@ -884,550 +1041,1015 @@
     <!-- 移动端全屏菜单 -->
     <div id="mobileMenu" class="mobile-menu">
         <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
-        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a>
-        <a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a>
-        <a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中快报</a>
-        <a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后速递</a>
-        <a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链总览</a>
-        <a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a>
-        <a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a>
-        <a href="/daily-news-insight/周末速递/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a>
-        <a href="/daily-news-insight/明日催化剂/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化剂</a>
-        <a href="/daily-news-insight/s级催化扫描/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⭐ S级催化扫描</a>
-        <a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🗓️ 月度总结</a>
+        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a><a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a><a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中快报</a><a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后速递</a><a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链总览</a><a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a><a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a><a href="/daily-news-insight/周末速递/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a><a href="/daily-news-insight/明日催化剂/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化剂</a><a href="/daily-news-insight/s级催化扫描/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⭐ S级催化扫描</a><a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🗓️ 月度总结</a>
     </div>
-
+        
     
-    <div class="pro-container">
+    <div class="pro-container pt-20">
         
-        <div class="card-glass p-6 mb-6 ">
-            
-            <div class="flex items-center justify-between mb-6">
+        <div class="card-glass p-6 mb-6">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                <span class="text-2xl">📊</span>
                 <div>
-                    <h1 class="text-2xl font-black text-white mb-1">投资组合健康度分析</h1>
-                    <p class="text-white/60 text-sm">多维度持仓诊断 · 风险实时预警 · 智能调仓建议</p>
+                    <h1 style="font-size: 28px; font-weight: 900; margin: 0;">持仓智能预警仪表盘</h1>
+                    <p style="opacity: 0.8; font-size: 14px; margin-top: 4px;">Pro · 多维度持仓诊断 · 风险实时预警 · 智能调仓建议</p>
                 </div>
-                <div class="flex items-center gap-6">
-                    <div class="text-center">
-                        <div class="text-3xl font-black text-green-400">+20.10%</div>
-                        <div class="text-sm text-white/60">组合总盈亏</div>
+            </div>
+            
+            <!-- 核心数据区 -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 16px; align-items: center;">
+                <!-- 总收益率 -->
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 48px; font-weight: 900; color: #10b981; line-height: 1; text-shadow: 0 2px 20px rgba(16,185,129,0.3);">
+                        +20.10%
                     </div>
+                    <div style="font-size: 14px; opacity: 0.8; margin-top: 8px;">组合总盈亏</div>
+                </div>
+                
+                <!-- 健康分 -->
+                <div style="text-align: center; background: rgba(255,255,255,0.1); border-radius: 16px; padding: 16px 12px;">
+                    <div style="font-size: 28px; font-weight: 800;">55</div>
+                    <div style="font-size: 12px; opacity: 0.75; margin-top: 4px;">健康分</div>
+                </div>
+                
+                <!-- 持仓标的 -->
+                <div style="text-align: center; background: rgba(255,255,255,0.1); border-radius: 16px; padding: 16px 12px;">
+                    <div style="font-size: 28px; font-weight: 800;">3只</div>
+                    <div style="font-size: 12px; opacity: 0.75; margin-top: 4px;">持仓标的</div>
+                </div>
+                
+                <!-- 盈亏分布 -->
+                <div style="text-align: center; background: rgba(255,255,255,0.1); border-radius: 16px; padding: 16px 12px;">
+                    <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 4px;">
+                        <span style="font-size: 18px; font-weight: 700; color: #10b981;">1盈</span>
+                        <span style="font-size: 18px; font-weight: 700; color: #ef4444;">2亏</span>
+                    </div>
+                    <div style="font-size: 12px; opacity: 0.75;">盈利/亏损</div>
+                </div>
+                
+                <!-- 行业分布 -->
+                <div style="text-align: center; background: rgba(255,255,255,0.1); border-radius: 16px; padding: 16px 12px;">
+                    <div style="font-size: 28px; font-weight: 800;">3个</div>
+                    <div style="font-size: 12px; opacity: 0.75; margin-top: 4px;">行业分布</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stock-card card-glass p-6 mb-6">
+            <!-- 头部 -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 32px;">🏭</span>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <h2 style="font-size: 22px; font-weight: 700; margin: 0;">英维克</h2>
+                            <span style="font-size: 14px; opacity: 0.7;">002837</span>
+                        </div>
+                        <span class="tag-badge" style="background: rgba(255,255,255,0.2); margin-top: 6px; display: inline-block;">🔄 震荡整理</span>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 28px; font-weight: 800; color: #ef4444;">
+                        -32.33%
+                    </div>
+                    <div style="font-size: 13px; color: #10b981;">
+                        今日 +6.73%
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 关键数据 6项 -->
+            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 20px;">
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">成本价</div>
+                    <div style="font-size: 15px; font-weight: 700;">¥104.23</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">最新价</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #10b981;">¥70.53</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">止损价</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #f59e0b;">¥98.00</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">距止损</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #ef4444;">-28.0%</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">今日涨跌</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #10b981;">+6.73%</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">主力资金</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #10b981;">+5417万</div>
+                </div>
+            </div>
+            
+            <!-- 风险等级 -->
+            <div style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+                    <span style="opacity: 0.8;">风险程度</span>
+                    <span style="font-weight: 700; color: #ef4444;">高危区 - 已跌破止损</span>
+                </div>
+                <div style="height: 12px; background: rgba(255,255,255,0.15); border-radius: 6px; overflow: hidden; position: relative;">
+                    <div style="height: 100%; width: 95%; background: #ef4444; border-radius: 6px; transition: width 0.5s ease;"></div>
+                    <!-- 50% 标记线 -->
+                    <div style="position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: rgba(255,255,255,0.5);"></div>
+                    <!-- 滑块指示器 -->
+                    <div style="position: absolute; top: 50%; left: 95%; transform: translate(-50%, -50%); width: 16px; height: 16px; background: #ef4444; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; opacity: 0.6; margin-top: 6px;">
+                    <span>安全区</span>
+                    <span>警戒区</span>
+                    <span>止损区</span>
+                </div>
+            </div>
+            
+            <!-- 四维诊断 -->
+            <div style="display: flex; gap: 10px;">
+                
+            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">📈</span>
+                    <span style="font-weight: 800; color: #10b981; font-size: 14px;">技术面</span>
+                </div>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-bottom: 6px;">强势</div>
+                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5; margin: 0;">放量上涨</p>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">均线多头排列，趋势向上</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">成交量温和放大，资金关注</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">短期技术指标处于强势区间</span>
+                </div>
+                
+            </div>
+            
+            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">💰</span>
+                    <span style="font-weight: 800; color: #10b981; font-size: 14px;">资金面</span>
+                </div>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-bottom: 6px;">流入</div>
+                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5; margin: 0;">主力资金净流入</p>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">主力资金持续流入</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">机构持仓比例提升</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">北向资金持续加仓</span>
+                </div>
+                
+            </div>
+            
+            <div style="flex: 1; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">📰</span>
+                    <span style="font-weight: 800; color: #f59e0b; font-size: 14px;">消息面</span>
+                </div>
+                <div style="font-size: 14px; font-weight: 800; color: #f59e0b; margin-bottom: 6px;">中性</div>
+                <p style="font-size: 12px; color: rgba(245, 158, 11, 0.8); line-height: 1.5; margin: 0;">行业消息面平稳</p>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #f59e0b; flex-shrink: 0; margin-top: 1px;">⚪</span>
+                    <span style="font-size: 11px; color: rgba(245, 158, 11, 0.8); line-height: 1.4;">消息面平静，无重大事件</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #f59e0b; flex-shrink: 0; margin-top: 1px;">⚪</span>
+                    <span style="font-size: 11px; color: rgba(245, 158, 11, 0.8); line-height: 1.4;">行业消息喜忧参半</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(245, 158, 11, 0.8); line-height: 1.4;">公司经营情况稳定</span>
+                </div>
+                
+            </div>
+            
+            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">🏭</span>
+                    <span style="font-weight: 800; color: #10b981; font-size: 14px;">产业面</span>
+                </div>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-bottom: 6px;">向好</div>
+                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5; margin: 0;">行业景气度向上</p>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">行业景气度持续提升</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">下游需求旺盛</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">政策支持力度加大</span>
+                </div>
+                
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="stock-card card-glass p-6 mb-6">
+            <!-- 头部 -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 32px;">🏭</span>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <h2 style="font-size: 22px; font-weight: 700; margin: 0;">铜冠铜箔</h2>
+                            <span style="font-size: 14px; opacity: 0.7;">301217</span>
+                        </div>
+                        <span class="tag-badge" style="background: rgba(255,255,255,0.2); margin-top: 6px; display: inline-block;">🔥 强势上涨</span>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 28px; font-weight: 800; color: #10b981;">
+                        +95.23%
+                    </div>
+                    <div style="font-size: 13px; color: #10b981;">
+                        今日 +20.00%
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 关键数据 6项 -->
+            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 20px;">
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">成本价</div>
+                    <div style="font-size: 15px; font-weight: 700;">¥87.16</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">最新价</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #10b981;">¥170.16</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">止损价</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #f59e0b;">¥85.00</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">安全边际</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #10b981;">+0.0%</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">今日涨跌</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #10b981;">+20.00%</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">主力资金</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #10b981;">+4129万</div>
+                </div>
+            </div>
+            
+            <!-- 风险等级 -->
+            <div style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+                    <span style="opacity: 0.8;">风险程度</span>
+                    <span style="font-weight: 700; color: #f59e0b;">安全区 - 正常波动</span>
+                </div>
+                <div style="height: 12px; background: rgba(255,255,255,0.15); border-radius: 6px; overflow: hidden; position: relative;">
+                    <div style="height: 100%; width: 30%; background: #f59e0b; border-radius: 6px; transition: width 0.5s ease;"></div>
+                    <!-- 50% 标记线 -->
+                    <div style="position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: rgba(255,255,255,0.5);"></div>
+                    <!-- 滑块指示器 -->
+                    <div style="position: absolute; top: 50%; left: 30%; transform: translate(-50%, -50%); width: 16px; height: 16px; background: #f59e0b; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; opacity: 0.6; margin-top: 6px;">
+                    <span>安全区</span>
+                    <span>警戒区</span>
+                    <span>止损区</span>
+                </div>
+            </div>
+            
+            <!-- 四维诊断 -->
+            <div style="display: flex; gap: 10px;">
+                
+            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">📈</span>
+                    <span style="font-weight: 800; color: #10b981; font-size: 14px;">技术面</span>
+                </div>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-bottom: 6px;">强势</div>
+                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5; margin: 0;">放量上涨</p>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">均线多头排列，趋势向上</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">成交量温和放大，资金关注</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">短期技术指标处于强势区间</span>
+                </div>
+                
+            </div>
+            
+            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">💰</span>
+                    <span style="font-weight: 800; color: #10b981; font-size: 14px;">资金面</span>
+                </div>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-bottom: 6px;">流入</div>
+                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5; margin: 0;">主力资金净流入</p>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">主力资金持续流入</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">机构持仓比例提升</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">北向资金持续加仓</span>
+                </div>
+                
+            </div>
+            
+            <div style="flex: 1; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">📰</span>
+                    <span style="font-weight: 800; color: #f59e0b; font-size: 14px;">消息面</span>
+                </div>
+                <div style="font-size: 14px; font-weight: 800; color: #f59e0b; margin-bottom: 6px;">中性</div>
+                <p style="font-size: 12px; color: rgba(245, 158, 11, 0.8); line-height: 1.5; margin: 0;">行业消息面平稳</p>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #f59e0b; flex-shrink: 0; margin-top: 1px;">⚪</span>
+                    <span style="font-size: 11px; color: rgba(245, 158, 11, 0.8); line-height: 1.4;">消息面平静，无重大事件</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #f59e0b; flex-shrink: 0; margin-top: 1px;">⚪</span>
+                    <span style="font-size: 11px; color: rgba(245, 158, 11, 0.8); line-height: 1.4;">行业消息喜忧参半</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(245, 158, 11, 0.8); line-height: 1.4;">公司经营情况稳定</span>
+                </div>
+                
+            </div>
+            
+            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">🏭</span>
+                    <span style="font-weight: 800; color: #10b981; font-size: 14px;">产业面</span>
+                </div>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-bottom: 6px;">向好</div>
+                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5; margin: 0;">行业景气度向上</p>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">行业景气度持续提升</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">下游需求旺盛</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">政策支持力度加大</span>
+                </div>
+                
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="stock-card card-glass p-6 mb-6">
+            <!-- 头部 -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 32px;">🏭</span>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <h2 style="font-size: 22px; font-weight: 700; margin: 0;">*ST建艺</h2>
+                            <span style="font-size: 14px; opacity: 0.7;">002789</span>
+                        </div>
+                        <span class="tag-badge" style="background: rgba(255,255,255,0.2); margin-top: 6px; display: inline-block;">📉 回调中</span>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 28px; font-weight: 800; color: #ef4444;">
+                        -2.60%
+                    </div>
+                    <div style="font-size: 13px; color: #ef4444;">
+                        今日 -3.96%
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 关键数据 6项 -->
+            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 20px;">
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">成本价</div>
+                    <div style="font-size: 15px; font-weight: 700;">¥13.45</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">最新价</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #ef4444;">¥13.10</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">止损价</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #f59e0b;">¥12.50</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">距止损</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #ef4444;">4.8%</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">今日涨跌</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #ef4444;">-3.96%</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 8px; text-align: center;">
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 4px;">主力资金</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #ef4444;">-488万</div>
+                </div>
+            </div>
+            
+            <!-- 风险等级 -->
+            <div style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+                    <span style="opacity: 0.8;">风险程度</span>
+                    <span style="font-weight: 700; color: #ef4444;">警戒区 - 接近止损</span>
+                </div>
+                <div style="height: 12px; background: rgba(255,255,255,0.15); border-radius: 6px; overflow: hidden; position: relative;">
+                    <div style="height: 100%; width: 70%; background: #ef4444; border-radius: 6px; transition: width 0.5s ease;"></div>
+                    <!-- 50% 标记线 -->
+                    <div style="position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: rgba(255,255,255,0.5);"></div>
+                    <!-- 滑块指示器 -->
+                    <div style="position: absolute; top: 50%; left: 70%; transform: translate(-50%, -50%); width: 16px; height: 16px; background: #ef4444; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; opacity: 0.6; margin-top: 6px;">
+                    <span>安全区</span>
+                    <span>警戒区</span>
+                    <span>止损区</span>
+                </div>
+            </div>
+            
+            <!-- 四维诊断 -->
+            <div style="display: flex; gap: 10px;">
+                
+            <div style="flex: 1; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">📈</span>
+                    <span style="font-weight: 800; color: #ef4444; font-size: 14px;">技术面</span>
+                </div>
+                <div style="font-size: 14px; font-weight: 800; color: #ef4444; margin-bottom: 6px;">调整</div>
+                <p style="font-size: 12px; color: rgba(239, 68, 68, 0.8); line-height: 1.5; margin: 0;">跌破均线支撑</p>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #ef4444; flex-shrink: 0; margin-top: 1px;">✗</span>
+                    <span style="font-size: 11px; color: rgba(239, 68, 68, 0.8); line-height: 1.4;">跌破关键均线支撑</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #ef4444; flex-shrink: 0; margin-top: 1px;">✗</span>
+                    <span style="font-size: 11px; color: rgba(239, 68, 68, 0.8); line-height: 1.4;">成交量萎缩，缺乏买盘</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #ef4444; flex-shrink: 0; margin-top: 1px;">✗</span>
+                    <span style="font-size: 11px; color: rgba(239, 68, 68, 0.8); line-height: 1.4;">MACD死叉，短期趋势走弱</span>
+                </div>
+                
+            </div>
+            
+            <div style="flex: 1; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">💰</span>
+                    <span style="font-weight: 800; color: #ef4444; font-size: 14px;">资金面</span>
+                </div>
+                <div style="font-size: 14px; font-weight: 800; color: #ef4444; margin-bottom: 6px;">流出</div>
+                <p style="font-size: 12px; color: rgba(239, 68, 68, 0.8); line-height: 1.5; margin: 0;">主力资金净流出</p>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #ef4444; flex-shrink: 0; margin-top: 1px;">✗</span>
+                    <span style="font-size: 11px; color: rgba(239, 68, 68, 0.8); line-height: 1.4;">主力资金净流出</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #ef4444; flex-shrink: 0; margin-top: 1px;">✗</span>
+                    <span style="font-size: 11px; color: rgba(239, 68, 68, 0.8); line-height: 1.4;">机构减持，抛压较重</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #ef4444; flex-shrink: 0; margin-top: 1px;">✗</span>
+                    <span style="font-size: 11px; color: rgba(239, 68, 68, 0.8); line-height: 1.4;">资金关注度下降</span>
+                </div>
+                
+            </div>
+            
+            <div style="flex: 1; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">📰</span>
+                    <span style="font-weight: 800; color: #f59e0b; font-size: 14px;">消息面</span>
+                </div>
+                <div style="font-size: 14px; font-weight: 800; color: #f59e0b; margin-bottom: 6px;">中性</div>
+                <p style="font-size: 12px; color: rgba(245, 158, 11, 0.8); line-height: 1.5; margin: 0;">行业消息面平稳</p>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #f59e0b; flex-shrink: 0; margin-top: 1px;">⚪</span>
+                    <span style="font-size: 11px; color: rgba(245, 158, 11, 0.8); line-height: 1.4;">消息面平静，无重大事件</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #f59e0b; flex-shrink: 0; margin-top: 1px;">⚪</span>
+                    <span style="font-size: 11px; color: rgba(245, 158, 11, 0.8); line-height: 1.4;">行业消息喜忧参半</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(245, 158, 11, 0.8); line-height: 1.4;">公司经营情况稳定</span>
+                </div>
+                
+            </div>
+            
+            <div style="flex: 1; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px 12px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                    <span style="font-size: 18px;">🏭</span>
+                    <span style="font-weight: 800; color: #10b981; font-size: 14px;">产业面</span>
+                </div>
+                <div style="font-size: 14px; font-weight: 800; color: #10b981; margin-bottom: 6px;">向好</div>
+                <p style="font-size: 12px; color: rgba(16, 185, 129, 0.8); line-height: 1.5; margin: 0;">行业景气度向上</p>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">行业景气度持续提升</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">下游需求旺盛</span>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 6px;">
+                    <span style="font-size: 12px; color: #10b981; flex-shrink: 0; margin-top: 1px;">✓</span>
+                    <span style="font-size: 11px; color: rgba(16, 185, 129, 0.8); line-height: 1.4;">政策支持力度加大</span>
+                </div>
+                
+            </div>
+            
+            </div>
+        </div>
+        
+        <div class="card-glass p-6 mb-6">
+            <h2 class="section-title">
+                <span style="font-size: 24px;">🚨</span>
+                压力测试情景
+            </h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- 极端下跌情景 -->
+                <div style="background: rgba(239, 68, 68, 0.15); border-radius: 16px; padding: 20px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                    <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #fca5a5;">极端下跌情景：大盘回调10%</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(239, 68, 68, 0.2);">
+                        <span style="font-size: 14px;">英维克</span>
+                        <span style="font-weight: 600; color: #fca5a5;">-52.3%</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(239, 68, 68, 0.2);">
+                        <span style="font-size: 14px;">铜冠铜箔</span>
+                        <span style="font-weight: 600; color: #fca5a5;">-115.2%</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(239, 68, 68, 0.2);">
+                        <span style="font-size: 14px;">*ST建艺</span>
+                        <span style="font-weight: 600; color: #fca5a5;">-10%</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+                        <span style="font-size: 14px;">雅克科技</span>
+                        <span style="font-weight: 600; color: #fca5a5;">N/A</span>
+                    </div>
+                    <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(239, 68, 68, 0.3);">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="font-size: 14px; font-weight: 600;">组合最大回撤</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #ef4444;">约63%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 中性震荡情景 -->
+                <div style="background: rgba(245, 158, 11, 0.15); border-radius: 16px; padding: 20px; border: 1px solid rgba(245, 158, 11, 0.3);">
+                    <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #fcd34d;">中性情景：板块震荡5%</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(245, 158, 11, 0.2);">
+                        <span style="font-size: 14px;">英维克</span>
+                        <span style="font-weight: 600; color: #fcd34d;">-37.3%</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(245, 158, 11, 0.2);">
+                        <span style="font-size: 14px;">铜冠铜箔</span>
+                        <span style="font-weight: 600; color: #fcd34d;">+105.2%</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(245, 158, 11, 0.2);">
+                        <span style="font-size: 14px;">*ST建艺</span>
+                        <span style="font-weight: 600; color: #fcd34d;">13.64</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+                        <span style="font-size: 14px;">雅克科技</span>
+                        <span style="font-weight: 600; color: #fcd34d;">-8%</span>
+                    </div>
+                    <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(245, 158, 11, 0.3);">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="font-size: 14px; font-weight: 600;">组合预计回撤</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #f59e0b;">约-5%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-glass p-6 mb-6">
+            <h2 class="section-title">
+                <span style="font-size: 24px;">💡</span>
+                智能调仓建议
+            </h2>
+            
+            
+            <div style="background: rgba(239, 68, 68, 0.15); border-radius: 12px; padding: 16px; margin-bottom: 12px; border-left: 4px solid #ef4444;">
+                <div style="font-weight: 700; margin-bottom: 8px; color: #ef4444;">🔴 建议止损</div>
+                <p style="font-size: 14px; line-height: 1.7; opacity: 0.95; margin: 0;">英维克今日上涨6.73%，AI液冷散热概念短期调整幅度较大，已跌破止损位，建议反弹减仓或止损</p>
+            </div>
+            
+            <div style="background: rgba(16, 185, 129, 0.15); border-radius: 12px; padding: 16px; margin-bottom: 12px; border-left: 4px solid #10b981;">
+                <div style="font-weight: 700; margin-bottom: 8px; color: #10b981;">🟢 持有建议</div>
+                <p style="font-size: 14px; line-height: 1.7; opacity: 0.95; margin: 0;">铜冠铜箔今日上涨20.00%，强势涨停，存储芯片封装需求爆发，建议继续持有，目标价看高一线</p>
+            </div>
+            
+            <div style="background: rgba(245, 158, 11, 0.15); border-radius: 12px; padding: 16px; margin-bottom: 12px; border-left: 4px solid #f59e0b;">
+                <div style="font-weight: 700; margin-bottom: 8px; color: #f59e0b;">🟡 持有观察</div>
+                <p style="font-size: 14px; line-height: 1.7; opacity: 0.95; margin: 0;">*ST建艺今日下跌3.96%，摘帽预期持续，建议继续关注公告进展</p>
+            </div>
+            
+            
+            <!-- 再平衡建议 -->
+            <div style="background: rgba(59, 130, 246, 0.15); border-radius: 12px; padding: 16px; border-left: 4px solid #3b82f6;">
+                <div style="font-weight: 700; margin-bottom: 8px; color: #60a5fa;">🔵 再平衡建议</div>
+                <p style="font-size: 14px; line-height: 1.7; opacity: 0.95; margin: 0;">今日A股市场分化明显，存储芯片板块爆发，铜冠铜箔涨停（+20%）创历史新高，HVLP铜箔国产替代逻辑持续强化。英维克今日反弹+6.73%，但仍处于止损位下方。*ST建艺今日回调-3.96%，摘帽申请仍在补充材料阶段。建议：铜冠铜箔继续持有，可考虑部分止盈；英维克反弹后可考虑减仓降低亏损；*ST建艺继续关注摘帽进展。整体仓位控制在5成左右。</p>
+            </div>
+        </div>
+        
+        <div class="card-glass p-6 mb-6">
+            <h2 class="section-title">
+                <span style="font-size: 24px;">🔔</span>
+                风险预警面板
+            </h2>
+            
+            <!-- 高风险预警 -->
+            <div class="alert-section">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                    <span style="font-size: 20px;">🚨</span>
+                    <span style="font-weight: 700; font-size: 16px; color: #fca5a5;">高风险预警</span>
+                </div>
+                <div style="font-size: 14px; line-height: 1.8; opacity: 0.95;">
+                    <div style="margin-bottom: 8px;"><strong>英维克</strong>：浮亏-28.0%，已接近止损线，建议设置条件单自动止损。</div><div style="margin-bottom: 8px;"><strong>*ST建艺</strong>：浮亏4.8%，已接近止损线，建议设置条件单自动止损。</div>
+                </div>
+            </div>
+            
+            <!-- 中风险提示 -->
+            <div class="warning-section">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                    <span style="font-size: 20px;">⚡️</span>
+                    <span style="font-weight: 700; font-size: 16px; color: #fcd34d;">中风险提示</span>
+                </div>
+                <div style="font-size: 14px; line-height: 1.8; opacity: 0.95;">
+                    <div style="margin-bottom: 8px;"><strong>铜冠铜箔</strong>：波动较大，注意仓位控制。</div>
+                </div>
+            </div>
+            
+            <!-- 安全区域 -->
+            <div class="safe-section">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                    <span style="font-size: 20px;">✅</span>
+                    <span style="font-weight: 700; font-size: 16px; color: #6ee7b7;">安全区域</span>
+                </div>
+                <div style="font-size: 14px; line-height: 1.8; opacity: 0.95;">
                     
-        <div class="relative">
-            <div class="w-24 h-24 rounded-full flex items-center justify-center" 
-                 style="background: conic-gradient(#10b981 55%, rgba(255,255,255,0.2) 55%);">
-                <div class="w-20 h-20 bg-white/10 backdrop-blur rounded-full flex items-center justify-center">
-                    <div class="text-center">
-                        <div class="text-2xl font-black text-white">55</div>
-                        <div class="text-xs text-white/60">健康分</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
                 </div>
             </div>
             
-            <div class="grid grid-cols-5 gap-4">
-                
-            <div class="p-4 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border border-white/10 rounded-2xl text-center">
-                <div class="text-2xl mb-1">📦</div>
-                <div class="text-sm text-white/70 mb-1">持仓标的</div>
-                <div class="text-2xl font-black text-white">3只</div>
-            </div>
-            
-            <div class="p-4 bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-white/10 rounded-2xl text-center">
-                <div class="text-2xl mb-1">💰</div>
-                <div class="text-sm text-white/70 mb-1">盈利标的</div>
-                <div class="text-2xl font-black text-white">1只</div>
-            </div>
-            
-            <div class="p-4 bg-gradient-to-br from-red-500/20 to-orange-500/20 border border-white/10 rounded-2xl text-center">
-                <div class="text-2xl mb-1">📉</div>
-                <div class="text-sm text-white/70 mb-1">亏损标的</div>
-                <div class="text-2xl font-black text-white">2只</div>
-            </div>
-            
-            <div class="p-4 bg-gradient-to-br from-yellow-500/20 to-amber-500/20 border border-white/10 rounded-2xl text-center">
-                <div class="text-2xl mb-1">⚠️</div>
-                <div class="text-sm text-white/70 mb-1">跌破止损</div>
-                <div class="text-2xl font-black text-white">1只</div>
-            </div>
-            
-            <div class="p-4 bg-gradient-to-br from-purple-500/20 to-violet-500/20 border border-white/10 rounded-2xl text-center">
-                <div class="text-2xl mb-1">🏭</div>
-                <div class="text-sm text-white/70 mb-1">行业分布</div>
-                <div class="text-2xl font-black text-white">3个</div>
-            </div>
-            
-            </div>
-        
-        </div>
-        
-        
-        <div class="card-glass p-6 stock-card mb-6 transition-all duration-300 hover:scale-[1.02]">
-            
-            <div class="flex items-start justify-between mb-6">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                        <span class="text-white text-3xl font-black">🆘</span>
+            <!-- 风控指标 -->
+            <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 16px; margin-top: 16px;">
+                <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; opacity: 0.9;">📊 风控指标</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                    <div>
+                        <span style="font-size: 13px; opacity: 0.7;">最大回撤（单票）</span>
+                        <div style="font-size: 18px; font-weight: 700; color: #ef4444;">-32.3%（英维克）</div>
                     </div>
                     <div>
-                        <div class="flex items-center gap-3">
-                            <h2 class="text-2xl font-black text-white"><span class="stock-badge" data-code="002837" data-name="英维克">英维克</span></h2>
-                            <span class="text-white/60">002837</span>
-                            <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-bold">🔄 震荡整理</span>
-                        </div>
-                        <p class="text-white/50 text-sm mt-1">液冷散热 · 英伟达产业链 · 算力基础设施</p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <div class="text-4xl font-black text-red-400">-32.33%</div>
-                    <div class="text-sm text-white/60">持仓盈亏</div>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-6 gap-4 mb-6">
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">成本价</div>
-                    <div class="text-xl font-bold text-white/90">104.23元</div>
-                </div>
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">最新价</div>
-                    <div class="text-xl font-bold text-white">70.53元</div>
-                </div>
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">止损价</div>
-                    <div class="text-xl font-bold text-orange-400">98.00元</div>
-                </div>
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">距止损</div>
-                    <div class="text-xl font-bold text-yellow-400">-28.03%</div>
-                </div>
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">今日涨跌</div>
-                    <div class="text-xl font-bold text-green-400">+6.73%</div>
-                </div>
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">主力资金</div>
-                    <div class="text-xl font-bold text-green-400">+5417万</div>
-                </div>
-            </div>
-            
-            <div class="mb-6">
-                <div class="flex justify-between text-sm mb-2">
-                    <span class="text-white/60">风险程度</span>
-                    <span class="text-white font-bold">高危区 - 已跌破止损</span>
-                </div>
-                
-        
-        <div class="risk-bar">
-            <div class="risk-bar-fill bg-gradient-to-r from-green-500 via-yellow-500 to-red-500" 
-                 style="width: 95.0%"></div>
-        </div>
-        
-            <div class="flex justify-between text-xs text-white/40 mt-1">
-                <span>安全</span>
-                <span>警戒</span>
-                <span>危险</span>
-            </div>
-            
-        
-            </div>
-            
-            <div class="grid grid-cols-4 gap-4">
-                
-        <div class="diagnosis-item">
-            <div class="text-2xl mb-1">📊</div>
-            <div class="text-sm font-medium text-green-400">技术面</div>
-            <div class="text-xs text-white/50 mt-1">强势</div>
-        </div>
-        
-        <div class="diagnosis-item">
-            <div class="text-2xl mb-1">📊</div>
-            <div class="text-sm font-medium text-green-400">资金面</div>
-            <div class="text-xs text-white/50 mt-1">流入</div>
-        </div>
-        
-        <div class="diagnosis-item">
-            <div class="text-2xl mb-1">📊</div>
-            <div class="text-sm font-medium text-gray-400">消息面</div>
-            <div class="text-xs text-white/50 mt-1">中性</div>
-        </div>
-        
-        <div class="diagnosis-item">
-            <div class="text-2xl mb-1">📊</div>
-            <div class="text-sm font-medium text-green-400">产业面</div>
-            <div class="text-xs text-white/50 mt-1">向好</div>
-        </div>
-        
-            </div>
-        
-        </div>
-        
-        <div class="card-glass p-6 stock-card mb-6 transition-all duration-300 hover:scale-[1.02]">
-            
-            <div class="flex items-start justify-between mb-6">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                        <span class="text-white text-3xl font-black">🥈</span>
+                        <span style="font-size: 13px; opacity: 0.7;">组合波动率</span>
+                        <div style="font-size: 18px; font-weight: 700;">中等</div>
                     </div>
                     <div>
-                        <div class="flex items-center gap-3">
-                            <h2 class="text-2xl font-black text-white"><span class="stock-badge" data-code="301217" data-name="铜冠铜箔">铜冠铜箔</span></h2>
-                            <span class="text-white/60">301217</span>
-                            <span class="bg-orange-500 text-white text-xs px-3 py-1 rounded-full font-bold">🔥 强势上涨</span>
-                        </div>
-                        <p class="text-white/50 text-sm mt-1">液冷散热 · 英伟达产业链 · 算力基础设施</p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <div class="text-4xl font-black text-green-400">+95.23%</div>
-                    <div class="text-sm text-white/60">持仓盈亏</div>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-6 gap-4 mb-6">
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">成本价</div>
-                    <div class="text-xl font-bold text-white/90">87.16元</div>
-                </div>
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">最新价</div>
-                    <div class="text-xl font-bold text-white">170.16元</div>
-                </div>
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">止损价</div>
-                    <div class="text-xl font-bold text-orange-400">85.00元</div>
-                </div>
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">距止损</div>
-                    <div class="text-xl font-bold text-yellow-400">100.19%</div>
-                </div>
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">今日涨跌</div>
-                    <div class="text-xl font-bold text-green-400">+20.00%</div>
-                </div>
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">主力资金</div>
-                    <div class="text-xl font-bold text-green-400">+4129万</div>
-                </div>
-            </div>
-            
-            <div class="mb-6">
-                <div class="flex justify-between text-sm mb-2">
-                    <span class="text-white/60">风险程度</span>
-                    <span class="text-white font-bold">安全区 - 正常波动</span>
-                </div>
-                
-        
-        <div class="risk-bar">
-            <div class="risk-bar-fill bg-gradient-to-r from-green-500 via-yellow-500 to-red-500" 
-                 style="width: 30.0%"></div>
-        </div>
-        
-            <div class="flex justify-between text-xs text-white/40 mt-1">
-                <span>安全</span>
-                <span>警戒</span>
-                <span>危险</span>
-            </div>
-            
-        
-            </div>
-            
-            <div class="grid grid-cols-4 gap-4">
-                
-        <div class="diagnosis-item">
-            <div class="text-2xl mb-1">📊</div>
-            <div class="text-sm font-medium text-green-400">技术面</div>
-            <div class="text-xs text-white/50 mt-1">强势</div>
-        </div>
-        
-        <div class="diagnosis-item">
-            <div class="text-2xl mb-1">📊</div>
-            <div class="text-sm font-medium text-green-400">资金面</div>
-            <div class="text-xs text-white/50 mt-1">流入</div>
-        </div>
-        
-        <div class="diagnosis-item">
-            <div class="text-2xl mb-1">📊</div>
-            <div class="text-sm font-medium text-gray-400">消息面</div>
-            <div class="text-xs text-white/50 mt-1">中性</div>
-        </div>
-        
-        <div class="diagnosis-item">
-            <div class="text-2xl mb-1">📊</div>
-            <div class="text-sm font-medium text-green-400">产业面</div>
-            <div class="text-xs text-white/50 mt-1">向好</div>
-        </div>
-        
-            </div>
-        
-        </div>
-        
-        <div class="card-glass p-6 stock-card mb-6 transition-all duration-300 hover:scale-[1.02]">
-            
-            <div class="flex items-start justify-between mb-6">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                        <span class="text-white text-3xl font-black">🆘</span>
+                        <span style="font-size: 13px; opacity: 0.7;">夏普比率</span>
+                        <div style="font-size: 18px; font-weight: 700;">1.2</div>
                     </div>
                     <div>
-                        <div class="flex items-center gap-3">
-                            <h2 class="text-2xl font-black text-white"><span class="stock-badge" data-code="002789" data-name="*ST建艺">*ST建艺</span></h2>
-                            <span class="text-white/60">002789</span>
-                            <span class="bg-red-500 text-white text-xs px-3 py-1 rounded-full font-bold">📉 回调中</span>
-                        </div>
-                        <p class="text-white/50 text-sm mt-1">液冷散热 · 英伟达产业链 · 算力基础设施</p>
+                        <span style="font-size: 13px; opacity: 0.7;">行业集中度</span>
+                        <div style="font-size: 18px; font-weight: 700; color: #10b981;">合理</div>
                     </div>
                 </div>
-                <div class="text-right">
-                    <div class="text-4xl font-black text-red-400">-2.60%</div>
-                    <div class="text-sm text-white/60">持仓盈亏</div>
-                </div>
             </div>
+        </div>
+        
+        <div class="card-glass p-6 mb-6">
+            <h2 class="section-title">
+                <span style="font-size: 24px;">📈</span>
+                行业分布与仓位分析
+            </h2>
             
-            <div class="grid grid-cols-6 gap-4 mb-6">
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">成本价</div>
-                    <div class="text-xl font-bold text-white/90">13.45元</div>
-                </div>
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">最新价</div>
-                    <div class="text-xl font-bold text-white">13.10元</div>
-                </div>
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">止损价</div>
-                    <div class="text-xl font-bold text-orange-400">12.50元</div>
-                </div>
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">距止损</div>
-                    <div class="text-xl font-bold text-yellow-400">4.80%</div>
-                </div>
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">今日涨跌</div>
-                    <div class="text-xl font-bold text-red-400">-3.96%</div>
-                </div>
-                <div class="p-4 bg-white/5 rounded-xl text-center">
-                    <div class="text-xs text-white/50 mb-1">主力资金</div>
-                    <div class="text-xl font-bold text-red-400">-488万</div>
-                </div>
-            </div>
-            
-            <div class="mb-6">
-                <div class="flex justify-between text-sm mb-2">
-                    <span class="text-white/60">风险程度</span>
-                    <span class="text-white font-bold">警戒区 - 接近止损</span>
-                </div>
+            <div style="margin-bottom: 24px;">
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px;">🏗️ 行业配置分布</h3>
                 
-        
-        <div class="risk-bar">
-            <div class="risk-bar-fill bg-gradient-to-r from-green-500 via-yellow-500 to-red-500" 
-                 style="width: 70.0%"></div>
-        </div>
-        
-            <div class="flex justify-between text-xs text-white/40 mt-1">
-                <span>安全</span>
-                <span>警戒</span>
-                <span>危险</span>
-            </div>
-            
-        
-            </div>
-            
-            <div class="grid grid-cols-4 gap-4">
-                
-        <div class="diagnosis-item">
-            <div class="text-2xl mb-1">📊</div>
-            <div class="text-sm font-medium text-white/70">技术面</div>
-            <div class="text-xs text-white/50 mt-1">调整</div>
-        </div>
-        
-        <div class="diagnosis-item">
-            <div class="text-2xl mb-1">📊</div>
-            <div class="text-sm font-medium text-white/70">资金面</div>
-            <div class="text-xs text-white/50 mt-1">流出</div>
-        </div>
-        
-        <div class="diagnosis-item">
-            <div class="text-2xl mb-1">📊</div>
-            <div class="text-sm font-medium text-gray-400">消息面</div>
-            <div class="text-xs text-white/50 mt-1">中性</div>
-        </div>
-        
-        <div class="diagnosis-item">
-            <div class="text-2xl mb-1">📊</div>
-            <div class="text-sm font-medium text-green-400">产业面</div>
-            <div class="text-xs text-white/50 mt-1">向好</div>
-        </div>
-        
-            </div>
-        
-        </div>
-        
-        
-        <div class="grid grid-cols-2 gap-6 mb-6">
-            
-        <div class="card-glass p-6  ">
-            
-            <h2 class="section-title"><span class="text-xl">🚨</span>压力测试情景</h2>
-            
-            <div class="space-y-4">
-                <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-                    <div class="font-bold text-red-400 mb-2">极端下跌情景：大盘回调10%</div>
-                    <div class="grid grid-cols-4 gap-3 text-sm">
-                        
-            <div class="text-center">
-                <div class="text-white/50 text-xs">英维克</div>
-                <div class="font-bold text-yellow-400">-52.3%</div>
-            </div>
-            
-            <div class="text-center">
-                <div class="text-white/50 text-xs">铜冠铜箔</div>
-                <div class="font-bold text-yellow-400">-115.2%</div>
-            </div>
-            
-            <div class="text-center">
-                <div class="text-white/50 text-xs">*ST建艺</div>
-                <div class="font-bold text-yellow-400">-22.6%</div>
-            </div>
-            
-                    </div>
-                    <div class="text-sm text-white/60 mt-2 text-center font-semibold">组合最大回撤：约-16%</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div>
+                    <div style="font-weight: 600; font-size: 15px;">电子/半导体材料</div>
+                    <div style="font-size: 12px; opacity: 0.7; margin-top: 2px;">铜冠铜箔 + 雅克科技</div>
                 </div>
-                
-                <div class="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
-                    <div class="font-bold text-yellow-400 mb-2">中性情景：板块震荡5%</div>
-                    <div class="grid grid-cols-4 gap-3 text-sm">
-                        
-            <div class="text-center">
-                <div class="text-white/50 text-xs">英维克</div>
-                <div class="font-bold text-yellow-400">-37.3%</div>
+                <div style="font-size: 20px; font-weight: 800;">45%</div>
             </div>
             
-            <div class="text-center">
-                <div class="text-white/50 text-xs">铜冠铜箔</div>
-                <div class="font-bold text-yellow-400">+105.2%</div>
-            </div>
-            
-            <div class="text-center">
-                <div class="text-white/50 text-xs">*ST建艺</div>
-                <div class="font-bold text-yellow-400">-7.6%</div>
-            </div>
-            
-                    </div>
-                    <div class="text-sm text-white/60 mt-2 text-center font-semibold">组合预计回撤：约-5%</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div>
+                    <div style="font-weight: 600; font-size: 15px;">制冷/温控设备</div>
+                    <div style="font-size: 12px; opacity: 0.7; margin-top: 2px;">英维克</div>
                 </div>
-            </div>
-        
-        </div>
-        
-            
-        <div class="card-glass p-6  ">
-            
-            <h2 class="section-title"><span class="text-xl">💡</span>智能调仓建议</h2>
-            <div class="space-y-4">
-                
-            <div class="p-4 bg-red-500/10 border-red-500/20 border-l-red-500 rounded-xl border-l-4">
-                <div class="font-bold text-red-400 mb-1">🔴 建议止损</div>
-                <p class="text-sm text-white/80">英维克今日上涨6.73%，AI液冷散热概念短期调整幅度较大，已跌破止损位，建议反弹减仓或止损</p>
+                <div style="font-size: 20px; font-weight: 800;">30%</div>
             </div>
             
-            <div class="p-4 bg-green-500/10 border-green-500/20 border-l-green-500 rounded-xl border-l-4">
-                <div class="font-bold text-green-400 mb-1">🟢 持有建议</div>
-                <p class="text-sm text-white/80">铜冠铜箔今日上涨20.00%，强势涨停，存储芯片封装需求爆发，建议继续持有，目标价看高一线</p>
-            </div>
-            
-            <div class="p-4 bg-yellow-500/10 border-yellow-500/20 border-l-yellow-500 rounded-xl border-l-4">
-                <div class="font-bold text-yellow-400 mb-1">🟡 持有观察</div>
-                <p class="text-sm text-white/80">*ST建艺今日下跌3.96%，摘帽预期持续，建议继续关注公告进展</p>
-            </div>
-            
-        <div class="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl border-l-4 border-l-blue-500">
-            <div class="font-bold text-blue-400 mb-1">🔵 再平衡建议</div>
-            <p class="text-sm text-white/80">今日A股市场分化明显，存储芯片板块爆发，铜冠铜箔涨停（+20%）创历史新高，HVLP铜箔国产替代逻辑持续强化。英维克今日反弹+6.73%，但仍处于止损位下方。*ST建艺今日回调-3.96%，摘帽申请仍在补充材料阶段。建议：铜冠铜箔继续持有，可考虑部分止盈；英维克反弹后可考虑减仓降低亏损；*ST建艺继续关注摘帽进展。整体仓位控制在5成左右。</p>
-        </div>
-        
-            </div>
-        
-        </div>
-        
-        </div>
-        
-        
-        <div class="card-glass p-6 mt-6 ">
-            
-            <h2 class="section-title"><span class="text-xl">🐉</span>龙虎榜追踪</h2>
-            <div class="space-y-4">
-                
-            <div class="border border-orange-500/30 rounded-xl overflow-hidden">
-                <div class="bg-gradient-to-r from-orange-500/10 to-red-500/10 px-4 py-3 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <span class="text-xl">🔴</span>
-                        <div>
-                            <div class="font-bold text-white">铜冠铜箔 <span class="text-sm font-normal text-white/60">301217</span></div>
-                            <div class="text-xs text-white/50"> · </div>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <div class="font-bold text-red-400">+0.00%</div>
-                        <div class="text-xs text-white/50">净买入 +2.35亿</div>
-                    </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div>
+                    <div style="font-weight: 600; font-size: 15px;">建筑装饰/基建</div>
+                    <div style="font-size: 12px; opacity: 0.7; margin-top: 2px;">*ST建艺</div>
                 </div>
-                <div class="p-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <div class="text-sm font-semibold text-green-400 mb-2">📈 买入席位</div>
-                            
-                        </div>
-                        <div>
-                            <div class="text-sm font-semibold text-red-400 mb-2">📉 卖出席位</div>
-                            
-                        </div>
+                <div style="font-size: 20px; font-weight: 800;">25%</div>
+            </div>
+            
+            </div>
+            
+            <!-- 仓位健康度评估 -->
+            <div style="background: rgba(245, 158, 11, 0.15); border-radius: 14px; padding: 20px; border: 1px solid rgba(245, 158, 11, 0.3);">
+                <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px; color: #fcd34d;">⚖️ 仓位健康度评估</h3>
+                <p style="font-size: 14px; line-height: 1.8; opacity: 0.95; margin: 0 0 16px 0;">
+                    <strong style="color: #fcd34d;">⚠️ 行业集中度偏高</strong>：当前仅覆盖3个行业，电子/半导体材料占比接近一半。建议关注新能源、周期金属、医药消费等板块的配置机会，降低单一行业波动风险。
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; text-align: center;">
+                    <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 12px;">
+                        <div style="font-size: 20px; font-weight: 800;">3</div>
+                        <div style="font-size: 11px; opacity: 0.7;">覆盖行业数</div>
                     </div>
-                    <div class="mt-4 p-3 bg-yellow-500/10 rounded-lg">
-                        <div class="text-sm font-bold text-yellow-400 mb-1">💡 龙虎榜解读</div>
-                        <p class="text-xs text-white/70"></p>
+                    <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 12px;">
+                        <div style="font-size: 20px; font-weight: 800;">45%</div>
+                        <div style="font-size: 11px; opacity: 0.7;">第一大行业占比</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 12px;">
+                        <div style="font-size: 20px; font-weight: 800;">适中</div>
+                        <div style="font-size: 11px; opacity: 0.7;">整体仓位</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 12px;">
+                        <div style="font-size: 20px; font-weight: 800;">25%</div>
+                        <div style="font-size: 11px; opacity: 0.7;">单票最高占比</div>
                     </div>
                 </div>
             </div>
-            
-            </div>
+        </div>
         
+        <div class="card-glass p-6">
+            <h2 class="section-title">
+                <span style="font-size: 24px;">⚡️</span>
+                资金流向监控
+            </h2>
+            
+            <!-- 表头 -->
+            <div style="display: flex; padding: 12px 0; border-bottom: 2px solid rgba(255,255,255,0.2); font-size: 13px; font-weight: 600; opacity: 0.8;">
+                <div style="flex: 2;">标的名称</div>
+                <div style="flex: 1; text-align: center;">今日涨跌</div>
+                <div style="flex: 1; text-align: center;">主力资金</div>
+                <div style="flex: 1; text-align: center;">资金趋势</div>
+                <div style="flex: 1; text-align: right;">北向资金</div>
+            </div>
+            
+            
+            <div class="fund-row">
+                <div style="flex: 2;">
+                    <div style="font-weight: 600;">英维克</div>
+                    <div style="font-size: 12px; opacity: 0.7;">002837</div>
+                </div>
+                <div style="flex: 1; text-align: center; color: #10b981;">
+                    +6.73%
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    +5417万
+                </div>
+                <div style="flex: 1; text-align: center; font-size: 12px;">
+                    <span style="color: #10b981; background: rgba(16, 185, 129, 0.2); padding: 4px 10px; border-radius: 12px;">
+                        净流入
+                    </span>
+                </div>
+                <div style="flex: 1; text-align: right; font-size: 12px; opacity: 0.8;">
+                    --亿
+                </div>
+            </div>
+            
+            <div class="fund-row">
+                <div style="flex: 2;">
+                    <div style="font-weight: 600;">铜冠铜箔</div>
+                    <div style="font-size: 12px; opacity: 0.7;">301217</div>
+                </div>
+                <div style="flex: 1; text-align: center; color: #10b981;">
+                    +20.00%
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    +4129万
+                </div>
+                <div style="flex: 1; text-align: center; font-size: 12px;">
+                    <span style="color: #10b981; background: rgba(16, 185, 129, 0.2); padding: 4px 10px; border-radius: 12px;">
+                        净流入
+                    </span>
+                </div>
+                <div style="flex: 1; text-align: right; font-size: 12px; opacity: 0.8;">
+                    --亿
+                </div>
+            </div>
+            
+            <div class="fund-row">
+                <div style="flex: 2;">
+                    <div style="font-weight: 600;">*ST建艺</div>
+                    <div style="font-size: 12px; opacity: 0.7;">002789</div>
+                </div>
+                <div style="flex: 1; text-align: center; color: #ef4444;">
+                    -3.96%
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    -488万
+                </div>
+                <div style="flex: 1; text-align: center; font-size: 12px;">
+                    <span style="color: #ef4444; background: rgba(239, 68, 68, 0.2); padding: 4px 10px; border-radius: 12px;">
+                        净流出
+                    </span>
+                </div>
+                <div style="flex: 1; text-align: right; font-size: 12px; opacity: 0.8;">
+                    --亿
+                </div>
+            </div>
+            
+            
+            <!-- 资金面总结 -->
+            <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 16px; margin-top: 20px;">
+                <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 10px;">💡资金面总结</h3>
+                <p style="font-size: 13px; line-height: 1.8; opacity: 0.9; margin: 0;">
+                    今日组合整体呈现<strong>分化格局</strong>：电子半导体板块获主力资金持续流入，资金面强劲；英维克遭遇资金净流出，短期承压明显。建议关注资金流向的持续性，优先配置资金持续流入的标的。
+                </p>
+            </div>
         </div>
         
         
         
         <div class="text-center text-white/40 text-sm py-10">
-            <p>MLCC Pro v2.0 · 持仓智能预警仪表盘 Professional</p>
-            <p class="text-xs mt-2">四维诊断 · 压力测试 · 智能调仓建议 · 龙虎榜追踪 · 风险实时监控</p>
-            <p class="text-xs mt-1">数据更新时间：2026年06月15日 21:40</p>
+            <p>持仓智能预警仪表盘 · 专业投资决策辅助</p>
+            
         </div>
         
     </div>
     
-    <script>
-        // 移动端菜单切换
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            if (menu) {
-                menu.classList.toggle('show');
-                document.body.style.overflow = menu.classList.contains('show') ? 'hidden' : '';
-            }
-        }
-        
-        // 导航栏滚动效果
-        window.addEventListener('scroll', function() {
-            const nav = document.querySelector('.glass-nav');
-            if (nav) {
-                if (window.scrollY > 10) {
-                    nav.classList.add('scrolled');
-                } else {
-                    nav.classList.remove('scrolled');
-                }
+    
+<div id="progressBar"></div>
+<div class="action-buttons">
+    <button onclick="window.print()" class="action-btn" title="打印/导出PDF">
+        <span style="font-size:20px">&#x1F4C4;</span>
+    </button>
+    <button onclick="shareReport()" class="action-btn" title="分享报告">
+        <span style="font-size:20px">&#x1F517;</span>
+    </button>
+</div>
+<button id="backToTop" onclick="scrollToTop()" title="回到顶部">
+    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+    </svg>
+</button>
+
+    
+<script>
+// 入场动画 - 滚动时触发
+document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
             }
         });
-    </script>
-    <script src="/daily-news-insight/assets/stock-popup.js"></script>
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+    
+    // 观察所有带fade-in-up类的元素
+    document.querySelectorAll('.fade-in-up').forEach(el => {
+        observer.observe(el);
+    });
+});
+
+// 数字滚动动画
+function animateNumber(element, target, duration = 1500) {
+    const start = 0;
+    const startTime = performance.now();
+    
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // 缓动函数 - easeOutExpo
+        const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+        const current = Math.floor(start + (target - start) * easeProgress);
+        
+        element.textContent = current.toLocaleString();
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    
+    requestAnimationFrame(update);
+}
+
+// 折叠面板切换
+function toggleCollapse(id) {
+    const content = document.getElementById('collapse-' + id);
+    const arrow = document.getElementById('collapse-arrow-' + id);
+    
+    if (content.classList.contains('open')) {
+        content.classList.remove('open');
+        arrow.classList.remove('open');
+    } else {
+        content.classList.add('open');
+        arrow.classList.add('open');
+    }
+}
+</script>
+
+    
+<script>
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    function shareReport() {
+        if (navigator.share) {
+            navigator.share({
+                title: document.title,
+                url: window.location.href
+            });
+        } else {
+            navigator.clipboard.writeText(window.location.href).then(function() {
+                alert('链接已复制到剪贴板');
+            });
+        }
+    }
+    
+    window.addEventListener('scroll', function() {
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const progress = (scrollTop / scrollHeight) * 100;
+        document.getElementById('progressBar').style.width = progress + '%';
+        
+        const backToTop = document.getElementById('backToTop');
+        if (scrollTop > 300) {
+            backToTop.classList.add('show');
+        } else {
+            backToTop.classList.remove('show');
+        }
+    });
+</script>
+
 </body>
 </html>
