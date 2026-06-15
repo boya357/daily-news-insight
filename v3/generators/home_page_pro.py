@@ -152,8 +152,8 @@ class HomePageProGenerator(ProGenerator):
         indices_html = ''
         for idx in self.indices[:4]:
             name = idx.get('name', '')
-            price_val = idx.get('price', 0)
-            change_pct = idx.get('change_pct', 0)
+            price_val = idx.get('current_price', idx.get('price', 0))
+            change_pct = idx.get('change_percent', idx.get('change_pct', 0))
             up = idx.get('up', change_pct >= 0)
             
             # 格式化价格（保留2位小数）
@@ -192,7 +192,7 @@ class HomePageProGenerator(ProGenerator):
             '''
         
         # 市场概况数据
-        turnover = self.market_overview.get('turnover', '--')
+        turnover = self.market_overview.get('total_turnover', self.market_overview.get('turnover', '--'))
         up_count = self.market_overview.get('up_count', '--')
         down_count = self.market_overview.get('down_count', '--')
         limit_up = self.market_overview.get('limit_up_count', self.market_overview.get('limit_up', '--'))
@@ -243,8 +243,8 @@ class HomePageProGenerator(ProGenerator):
         sectors_html = ''
         for sector in self.hot_sectors:
             name = sector.get('name', '')
-            change_pct = sector.get('change_pct', 0)
-            up = sector.get('up', True)
+            change_pct = sector.get('change', sector.get('change_pct', 0))
+            up = sector.get('up', change_pct >= 0 if isinstance(change_pct, (int, float)) else True)
             leader = sector.get('leader', '')
             fund_flow = sector.get('fund_flow', '')
             

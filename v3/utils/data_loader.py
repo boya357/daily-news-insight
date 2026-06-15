@@ -665,7 +665,7 @@ class DataLoader:
     def get_hot_sectors(self, limit: int = None) -> list:
         """获取热门板块"""
         data = self.get_market()
-        sectors = data.get('sectors_hot', [])
+        sectors = data.get('hot_sectors', data.get('sectors_hot', []))
         return sectors[:limit] if limit else sectors
     
     def get_cold_sectors(self, limit: int = None) -> list:
@@ -682,7 +682,7 @@ class DataLoader:
     def get_market_data(self) -> dict:
         """获取市场概览数据"""
         data = self.get_market()
-        return data.get('market_data', {})
+        return data.get('market_summary', data.get('market_data', {}))
     
     # ============ 预警数据 ============
     def get_alerts(self) -> dict:
