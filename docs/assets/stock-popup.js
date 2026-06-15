@@ -1,6 +1,7 @@
 /**
  * 个股分析气泡卡片组件
  * 鼠标hover到.stock-badge元素时显示个股分析数据
+ * 支持自动识别页面中的股票名称
  */
 (function() {
     'use strict';
@@ -12,6 +13,7 @@
     let currentCard = null;
     let hideTimer = null;
     let currentBadge = null;
+    let autoDetectDone = false;
 
     // 气泡卡片DOM
     function createPopupCard() {
@@ -48,6 +50,107 @@
             };
         }
         isLoading = false;
+    }
+
+    // 自动识别页面中的股票名称并添加标记
+    function autoDetectStocks() {
+        if (autoDetectDone) return;
+        if (Object.keys(stockMap).length === 0) return;
+        
+        // 需要扫描的选择器（优先内容区域）
+        const selectors = ['.pro-content', '.report-content', '.card-glass', 'main', 'article', '.container', '.page-content'];
+        let rootElements = [];
+        
+        for (const selector of selectors) {
+            const elements = document.querySelectorAll(selector);
+            if (elements.length > 0) {
+                rootElements = Array.from(elements);
+                break;
+            }
+        }
+        
+        // 如果没找到指定区域，就扫描整个body
+        if (rootElements.length === 0) {
+            rootElements = [document.body];
+        }
+        
+        const stockNames = Object.keys(stockMap);
+        if (stockNames.length === 0) return;
+        
+        // 构建正则表达式，按名称长度排序（长的优先匹配）
+        const sortedNames = stockNames.sort((a, b) => b.length - a.length);
+        const escapedNames = sortedNames.map(name => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        const regex = new RegExp(`(${escapedNames.join('|')})`, 'g');
+        
+        // 遍历文本节点，替换股票名称
+        function walkTextNodes(node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                const text = node.textContent;
+                if (!text || text.trim().length === 0) return;
+                if (!regex.test(text)) return;
+                
+                const parent = node.parentNode;
+                if (!parent) return;
+                // 跳过已经是stock-badge的元素
+                if (parent.classList && parent.classList.contains('stock-badge')) return;
+                // 跳过script、style、code等标签
+                const tag = parent.tagName;
+                if (['SCRIPT', 'STYLE', 'CODE', 'PRE', 'TEXTAREA', 'INPUT', 'BUTTON'].includes(tag)) return;
+                // 跳过已有链接的
+                if (tag === 'A') return;
+                
+                const fragment = document.createDocumentFragment();
+                let lastIndex = 0;
+                let match;
+                regex.lastIndex = 0;
+                
+                while ((match = regex.exec(text)) !== null) {
+                    // 添加匹配前的文本
+                    if (match.index > lastIndex) {
+                        fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+                    }
+                    
+                    // 创建股票标记
+                    const badge = document.createElement('span');
+                    badge.className = 'stock-badge';
+                    badge.dataset.code = stockMap[match[0]];
+                    badge.dataset.name = match[0];
+                    badge.textContent = match[0];
+                    fragment.appendChild(badge);
+                    
+                    lastIndex = match.index + match[0].length;
+                }
+                
+                // 添加剩余文本
+                if (lastIndex < text.length) {
+                    fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+                }
+                
+                parent.replaceChild(fragment, node);
+                return;
+            }
+            
+            // 递归遍历子节点
+            if (node.childNodes && node.childNodes.length > 0) {
+                // 跳过已经处理过的元素
+                if (node.classList && node.classList.contains('stock-badge')) return;
+                
+                // 倒序遍历，避免替换节点导致索引问题
+                for (let i = node.childNodes.length - 1; i >= 0; i--) {
+                    walkTextNodes(node.childNodes[i]);
+                }
+            }
+        }
+        
+        rootElements.forEach(el => {
+            try {
+                walkTextNodes(el);
+            } catch (e) {
+                console.warn('[StockPopup] 自动识别出错', e);
+            }
+        });
+        
+        autoDetectDone = true;
     }
 
     // 加载单只股票分析数据
@@ -90,10 +193,10 @@
             ratingClass = 'sell';
         }
 
-        // 当前价（取最新收盘价或模拟值）
-        const currentPrice = technical.ma?.ma5 || fundamental.current_price || '--';
+        // 当前价
+        const currentPrice = technical.ma?.ma5 || fundamental.current_price || overall.price || '--';
         
-        // 涨跌幅（模拟）
+        // 涨跌幅
         const changePct = overall.change_pct || 0;
         const changeClass = changePct >= 0 ? 'up' : 'down';
         const changeSign = changePct >= 0 ? '+' : '';
@@ -125,10 +228,10 @@
         // 指标数据
         const ma = technical.ma || {};
         const metrics = [
-            { label: 'MA5', value: ma.ma5 ? ma.ma5.toFixed(2) : '--' },
-            { label: 'MA20', value: ma.ma20 ? ma.ma20.toFixed(2) : '--' },
-            { label: 'MA60', value: ma.ma60 ? ma.ma60.toFixed(2) : '--' },
-            { label: 'RSI', value: technical.rsi?.rsi ? technical.rsi.rsi.toFixed(1) : '--' },
+            { label: 'MA5', value: ma.ma5 ? (typeof ma.ma5 === 'number' ? ma.ma5.toFixed(2) : ma.ma5) : '--' },
+            { label: 'MA20', value: ma.ma20 ? (typeof ma.ma20 === 'number' ? ma.ma20.toFixed(2) : ma.ma20) : '--' },
+            { label: 'MA60', value: ma.ma60 ? (typeof ma.ma60 === 'number' ? ma.ma60.toFixed(2) : ma.ma60) : '--' },
+            { label: 'RSI', value: technical.rsi?.rsi ? (typeof technical.rsi.rsi === 'number' ? technical.rsi.rsi.toFixed(1) : technical.rsi.rsi) : '--' },
         ];
 
         let metricsHtml = '';
@@ -320,8 +423,13 @@
             }
         }, { passive: true });
 
-        // 预加载股票列表
-        loadStockList();
+        // 加载股票列表后自动识别
+        loadStockList().then(() => {
+            // 延迟一下，等页面渲染完成
+            setTimeout(() => {
+                autoDetectStocks();
+            }, 500);
+        });
     }
 
     // 页面加载完成后初始化
@@ -335,6 +443,14 @@
     window.StockPopup = {
         show: showPopup,
         hide: hidePopup,
-        refresh: loadStockList
+        refresh: function() {
+            autoDetectDone = false;
+            loadStockList().then(() => autoDetectStocks());
+        },
+        addStock: function(name, code) {
+            stockMap[name] = code;
+            autoDetectDone = false;
+            autoDetectStocks();
+        }
     };
 })();
