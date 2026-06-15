@@ -1702,6 +1702,7 @@ class ProPage:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{self.title} - 投资研究中心</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
     {theme_css}
     <style>
         .line-clamp-2 {{
@@ -1723,6 +1724,7 @@ class ProPage:
     
     {floating}
     {toc_html}
+    <script src="/daily-news-insight/assets/stock-popup.js"></script>
     {script}
 </body>
 </html>

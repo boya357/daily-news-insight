@@ -153,7 +153,7 @@ class PortfolioDashboardProV2Generator:
                     </div>
                     <div>
                         <div class="flex items-center gap-3">
-                            <h2 class="text-2xl font-black text-white">{name}</h2>
+                            <h2 class="text-2xl font-black text-white"><span class="stock-badge" data-code="{code}" data-name="{name}">{name}</span></h2>
                             <span class="text-white/60">{code}</span>
                             <span class="{tag_color} text-white text-xs px-3 py-1 rounded-full font-bold">{tag}</span>
                         </div>
@@ -482,6 +482,7 @@ class PortfolioDashboardProV2Generator:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>持仓智能预警仪表盘 - Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
     {theme_css}
 </head>
 <body>
@@ -523,6 +524,7 @@ class PortfolioDashboardProV2Generator:
             }}
         }});
     </script>
+    <script src="/daily-news-insight/assets/stock-popup.js"></script>
 </body>
 </html>
 '''
