@@ -1715,7 +1715,7 @@ class ProPage:
 <body>
     {nav}
     
-    <div class="pro-container pt-20">
+    <div class="pro-container pt-20 {"has-toc" if self.show_toc and self.toc_position == "right" else ""}">
         {content}
         
         {footer}

@@ -80,7 +80,7 @@ CHANNEL_CONFIGS = {
     },
     '题材健康度报告': {
         'title': '题材健康度', 'nav_text': '题材健康度',
-        'patterns': [r'^\d{8}_.*题材.*\.html$'],
+        'patterns': [r'^\d{8}_.*题材.*\.html$', r'^health_report_\d{8}\.html$'],
         'icon': '💚', 'tag': '题材分析',
         'description': '市场题材热度与健康度分析',
     },
