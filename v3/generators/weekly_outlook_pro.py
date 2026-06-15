@@ -172,5 +172,5 @@ if __name__ == "__main__":
     gen.add_second_half_strategy("下半周建议谨慎为主，控制仓位在5成左右。重点关注AI算力和新能源方向的结构性机会，避免追高。")
     gen.add_risk_warning(["外围市场波动风险", "国内经济数据不及预期", "题材轮动加快"])
     
-    result = gen.save('../../docs/weekly_outlook/latest.html')
+    result = gen.save(f'../../docs/weekly_outlook/{datetime.now().strftime("%Y%m%d")}_周三前瞻.html')
     print(f"生成成功：{result}")
