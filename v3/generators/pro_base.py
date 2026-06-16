@@ -9,7 +9,7 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from components.pro import ProPage
+from components.pro import ProPage, TabPane, CardGroup, DataGrid
 from utils.data_loader import DataLoader, get_data_loader
 
 
@@ -150,6 +150,46 @@ class ProGenerator(ProPage):
         """刷新数据缓存"""
         self.data_loader.refresh()
         self._data_loaded = False
+    
+    # ==================== 通用组件便捷方法 ====================
+    
+    def create_tab_pane(self, tabs: list, tab_id: str = "tab", style: str = "default") -> str:
+        """创建Tab切换组件HTML（可嵌入任意内容中）
+        
+        Args:
+            tabs: Tab列表，每项含 label(标签) 和 content(内容HTML)
+            tab_id: Tab组件唯一ID
+            style: Tab样式: default / underline
+        
+        Returns:
+            Tab组件的HTML字符串
+        """
+        return TabPane(tabs=tabs, tab_id=tab_id, style=style).render()
+    
+    def create_card_group(self, cards: list, cols: int = 2, card_style: str = "glass") -> str:
+        """创建卡片组HTML（卡片套卡片布局，可嵌入任意内容中）
+        
+        Args:
+            cards: 卡片列表，每项含 title(可选)、content(内容HTML)、icon(可选)
+            cols: 列数: 1, 2, 3, 4
+            card_style: 卡片样式: glass / subtle
+        
+        Returns:
+            卡片组的HTML字符串
+        """
+        return CardGroup(cards=cards, cols=cols, card_style=card_style).render()
+    
+    def create_data_grid(self, items: list, cols: int = 2) -> str:
+        """创建数据网格HTML（多图表/数据卡片布局，可嵌入任意内容中）
+        
+        Args:
+            items: 数据项列表，每项含 title(可选)、value(数值/文本)、unit(单位可选)、icon(可选)
+            cols: 列数: 1, 2, 3, 4, 6
+        
+        Returns:
+            数据网格的HTML字符串
+        """
+        return DataGrid(items=items, cols=cols).render()
 
 
 # 便捷函数

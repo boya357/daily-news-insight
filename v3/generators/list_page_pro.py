@@ -128,10 +128,16 @@ class ListPageProGenerator(ProGenerator):
             return []
         
         all_files = []
+        seen_files = set()  # 去重集合
         for pattern in self.config['patterns']:
             regex = re.compile(pattern)
             for f in dir_path.iterdir():
                 if f.is_file() and regex.match(f.name) and f.name != 'latest.html':
+                    # 去重：同一个文件只添加一次
+                    if f.name in seen_files:
+                        continue
+                    seen_files.add(f.name)
+                    
                     # 尝试从文件名提取日期
                     date_match = re.search(r'(\d{8})', f.name)
                     date_str = date_match.group(1) if date_match else ''

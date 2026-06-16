@@ -1,102 +1,111 @@
 # 工具使用指南（精简版）
 
-## 核心脚本
-- **simple_push.py**：企业微信推送
-- **update_all_lists.py**：修复技能生成的跳转latest.html为列表页
-- **report_converter/generate_report.py**：专业报告生成系统，统一入口
-
-## 🎯 专业报告生成系统V1.0（2026-05-31）
-- **位置**：`docs/report_converter/`，入口：`scripts/converter.py`
-- **价值**：解决latest.html覆盖问题，统一报告风格，支持12种类型
-- **详情**：见 `recent_memory/project/20260531_专业报告生成系统V1.0发布.md`
-
 ## ⚠️ 数据验证铁律
 **任何数据必须反复验证后才能写入报告，绝对不能凭记忆或未经核实直接引用！**
 
-## 🏗️ 系统架构规范
+## 📋 核心检查清单（每日工作必看）
+1. **价格数据**：必须查当日收盘价，禁止使用历史数据
+2. **目录检查**：先`ls docs/`确认，禁止创建"催化日历"目录
+3. **列表页保护**：`latest.html`>3KB，**绝对禁止覆盖整个文件**
+4. **列表页更新**：读取→插入新卡片→原"最新"改普通标签
+5. **导航栏**：玻璃态+11按钮+统一"周三前瞻"
+6. **提交前**：必须运行`./validate_system.sh`
+7. **持仓限制**：仅3个（英维克、铜冠铜箔、*ST建艺）
+8. **文件修改**：仅改目标部分，严禁全文件替换
+9. **白卡白字**：检查所有style标签，注意后面覆盖前面
+10. **指数数据**：必须区分指数/股票类型，000001既是上证指数也是平安银行
+
+> **详细规范**：详见 `recent_memory/decision/` 目录下的完整文档
+
+---
+
+## 🏗️ 系统架构速查
 
 ### 工作目录
 - **Git仓库**：`/root/daily-news-insight/`
 - **工作目录**：`/app/data/所有对话/主对话/docs/`
 
-### 两大模块分类
-| 类型 | 命名 | 数量 |
-|-----|------|------|
-| 报告类 | `latest.html` | 11个（daily、weekly_review、weekly_outlook等） |
-| 工具类 | `index.html` | 5个（持仓仪表盘、智能预警等） |
+### 目录规范
+- 周三前瞻→`weekly_outlook/`，周复盘→`weekly_review/`
+- "催化日历"已永久删除：S级催化→`s级催化扫描/`，明日催化→`明日催化剂/`
+- 报告类→`latest.html`，工具类→`index.html`
 
-### ⚠️ 关键目录规则
-- 周三前瞻→`weekly_outlook/`，周复盘→`weekly_review/`，物理隔离
-- **"催化日历"已永久删除**：S级催化→`s级催化扫描/`，明日催化→`明日催化剂/`
-- **V3.5 Pro架构**：新页面用ProGenerator基类生成，统一深色玻璃态风格
+### 核心脚本
+- **simple_push.py**：企业微信推送
+- **update_all_lists.py**：列表页更新
+- **report_converter/generate_report.py**：专业报告生成系统
+- **scripts/daily_update.py**：每日数据自动更新（15:30+17:00两次）
+- **v3/generators/pro_base.py**：Pro生成器基类
 
-## 🚨 核心工作流程与防错原则
+### V3.5 Pro架构
+- 基类统一提供：导航栏、悬浮按钮、TOC、深色玻璃态
+- 已Pro化：13个工具页面 + 7个报告（全部集成daily_update.py）
+- 整体进度：约95%，全流程验证通过
+- 特殊生成器：PortfolioDashboardProGenerator（独立实现）、TimeMachinePage（继承ProPage）
 
-### 修改前强制检查
-1. **列目录**：`ls docs/`确认目标目录存在（共16个目录）
-2. **模块判断**：报告类→latest.html，工具类→index.html，禁止跨模块
-3. **文件验证**：`ls docs/目标目录/`确认文件真实存在
+---
 
-### 三大防错原则（绝对不能违反）
-1. 不存在的目录绝对不能写
-2. 绝对不能跨模块乱放报告
-3. 文件名必须匹配模块类型
+## 🚨 三大绝对禁令
+1. **禁止覆盖**：`latest.html`、首页`index.html` 禁止全量覆盖
+2. **禁止自制模板**：必须用Pro生成器或复制标准模板
+3. **禁止假数据**：价格数据必须查当日真实数据
 
-### Git同步流程
-- 工作目录：`/root/daily-news-insight/`
-- Git配置：token已永久保存到`~/.git-credentials`，无需手动输入
-- 安全检查：pwd确认 → ls验证 → 确认latest.html>3KB → 只add目标目录
+---
 
-### 🔴 技能缺陷与修复
-- **问题**：skill_daily-news-report的.so模块会写跳转latest.html
-- **强制修复**：改用`report_converter/generate_report.py`
-- **补充修复**：用`update_all_lists.py`恢复列表页
+## 🐛 常见问题速查
 
-## 📋 核心检查清单
-- 价格数据：必须查当日收盘价
-- 目录检查：先`ls docs/`确认，禁止创建"催化日历"目录
-- 列表页保护：`latest.html`>3KB，**绝对禁止覆盖整个文件**
-- 列表页更新：读取→插入新卡片→原"最新"改普通标签
-- 导航栏：玻璃态+11按钮+统一"周三前瞻"
-- 提交前：必须运行`./validate_system.sh`
-- 持仓限制：仅3个（英维克、铜冠铜箔、*ST建艺）
-- 文件修改：仅改目标部分，严禁全文件替换
-- 白卡白字排查：检查所有style标签，注意后面覆盖前面
+### 白卡白字
+- 原因：底部`.card-glass`白色背景覆盖头部深色样式
+- 解决：用Pro生成器统一生成，或检查style标签CSS优先级
 
-> **完整规范**：详见 `recent_memory/decision/` 文档
+### 列表页覆盖
+- 铁律：报告输出`YYYYMMDD_报告名.html`，列表页由独立脚本维护，**禁止直接写latest.html**
+- 视觉区分：列表页需与报告页有明显视觉差异，避免用户混淆
+  - 列表页title加「· 报告列表」后缀
+  - 列表页顶部加「📂 报告归档」标识
+  - 列表页显示报告总数+「按时间倒序」说明
+- list_page_pro.py的ListPageProGenerator继承自ProGenerator基类
 
-## 🎨 图片处理要点
-- 下载→分析→生成→上传→发送，prompt必须精确描述修改区域
+### 指数数据错误
+- 原因：指数/股票代码重叠（如000001）
+- 解决：`_detect_prefix`必须传`type_`参数区分类型
 
-## 📱 移动端适配经验（2026-06-04）
-- **原则**：渐进增强，电脑端100%不变，媒体查询仅小屏生效
-- **大括号陷阱**：CSS/JS中`{`须转义为`{{`，批量替换极易出错
-- **汉堡菜单**：<768px显示汉堡，>768px显示11按钮，电脑4→平板3→手机2列
+### 百分比转float错误
+- 解决：`float(pct_str.replace('%', ''))`
+- 相关：持仓仪表盘压力测试
 
-## 🏗️ V3.5 Pro生成器架构（2026-06-15）
-- **基类**：`v3/generators/pro_base.py` - 统一导航栏、悬浮按钮、TOC、深色玻璃态
-- **报告基类**：`v3/generators/report_pro_base.py`
-- **配置文件**：`config/nav_config.json`、`home_config.json`、`schedule.json`
-- **已Pro化**：13个工具页面 + 2个报告（周三前瞻、日报）
-- **待迁移**：盘中快报、盘后速递、周复盘、周末速递、明日催化、S级催化（6个）
-- **系统工具箱**：`update_system_toolkits.py` 统一更新所有Pro页面
+### publish返回格式
+- 标准：`{success: bool, file_size: int, error: str, output_path: str}`
+- 注意：PortfolioDashboardProGenerator曾返回字符串，需判断类型
 
-## 🎨 白卡白字问题排查指南（2026-06-14）
-- **现象**：白色卡片背景 + 白色文字 = 完全看不见，用户反馈"刷新还是白卡白字"
-- **排查步骤**：1. grep所有`&lt;style&gt;`标签 2. 检查每个`.card-glass`的background 3. 注意后面的style会覆盖前面的
-- **根本原因**：页面底部独立style标签中的白色背景`.card-glass`覆盖了头部的深色样式
-- **最佳方案**：改用Pro生成器统一生成，从根源避免CSS冲突
-- **临时修复**：在所有style标签最后加上深色背景样式，或直接删除白色背景定义
-## 🐉 龙虎榜Pro生成器（2026-06-15）
-- **定位**：全市场龙虎榜扫描+题材挖掘+龙头识别
-- **文件**：`v3/generators/longhubang_pro.py`
-- **数据**：`data/longhubang_market.json`（目前为模拟数据）
-- **7大模块**：今日总览、热门板块挖掘、龙头股识别、机构动向、游资追踪、题材预判、持仓股龙虎榜
-- **导航栏策略**：导航栏不放置按钮，入口在系统工具箱中
+### Pro报告必须先build再render
+- 原因：子类内容由build方法填充，直接render是空页面
+- 顺序：实例化 → `build_standard_report()` → `render()`/`publish()`
 
-## ⚠️ 列表页覆盖问题教训（2026-06-15）
-- **问题**：Pro生成器测试代码直接将单篇报告保存为`latest.html`，覆盖了列表页
-- **根本原因**：报告类文件与列表页职责混淆
-- **铁律**：报告生成器**绝对不能**直接写入`latest.html`
-- **规范**：报告必须输出为`YYYYMMDD_报告名.html`，列表页由独立脚本/生成器维护
-- **验证**：生成后必须检查`latest.html`文件大小，列表页应>3KB且包含多个报告卡片
+### Pro生成器self.data_dir缺失
+- 问题：`_load_data()`依赖`self.data_dir`，但基类不保存该属性
+- 表现：topics为空，核心题材等模块不显示
+- 修复：子类`__init__`中`super()`前加 `self.data_dir = data_dir`
+- 影响：daily_pro.py、aftermarket_pro.py等自定义load_data的生成器
+
+### Tab切换组件
+- 旧版：重要新闻汇总8个分类tab（政策、宏观、市场、行业、公司、科技、金融、周期）
+- Pro版：核心题材按级别分3个tab（S/A/B级题材）、重要新闻汇总8个分类tab（2026-06-16补回）
+- 注意：用户说的"tap按钮"即tab标签切换按钮，用户发音/输入习惯问题
+- 实现方式：news-tabs-container + news-tab-btn + news-tab-panel 类名 + switchNewsTab JS函数
+- 位置：daily_pro.py 的 add_important_news() 方法
+
+### 生成器体系不统一
+- 例外：PortfolioDashboardProGenerator独立实现，TimeMachinePage继承ProPage
+- 注意：批量处理时需特殊处理，不假设所有生成器方法签名一致
+
+### Git合并冲突
+- 禁止`git merge -X theirs`，会残留冲突标记
+- 优先手动解决，或`git reset --hard origin/main`回退
+
+---
+
+## 📊 数据层要点
+- 双数据源同步：`data/`（本地）↔ `docs/data/`（部署）
+- 字段兼容：price/current_price、change_pct/today_change、sectors_hot/hot_sectors
+- 校验规则：上证指数3000-5000点区间，异常值需二次验证
