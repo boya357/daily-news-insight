@@ -882,6 +882,96 @@ def get_pro_theme_css() -> str:
                     max-width: 48rem;
                 }
             }
+            
+            /* Tab切换组件样式 */
+            .tab-container {
+                margin-bottom: 1rem;
+            }
+            
+            .tab-buttons {
+                display: flex;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                padding-bottom: 0.5rem;
+            }
+            
+            .tab-btn {
+                padding: 0.5rem 1rem;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 8px;
+                color: rgba(255,255,255,0.6);
+                cursor: pointer;
+                font-size: 0.875rem;
+                transition: all 0.3s ease;
+            }
+            
+            .tab-btn:hover {
+                background: rgba(255,255,255,0.1);
+                color: rgba(255,255,255,0.9);
+            }
+            
+            .tab-btn-active {
+                background: rgba(139, 92, 246, 0.3);
+                border-color: rgba(139, 92, 246, 0.5);
+                color: white;
+                font-weight: 500;
+            }
+            
+            .tab-panel {
+                display: none;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            .tab-panel-active {
+                display: block;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            /* Underline风格Tab */
+            .tab-style-underline .tab-buttons {
+                border-bottom: none;
+                padding-bottom: 0;
+                gap: 1.5rem;
+            }
+            
+            .tab-style-underline .tab-btn {
+                background: transparent;
+                border: none;
+                border-bottom: 2px solid transparent;
+                border-radius: 0;
+                padding: 0.5rem 0;
+            }
+            
+            .tab-style-underline .tab-btn:hover {
+                background: transparent;
+                color: rgba(255,255,255,0.9);
+            }
+            
+            .tab-style-underline .tab-btn-active {
+                border-bottom-color: #8b5cf6;
+                color: white;
+                background: transparent;
+            }
+            
+            /* 次级卡片样式 */
+            .card-subtle {
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 12px;
+                padding: 1rem;
+                transition: all 0.3s ease;
+            }
+            
+            .card-subtle:hover {
+                background: rgba(255,255,255,0.08);
+                border-color: rgba(255,255,255,0.2);
+            }
 </style>
     '''
 
@@ -1644,6 +1734,193 @@ class PageScript(Component):
             setTimeout(initAllAnimations, 100);
         }
     </script>
+        '''
+
+
+class TabPane(Component):
+    """Tab切换组件 - Pro版深色玻璃态风格"""
+    
+    def __init__(self, tabs: list, tab_id: str = "tab", style: str = "default"):
+        """
+        Args:
+            tabs: Tab列表，每项含 label(标签) 和 content(内容HTML)
+            tab_id: Tab组件唯一ID
+            style: Tab样式: default / underline
+        """
+        super().__init__()
+        self.tabs = tabs
+        self.tab_id = tab_id
+        self.style = style
+    
+    def render(self) -> str:
+        tabs_html = ''
+        panels_html = ''
+        
+        for i, tab in enumerate(self.tabs):
+            label = tab.get('label', f'Tab {i+1}')
+            content = tab.get('content', '')
+            active_class = 'tab-btn-active' if i == 0 else ''
+            active_panel_class = 'tab-panel-active' if i == 0 else ''
+            
+            tabs_html += f'''
+                <button class="tab-btn {active_class}" 
+                        onclick="switchTab('{self.tab_id}', {i})"
+                        data-tab-index="{i}">
+                    {label}
+                </button>
+            '''
+            
+            panels_html += f'''
+                <div class="tab-panel {active_panel_class}" 
+                     id="{self.tab_id}-panel-{i}"
+                     data-tab-index="{i}">
+                    {content}
+                </div>
+            '''
+        
+        style_class = f'tab-style-{self.style}'
+        
+        return f'''
+        <div class="tab-container {style_class}" id="{self.tab_id}-container">
+            <div class="tab-buttons">
+                {tabs_html}
+            </div>
+            <div class="tab-content">
+                {panels_html}
+            </div>
+        </div>
+        <script>
+        function switchTab(tabId, index) {{
+            const container = document.getElementById(tabId + '-container');
+            if (!container) return;
+            
+            // 更新按钮状态
+            container.querySelectorAll('.tab-btn').forEach((btn, i) => {{
+                if (i === index) {{
+                    btn.classList.add('tab-btn-active');
+                }} else {{
+                    btn.classList.remove('tab-btn-active');
+                }}
+            }});
+            
+            // 更新面板显示
+            container.querySelectorAll('.tab-panel').forEach((panel, i) => {{
+                if (i === index) {{
+                    panel.classList.add('tab-panel-active');
+                }} else {{
+                    panel.classList.remove('tab-panel-active');
+                }}
+            }});
+        }}
+        </script>
+        '''
+
+
+class CardGroup(Component):
+    """卡片组组件 - 卡片套卡片布局，Pro版深色玻璃态风格"""
+    
+    def __init__(self, cards: list, cols: int = 2, card_style: str = "glass"):
+        """
+        Args:
+            cards: 卡片列表，每项含 title(可选)、content(内容HTML)、icon(可选)
+            cols: 列数: 1, 2, 3, 4
+            card_style: 卡片样式: glass / subtle
+        """
+        super().__init__()
+        self.cards = cards
+        self.cols = cols
+        self.card_style = card_style
+    
+    def render(self) -> str:
+        col_class = {
+            1: 'grid-cols-1',
+            2: 'grid-cols-1 md:grid-cols-2',
+            3: 'grid-cols-1 md:grid-cols-3',
+            4: 'grid-cols-2 md:grid-cols-4',
+        }.get(self.cols, 'grid-cols-2')
+        
+        style_class = f'card-{self.card_style}'
+        
+        cards_html = ''
+        for card in self.cards:
+            if isinstance(card, dict):
+                title = card.get('title', '')
+                content = card.get('content', '')
+                icon = card.get('icon', '')
+                
+                title_html = f'<div class="text-sm font-medium text-white/90 mb-2 flex items-center gap-2">{icon} {title}</div>' if title else ''
+                body_html = f'<div class="text-sm text-white/70 leading-relaxed">{content}</div>'
+                
+                card_content = f'''
+                    <div class="{style_class} rounded-xl p-4 h-full">
+                        {title_html}
+                        {body_html}
+                    </div>
+                '''
+                cards_html += card_content
+            else:
+                cards_html += str(card)
+        
+        return f'''
+        <div class="grid {col_class} gap-4">
+            {cards_html}
+        </div>
+        '''
+
+
+class DataGrid(Component):
+    """数据网格组件 - 多数据卡片网格布局，Pro版深色玻璃态风格"""
+    
+    def __init__(self, items: list, cols: int = 2):
+        """
+        Args:
+            items: 数据项列表，每项为字典（含title、value、icon、unit等）或HTML字符串
+            cols: 列数: 1, 2, 3, 4, 6
+        """
+        super().__init__()
+        self.items = items
+        self.cols = cols
+    
+    def render(self) -> str:
+        col_class = {
+            1: 'grid-cols-1',
+            2: 'grid-cols-1 md:grid-cols-2',
+            3: 'grid-cols-1 md:grid-cols-3',
+            4: 'grid-cols-2 md:grid-cols-4',
+            6: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6',
+        }.get(self.cols, 'grid-cols-2')
+        
+        items_html = ''
+        for item in self.items:
+            if isinstance(item, dict):
+                title = item.get('title', '')
+                value = item.get('value', '')
+                icon = item.get('icon', '')
+                unit = item.get('unit', '')
+                desc = item.get('desc', '')
+                
+                icon_html = f'<span class="text-2xl mb-2">{icon}</span>' if icon else ''
+                title_html = f'<div class="text-xs text-white/50 mb-1">{title}</div>' if title else ''
+                value_html = f'<div class="text-xl font-bold text-white">{value}{unit}</div>' if value else ''
+                desc_html = f'<div class="text-xs text-white/40 mt-1">{desc}</div>' if desc else ''
+                
+                card_content = f'''
+                    <div class="flex flex-col items-center text-center">
+                        {icon_html}
+                        {title_html}
+                        {value_html}
+                        {desc_html}
+                    </div>
+                '''
+                items_html += f'<div class="card-glass p-4">{card_content}</div>'
+            else:
+                # 字符串或HTML直接使用
+                items_html += f'<div class="card-glass p-4">{item}</div>'
+        
+        return f'''
+        <div class="grid {col_class} gap-4">
+            {items_html}
+        </div>
         '''
 
 
