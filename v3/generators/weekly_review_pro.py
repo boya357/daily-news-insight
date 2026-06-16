@@ -10,7 +10,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from generators.report_pro_base import ReportProGenerator
-from utils.data_loader import get_indices_for_daily
+from utils.data_loader import get_indices_for_daily, load_portfolio, get_hot_sectors
 
 
 class WeeklyReviewProGenerator(ReportProGenerator):
@@ -226,6 +226,89 @@ class WeeklyReviewProGenerator(ReportProGenerator):
         
         self.add_section("风险提示", content, "⚠️")
     
+
+    def add_holdings_review(self):
+        """添加持仓复盘 - Pro版"""
+        portfolio = self.portfolio
+        stocks = portfolio.get('stocks', [])
+        
+        if not stocks:
+            content_html = '<div class="text-center py-8 text-white/40"><p>暂无持仓数据</p></div>'
+            self.add_section("持仓复盘", content_html, "💼")
+            return
+        
+        # 计算周收益
+        total_pnl = 0
+        winners = 0
+        losers = 0
+        
+        stocks_html = ''
+        for stock in stocks[:6]:
+            name = stock.get('name', '')
+            code = stock.get('code', '')
+            pnl_pct = stock.get('weekly_pnl', stock.get('profit_pct', '0%'))
+            
+            try:
+                pnl_val = float(str(pnl_pct).replace('%', '').replace('+', ''))
+            except:
+                pnl_val = 0
+            
+            if pnl_val > 0:
+                pnl_color = 'text-red-400'
+                pnl_bg = 'bg-red-500/10'
+                pnl_sign = '+'
+                winners += 1
+            elif pnl_val < 0:
+                pnl_color = 'text-green-400'
+                pnl_bg = 'bg-green-500/10'
+                pnl_sign = ''
+                losers += 1
+            else:
+                pnl_color = 'text-white/60'
+                pnl_bg = 'bg-white/5'
+                pnl_sign = ''
+            
+            card = '<div class="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all">'
+            card += '<div class="flex items-center justify-between mb-2">'
+            card += '<span class="text-white font-medium">' + name + '</span>'
+            card += '<span class="' + pnl_color + ' font-bold">' + pnl_sign + str(pnl_pct) + '</span>'
+            card += '</div>'
+            card += '<div class="text-white/40 text-xs">' + code + '</div>'
+            card += '</div>'
+            stocks_html += card
+        
+        # 汇总
+        summary_html = '<div class="grid grid-cols-3 gap-3 mb-4">'
+        summary_html += '<div class="bg-white/5 rounded-lg p-3 text-center"><div class="text-lg font-bold text-white">' + str(len(stocks)) + '</div><div class="text-xs text-white/40">持仓总数</div></div>'
+        summary_html += '<div class="bg-red-500/10 rounded-lg p-3 text-center"><div class="text-lg font-bold text-red-400">' + str(winners) + '</div><div class="text-xs text-white/40">上涨</div></div>'
+        summary_html += '<div class="bg-green-500/10 rounded-lg p-3 text-center"><div class="text-lg font-bold text-green-400">' + str(losers) + '</div><div class="text-xs text-white/40">下跌</div></div>'
+        summary_html += '</div>'
+        
+        content_html = summary_html + '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">' + stocks_html + '</div>'
+        
+        self.add_section("持仓复盘", content_html, "💼")
+    
+    def add_trading_plan(self):
+        """添加下周交易计划 - Pro版"""
+        plans = [
+            {'title': '仓位管理', 'content': '保持中性仓位，根据市场情绪动态调整，建议仓位控制在50%-70%'},
+            {'title': '板块配置', 'content': '关注科技成长方向，均衡配置消费和周期，避免单一赛道过度集中'},
+            {'title': '风险控制', 'content': '严格执行止损纪律，单只个股止损线不超过8%，组合最大回撤控制在5%以内'},
+        ]
+        
+        plans_html = ''
+        for plan in plans:
+            card = '<div class="bg-white/5 rounded-lg p-4 border border-white/10">'
+            card += '<div class="text-white font-semibold mb-2 flex items-center gap-2"><span>📌</span>' + plan['title'] + '</div>'
+            card += '<p class="text-white/60 text-sm leading-relaxed">' + plan['content'] + '</p>'
+            card += '</div>'
+            plans_html += card
+        
+        content_html = '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">' + plans_html + '</div>'
+        
+        self.add_section("下周交易计划", content_html, "📋")
+
+
     def build_standard_report(self):
         """构建标准版本的周复盘"""
         self.add_week_summary()

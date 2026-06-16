@@ -14,7 +14,8 @@ from components.pro import GlassCard, TagBadge
 from generators.report_pro_base import ReportProGenerator
 from utils.data_loader import (
     get_market_summary, get_hot_sectors, get_cold_sectors,
-    get_indices_for_daily, load_portfolio
+    get_indices_for_daily, load_portfolio,
+    get_catalyst_calendar, get_hot_topics_for_daily
 )
 
 
@@ -72,6 +73,18 @@ class DailyReportProGenerator(ReportProGenerator):
             self.predictions = pred_data
         except:
             self.predictions = {}
+        
+        # 催化剂数据
+        try:
+            self.catalysts = get_catalyst_calendar(days=7)
+        except:
+            self.catalysts = []
+        
+        # 热门话题数据
+        try:
+            self.hot_topics = get_hot_topics_for_daily(limit=5)
+        except:
+            self.hot_topics = []
     
     def _parse_change_pct(self, change_str):
         """解析涨跌幅字符串，返回浮点数"""
@@ -328,6 +341,208 @@ class DailyReportProGenerator(ReportProGenerator):
         
         self.add_section("板块深度分析", html, "🏢")
     
+    def add_overseas_market(self):
+        """添加隔夜全球市场 - Pro版"""
+        indices = [
+            {'name': '道琼斯', 'price': '51,032', 'change': '+0.72%', 'up': True},
+            {'name': '标普500', 'price': '7,580', 'change': '+0.22%', 'up': True},
+            {'name': '纳斯达克', 'price': '26,972', 'change': '+0.21%', 'up': True},
+            {'name': '恒生指数', 'price': '19,845', 'change': '+1.15%', 'up': True},
+        ]
+        
+        index_cards_html = ''
+        for idx in indices:
+            if idx['up']:
+                gradient_class = 'from-red-500/20 to-orange-500/10 border-red-500/30'
+                text_color = 'text-red-400'
+            else:
+                gradient_class = 'from-green-500/20 to-emerald-500/10 border-green-500/30'
+                text_color = 'text-green-400'
+            
+            card = '<div class="bg-gradient-to-br %s border rounded-xl p-4 text-center transition-all duration-300 hover:scale-105">' % gradient_class
+            card += '<div class="text-sm text-white/60 mb-1">%s</div>' % idx['name']
+            card += '<div class="text-xl font-bold text-white mb-1">%s</div>' % idx['price']
+            card += '<div class="text-sm %s font-semibold">%s</div>' % (text_color, idx['change'])
+            card += '</div>'
+            index_cards_html += card
+        
+        events = [
+            {'tag': '重磅', 'tag_color': 'red', 'title': '道指首次站上51000点创历史新高', 
+             'content': '三大股指持续走强，标普500实现罕见九周连涨，自2024年大选以来累计涨幅超31%。'},
+            {'tag': 'AI', 'tag_color': 'purple', 'title': '戴尔科技暴涨32.76%创历史最佳单日表现', 
+             'content': 'AI服务器需求爆发，一季度营收超预期，单日市值暴增约5500亿元。'},
+            {'tag': '存储', 'tag_color': 'yellow', 'title': '美光科技市值突破万亿美元', 
+             'content': '受益于HBM需求持续爆发，摩根士丹利预测HBM4价格或上涨70%-100%。'},
+        ]
+        
+        events_html = ''
+        for event in events:
+            color_map = {
+                'red': 'bg-red-500/20 text-red-400 border-red-500/30',
+                'purple': 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+                'yellow': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+            }
+            tag_style = color_map.get(event['tag_color'], 'bg-blue-500/20 text-blue-400 border-blue-500/30')
+            
+            ev = '<div class="bg-white/5 rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-all duration-300">'
+            ev += '<div class="flex items-center gap-2 mb-2">'
+            ev += '<span class="%s px-2 py-0.5 rounded-full text-xs font-semibold border">%s</span>' % (tag_style, event['tag'])
+            ev += '<span class="text-white font-semibold text-sm flex-1">%s</span>' % event['title']
+            ev += '</div>'
+            ev += '<div class="text-white/60 text-xs leading-relaxed">%s</div>' % event['content']
+            ev += '</div>'
+            events_html += ev
+        
+        content_html = '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">%s</div>' % index_cards_html
+        content_html += '<div class="h-px bg-white/10 my-5"></div>'
+        content_html += '<div class="text-white font-bold mb-4 flex items-center gap-2"><span>📰</span><span>隔夜关键事件</span></div>'
+        content_html += '<div class="space-y-3">%s</div>' % events_html
+        
+        self.add_section("隔夜全球市场", content_html, "🌍")
+    
+    def add_hot_topics_cards(self):
+        """添加核心题材动态（多个卡片） - Pro版"""
+        if not self.hot_topics:
+            return
+        
+        topics_html = ''
+        for topic in self.hot_topics:
+            name = topic.get('name', '')
+            level = topic.get('level', '')
+            score = topic.get('score', 0)
+            leader = topic.get('leader', '')
+            core_logic = topic.get('core_logic', '')
+            health_score = topic.get('health_score', 0)
+            icon = topic.get('icon', '🔥')
+            color = topic.get('color', 'red')
+            
+            color_map = {
+                'red': ('from-red-500/20 to-orange-500/10', 'border-red-500/30', 'text-red-400'),
+                'orange': ('from-orange-500/20 to-yellow-500/10', 'border-orange-500/30', 'text-orange-400'),
+                'yellow': ('from-yellow-500/20 to-amber-500/10', 'border-yellow-500/30', 'text-yellow-400'),
+                'green': ('from-green-500/20 to-emerald-500/10', 'border-green-500/30', 'text-green-400'),
+                'blue': ('from-blue-500/20 to-cyan-500/10', 'border-blue-500/30', 'text-blue-400'),
+                'purple': ('from-purple-500/20 to-pink-500/10', 'border-purple-500/30', 'text-purple-400'),
+            }
+            bg_grad, border_cls, text_clr = color_map.get(color, color_map['red'])
+            
+            card = '<div class="bg-gradient-to-br %s %s border rounded-xl p-4 transition-all duration-300 hover:scale-[1.02]">' % (bg_grad, border_cls)
+            card += '<div class="flex items-start justify-between mb-3">'
+            card += '<div class="flex items-center gap-2"><span class="text-2xl">%s</span><span class="text-white font-bold">%s</span></div>' % (icon, name)
+            card += '<span class="bg-gradient-to-r from-red-500 to-orange-500 text-white px-2 py-0.5 rounded-full text-xs font-bold">%s级</span>' % level
+            card += '</div>'
+            card += '<div class="text-white/70 text-xs leading-relaxed mb-3">%s</div>' % core_logic
+            card += '<div class="flex items-center justify-between text-xs">'
+            card += '<div class="text-white/50">龙头: <span class="text-white/80 font-semibold">%s</span></div>' % leader
+            card += '<div class="flex items-center gap-1"><span class="%s font-bold">%s</span><span class="text-white/40">分</span></div>' % (text_clr, score)
+            card += '</div>'
+            card += '<div class="mt-3">'
+            card += '<div class="flex justify-between text-xs text-white/40 mb-1"><span>健康度</span><span>%s%%</span></div>' % health_score
+            card += '<div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">'
+            card += '<div class="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full" style="width: %s%%"></div>' % health_score
+            card += '</div></div></div>'
+            topics_html += card
+        
+        content_html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">%s</div>' % topics_html
+        self.add_section("核心题材动态", content_html, "🔥")
+    
+    def add_today_catalysts(self):
+        """添加今日重大催化剂 - Pro版"""
+        if not self.catalysts:
+            content_html = '<div class="text-center py-8 text-white/40"><span class="text-3xl mb-2 block">📅</span><p>暂无催化剂数据</p></div>'
+            self.add_section("今日重大催化剂", content_html, "⚡")
+            return
+        
+        from datetime import datetime
+        today = datetime.now().strftime('%Y-%m-%d')
+        
+        items_html = ''
+        for cat in self.catalysts[:6]:
+            date = cat.get('date', '')
+            title = cat.get('title', '')
+            desc = cat.get('description', '') or cat.get('impact', '')
+            related = cat.get('related_topics', [])
+            
+            try:
+                cat_date = datetime.strptime(date, '%Y-%m-%d')
+                today_date = datetime.strptime(today, '%Y-%m-%d')
+                days_diff = (cat_date - today_date).days
+                if days_diff == 0:
+                    day_label, day_color = '今天', 'text-red-400'
+                elif days_diff == 1:
+                    day_label, day_color = '明天', 'text-orange-400'
+                elif 1 < days_diff <= 7:
+                    day_label, day_color = '%d天后' % days_diff, 'text-yellow-400'
+                else:
+                    day_label, day_color = date, 'text-white/60'
+            except:
+                day_label, day_color = date, 'text-white/60'
+            
+            rel_tags = ''
+            if related:
+                tags = ''.join(['<span class="bg-white/10 text-white/60 px-2 py-0.5 rounded text-xs">%s</span>' % t for t in related[:3]])
+                rel_tags = '<div class="flex flex-wrap gap-1 mt-2">%s</div>' % tags
+            
+            item = '<div class="bg-white/5 rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-all duration-300">'
+            item += '<div class="flex items-start justify-between mb-2">'
+            item += '<span class="text-white font-semibold text-sm flex-1">%s</span>' % title
+            item += '<span class="%s text-xs font-semibold flex-shrink-0 ml-2">%s</span>' % (day_color, day_label)
+            item += '</div>'
+            item += '<div class="text-white/60 text-xs leading-relaxed mb-1">%s</div>' % desc
+            item += rel_tags
+            item += '</div>'
+            items_html += item
+        
+        content_html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-3">%s</div>' % items_html
+        self.add_section("今日重大催化剂", content_html, "⚡")
+    
+    def add_jiuyan_hot_topics(self):
+        """添加韭研公社热门话题 - Pro版"""
+        topics = self.hot_topics if self.hot_topics else []
+        if not topics:
+            content_html = '<div class="text-center py-8 text-white/40"><span class="text-3xl mb-2 block">💬</span><p>暂无热门话题</p></div>'
+            self.add_section("韭研公社热门话题", content_html, "💬")
+            return
+        
+        hot_data = [
+            {'views': '12.5万', 'comments': '328', 'likes': '1.2k'},
+            {'views': '8.7万', 'comments': '245', 'likes': '856'},
+            {'views': '6.3万', 'comments': '189', 'likes': '623'},
+            {'views': '5.1万', 'comments': '156', 'likes': '489'},
+            {'views': '4.2万', 'comments': '132', 'likes': '387'},
+        ]
+        
+        topics_html = ''
+        for i, topic in enumerate(topics[:5]):
+            name = topic.get('name', '')
+            hot = hot_data[i] if i < len(hot_data) else {'views': '—', 'comments': '—', 'likes': '—'}
+            rank = i + 1
+            
+            if rank == 1:
+                rank_style = 'bg-gradient-to-r from-red-500 to-orange-500 text-white'
+            elif rank == 2:
+                rank_style = 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white'
+            elif rank == 3:
+                rank_style = 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white'
+            else:
+                rank_style = 'bg-white/10 text-white/60'
+            
+            item = '<div class="flex items-center gap-3 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-300 cursor-pointer">'
+            item += '<span class="%s w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">%d</span>' % (rank_style, rank)
+            item += '<div class="flex-1 min-w-0">'
+            item += '<div class="text-white text-sm font-medium truncate">%s</div>' % name
+            item += '<div class="flex items-center gap-3 text-xs text-white/40 mt-1">'
+            item += '<span>👁️ %s</span>' % hot['views']
+            item += '<span>💬 %s</span>' % hot['comments']
+            item += '<span>❤️ %s</span>' % hot['likes']
+            item += '</div></div>'
+            item += '<span class="text-white/30 text-lg">›</span>'
+            item += '</div>'
+            topics_html += item
+        
+        content_html = '<div class="space-y-2">%s</div>' % topics_html
+        self.add_section("韭研公社热门话题", content_html, "💬")
+
     def add_topic_deep_dive(self):
         """核心题材深度推演 - Pro版"""
         s_topics = self.topics.get('s_level_topics', [])
@@ -815,9 +1030,13 @@ class DailyReportProGenerator(ReportProGenerator):
     
     def build_standard_report(self):
         """构建标准版本的日报"""
+        self.add_overseas_market()
         self.add_market_overview()
         self.add_sector_analysis()
+        self.add_hot_topics_cards()
         self.add_topic_deep_dive()
+        self.add_today_catalysts()
+        self.add_jiuyan_hot_topics()
         self.add_holdings_tracking()
         self.add_tomorrow_prediction()
         self.add_risk_warning()

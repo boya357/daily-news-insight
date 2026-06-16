@@ -189,6 +189,60 @@ class WeekendExpressProGenerator(ReportProGenerator):
         
         self.add_section("下周投资日历", calendar_html, "📅")
     
+
+    def add_next_week_topics(self):
+        """添加下周重点题材 - Pro版"""
+        topics = [
+            {'name': 'AI算力', 'catalyst': '算力需求持续高增', 'hot': 95},
+            {'name': '存储芯片', 'catalyst': '价格周期反转确认', 'hot': 88},
+            {'name': '人形机器人', 'catalyst': '产业政策利好预期', 'hot': 82},
+            {'name': '先进封装', 'catalyst': '技术突破+产能扩张', 'hot': 78},
+        ]
+        
+        topics_html = ''
+        for topic in topics:
+            hot_bar = min(100, topic['hot'])
+            
+            item = '<div class="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all">'
+            item += '<div class="flex items-center justify-between mb-2">'
+            item += '<span class="text-white font-semibold">' + topic['name'] + '</span>'
+            item += '<span class="text-orange-400 text-sm font-bold">' + str(topic['hot']) + '°</span>'
+            item += '</div>'
+            item += '<div class="text-white/50 text-xs mb-2">' + topic['catalyst'] + '</div>'
+            item += '<div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">'
+            item += '<div class="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full" style="width: ' + str(hot_bar) + '%"></div>'
+            item += '</div></div>'
+            topics_html += item
+        
+        content_html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-3">' + topics_html + '</div>'
+        
+        self.add_section("下周重点题材", content_html, "🔥")
+    
+    def add_trading_plan_weekend(self):
+        """添加下周交易计划 - Pro版"""
+        plans = [
+            {'title': '仓位控制', 'content': '建议仓位60%-70%，预留部分现金应对波动'},
+            {'title': '方向选择', 'content': '重点关注科技成长方向，逢低布局核心资产'},
+            {'title': '节奏把握', 'content': '避免追高，回调时分批介入，做好高低切换'},
+            {'title': '风控原则', 'content': '单票仓位不超20%，止损线设置在8%-10%'},
+        ]
+        
+        plans_html = ''
+        for i, plan in enumerate(plans):
+            card = '<div class="bg-white/5 rounded-lg p-4 border border-white/10">'
+            card += '<div class="flex items-center gap-2 mb-2">'
+            card += '<span class="w-6 h-6 bg-blue-500/20 text-blue-400 rounded-full flex items-center justify-center text-xs font-bold">' + str(i+1) + '</span>'
+            card += '<span class="text-white font-semibold text-sm">' + plan['title'] + '</span>'
+            card += '</div>'
+            card += '<p class="text-white/60 text-xs leading-relaxed pl-8">' + plan['content'] + '</p>'
+            card += '</div>'
+            plans_html += card
+        
+        content_html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-3">' + plans_html + '</div>'
+        
+        self.add_section("下周交易计划", content_html, "📋")
+
+
     def build_standard_report(self):
         """构建标准版本的周末速递"""
         self.add_weekend_summary()

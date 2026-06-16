@@ -257,6 +257,102 @@ class SLevelCatalystProGenerator(ReportProGenerator):
         
         self.add_section("特别风险提示", content, "⚠️")
     
+
+    def add_industry_chain_analysis(self):
+        """添加产业链分析 - Pro版"""
+        # 基于S级题材生成产业链分析
+        topics = self.topics if hasattr(self, 'topics') and self.topics else []
+        if not topics:
+            topics = [{'name': 'AI算力', 'logic': '算力需求爆发，产业链上下游受益'}]
+        
+        chains_html = ''
+        for topic in topics[:2]:
+            name = topic.get('name', '')
+            
+            # 模拟产业链环节
+            upstream = ['芯片', '光模块', '服务器']
+            midstream = ['IDC', '云计算', '运营商']
+            downstream = ['AI应用', '互联网', '企业服务']
+            
+            chain_html = '<div class="bg-white/5 rounded-xl p-4 mb-4">'
+            chain_html += '<div class="text-white font-semibold mb-3 flex items-center gap-2"><span>🔗</span>' + name + ' 产业链</div>'
+            
+            # 上游
+            chain_html += '<div class="mb-3">'
+            chain_html += '<div class="text-xs text-white/50 mb-2">上游</div>'
+            chain_html += '<div class="flex flex-wrap gap-2">'
+            for item in upstream:
+                chain_html += '<span class="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-xs">' + item + '</span>'
+            chain_html += '</div></div>'
+            
+            # 中游
+            chain_html += '<div class="mb-3">'
+            chain_html += '<div class="text-xs text-white/50 mb-2">中游</div>'
+            chain_html += '<div class="flex flex-wrap gap-2">'
+            for item in midstream:
+                chain_html += '<span class="bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full text-xs">' + item + '</span>'
+            chain_html += '</div></div>'
+            
+            # 下游
+            chain_html += '<div>'
+            chain_html += '<div class="text-xs text-white/50 mb-2">下游</div>'
+            chain_html += '<div class="flex flex-wrap gap-2">'
+            for item in downstream:
+                chain_html += '<span class="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-xs">' + item + '</span>'
+            chain_html += '</div></div>'
+            
+            chain_html += '</div>'
+            chains_html += chain_html
+        
+        content_html = chains_html
+        
+        self.add_section("产业链分析", content_html, "🔗")
+    
+    def add_investment_strategy(self):
+        """添加投资策略 - Pro版"""
+        strategies = [
+            {
+                'title': '进攻策略',
+                'icon': '⚡',
+                'desc': '聚焦高弹性赛道龙头，把握主升浪行情',
+                'stocks': ['光模块龙头', 'AI芯片龙头', '算力租赁龙头'],
+                'color': 'from-red-500/20 to-orange-500/10 border-red-500/30'
+            },
+            {
+                'title': '稳健策略',
+                'icon': '🛡️',
+                'desc': '配置行业ETF和核心资产，降低波动风险',
+                'stocks': ['科创50ETF', '半导体ETF', '沪深300ETF'],
+                'color': 'from-blue-500/20 to-cyan-500/10 border-blue-500/30'
+            },
+            {
+                'title': '埋伏策略',
+                'icon': '🎯',
+                'desc': '提前布局有催化预期的低位板块，等待轮动',
+                'stocks': ['人形机器人', '储能', '创新药'],
+                'color': 'from-green-500/20 to-emerald-500/10 border-green-500/30'
+            },
+        ]
+        
+        strats_html = ''
+        for strat in strategies:
+            card = '<div class="bg-gradient-to-br ' + strat['color'] + ' border rounded-xl p-4">'
+            card += '<div class="flex items-center gap-2 mb-3">'
+            card += '<span class="text-2xl">' + strat['icon'] + '</span>'
+            card += '<span class="text-white font-bold">' + strat['title'] + '</span>'
+            card += '</div>'
+            card += '<p class="text-white/60 text-sm mb-3">' + strat['desc'] + '</p>'
+            card += '<div class="flex flex-wrap gap-1">'
+            for stock in strat['stocks']:
+                card += '<span class="bg-white/10 text-white/70 px-2 py-0.5 rounded text-xs">' + stock + '</span>'
+            card += '</div></div>'
+            strats_html += card
+        
+        content_html = '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">' + strats_html + '</div>'
+        
+        self.add_section("投资策略建议", content_html, "📈")
+
+
     def build_standard_report(self):
         """构建标准版本的S级催化扫描"""
         self.add_scan_summary()

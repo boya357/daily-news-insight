@@ -255,6 +255,42 @@ class TomorrowCatalystProGenerator(ReportProGenerator):
         
         self.add_section("风险提示", content, "⚠️")
     
+
+    def add_events_calendar(self):
+        """添加事件日历 - Pro版"""
+        events = [
+            {'date': '周一', 'type': '宏观', 'event': 'MLF操作', 'impact': '关注利率变动'},
+            {'date': '周三', 'type': '数据', 'event': '70城房价数据', 'impact': '影响地产链情绪'},
+            {'date': '周四', 'type': '会议', 'event': '行业峰会', 'impact': '相关题材催化'},
+            {'date': '周五', 'type': '宏观', 'event': 'LPR报价', 'impact': '影响市场流动性预期'},
+        ]
+        
+        events_html = ''
+        for ev in events:
+            type_colors = {
+                '宏观': 'bg-blue-500/20 text-blue-300',
+                '数据': 'bg-purple-500/20 text-purple-300',
+                '会议': 'bg-green-500/20 text-green-300',
+                '财报': 'bg-yellow-500/20 text-yellow-300',
+            }
+            tag_color = type_colors.get(ev['type'], 'bg-white/10 text-white/60')
+            
+            item = '<div class="flex items-center gap-4 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-all">'
+            item += '<div class="text-center flex-shrink-0 w-12"><div class="text-white font-bold text-sm">' + ev['date'] + '</div></div>'
+            item += '<div class="flex-1 min-w-0">'
+            item += '<div class="flex items-center gap-2 mb-1">'
+            item += '<span class="' + tag_color + ' px-2 py-0.5 rounded text-xs font-medium">' + ev['type'] + '</span>'
+            item += '<span class="text-white text-sm font-medium truncate">' + ev['event'] + '</span>'
+            item += '</div>'
+            item += '<div class="text-white/40 text-xs">' + ev['impact'] + '</div>'
+            item += '</div></div>'
+            events_html += item
+        
+        content_html = '<div class="space-y-2">' + events_html + '</div>'
+        
+        self.add_section("本周事件日历", content_html, "📅")
+
+
     def build_standard_report(self):
         """构建标准版本的明日催化剂"""
         self.add_catalyst_overview()
