@@ -2,6 +2,7 @@
 S级催化扫描生成器 - Pro版
 基于ReportProGenerator基类重构，深色玻璃态风格
 深度挖掘S级别重大催化事件，把握超级题材机会
+V3.5升级：集成Tab切换、卡片组、数据网格通用组件
 """
 import sys
 import os
@@ -28,11 +29,21 @@ class SLevelCatalystProGenerator(ReportProGenerator):
         )
         
         self.active_page = "S级催化"
+        self.topics = []
     
     def add_scan_summary(self, count: int = 3, top_topic: str = "AI算力"):
-        """添加扫描总览"""
+        """添加扫描总览 - 使用DataGrid展示关键数据"""
+        data_items = [
+            {'title': 'S+级催化', 'value': '1', 'icon': '🚀', 'unit': '个', 'desc': '<span class="text-red-400">最高等级</span>'},
+            {'title': 'S级催化', 'value': str(count), 'icon': '⚡', 'unit': '个', 'desc': '<span class="text-orange-400">强烈推荐</span>'},
+            {'title': 'A+级催化', 'value': '2', 'icon': '💎', 'unit': '个', 'desc': '<span class="text-yellow-400">值得关注</span>'},
+            {'title': '最确定方向', 'value': top_topic, 'icon': '🎯', 'desc': '<span class="text-green-400">综合评分最高</span>'},
+        ]
+        
+        grid_html = self.create_data_grid(items=data_items, cols=4)
+        
         content = f'''
-        <div class="bg-gradient-to-r from-red-500/25 via-orange-500/20 to-yellow-500/15 border border-red-500/30 rounded-xl p-5">
+        <div class="bg-gradient-to-r from-red-500/25 via-orange-500/20 to-yellow-500/15 border border-red-500/30 rounded-xl p-5 mb-4">
             <div class="flex items-center gap-2 mb-3">
                 <span class="text-2xl">🚀</span>
                 <span class="text-white font-bold">S级催化扫描总览</span>
@@ -46,11 +57,12 @@ class SLevelCatalystProGenerator(ReportProGenerator):
                 建议重点关注。
             </p>
         </div>
+        {grid_html}
         '''
         self.add_section("扫描总览", content, "🚀")
     
     def add_s_level_topics(self, topics: list = None):
-        """添加S级题材深度分析"""
+        """添加S级题材深度分析 - 使用Tab切换+卡片组"""
         if topics is None:
             topics = [
                 {
@@ -91,111 +103,108 @@ class SLevelCatalystProGenerator(ReportProGenerator):
                 },
             ]
         
-        topics_html = '<div class="space-y-5">'
+        self.topics = topics
         
-        for i, topic in enumerate(topics):
-            name = topic.get("name", "")
+        # 按等级分类
+        level_categories = {}
+        for topic in topics:
             level = topic.get("level", "S")
-            score = topic.get("score", 0)
-            core_logic = topic.get("core_logic", "")
-            catalysts = topic.get("catalysts", [])
-            leader_stocks = topic.get("leader_stocks", [])
-            mid_stocks = topic.get("mid_stocks", [])
-            flexible_stocks = topic.get("flexible_stocks", [])
-            time_window = topic.get("time_window", "")
-            risk = topic.get("risk", "")
+            if level not in level_categories:
+                level_categories[level] = []
+            level_categories[level].append(topic)
+        
+        # 生成Tab内容
+        tabs = []
+        for level in ["S+", "S", "A+"]:
+            if level not in level_categories:
+                continue
             
-            # 等级样式
-            level_colors = {
-                "S+": ("from-red-500 to-orange-500", "S+级"),
-                "S": ("from-orange-500 to-yellow-500", "S级"),
-                "A+": ("from-yellow-500 to-green-500", "A+级"),
-            }
-            gradient, level_text = level_colors.get(level, level_colors["S"])
+            level_topics = level_categories[level]
+            cards = []
             
-            # 催化剂标签
-            cat_tags = ' '.join([
-                f'<span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ {c}</span>'
-                for c in catalysts
-            ])
-            
-            # 标的标签
-            def stock_tags(stocks, label, color):
-                if not stocks:
-                    return ''
-                tags = ' '.join([
-                    f'<span class="bg-{color}-500/20 text-{color}-400 text-xs px-2 py-1 rounded">{s}</span>'
-                    for s in stocks
+            for i, topic in enumerate(level_topics):
+                name = topic.get("name", "")
+                score = topic.get("score", 0)
+                core_logic = topic.get("core_logic", "")
+                catalysts = topic.get("catalysts", [])
+                leader_stocks = topic.get("leader_stocks", [])
+                mid_stocks = topic.get("mid_stocks", [])
+                flexible_stocks = topic.get("flexible_stocks", [])
+                time_window = topic.get("time_window", "")
+                risk = topic.get("risk", "")
+                
+                # 催化剂标签
+                cat_tags = ' '.join([
+                    f'<span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ {c}</span>'
+                    for c in catalysts
                 ])
-                return f'''
-                <div>
-                    <div class="text-xs text-white/40 mb-1">{label}</div>
-                    <div class="flex flex-wrap gap-1.5">{tags}</div>
-                </div>
-                '''
-            
-            topics_html += f'''
-            <div class="bg-gradient-to-br from-white/5 to-white/0 rounded-xl p-5 border border-white/10">
-                <!-- 头部 -->
-                <div class="flex items-start justify-between mb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gradient-to-br {gradient} rounded-xl flex items-center justify-center">
-                            <span class="text-white font-black text-lg">{i+1}</span>
-                        </div>
-                        <div>
-                            <div class="text-white font-bold text-lg">{name}</div>
-                            <div class="flex items-center gap-2 mt-1">
-                                <span class="bg-gradient-to-r {gradient} text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                                    {level_text}
-                                </span>
-                                <span class="text-white/40 text-xs">综合评分 {score}分</span>
-                            </div>
-                        </div>
+                
+                # 标的标签
+                leader_tags = ' '.join([
+                    f'<span class="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded">{s}</span>'
+                    for s in leader_stocks
+                ])
+                mid_tags = ' '.join([
+                    f'<span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded">{s}</span>'
+                    for s in mid_stocks
+                ])
+                flex_tags = ' '.join([
+                    f'<span class="bg-yellow-500/20 text-yellow-400 text-xs px-2 py-1 rounded">{s}</span>'
+                    for s in flexible_stocks
+                ])
+                
+                card_content = f'''
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl font-bold text-white/90">#{i+1}</span>
+                        <span class="text-white font-bold">{name}</span>
                     </div>
-                    <div class="text-right">
-                        <div class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r {gradient}">
-                            {score}
-                        </div>
-                        <div class="text-xs text-white/40">确定性评分</div>
+                    <span class="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">{score}分</span>
+                </div>
+                <p class="text-white/70 text-sm leading-relaxed mb-3">{core_logic}</p>
+                <div class="mb-2">
+                    <div class="text-xs text-white/40 mb-1">核心催化剂</div>
+                    <div class="flex flex-wrap gap-1.5">{cat_tags}</div>
+                </div>
+                <div class="space-y-2">
+                    <div>
+                        <div class="text-xs text-white/40 mb-1">龙头标的</div>
+                        <div class="flex flex-wrap gap-1">{leader_tags}</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-white/40 mb-1">中坚标的</div>
+                        <div class="flex flex-wrap gap-1">{mid_tags}</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-white/40 mb-1">弹性标的</div>
+                        <div class="flex flex-wrap gap-1">{flex_tags}</div>
                     </div>
                 </div>
-                
-                <!-- 核心逻辑 -->
-                <div class="mb-4">
-                    <div class="text-white/60 text-xs mb-2">核心逻辑</div>
-                    <p class="text-white/80 text-sm leading-relaxed m-0">{core_logic}</p>
-                </div>
-                
-                <!-- 催化剂 -->
-                <div class="mb-4">
-                    <div class="text-white/60 text-xs mb-2">核心催化剂</div>
-                    <div class="flex flex-wrap gap-2">{cat_tags}</div>
-                </div>
-                
-                <!-- 投资标的 -->
-                <div class="space-y-3 mb-4">
-                    {stock_tags(leader_stocks, "龙头标的", "green")}
-                    {stock_tags(mid_stocks, "中坚标的", "blue")}
-                    {stock_tags(flexible_stocks, "弹性标的", "yellow")}
-                </div>
-                
-                <!-- 底部信息 -->
-                <div class="flex items-center justify-between pt-3 border-t border-white/10">
+                <div class="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
                     <div class="text-xs">
                         <span class="text-white/40">时间窗口：</span>
                         <span class="text-white/70">{time_window}</span>
                     </div>
                     <div class="text-xs">
-                        <span class="text-white/40">主要风险：</span>
+                        <span class="text-white/40">风险：</span>
                         <span class="text-red-400/70">{risk}</span>
                     </div>
                 </div>
-            </div>
-            '''
+                '''
+                
+                cards.append({
+                    'content': card_content,
+                })
+            
+            cards_html = self.create_card_group(cards=cards, cols=1, card_style='glass')
+            tabs.append({
+                'label': f'{level}级',
+                'content': cards_html
+            })
         
-        topics_html += '</div>'
-        
-        self.add_section("S级题材深度分析", topics_html, "💎")
+        # 使用Tab组件
+        tab_content = self.create_tab_pane(tabs=tabs, tab_id="s-level-topics", style="default")
+        self.add_section("S级题材深度分析", tab_content, "💎")
     
     def add_catalysts_calendar(self, events: list = None):
         """添加S级催化日历"""
@@ -239,125 +248,103 @@ class SLevelCatalystProGenerator(ReportProGenerator):
         self.add_section("S级催化日历", calendar_html, "📅")
     
     def add_risk_warning(self):
-        """添加风险提示"""
-        content = '''
-        <div class="bg-gradient-to-r from-red-500/15 to-orange-500/10 border border-red-500/20 rounded-xl p-5">
-            <div class="flex items-center gap-2 mb-3">
-                <span class="text-xl">⚠️</span>
-                <span class="text-white font-bold">特别风险提示</span>
-            </div>
-            <div class="text-sm text-white/60 leading-relaxed space-y-2">
-                <p>1. S级催化事件具有高度不确定性，实际影响可能与预期存在较大差异</p>
-                <p>2. 题材炒作往往伴随高波动，注意追高风险和情绪退潮风险</p>
-                <p>3. 建议结合基本面和技术面综合判断，切勿盲目跟风</p>
-                <p>4. 本内容仅做信息整理，不构成任何投资建议</p>
-            </div>
-        </div>
-        '''
+        """添加风险提示 - 使用卡片组"""
+        risks = [
+            {'title': '不确定性风险', 'content': 'S级催化事件具有高度不确定性，实际影响可能与预期存在较大差异', 'icon': '⚠️'},
+            {'title': '高波动风险', 'content': '题材炒作往往伴随高波动，注意追高风险和情绪退潮风险', 'icon': '📉'},
+            {'title': '基本面风险', 'content': '建议结合基本面和技术面综合判断，切勿盲目跟风', 'icon': '📊'},
+            {'title': '合规提示', 'content': '本内容仅做信息整理，不构成任何投资建议', 'icon': '📜'},
+        ]
         
-        self.add_section("特别风险提示", content, "⚠️")
+        cards_html = self.create_card_group(cards=risks, cols=2, card_style='subtle')
+        self.add_section("特别风险提示", cards_html, "⚠️")
     
-
     def add_industry_chain_analysis(self):
-        """添加产业链分析 - Pro版"""
-        # 基于S级题材生成产业链分析
+        """添加产业链分析 - 使用Tab切换"""
         topics = self.topics if hasattr(self, 'topics') and self.topics else []
         if not topics:
             topics = [{'name': 'AI算力', 'logic': '算力需求爆发，产业链上下游受益'}]
         
-        chains_html = ''
+        tabs = []
         for topic in topics[:2]:
             name = topic.get('name', '')
             
-            # 模拟产业链环节
+            # 产业链环节
             upstream = ['芯片', '光模块', '服务器']
             midstream = ['IDC', '云计算', '运营商']
             downstream = ['AI应用', '互联网', '企业服务']
             
-            chain_html = '<div class="bg-white/5 rounded-xl p-4 mb-4">'
-            chain_html += '<div class="text-white font-semibold mb-3 flex items-center gap-2"><span>🔗</span>' + name + ' 产业链</div>'
+            # 使用卡片组展示各环节
+            upstream_cards = [{'content': f'<span class="text-white/80 text-sm">{item}</span>'} for item in upstream]
+            midstream_cards = [{'content': f'<span class="text-white/80 text-sm">{item}</span>'} for item in midstream]
+            downstream_cards = [{'content': f'<span class="text-white/80 text-sm">{item}</span>'} for item in downstream]
             
-            # 上游
-            chain_html += '<div class="mb-3">'
-            chain_html += '<div class="text-xs text-white/50 mb-2">上游</div>'
-            chain_html += '<div class="flex flex-wrap gap-2">'
-            for item in upstream:
-                chain_html += '<span class="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-xs">' + item + '</span>'
-            chain_html += '</div></div>'
+            chain_content = f'''
+            <div class="space-y-4">
+                <div>
+                    <div class="text-xs text-white/50 mb-2 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        上游
+                    </div>
+                    {self.create_card_group(cards=upstream_cards, cols=3, card_style='subtle')}
+                </div>
+                <div class="text-center text-white/30">↓</div>
+                <div>
+                    <div class="text-xs text-white/50 mb-2 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                        中游
+                    </div>
+                    {self.create_card_group(cards=midstream_cards, cols=3, card_style='subtle')}
+                </div>
+                <div class="text-center text-white/30">↓</div>
+                <div>
+                    <div class="text-xs text-white/50 mb-2 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                        下游
+                    </div>
+                    {self.create_card_group(cards=downstream_cards, cols=3, card_style='subtle')}
+                </div>
+            </div>
+            '''
             
-            # 中游
-            chain_html += '<div class="mb-3">'
-            chain_html += '<div class="text-xs text-white/50 mb-2">中游</div>'
-            chain_html += '<div class="flex flex-wrap gap-2">'
-            for item in midstream:
-                chain_html += '<span class="bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full text-xs">' + item + '</span>'
-            chain_html += '</div></div>'
-            
-            # 下游
-            chain_html += '<div>'
-            chain_html += '<div class="text-xs text-white/50 mb-2">下游</div>'
-            chain_html += '<div class="flex flex-wrap gap-2">'
-            for item in downstream:
-                chain_html += '<span class="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-xs">' + item + '</span>'
-            chain_html += '</div></div>'
-            
-            chain_html += '</div>'
-            chains_html += chain_html
+            tabs.append({
+                'label': name,
+                'content': chain_content
+            })
         
-        content_html = chains_html
-        
-        self.add_section("产业链分析", content_html, "🔗")
+        tab_content = self.create_tab_pane(tabs=tabs, tab_id="industry-chain", style="underline")
+        self.add_section("产业链分析", tab_content, "🔗")
     
     def add_investment_strategy(self):
-        """添加投资策略 - Pro版"""
+        """添加投资策略 - 使用卡片组"""
         strategies = [
             {
                 'title': '进攻策略',
-                'icon': '⚡',
-                'desc': '聚焦高弹性赛道龙头，把握主升浪行情',
-                'stocks': ['光模块龙头', 'AI芯片龙头', '算力租赁龙头'],
-                'color': 'from-red-500/20 to-orange-500/10 border-red-500/30'
+                'content': '聚焦高弹性赛道龙头，把握主升浪行情。适合风险承受能力较高的投资者。',
+                'icon': '⚡'
             },
             {
                 'title': '稳健策略',
-                'icon': '🛡️',
-                'desc': '配置行业ETF和核心资产，降低波动风险',
-                'stocks': ['科创50ETF', '半导体ETF', '沪深300ETF'],
-                'color': 'from-blue-500/20 to-cyan-500/10 border-blue-500/30'
+                'content': '配置行业ETF和核心资产，降低波动风险。适合追求稳健收益的投资者。',
+                'icon': '🛡️'
             },
             {
                 'title': '埋伏策略',
-                'icon': '🎯',
-                'desc': '提前布局有催化预期的低位板块，等待轮动',
-                'stocks': ['人形机器人', '储能', '创新药'],
-                'color': 'from-green-500/20 to-emerald-500/10 border-green-500/30'
+                'content': '提前布局有催化预期的低位板块，等待轮动。适合有耐心的投资者。',
+                'icon': '🎯'
             },
         ]
         
-        strats_html = ''
-        for strat in strategies:
-            card = '<div class="bg-gradient-to-br ' + strat['color'] + ' border rounded-xl p-4">'
-            card += '<div class="flex items-center gap-2 mb-3">'
-            card += '<span class="text-2xl">' + strat['icon'] + '</span>'
-            card += '<span class="text-white font-bold">' + strat['title'] + '</span>'
-            card += '</div>'
-            card += '<p class="text-white/60 text-sm mb-3">' + strat['desc'] + '</p>'
-            card += '<div class="flex flex-wrap gap-1">'
-            for stock in strat['stocks']:
-                card += '<span class="bg-white/10 text-white/70 px-2 py-0.5 rounded text-xs">' + stock + '</span>'
-            card += '</div></div>'
-            strats_html += card
-        
-        content_html = '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">' + strats_html + '</div>'
-        
-        self.add_section("投资策略建议", content_html, "📈")
-
-
+        cards_html = self.create_card_group(cards=strategies, cols=3, card_style='glass')
+        self.add_section("投资策略建议", cards_html, "📈")
+    
     def build_standard_report(self):
         """构建标准版本的S级催化扫描"""
         self.add_scan_summary()
         self.add_s_level_topics()
         self.add_catalysts_calendar()
+        self.add_industry_chain_analysis()
+        self.add_investment_strategy()
         self.add_risk_warning()
         
         return self

@@ -2,6 +2,7 @@
 周复盘生成器 - Pro版
 基于ReportProGenerator基类重构，深色玻璃态风格
 一周市场总结 + 热点回顾 + 下周展望
+V3.5升级：集成Tab切换、卡片组、数据网格通用组件
 """
 import sys
 import os
@@ -30,6 +31,7 @@ class WeeklyReviewProGenerator(ReportProGenerator):
         
         self.active_page = "周复盘"
         self.indices = get_indices_for_daily()
+        self.portfolio = load_portfolio()
     
     def add_week_summary(self, summary: str = None):
         """添加本周核心总结"""
@@ -53,94 +55,112 @@ class WeeklyReviewProGenerator(ReportProGenerator):
         self.add_section("本周核心总结", content, "✅")
     
     def add_market_review(self):
-        """添加本周市场表现 - Pro版"""
-        cards_html = ''
+        """添加本周市场表现 - 使用DataGrid组件"""
+        data_items = []
         for idx in self.indices:
             name = idx.get('name', '')
             value = idx.get('price', idx.get('value', '--'))
             change = idx.get('change_pct_str', idx.get('change', ''))
             up = idx.get('up', True)
             
-            if up:
-                gradient = 'from-green-500/20 to-emerald-500/10 border-green-500/30'
-                text_color = 'text-green-400'
-            else:
-                gradient = 'from-red-500/20 to-orange-500/10 border-red-500/30'
-                text_color = 'text-red-400'
+            change_val = change.replace('%', '').replace('+', '')
+            try:
+                change_num = float(change_val)
+                if up or change_num > 0:
+                    color = 'text-green-400'
+                else:
+                    color = 'text-red-400'
+            except:
+                color = 'text-white/60'
             
-            cards_html += f'''
-            <div class="bg-gradient-to-br {gradient} border rounded-xl p-4 text-center">
-                <div class="text-sm text-white/60 mb-1">{name}</div>
-                <div class="text-xl font-bold text-white mb-1">{value}</div>
-                <div class="text-sm {text_color} font-semibold">{change}</div>
-            </div>
-            '''
+            data_items.append({
+                'title': name,
+                'value': str(value),
+                'unit': '',
+                'desc': f'<span class="{color} font-semibold">{change}</span>',
+                'icon': '📈' if up else '📉'
+            })
         
-        content = f'''
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {cards_html}
-        </div>
-        '''
+        # 使用DataGrid组件
+        content = self.create_data_grid(items=data_items, cols=4)
         
         self.add_section("本周市场表现", content, "📊")
     
     def add_hot_topics_review(self, topics: list = None):
-        """添加本周热点题材回顾"""
+        """添加本周热点题材回顾 - 使用Tab切换+卡片组"""
         if topics is None:
             topics = [
-                {"name": "AI算力", "performance": "+8.5%", "logic": "AI大模型持续迭代，算力需求爆发增长", "stocks": ["英伟达", "寒武纪"]},
-                {"name": "人形机器人", "performance": "+6.2%", "logic": "特斯拉Optimus进展超预期，产业链加速落地", "stocks": ["拓普集团", "三花智控"]},
-                {"name": "存储芯片", "performance": "+5.8%", "logic": "行业周期反转，价格持续上涨", "stocks": ["兆易创新", "北京君正"]},
-                {"name": "先进封装", "performance": "+4.5%", "logic": "Chiplet技术加速渗透，国产替代加速", "stocks": ["长电科技", "通富微电"]},
+                {"name": "AI算力", "performance": "+8.5%", "logic": "AI大模型持续迭代，算力需求爆发增长", "stocks": ["英伟达", "寒武纪"], "category": "科技"},
+                {"name": "人形机器人", "performance": "+6.2%", "logic": "特斯拉Optimus进展超预期，产业链加速落地", "stocks": ["拓普集团", "三花智控"], "category": "科技"},
+                {"name": "存储芯片", "performance": "+5.8%", "logic": "行业周期反转，价格持续上涨", "stocks": ["兆易创新", "北京君正"], "category": "科技"},
+                {"name": "先进封装", "performance": "+4.5%", "logic": "Chiplet技术加速渗透，国产替代加速", "stocks": ["长电科技", "通富微电"], "category": "科技"},
+                {"name": "新能源", "performance": "+2.1%", "logic": "政策支持持续，销量数据向好", "stocks": ["宁德时代", "比亚迪"], "category": "新能源"},
+                {"name": "医药生物", "performance": "-1.2%", "logic": "集采政策影响，板块承压", "stocks": ["恒瑞医药", "药明康德"], "category": "消费"},
             ]
         
-        topics_html = '<div class="space-y-3">'
+        # 按分类整理
+        categories = {}
+        for topic in topics:
+            cat = topic.get('category', '其他')
+            if cat not in categories:
+                categories[cat] = []
+            categories[cat].append(topic)
         
-        for i, topic in enumerate(topics):
-            name = topic.get("name", "")
-            performance = topic.get("performance", "")
-            logic = topic.get("logic", "")
-            stocks = topic.get("stocks", [])
-            
-            is_up = performance.startswith('+')
-            perf_color = 'text-green-400' if is_up else 'text-red-400'
-            
-            stocks_html = ''
-            if stocks:
-                stock_tags = ' '.join([
-                    f'<span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded-md border border-blue-500/30">{s}</span>'
-                    for s in stocks
-                ])
-                stocks_html = f'''
-                <div class="mt-3 pt-3 border-t border-white/10">
-                    <div class="text-xs text-white/50 mb-2">龙头标的</div>
-                    <div class="flex flex-wrap gap-2">{stock_tags}</div>
-                </div>
-                '''
-            
-            topics_html += f'''
-            <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+        # 生成Tab内容
+        tabs = []
+        for cat, cat_topics in categories.items():
+            cards = []
+            for topic in cat_topics:
+                name = topic.get("name", "")
+                performance = topic.get("performance", "")
+                logic = topic.get("logic", "")
+                stocks = topic.get("stocks", [])
+                
+                is_up = performance.startswith('+')
+                perf_color = 'text-green-400' if is_up else 'text-red-400'
+                
+                stocks_html = ''
+                if stocks:
+                    stock_tags = ' '.join([
+                        f'<span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded-md border border-blue-500/30">{s}</span>'
+                        for s in stocks
+                    ])
+                    stocks_html = f'''
+                    <div class="mt-3 pt-3 border-t border-white/10">
+                        <div class="text-xs text-white/50 mb-2">龙头标的</div>
+                        <div class="flex flex-wrap gap-2">{stock_tags}</div>
+                    </div>
+                    '''
+                
+                card_content = f'''
                 <div class="flex items-center gap-3 mb-2">
-                    <div class="w-7 h-7 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span class="text-white text-xs font-bold">{i+1}</span>
-                    </div>
-                    <div class="flex-1">
-                        <span class="text-white font-semibold text-sm">{name}</span>
-                    </div>
+                    <span class="text-white font-semibold text-sm">{name}</span>
                     <span class="text-xs font-bold {perf_color} bg-white/10 px-2.5 py-1 rounded-full">
                         {performance}
                     </span>
                 </div>
-                <div class="text-sm text-white/60 leading-relaxed pl-10">
+                <div class="text-sm text-white/60 leading-relaxed">
                     {logic}
                 </div>
                 {stocks_html}
-            </div>
-            '''
+                '''
+                
+                cards.append({
+                    'title': '',
+                    'content': card_content,
+                    'icon': '🔥'
+                })
+            
+            cards_html = self.create_card_group(cards=cards, cols=2, card_style='glass')
+            tabs.append({
+                'label': cat,
+                'content': cards_html
+            })
         
-        topics_html += '</div>'
+        # 使用Tab组件
+        tab_content = self.create_tab_pane(tabs=tabs, tab_id="hot-topics", style="default")
         
-        self.add_section("本周热点题材回顾", topics_html, "🔥")
+        self.add_section("本周热点题材回顾", tab_content, "🔥")
     
     def add_important_events(self, events: list = None):
         """添加本周重要事件时间线"""
@@ -162,7 +182,7 @@ class WeeklyReviewProGenerator(ReportProGenerator):
             desc = event.get("desc", "")
             
             events_html += f'''
-            <div class="relative pb-5 {"pb-0" if is_last else ""}>
+            <div class="relative pb-5 {"pb-0" if is_last else ""}">
                 <!-- 时间线竖线 -->
                 <div class="absolute left-[-1.5rem] top-2 w-0.5 h-full bg-gradient-to-b from-blue-500 to-purple-500 {"h-0" if is_last else ""}"></div>
                 <!-- 时间点 -->
@@ -208,27 +228,19 @@ class WeeklyReviewProGenerator(ReportProGenerator):
         self.add_section("下周展望", content, "🔮")
     
     def add_risk_warning(self):
-        """添加风险提示"""
-        content = '''
-        <div class="bg-gradient-to-r from-red-500/15 to-orange-500/10 border border-red-500/20 rounded-xl p-5">
-            <div class="flex items-center gap-2 mb-3">
-                <span class="text-xl">⚠️</span>
-                <span class="text-white font-bold">风险提示</span>
-            </div>
-            <ul class="text-sm text-white/70 leading-relaxed space-y-2 m-0 pl-4">
-                <li>宏观经济不及预期风险</li>
-                <li>政策变动风险</li>
-                <li>海外市场波动风险</li>
-                <li>行业竞争加剧风险</li>
-            </ul>
-        </div>
-        '''
+        """添加风险提示 - 使用卡片组"""
+        risks = [
+            {'title': '宏观风险', 'content': '宏观经济不及预期可能影响市场整体表现', 'icon': '📉'},
+            {'title': '政策风险', 'content': '政策变动可能对相关行业产生重大影响', 'icon': '⚖️'},
+            {'title': '海外风险', 'content': '海外市场波动可能传导至A股市场', 'icon': '🌍'},
+            {'title': '行业风险', 'content': '行业竞争加剧可能导致盈利能力下降', 'icon': '⚠️'},
+        ]
         
-        self.add_section("风险提示", content, "⚠️")
+        cards_html = self.create_card_group(cards=risks, cols=2, card_style='subtle')
+        self.add_section("风险提示", cards_html, "⚠️")
     
-
     def add_holdings_review(self):
-        """添加持仓复盘 - Pro版"""
+        """添加持仓复盘 - 使用数据网格+卡片组"""
         portfolio = self.portfolio
         stocks = portfolio.get('stocks', [])
         
@@ -237,12 +249,34 @@ class WeeklyReviewProGenerator(ReportProGenerator):
             self.add_section("持仓复盘", content_html, "💼")
             return
         
-        # 计算周收益
+        # 计算统计数据
         total_pnl = 0
         winners = 0
         losers = 0
         
-        stocks_html = ''
+        for stock in stocks:
+            pnl_pct = stock.get('weekly_pnl', stock.get('profit_pct', '0%'))
+            try:
+                pnl_val = float(str(pnl_pct).replace('%', '').replace('+', ''))
+            except:
+                pnl_val = 0
+            
+            if pnl_val > 0:
+                winners += 1
+            elif pnl_val < 0:
+                losers += 1
+        
+        # 使用DataGrid展示汇总数据
+        summary_items = [
+            {'title': '持仓总数', 'value': str(len(stocks)), 'icon': '📊', 'unit': '只'},
+            {'title': '上涨', 'value': str(winners), 'icon': '📈', 'unit': '只', 'desc': '<span class="text-green-400">盈利</span>'},
+            {'title': '下跌', 'value': str(losers), 'icon': '📉', 'unit': '只', 'desc': '<span class="text-red-400">亏损</span>'},
+        ]
+        
+        summary_grid = self.create_data_grid(items=summary_items, cols=3)
+        
+        # 使用卡片组展示个股
+        cards = []
         for stock in stocks[:6]:
             name = stock.get('name', '')
             code = stock.get('code', '')
@@ -255,67 +289,64 @@ class WeeklyReviewProGenerator(ReportProGenerator):
             
             if pnl_val > 0:
                 pnl_color = 'text-red-400'
-                pnl_bg = 'bg-red-500/10'
                 pnl_sign = '+'
-                winners += 1
             elif pnl_val < 0:
                 pnl_color = 'text-green-400'
-                pnl_bg = 'bg-green-500/10'
                 pnl_sign = ''
-                losers += 1
             else:
                 pnl_color = 'text-white/60'
-                pnl_bg = 'bg-white/5'
                 pnl_sign = ''
             
-            card = '<div class="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all">'
-            card += '<div class="flex items-center justify-between mb-2">'
-            card += '<span class="text-white font-medium">' + name + '</span>'
-            card += '<span class="' + pnl_color + ' font-bold">' + pnl_sign + str(pnl_pct) + '</span>'
-            card += '</div>'
-            card += '<div class="text-white/40 text-xs">' + code + '</div>'
-            card += '</div>'
-            stocks_html += card
+            card_content = f'''
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-white font-medium">{name}</div>
+                    <div class="text-white/40 text-xs">{code}</div>
+                </div>
+                <div class="{pnl_color} font-bold text-lg">{pnl_sign}{pnl_pct}</div>
+            </div>
+            '''
+            cards.append({
+                'content': card_content,
+            })
         
-        # 汇总
-        summary_html = '<div class="grid grid-cols-3 gap-3 mb-4">'
-        summary_html += '<div class="bg-white/5 rounded-lg p-3 text-center"><div class="text-lg font-bold text-white">' + str(len(stocks)) + '</div><div class="text-xs text-white/40">持仓总数</div></div>'
-        summary_html += '<div class="bg-red-500/10 rounded-lg p-3 text-center"><div class="text-lg font-bold text-red-400">' + str(winners) + '</div><div class="text-xs text-white/40">上涨</div></div>'
-        summary_html += '<div class="bg-green-500/10 rounded-lg p-3 text-center"><div class="text-lg font-bold text-green-400">' + str(losers) + '</div><div class="text-xs text-white/40">下跌</div></div>'
-        summary_html += '</div>'
+        stocks_grid = self.create_card_group(cards=cards, cols=3, card_style='glass')
         
-        content_html = summary_html + '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">' + stocks_html + '</div>'
+        content_html = f'''
+        <div class="space-y-6">
+            <div>
+                <h3 class="text-white font-semibold mb-3 text-sm">持仓概览</h3>
+                {summary_grid}
+            </div>
+            <div>
+                <h3 class="text-white font-semibold mb-3 text-sm">个股表现</h3>
+                {stocks_grid}
+            </div>
+        </div>
+        '''
         
         self.add_section("持仓复盘", content_html, "💼")
     
     def add_trading_plan(self):
-        """添加下周交易计划 - Pro版"""
+        """添加下周交易计划 - 使用卡片组"""
         plans = [
-            {'title': '仓位管理', 'content': '保持中性仓位，根据市场情绪动态调整，建议仓位控制在50%-70%'},
-            {'title': '板块配置', 'content': '关注科技成长方向，均衡配置消费和周期，避免单一赛道过度集中'},
-            {'title': '风险控制', 'content': '严格执行止损纪律，单只个股止损线不超过8%，组合最大回撤控制在5%以内'},
+            {'title': '仓位管理', 'content': '保持中性仓位，根据市场情绪动态调整，建议仓位控制在50%-70%', 'icon': '📊'},
+            {'title': '板块配置', 'content': '关注科技成长方向，均衡配置消费和周期，避免单一赛道过度集中', 'icon': '🎯'},
+            {'title': '风险控制', 'content': '严格执行止损纪律，单只个股止损线不超过8%，组合最大回撤控制在5%以内', 'icon': '🛡️'},
         ]
         
-        plans_html = ''
-        for plan in plans:
-            card = '<div class="bg-white/5 rounded-lg p-4 border border-white/10">'
-            card += '<div class="text-white font-semibold mb-2 flex items-center gap-2"><span>📌</span>' + plan['title'] + '</div>'
-            card += '<p class="text-white/60 text-sm leading-relaxed">' + plan['content'] + '</p>'
-            card += '</div>'
-            plans_html += card
-        
-        content_html = '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">' + plans_html + '</div>'
-        
-        self.add_section("下周交易计划", content_html, "📋")
-
-
+        plans_html = self.create_card_group(cards=plans, cols=3, card_style='glass')
+        self.add_section("下周交易计划", plans_html, "📋")
+    
     def build_standard_report(self):
         """构建标准版本的周复盘"""
         self.add_week_summary()
         self.add_market_review()
         self.add_hot_topics_review()
         self.add_important_events()
+        self.add_holdings_review()
         self.add_next_week_outlook()
+        self.add_trading_plan()
         self.add_risk_warning()
         
         return self
