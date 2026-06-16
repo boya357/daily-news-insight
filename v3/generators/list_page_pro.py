@@ -114,7 +114,7 @@ class ListPageProGenerator(ProGenerator):
         self.docs_dir = Path(docs_dir).resolve()
         
         super().__init__(
-            title=self.config["title"],
+            title=f"{self.config['title']} · 报告列表",
             active_page=self.config['nav_text'],
             footer_text=f"{self.config['title']} · 投资研究中心",
             data_dir=data_dir,
@@ -192,13 +192,17 @@ class ListPageProGenerator(ProGenerator):
         """生成页面头部"""
         return f'''
         <div class="text-center mb-10">
+            <div class="inline-flex items-center gap-2 px-4 py-1 bg-white/10 rounded-full text-xs text-white/60 mb-4">
+                <span>📂</span>
+                <span>报告归档</span>
+            </div>
             <h1 class="text-3xl md:text-4xl font-black text-white mb-3">
                 {self.config["icon"]} {self.config["title"]}
             </h1>
             <p class="text-white/70">{self.config["description"]}</p>
             <div class="mt-4">
                 <span class="inline-block px-4 py-1 bg-white/10 rounded-full text-sm text-white/70">
-                    共 {len(self._files)} 份报告
+                    共 {len(self._files)} 份报告 · 按时间倒序
                 </span>
             </div>
         </div>

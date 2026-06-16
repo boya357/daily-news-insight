@@ -11,10 +11,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from generators.report_pro_base import ReportProGenerator
-from utils.data_loader import (
-    get_indices_for_daily, load_portfolio, get_market_summary,
-    get_hot_sectors, get_cold_sectors, get_longhubang_data
-)
+from utils.data_loader import get_indices_for_daily, load_portfolio, get_market_summary, get_hot_sectors, get_cold_sectors
 
 
 class AftermarketProGenerator(ReportProGenerator):
@@ -24,6 +21,8 @@ class AftermarketProGenerator(ReportProGenerator):
         date = date_str or datetime.now().strftime('%Y-%m-%d')
         sub = subtitle or f"{date} · 盘后速递"
         
+        self.data_dir = data_dir
+
         super().__init__(
             title="盘后速递",
             report_type="aftermarket",
@@ -42,10 +41,22 @@ class AftermarketProGenerator(ReportProGenerator):
         self.market_data = get_market_summary()
         self.hot_sectors = get_hot_sectors()
         self.cold_sectors = get_cold_sectors()
+        
+        # 题材数据
         try:
-            self.longhubang_data = get_longhubang_data()
+            data_path = os.path.join(self.data_dir, 'topics.json')
+            with open(data_path, 'r', encoding='utf-8') as f:
+                self.topics = json.load(f)
         except:
-            self.longhubang_data = {}
+            self.topics = {}
+        
+        # 预判数据
+        try:
+            data_path = os.path.join(self.data_dir, 'predictions.json')
+            with open(data_path, 'r', encoding='utf-8') as f:
+                self.predictions = json.load(f)
+        except:
+            self.predictions = {}
     
     def add_today_highlight(self, highlight: str = None):
         """添加今日核心亮点"""
@@ -259,302 +270,229 @@ class AftermarketProGenerator(ReportProGenerator):
         
         self.add_section("持仓表现总结", content, "💼")
     
-
+    def add_sector_performance(self):
+        """板块表现 - Pro版"""
+        hot = self.hot_sectors
+        cold = self.cold_sectors
+        
+        if not hot and not cold:
+            return
+        
+        html = ''
+        
+        if hot:
+            html += '<div class="mb-4"><div class="text-white font-semibold mb-3 flex items-center gap-2"><span>🔥</span><span>强势板块</span></div><div class="grid md:grid-cols-2 gap-3">'
+            for sector in hot[:4]:
+                name = sector.get('name', '')
+                change = sector.get('change_pct', 0)
+                reason = sector.get('reason', '')
+                leader = sector.get('leader', '')
+                change_str = f"+{change*100:.1f}%" if isinstance(change, (int, float)) else str(change)
+                html += f'<div class="bg-red-500/10 border border-red-500/20 rounded-lg p-3"><div class="flex justify-between items-center mb-2"><span class="text-white font-medium text-sm">{name}</span><span class="text-red-400 font-bold text-sm">{change_str}</span></div><div class="text-xs text-white/60">领涨：{leader}</div></div>'
+            html += '</div></div>'
+        
+        if cold:
+            html += '<div><div class="text-white font-semibold mb-3 flex items-center gap-2"><span>🧊</span><span>弱势板块</span></div><div class="grid md:grid-cols-2 gap-3">'
+            for sector in cold[:4]:
+                name = sector.get('name', '')
+                change = sector.get('change_pct', 0)
+                change_str = f"{change*100:.1f}%" if isinstance(change, (int, float)) else str(change)
+                html += f'<div class="bg-green-500/10 border border-green-500/20 rounded-lg p-3"><div class="flex justify-between items-center"><span class="text-white font-medium text-sm">{name}</span><span class="text-green-400 font-bold text-sm">{change_str}</span></div></div>'
+            html += '</div></div>'
+        
+        self.add_section("板块表现", html, "📊")
+    
     def add_market_sentiment(self):
-        """添加市场情绪温度计 - Pro版"""
+        """市场情绪 - Pro版"""
         market = self.market_data
         sentiment = market.get('sentiment', {})
         market_data = market.get('market_data', {})
         
         fg_score = sentiment.get('fear_greed', 50)
+        advance_decline = sentiment.get('advance_decline_ratio', 1.0)
         
         if fg_score >= 80:
             level = '极度贪婪'
             level_color = 'text-red-400'
-            bar_color = 'from-red-500 to-orange-500'
-            bg_color = 'from-red-500/20 to-orange-500/10'
+            level_bg = 'from-red-500/30 to-orange-500/20'
         elif fg_score >= 60:
             level = '贪婪'
             level_color = 'text-orange-400'
-            bar_color = 'from-orange-500 to-yellow-500'
-            bg_color = 'from-orange-500/20 to-yellow-500/10'
+            level_bg = 'from-orange-500/30 to-yellow-500/20'
         elif fg_score >= 40:
             level = '中性'
             level_color = 'text-blue-400'
-            bar_color = 'from-blue-500 to-cyan-500'
-            bg_color = 'from-blue-500/20 to-cyan-500/10'
+            level_bg = 'from-blue-500/30 to-cyan-500/20'
         elif fg_score >= 20:
             level = '恐惧'
             level_color = 'text-green-400'
-            bar_color = 'from-green-500 to-emerald-500'
-            bg_color = 'from-green-500/20 to-emerald-500/10'
+            level_bg = 'from-green-500/30 to-emerald-500/20'
         else:
             level = '极度恐惧'
             level_color = 'text-emerald-400'
-            bar_color = 'from-emerald-500 to-teal-500'
-            bg_color = 'from-emerald-500/20 to-teal-500/10'
+            level_bg = 'from-emerald-500/30 to-teal-500/20'
         
-        up_count = market_data.get('up_count', 0)
-        down_count = market_data.get('down_count', 0)
-        limit_up = market_data.get('limit_up_count', 0)
-        limit_down = market_data.get('limit_down_count', 0)
-        turnover = market_data.get('turnover', '')
+        indicators = [
+            ('涨跌家数比', f'{advance_decline:.2f}', '📈'),
+            ('涨停数量', f"{market_data.get('limit_up_count', 0)}家", '🔥'),
+            ('跌停数量', f"{market_data.get('limit_down_count', 0)}家", '❄️'),
+            ('市场情绪', level, '💡'),
+        ]
         
-        total = up_count + down_count if (up_count + down_count) > 0 else 1
-        up_ratio = int(up_count / total * 100)
+        ind_html = ''
+        for label, value, icon in indicators:
+            ind_html += f'<div class="text-center bg-white/5 rounded-lg p-3"><div class="text-lg mb-1">{icon}</div><div class="text-lg font-bold text-white">{value}</div><div class="text-xs text-white/50 mt-1">{label}</div></div>'
         
-        left_card = '<div class="bg-gradient-to-br ' + bg_color + ' border border-white/10 rounded-xl p-5 text-center">'
-        left_card += '<div class="text-white/60 text-sm mb-2">恐惧贪婪指数</div>'
-        left_card += '<div class="text-5xl font-black ' + level_color + ' mb-2">' + str(fg_score) + '</div>'
-        left_card += '<div class="text-sm font-semibold ' + level_color + '">' + level + '</div>'
-        left_card += '<div class="w-full h-3 bg-white/10 rounded-full mt-4 overflow-hidden">'
-        left_card += '<div class="h-full bg-gradient-to-r ' + bar_color + ' rounded-full transition-all duration-1000" style="width: ' + str(fg_score) + '%"></div>'
-        left_card += '</div>'
-        left_card += '<div class="flex justify-between text-xs text-white/40 mt-2"><span>恐惧</span><span>中性</span><span>贪婪</span></div>'
-        left_card += '</div>'
+        html = f'''
+        <div class="bg-gradient-to-r {level_bg} border border-white/10 rounded-xl p-5 mb-4">
+            <div class="text-center">
+                <div class="text-4xl font-black {level_color} mb-1">{fg_score}</div>
+                <div class="text-sm text-white/70">恐惧贪婪指数 · {level}</div>
+                <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden mt-3">
+                    <div class="h-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 rounded-full" style="width: {fg_score}%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {ind_html}
+        </div>
+        '''
         
-        right_col = '<div class="space-y-3">'
-        right_col += '<div class="bg-white/5 rounded-lg p-3">'
-        right_col += '<div class="flex justify-between text-sm mb-1"><span class="text-white/60">涨跌家数比</span><span class="text-white font-medium">' + str(up_count) + ' / ' + str(down_count) + '</span></div>'
-        right_col += '<div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">'
-        right_col += '<div class="h-full bg-gradient-to-r from-red-500 to-green-500 rounded-full" style="width: ' + str(up_ratio) + '%"></div>'
-        right_col += '</div></div>'
-        
-        right_col += '<div class="grid grid-cols-2 gap-3">'
-        right_col += '<div class="bg-white/5 rounded-lg p-3 text-center"><div class="text-red-400 text-xl font-bold">' + str(limit_up) + '</div><div class="text-white/40 text-xs">涨停家数</div></div>'
-        right_col += '<div class="bg-white/5 rounded-lg p-3 text-center"><div class="text-green-400 text-xl font-bold">' + str(limit_down) + '</div><div class="text-white/40 text-xs">跌停家数</div></div>'
-        right_col += '</div>'
-        
-        right_col += '<div class="bg-white/5 rounded-lg p-3 text-center"><div class="text-white text-xl font-bold">' + str(turnover) + '</div><div class="text-white/40 text-xs">两市成交额</div></div>'
-        right_col += '</div>'
-        
-        content_html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">' + left_card + right_col + '</div>'
-        
-        self.add_section("市场情绪", content_html, "🌡️")
-    
-    def add_sector_performance(self):
-        """添加板块表现 - Pro版"""
-        hot_html = ''
-        for i, sector in enumerate(self.hot_sectors[:5]):
-            name = sector.get('name', '')
-            change = sector.get('change_pct', '0%')
-            reason = sector.get('reason', '')
-            short_reason = reason[:20] + '...' if len(reason) > 20 else reason
-            
-            item = '<div class="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-all">'
-            item += '<div class="flex items-center gap-3">'
-            item += '<span class="w-6 h-6 bg-red-500/20 text-red-400 rounded-full flex items-center justify-center text-xs font-bold">' + str(i+1) + '</span>'
-            item += '<span class="text-white text-sm font-medium">' + name + '</span>'
-            item += '</div>'
-            item += '<div class="text-right">'
-            item += '<div class="text-red-400 font-bold text-sm">' + str(change) + '</div>'
-            item += '<div class="text-white/40 text-xs">' + short_reason + '</div>'
-            item += '</div></div>'
-            hot_html += item
-        
-        cold_html = ''
-        for i, sector in enumerate(self.cold_sectors[:5]):
-            name = sector.get('name', '')
-            change = sector.get('change_pct', '0%')
-            reason = sector.get('reason', '')
-            short_reason = reason[:20] + '...' if len(reason) > 20 else reason
-            
-            item = '<div class="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-all">'
-            item += '<div class="flex items-center gap-3">'
-            item += '<span class="w-6 h-6 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center text-xs font-bold">' + str(i+1) + '</span>'
-            item += '<span class="text-white text-sm font-medium">' + name + '</span>'
-            item += '</div>'
-            item += '<div class="text-right">'
-            item += '<div class="text-green-400 font-bold text-sm">' + str(change) + '</div>'
-            item += '<div class="text-white/40 text-xs">' + short_reason + '</div>'
-            item += '</div></div>'
-            cold_html += item
-        
-        left_col = '<div><div class="text-white font-semibold mb-3 flex items-center gap-2"><span>🔥</span><span>涨幅榜 TOP5</span></div><div class="space-y-2">' + hot_html + '</div></div>'
-        right_col = '<div><div class="text-white font-semibold mb-3 flex items-center gap-2"><span>❄️</span><span>跌幅榜 TOP5</span></div><div class="space-y-2">' + cold_html + '</div></div>'
-        
-        content_html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">' + left_col + right_col + '</div>'
-        
-        self.add_section("板块表现", content_html, "📊")
-    
-    def add_holdings_tracking(self):
-        """添加持仓跟踪 - Pro版"""
-        portfolio = self.portfolio
-        stocks = portfolio.get('stocks', [])
-        
-        if not stocks:
-            content_html = '<div class="text-center py-8 text-white/40"><p>暂无持仓数据</p></div>'
-            self.add_section("持仓跟踪", content_html, "💼")
-            return
-        
-        stocks_html = ''
-        for stock in stocks[:6]:
-            name = stock.get('name', '')
-            code = stock.get('code', '')
-            price = stock.get('current_price', stock.get('price', 0))
-            cost = stock.get('cost_price', stock.get('cost', 0))
-            pnl_pct = stock.get('profit_pct', stock.get('change_pct', 0))
-            position = stock.get('position', stock.get('shares', ''))
-            
-            try:
-                pnl_val = float(str(pnl_pct).replace('%', '').replace('+', ''))
-            except:
-                pnl_val = 0
-            
-            if pnl_val > 0:
-                pnl_color = 'text-red-400'
-                pnl_bg = 'bg-red-500/10'
-                pnl_sign = '+'
-            elif pnl_val < 0:
-                pnl_color = 'text-green-400'
-                pnl_bg = 'bg-green-500/10'
-                pnl_sign = ''
-            else:
-                pnl_color = 'text-white/60'
-                pnl_bg = 'bg-white/5'
-                pnl_sign = ''
-            
-            card = '<div class="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all duration-300">'
-            card += '<div class="flex items-start justify-between mb-2">'
-            card += '<div><div class="text-white font-semibold">' + name + '</div><div class="text-white/40 text-xs">' + code + '</div></div>'
-            card += '<div class="text-right"><div class="' + pnl_color + ' font-bold">' + pnl_sign + str(pnl_pct) + '</div><div class="text-white/40 text-xs">' + str(position) + '</div></div>'
-            card += '</div>'
-            card += '<div class="flex justify-between text-xs text-white/50"><span>现价: ' + str(price) + '</span><span>成本: ' + str(cost) + '</span></div>'
-            card += '</div>'
-            stocks_html += card
-        
-        content_html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">' + stocks_html + '</div>'
-        
-        self.add_section("持仓跟踪", content_html, "💼")
+        self.add_section("市场情绪", html, "🌡️")
     
     def add_tomorrow_prediction(self):
-        """添加明日预判 - Pro版"""
-        sentiment = self.market_data.get('sentiment', {})
-        fg_score = sentiment.get('fear_greed', 50)
+        """明日预判 - Pro版"""
+        predictions = []
+        market = self.market_data
+        sentiment = market.get('sentiment', {})
+        fg = sentiment.get('fear_greed', 50)
         
-        if fg_score >= 70:
-            trend = "情绪过热，注意回调风险"
-            trend_icon = "⚠️"
-            trend_color = "text-orange-400"
-        elif fg_score >= 50:
-            trend = "情绪中性偏暖，结构性机会为主"
-            trend_icon = "➡️"
-            trend_color = "text-blue-400"
-        elif fg_score >= 30:
-            trend = "情绪偏冷，关注超跌反弹机会"
-            trend_icon = "⬆️"
-            trend_color = "text-green-400"
+        if fg > 60:
+            trend_pred = '震荡上行概率较大'
+            trend_conf = 65
+            trend_reason = '市场情绪偏乐观，资金活跃度较高，需警惕高位分歧。'
+        elif fg > 40:
+            trend_pred = '区间震荡概率较大'
+            trend_conf = 70
+            trend_reason = '情绪中性，市场缺乏明确方向，预计维持区间震荡格局。'
         else:
-            trend = "情绪冰点，反弹一触即发"
-            trend_icon = "🚀"
-            trend_color = "text-emerald-400"
+            trend_pred = '震荡调整概率较大'
+            trend_conf = 60
+            trend_reason = '市场情绪偏谨慎，风险偏好下降，注意控制仓位。'
         
-        strategies = [
-            "控制仓位，避免追高",
-            "关注热点板块持续性",
-            "设置好止损止盈位",
-        ]
+        predictions.append({
+            'direction': '大盘',
+            'name': trend_pred,
+            'confidence': trend_conf,
+            'reason': trend_reason,
+            'icon': '📊'
+        })
         
-        strat_html = ''
-        for s in strategies:
-            strat_html += '<li class="text-white/70 text-sm mb-2 flex items-start gap-2"><span class="text-blue-400 mt-1">•</span><span>' + s + '</span></li>'
+        s_topics = self.topics.get('s_level_topics', [])
+        if s_topics:
+            topic = s_topics[0]
+            predictions.append({
+                'direction': '题材',
+                'name': f"{topic.get('name', '')}有望延续强势",
+                'confidence': 75,
+                'reason': f"{topic.get('name', '')}当前处于高景气周期，政策和资金双重驱动，持续性值得期待。",
+                'icon': '⚡'
+            })
         
-        main_card = '<div class="md:col-span-2 bg-white/5 rounded-xl p-4 border border-white/10">'
-        main_card += '<div class="text-white font-semibold mb-3 flex items-center gap-2"><span>🎯</span><span>明日走势预判</span></div>'
-        main_card += '<div class="' + trend_color + ' text-lg font-bold mb-2">' + trend_icon + ' ' + trend + '</div>'
-        main_card += '<div class="text-white/60 text-sm leading-relaxed">基于当前市场情绪、资金流向和技术面综合判断，明日市场大概率延续结构性行情，重点关注板块轮动节奏。</div>'
-        main_card += '</div>'
+        predictions.append({
+            'direction': '风险',
+            'name': '注意高位股回调风险',
+            'confidence': 65,
+            'reason': '近期涨幅较大的个股存在获利回吐压力，建议回避纯题材炒作的高位股。',
+            'icon': '⚠️'
+        })
         
-        side_cards = '<div class="space-y-3">'
-        side_cards += '<div class="bg-white/5 rounded-xl p-4 border border-white/10"><div class="text-white/60 text-xs mb-1">支撑位</div><div class="text-white font-bold">关注均线支撑</div></div>'
-        side_cards += '<div class="bg-white/5 rounded-xl p-4 border border-white/10"><div class="text-white/60 text-xs mb-1">压力位</div><div class="text-white font-bold">关注前高压力</div></div>'
-        side_cards += '</div>'
+        pred_html = '<div class="space-y-3">'
+        for p in predictions:
+            direction = p.get('direction', '')
+            name = p.get('name', '')
+            confidence = p.get('confidence', 60)
+            reason = p.get('reason', '')
+            icon = p.get('icon', '📊')
+            
+            if direction == '大盘':
+                bg_color = 'from-blue-500/20 to-cyan-500/10 border-blue-500/30'
+            elif direction == '题材':
+                bg_color = 'from-yellow-500/20 to-orange-500/10 border-yellow-500/30'
+            else:
+                bg_color = 'from-red-500/20 to-pink-500/10 border-red-500/30'
+            
+            pred_html += f'<div class="bg-gradient-to-r {bg_color} border rounded-xl p-4"><div class="flex items-center justify-between mb-2"><div class="flex items-center gap-2"><span class="text-lg">{icon}</span><span class="text-white font-semibold">{name}</span></div><div class="text-right"><span class="text-xs text-white/50">置信度</span><span class="text-white font-bold ml-1">{confidence}%</span></div></div><p class="text-sm text-white/70 leading-relaxed m-0">{reason}</p></div>'
         
-        strat_card = '<div class="mt-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-blue-500/20">'
-        strat_card += '<div class="text-white font-semibold mb-3 flex items-center gap-2"><span>📋</span><span>操作策略建议</span></div>'
-        strat_card += '<ul class="space-y-1">' + strat_html + '</ul>'
-        strat_card += '</div>'
-        
-        content_html = '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">' + main_card + side_cards + '</div>' + strat_card
-        
-        self.add_section("明日预判", content_html, "🔮")
+        pred_html += '</div>'
+        self.add_section("明日预判", pred_html, "🎯")
     
     def add_risk_warning(self):
-        """添加风险提示 - Pro版"""
+        """风险提示 - Pro版"""
         risks = [
-            {'level': 'high', 'title': '外围市场波动风险', 'desc': '美股高位震荡，美联储政策不确定性可能传导至A股'},
-            {'level': 'mid', 'title': '板块轮动加速风险', 'desc': '热点切换频繁，追高容易被套，建议低吸为主'},
-            {'level': 'low', 'title': '成交量萎缩风险', 'desc': '若量能持续萎缩，市场活跃度可能下降'},
+            {'level': '中', 'title': '市场波动风险', 'desc': '近期市场波动加大，注意控制仓位，避免追高。'},
+            {'level': '低', 'title': '流动性风险', 'desc': '若成交额持续萎缩，需警惕市场活跃度下降。'},
+            {'level': '中', 'title': '板块轮动风险', 'desc': '热点切换频繁，持续性较差，避免盲目追涨杀跌。'},
         ]
         
-        risks_html = ''
-        for risk in risks:
-            if risk['level'] == 'high':
-                icon = '🔴'
-                bg = 'bg-red-500/10 border-red-500/30'
-                title_color = 'text-red-400'
-            elif risk['level'] == 'mid':
-                icon = '🟡'
-                bg = 'bg-yellow-500/10 border-yellow-500/30'
-                title_color = 'text-yellow-400'
-            else:
-                icon = '🟢'
-                bg = 'bg-green-500/10 border-green-500/30'
-                title_color = 'text-green-400'
-            
-            card = '<div class="' + bg + ' rounded-lg p-4 border">'
-            card += '<div class="flex items-center gap-2 mb-2"><span>' + icon + '</span><span class="' + title_color + ' font-semibold text-sm">' + risk['title'] + '</span></div>'
-            card += '<p class="text-white/60 text-xs leading-relaxed">' + risk['desc'] + '</p>'
-            card += '</div>'
-            risks_html += card
+        level_colors = {
+            '高': ('bg-red-500/20', 'text-red-400', 'border-red-500/30'),
+            '中': ('bg-yellow-500/20', 'text-yellow-400', 'border-yellow-500/30'),
+            '低': ('bg-green-500/20', 'text-green-400', 'border-green-500/30'),
+        }
         
-        content_html = '<div class="grid grid-cols-1 md:grid-cols-3 gap-3">' + risks_html + '</div>'
-        
-        self.add_section("风险提示", content_html, "⚠️")
+        risks_html = '<div class="grid md:grid-cols-3 gap-3">'
+        for r in risks:
+            level = r.get('level', '中')
+            bg, text, border = level_colors.get(level, level_colors['中'])
+            risks_html += f'<div class="{bg} {border} border rounded-xl p-4"><div class="flex items-center gap-2 mb-2"><span class="text-lg">⚠️</span><span class="text-white font-semibold">{r["title"]}</span><span class="ml-auto text-xs font-bold {text} px-2 py-0.5 rounded-full bg-white/10">{level}风险</span></div><p class="text-sm text-white/60 m-0">{r["desc"]}</p></div>'
+        risks_html += '</div>'
+        self.add_section("风险提示", risks_html, "⚠️")
     
     def add_trading_plan(self):
-        """添加交易计划 - Pro版"""
+        """交易计划 - Pro版"""
         plans = [
-            {'time': '早盘', 'action': '观察开盘半小时量能和热点板块', 'priority': 'high'},
-            {'time': '午盘', 'action': '根据上午走势调整持仓结构', 'priority': 'mid'},
-            {'time': '尾盘', 'action': '确认当日趋势，进行仓位再平衡', 'priority': 'mid'},
+            {'type': '持仓策略', 'content': '整体仓位控制在5-7成，保留部分现金应对波动。', 'icon': '💼'},
+            {'type': '关注方向', 'content': '重点关注AI算力、存储芯片、人形机器人等主线赛道的低吸机会。', 'icon': '🎯'},
+            {'type': '操作建议', 'content': '避免追高，逢低布局业绩确定性强的优质标的。', 'icon': '📝'},
         ]
         
-        plans_html = ''
-        for plan in plans:
-            if plan['priority'] == 'high':
-                badge = '<span class="bg-red-500/20 text-red-400 px-2 py-0.5 rounded text-xs font-semibold">重点</span>'
-            else:
-                badge = '<span class="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-xs font-semibold">关注</span>'
-            
-            item = '<div class="flex items-start gap-3 p-3 bg-white/5 rounded-lg">'
-            item += '<div class="text-center flex-shrink-0"><div class="text-white font-bold text-sm">' + plan['time'] + '</div><div class="w-1 h-1 bg-white/20 rounded-full mx-auto mt-1"></div></div>'
-            item += '<div class="flex-1"><p class="text-white/80 text-sm">' + plan['action'] + '</p><div class="mt-2">' + badge + '</div></div>'
-            item += '</div>'
-            plans_html += item
+        plans_html = '<div class="space-y-3">'
+        for p in plans:
+            plans_html += f'<div class="bg-white/5 border border-white/10 rounded-xl p-4"><div class="flex items-center gap-2 mb-2"><span class="text-lg">{p["icon"]}</span><span class="text-white font-semibold">{p["type"]}</span></div><p class="text-sm text-white/70 leading-relaxed m-0">{p["content"]}</p></div>'
+        plans_html += '</div>'
+        self.add_section("交易计划", plans_html, "📋")
+    
+    def add_daily_summary(self):
+        """每日总结 - Pro版"""
+        market = self.market_data
+        market_data = market.get('market_data', {})
+        sentiment = market.get('sentiment', {})
+        turnover = market_data.get('turnover', '')
+        fg = sentiment.get('fear_greed', 50)
         
-        tip_box = '<div class="mt-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl p-4 border border-purple-500/20">'
-        tip_box += '<div class="text-white font-semibold text-sm mb-2">💡 今日交易原则</div>'
-        tip_box += '<p class="text-white/60 text-xs leading-relaxed">顺势而为，不逆势操作；严格止损，让利润奔跑；仓位管理优先于个股选择，保持心态平稳。</p>'
-        tip_box += '</div>'
+        hot = self.hot_sectors
+        hot_names = '、'.join([s.get('name', '') for s in hot[:3]]) if hot else ''
         
-        content_html = '<div class="space-y-3">' + plans_html + '</div>' + tip_box
+        summary = f"今日市场整体呈现情绪{'偏强' if fg > 50 else '偏弱'}格局，两市成交额{turnover}。{hot_names}等板块表现强势，市场结构性机会依然存在。操作上建议聚焦业绩确定性强的优质标的，避免追高，保持合理仓位。"
         
-        self.add_section("交易计划", content_html, "📝")
+        content = f'<div class="bg-gradient-to-r from-purple-500/15 to-blue-500/10 border border-purple-500/20 rounded-xl p-5"><div class="text-white font-bold mb-3 flex items-center gap-2"><span>📝</span><span>今日总结</span></div><div class="text-white/70 leading-relaxed text-sm">{summary}</div></div>'
+        self.add_section("每日总结", content, "📝")
 
 
     def build_standard_report(self):
-        """构建标准版本盘后速递"""
+        """构建标准版本的盘后速递"""
         self.add_today_highlight()
         self.add_market_summary()
-        self.add_market_sentiment()
         self.add_sector_performance()
-        self.add_holdings_tracking()
+        self.add_market_sentiment()
         self.add_longhubang_summary()
         self.add_evening_news()
+        self.add_portfolio_summary()
         self.add_tomorrow_prediction()
         self.add_risk_warning()
         self.add_trading_plan()
+        self.add_daily_summary()
         return self
 
 
