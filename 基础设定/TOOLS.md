@@ -10,7 +10,7 @@
 4. **列表页更新**：读取→插入新卡片→原"最新"改普通标签
 5. **导航栏**：玻璃态+11按钮+统一"周三前瞻"
 6. **提交前**：必须运行`./validate_system.sh`
-7. **持仓限制**：仅3个（英维克、铜冠铜箔、*ST建艺）
+7. **持仓限制**：共4个（英维克、铜冠铜箔、雅克科技、*ST建艺）
 8. **文件修改**：仅改目标部分，严禁全文件替换
 9. **白卡白字**：检查所有style标签，注意后面覆盖前面
 10. **指数数据**：必须区分指数/股票类型，000001既是上证指数也是平安银行
@@ -95,9 +95,7 @@
 - 实现方式：news-tabs-container + news-tab-btn + news-tab-panel 类名 + switchNewsTab JS函数
 - 位置：daily_pro.py 的 add_important_news() 方法
 
-### 生成器体系不统一
-- 例外：PortfolioDashboardProGenerator独立实现，TimeMachinePage继承ProPage
-- 注意：批量处理时需特殊处理，不假设所有生成器方法签名一致
+
 
 ### Git合并冲突
 - 禁止`git merge -X theirs`，会残留冲突标记
@@ -109,3 +107,6 @@
 - 双数据源同步：`data/`（本地）↔ `docs/data/`（部署）
 - 字段兼容：price/current_price、change_pct/today_change、sectors_hot/hot_sectors
 - 校验规则：上证指数3000-5000点区间，异常值需二次验证
+
+## Pro生成器使用注意
+独立实现的生成器方法签名不统一：PortfolioDashboardProGenerator入参为data_path，用generate()生成内容；HomePageProGenerator用render()生成内容。调用前必须先grep查询公开方法，避免硬编码错误。

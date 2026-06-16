@@ -225,55 +225,70 @@ class TopicDeepDiveProGenerator(ProGenerator):
         
         landscape = topic.get('competitive_landscape', {})
         
-        # 如果没有专门的竞争格局数据，尝试从产业链提取
-        if not landscape:
-            chain = topic.get('industry_chain', {})
-            # 汇总各环节的头部公司作为竞争格局
-            all_companies = []
-            for section_key in ['upstream', 'midstream', 'downstream']:
-                section = chain.get(section_key, {})
-                section_name = section.get('name', section_key)
-                companies = section.get('companies', [])
-                for comp in companies:
-                    comp['section'] = section_name
-                    all_companies.append(comp)
-            
-            if not all_companies:
-                return ''
-            
-            # 按重要性分组
-            high_importance = [c for c in all_companies if c.get('importance') == 'high']
-            medium_importance = [c for c in all_companies if c.get('importance') == 'medium']
-            
+        # 如果有完整的竞争格局数据，直接渲染
+        if landscape:
             tabs = []
             
-            if high_importance:
+            # 全球竞争格局
+            global_companies = landscape.get('global', [])
+            if global_companies:
                 cards = []
-                for comp in high_importance:
+                for comp in global_companies:
+                    name = comp.get('name', '')
+                    desc = comp.get('desc', '')
+                    market_share = comp.get('market_share', '')
+                    
                     card_content = f'''
-                    <div class="font-medium text-white mb-1">{comp.get('name', '')}</div>
-                    <div class="text-xs text-white/50 mb-1">{comp.get('role', '')}</div>
-                    <div class="text-xs text-blue-400">{comp.get('section', '')}</div>
+                    <div class="font-medium text-white mb-1">{name}</div>
+                    <div class="text-xs text-white/50 mb-2">{desc}</div>
+                    {market_share and f'<div class="text-xs text-blue-400">市占率: {market_share}</div>'}
                     '''
                     cards.append({'content': card_content})
                 
                 tabs.append({
-                    'label': f'核心厂商 ({len(high_importance)})',
+                    'label': f'全球厂商 ({len(global_companies)})',
                     'content': self.create_card_group(cards=cards, cols=2, card_style='subtle')
                 })
             
-            if medium_importance:
+            # 国内竞争格局
+            domestic_companies = landscape.get('domestic', [])
+            if domestic_companies:
                 cards = []
-                for comp in medium_importance:
+                for comp in domestic_companies:
+                    name = comp.get('name', '')
+                    desc = comp.get('desc', '')
+                    market_share = comp.get('market_share', '')
+                    
                     card_content = f'''
-                    <div class="font-medium text-white mb-1">{comp.get('name', '')}</div>
-                    <div class="text-xs text-white/50 mb-1">{comp.get('role', '')}</div>
-                    <div class="text-xs text-blue-400">{comp.get('section', '')}</div>
+                    <div class="font-medium text-white mb-1">{name}</div>
+                    <div class="text-xs text-white/50 mb-2">{desc}</div>
+                    {market_share and f'<div class="text-xs text-green-400">国内市占: {market_share}</div>'}
                     '''
                     cards.append({'content': card_content})
                 
                 tabs.append({
-                    'label': f'重要厂商 ({len(medium_importance)})',
+                    'label': f'国内厂商 ({len(domestic_companies)})',
+                    'content': self.create_card_group(cards=cards, cols=2, card_style='subtle')
+                })
+            
+            # 价值链分析
+            value_chain = landscape.get('value_chain', [])
+            if value_chain:
+                cards = []
+                for item in value_chain:
+                    name = item.get('name', '')
+                    desc = item.get('desc', '')
+                    ratio = item.get('value_ratio', '')
+                    
+                    card_content = f'''
+                    <div class="font-medium text-white mb-1">{name}</div>
+                    <div class="text-xs text-white/50 mb-2">{desc}</div>
+                    {ratio and f'<div class="text-xs text-purple-400">价值占比: {ratio}</div>'}
+                    '''
+                    cards.append({'content': card_content})
+                
+                tabs.append({
+                    'label': f'价值链 ({len(value_chain)})',
                     'content': self.create_card_group(cards=cards, cols=2, card_style='subtle')
                 })
             
@@ -289,8 +304,84 @@ class TopicDeepDiveProGenerator(ProGenerator):
             
             return GlassCard(content=content, padding="p-6", extra_class="mb-6").render()
         
-        # 如果有完整的竞争格局数据（待扩展）
-        return ''
+        # 如果没有专门的竞争格局数据，尝试从产业链提取
+        chain = topic.get('industry_chain', {})
+        # 汇总各环节的头部公司作为竞争格局
+        all_companies = []
+        for section_key in ['upstream', 'midstream', 'downstream']:
+            section = chain.get(section_key, {})
+            section_name = section.get('name', section_key)
+            companies = section.get('companies', [])
+            for comp in companies:
+                comp['section'] = section_name
+                all_companies.append(comp)
+        
+        if not all_companies:
+            return ''
+        
+        # 按重要性分组
+        high_importance = [c for c in all_companies if c.get('importance') == 'high']
+        medium_importance = [c for c in all_companies if c.get('importance') == 'medium']
+        
+        tabs = []
+        
+        if high_importance:
+            cards = []
+            for comp in high_importance:
+                card_content = f'''
+                <div class="font-medium text-white mb-1">{comp.get('name', '')}</div>
+                <div class="text-xs text-white/50 mb-1">{comp.get('role', '')}</div>
+                <div class="text-xs text-blue-400">{comp.get('section', '')}</div>
+                '''
+                cards.append({'content': card_content})
+            
+            tabs.append({
+                'label': f'核心厂商 ({len(high_importance)})',
+                'content': self.create_card_group(cards=cards, cols=2, card_style='subtle')
+            })
+        
+        if medium_importance:
+            cards = []
+            for comp in medium_importance:
+                card_content = f'''
+                <div class="font-medium text-white mb-1">{comp.get('name', '')}</div>
+                <div class="text-xs text-white/50 mb-1">{comp.get('role', '')}</div>
+                <div class="text-xs text-blue-400">{comp.get('section', '')}</div>
+                '''
+                cards.append({'content': card_content})
+            
+            tabs.append({
+                'label': f'重要厂商 ({len(medium_importance)})',
+                'content': self.create_card_group(cards=cards, cols=2, card_style='subtle')
+            })
+        
+        # 如果没有按重要性分组，就全部显示
+        if not tabs and all_companies:
+            cards = []
+            for comp in all_companies:
+                card_content = f'''
+                <div class="font-medium text-white mb-1">{comp.get('name', '')}</div>
+                <div class="text-xs text-white/50 mb-1">{comp.get('role', '') or comp.get('tag', '')}</div>
+                <div class="text-xs text-blue-400">{comp.get('section', '')}</div>
+                '''
+                cards.append({'content': card_content})
+            
+            tabs.append({
+                'label': f'全部厂商 ({len(all_companies)})',
+                'content': self.create_card_group(cards=cards, cols=2, card_style='subtle')
+            })
+        
+        if not tabs:
+            return ''
+        
+        tab_html = self.create_tab_pane(tabs=tabs, tab_id="competitive", style="default")
+        
+        content = f'''
+            {SectionTitle(text='🏢 竞争格局', icon='🏢').render()}
+            {tab_html}
+        '''
+        
+        return GlassCard(content=content, padding="p-6", extra_class="mb-6").render()
     
     def _generate_downstream_demand(self) -> str:
         """生成下游需求分析 - 卡片组"""
@@ -298,33 +389,28 @@ class TopicDeepDiveProGenerator(ProGenerator):
         if not topic:
             return ''
         
-        downstream = topic.get('downstream_demand', [])
+        # 支持多种字段名
+        downstream = topic.get('downstream_demand', []) or topic.get('downstream_applications', [])
         
-        # 如果没有专门数据，从产业链下游提取
-        if not downstream:
-            chain = topic.get('industry_chain', {})
-            down_section = chain.get('downstream', {})
-            companies = down_section.get('companies', [])
-            
-            if not companies:
-                return ''
-            
+        # 如果有专门的下游应用数据，直接渲染
+        if downstream:
             cards = []
-            for comp in companies[:6]:  # 最多显示6个
-                name = comp.get('name', '')
-                role = comp.get('role', '')
-                importance = comp.get('importance', 'medium')
-                
-                imp_color = {'high': 'text-green-400', 'medium': 'text-yellow-400', 'low': 'text-gray-400'}.get(importance, 'text-white/60')
+            for item in downstream:
+                if isinstance(item, dict):
+                    title = item.get('title', '')
+                    content = item.get('content', '') or item.get('description', '')
+                    icon = item.get('icon', '📦')
+                else:
+                    title = str(item)
+                    content = ''
+                    icon = '📦'
                 
                 card_content = f'''
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center text-lg">
-                        📦
-                    </div>
+                <div class="flex items-start gap-3">
+                    <div class="text-2xl flex-shrink-0">{icon}</div>
                     <div>
-                        <div class="font-medium text-white">{name}</div>
-                        <div class="text-xs text-white/50">{role}</div>
+                        <h4 class="text-white font-medium mb-1">{title}</h4>
+                        <p class="text-sm text-white/60">{content}</p>
                     </div>
                 </div>
                 '''
@@ -333,7 +419,7 @@ class TopicDeepDiveProGenerator(ProGenerator):
             if not cards:
                 return ''
             
-            cards_html = self.create_card_group(cards=cards, cols=3, card_style='subtle')
+            cards_html = self.create_card_group(cards=cards, cols=2, card_style='glass')
             
             content = f'''
                 {SectionTitle(text='📦 下游应用', icon='📦').render()}
@@ -342,7 +428,46 @@ class TopicDeepDiveProGenerator(ProGenerator):
             
             return GlassCard(content=content, padding="p-6", extra_class="mb-6").render()
         
-        return ''
+        # 如果没有专门数据，从产业链下游提取
+        chain = topic.get('industry_chain', {})
+        down_section = chain.get('downstream', {})
+        companies = down_section.get('companies', [])
+        
+        if not companies:
+            return ''
+        
+        cards = []
+        for comp in companies[:6]:  # 最多显示6个
+            name = comp.get('name', '')
+            role = comp.get('role', '') or comp.get('tag', '')
+            importance = comp.get('importance', 'medium')
+            
+            imp_color = {'high': 'text-green-400', 'medium': 'text-yellow-400', 'low': 'text-gray-400'}.get(importance, 'text-white/60')
+            
+            card_content = f'''
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center text-lg">
+                    📦
+                </div>
+                <div>
+                    <div class="font-medium text-white">{name}</div>
+                    <div class="text-xs text-white/50">{role}</div>
+                </div>
+            </div>
+            '''
+            cards.append({'content': card_content})
+        
+        if not cards:
+            return ''
+        
+        cards_html = self.create_card_group(cards=cards, cols=3, card_style='subtle')
+        
+        content = f'''
+            {SectionTitle(text='📦 下游应用', icon='📦').render()}
+            {cards_html}
+        '''
+        
+        return GlassCard(content=content, padding="p-6", extra_class="mb-6").render()
     
     def _generate_industry_chain(self) -> str:
         """生成产业链分析 - Tab切换 + 卡片组"""
@@ -536,7 +661,7 @@ class TopicDeepDiveProGenerator(ProGenerator):
         for risk in risks:
             if isinstance(risk, dict):
                 title = risk.get('title', '')
-                description = risk.get('description', '')
+                description = risk.get('description', '') or risk.get('content', '')
             else:
                 title = str(risk)
                 description = ''
@@ -578,9 +703,12 @@ class TopicDeepDiveProGenerator(ProGenerator):
             take_profit = strategy.get('take_profit', '')
             if take_profit:
                 items.append({'title': '止盈位', 'value': take_profit, 'icon': '💰'})
-            time_horizon = strategy.get('time_horizon', '')
+            time_horizon = strategy.get('time_horizon', '') or strategy.get('investment_cycle', '')
             if time_horizon:
                 items.append({'title': '投资周期', 'value': time_horizon, 'icon': '⏳'})
+            core_logic = strategy.get('core_logic', '')
+            if core_logic:
+                items.append({'title': '核心逻辑', 'value': core_logic, 'icon': '💡'})
             
             grid_html = self.create_data_grid(items=items, cols=min(len(items), 4))
             
