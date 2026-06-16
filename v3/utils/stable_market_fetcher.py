@@ -332,20 +332,61 @@ def safe_update_market_data():
     # 估算涨跌家数（基于市场情绪和指数涨幅）
     # 实际项目中应该从真实接口获取
     up_ratio = min(0.9, max(0.1, 0.5 + avg_change * 10))
-    total_stocks = 5200  # 估算A股总数
+    total_stocks = 5500  # 估算A股总数（2025年以后约5500只）
     up_count = int(total_stocks * up_ratio)
     down_count = total_stocks - up_count
     
     # 估算涨跌停数量
-    limit_up = int(80 + avg_change * 2000) if avg_change > 0 else int(80 + avg_change * 1000)
-    limit_down = int(20 - avg_change * 500) if avg_change < 0 else 15
-    limit_up = max(10, min(200, limit_up))
-    limit_down = max(5, min(100, limit_down))
+    limit_up = int(60 + avg_change * 2000) if avg_change > 0 else int(60 + avg_change * 800)
+    limit_down = int(30 - avg_change * 600) if avg_change < 0 else 20
+    limit_up = max(10, min(300, limit_up))
+    limit_down = max(5, min(150, limit_down))
     
-    # 估算成交额
-    base_turnover = 8000
-    turnover_estimate = base_turnover + abs(avg_change) * 50000
-    turnover_str = f"{int(turnover_estimate/100)*100}亿"
+    # 获取真实成交额（从腾讯财经指数数据中提取）
+    turnover_str = "0亿"
+    try:
+        # 获取沪市成交额（上证指数包含所有沪市股票）
+        sh_url = "https://qt.gtimg.cn/q=sh000001"
+        sh_req = urllib.request.Request(sh_url, headers=_get_headers())
+        with urllib.request.urlopen(sh_req, timeout=8) as sh_resp:
+            sh_content = sh_resp.read().decode('gbk')
+            sh_start = sh_content.find('"') + 1
+            sh_end = sh_content.find('"', sh_start)
+            sh_data = sh_content[sh_start:sh_end].split('~')
+            sh_amount = 0
+            if len(sh_data) > 35 and '/' in sh_data[35]:
+                sh_parts = sh_data[35].split('/')
+                if len(sh_parts) >= 3:
+                    sh_amount = float(sh_parts[2]) / 1e8
+        
+        # 获取深市成交额（深证成指+创业板指估算）
+        sz_url = "https://qt.gtimg.cn/q=sz399001"
+        sz_req = urllib.request.Request(sz_url, headers=_get_headers())
+        with urllib.request.urlopen(sz_req, timeout=8) as sz_resp:
+            sz_content = sz_resp.read().decode('gbk')
+            sz_start = sz_content.find('"') + 1
+            sz_end = sz_content.find('"', sz_start)
+            sz_data = sz_content[sz_start:sz_end].split('~')
+            sz_amount = 0
+            if len(sz_data) > 35 and '/' in sz_data[35]:
+                sz_parts = sz_data[35].split('/')
+                if len(sz_parts) >= 3:
+                    sz_amount = float(sz_parts[2]) / 1e8
+        
+        # 总成交额 = 沪市 + 深市（深市乘以1.1系数估算未纳入成指的股票）
+        total_amount = sh_amount + sz_amount * 1.1
+        if total_amount > 1000:  # 数据有效
+            turnover_str = f"{int(total_amount/100)*100}亿"
+        else:
+            # fallback到估算
+            base_turnover = 20000  # 更新基数为2万亿（2025年以后的正常水平）
+            turnover_estimate = base_turnover + abs(avg_change) * 50000
+            turnover_str = f"{int(turnover_estimate/100)*100}亿"
+    except:
+        # 获取失败时使用估算
+        base_turnover = 20000
+        turnover_estimate = base_turnover + abs(avg_change) * 50000
+        turnover_str = f"{int(turnover_estimate/100)*100}亿"
     
     new_data = {
         'update_time': datetime.now().strftime('%Y年%m月%d日 %H:%M'),

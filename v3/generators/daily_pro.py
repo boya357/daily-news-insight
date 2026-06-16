@@ -14,6 +14,7 @@ from components.pro import GlassCard, TagBadge
 from generators.report_pro_base import ReportProGenerator
 from utils.data_loader import (
     get_market_summary, get_hot_sectors, get_cold_sectors,
+    load_market_data,
     get_indices_for_daily, load_portfolio
 )
 
@@ -44,7 +45,7 @@ class DailyReportProGenerator(ReportProGenerator):
     def _load_data(self):
         """加载所有需要的数据"""
         # 市场数据
-        self.market_data = get_market_summary()
+        self.market_data = load_market_data()
         self.hot_sectors = get_hot_sectors()
         self.cold_sectors = get_cold_sectors()
         

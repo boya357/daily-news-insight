@@ -11,7 +11,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from generators.report_pro_base import ReportProGenerator
-from utils.data_loader import get_indices_for_daily, load_portfolio, get_market_summary, get_hot_sectors, get_cold_sectors
+from utils.data_loader import get_indices_for_daily, load_portfolio, load_market_data, get_hot_sectors, get_cold_sectors
 
 
 class AftermarketProGenerator(ReportProGenerator):
@@ -38,7 +38,7 @@ class AftermarketProGenerator(ReportProGenerator):
         """加载数据"""
         self.indices = get_indices_for_daily()
         self.portfolio = load_portfolio()
-        self.market_data = get_market_summary()
+        self.market_data = load_market_data()
         self.hot_sectors = get_hot_sectors()
         self.cold_sectors = get_cold_sectors()
         
