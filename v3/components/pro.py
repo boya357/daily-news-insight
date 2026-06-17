@@ -1321,18 +1321,9 @@ class NavBar(Component):
         self.active_page = active_page
     
     def render(self) -> str:
-        nav_items = [
-            ('首页', '/daily-news-insight/index.html'),
-            ('日报', '/daily-news-insight/daily/latest.html'),
-            ('盘中', '/daily-news-insight/intraday/latest.html'),
-            ('盘后', '/daily-news-insight/aftermarket/latest.html'),
-            ('持仓', '/daily-news-insight/portfolio/index.html'),
-            ('预警', '/daily-news-insight/alert-system/index.html'),
-            ('龙虎榜', '/daily-news-insight/longhubang/index.html'),
-            ('周复盘', '/daily-news-insight/weekly_review/latest.html'),
-            ('周三前瞻', '/daily-news-insight/weekly_outlook/latest.html'),
-            ('题材深度', '/daily-news-insight/topic-depth/index.html'),
-        ]
+        # 从核心配置导入导航项，保持全站统一
+        from core.config import NAV_ITEMS
+        nav_items = [(item['label'], item['path']) for item in NAV_ITEMS]
         
         nav_links = ''
         for name, url in nav_items:
@@ -1340,24 +1331,16 @@ class NavBar(Component):
             active_class = 'text-white bg-white/20' if is_active else 'text-white/80 hover:text-white hover:bg-white/10'
             nav_links += f'<a href="{url}" class="{active_class} text-sm transition-colors px-3 py-1.5 rounded-lg">{name}</a>'
         
-        # 移动端菜单项
-        mobile_items = [
-            ('🏠 首页', '/daily-news-insight/index.html'),
-            ('📰 日报', '/daily-news-insight/daily/latest.html'),
-            ('📈 盘中快报', '/daily-news-insight/intraday/latest.html'),
-            ('📉 盘后速递', '/daily-news-insight/aftermarket/latest.html'),
-            ('💼 持仓监控', '/daily-news-insight/portfolio/index.html'),
-            ('⚠️ 智能预警', '/daily-news-insight/alert-system/index.html'),
-            ('🐉 龙虎榜', '/daily-news-insight/longhubang/index.html'),
-            ('📋 周复盘', '/daily-news-insight/weekly_review/latest.html'),
-            ('🔮 周三前瞻', '/daily-news-insight/weekly_outlook/latest.html'),
-            ('🔥 板块热力', '/daily-news-insight/sector-heatmap/index.html'),
-            ('📊 数据时光机', '/daily-news-insight/time-machine/index.html'),
-            ('🧠 智能选题', '/daily-news-insight/topic-picker/index.html'),
-            ('💡 题材健康度', '/daily-news-insight/topic-health/index.html'),
-            ('🔍 题材深度', '/daily-news-insight/topic-depth/index.html'),
-            ('📅 月度总结', '/daily-news-insight/monthly/latest.html'),
-        ]
+        # 移动端菜单项（从配置生成，与桌面导航一致）
+        mobile_icons = {
+            '首页': '🏠', '日报': '📰', '盘中': '📈', '盘后': '📉',
+            '产业链': '🔗', '周复盘': '📋', '周三前瞻': '🔮',
+            '周末速递': '📦', '明日催化': '⏰', 'S级催化': '⚡', '月报': '📅',
+        }
+        mobile_items = []
+        for item in NAV_ITEMS:
+            icon = mobile_icons.get(item['label'], '📄')
+            mobile_items.append((f'{icon} {item["label"]}', item['path']))
         
         mobile_links = ''
         for name, url in mobile_items:
