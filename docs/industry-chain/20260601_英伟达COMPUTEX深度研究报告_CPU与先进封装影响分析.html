@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英伟达COMPUTEX深度研究报告 - CPU与先进封装影响分析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+        
+        * { font-family: 'Noto Sans SC', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card-glass {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 15px 40px rgba(118, 75, 162, 0.35);
+            border-radius: 20px;
+        }
+        
+        .tag-S { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .tag-A { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .tag-B { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        
+        .timeline-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+        
+        .chain-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .chain-card:hover {
+            transform: translateY(-3px);
+            border-color: #8b5cf6;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+        }
+        
+        .impact-high { background: linear-gradient(135deg, #fee2e2, #fecaca); border-left: 4px solid #ef4444; }
+        .impact-medium { background: linear-gradient(135deg, #fef3c7, #fde68a); border-left: 4px solid #f59e0b; }
+        .impact-low { background: linear-gradient(135deg, #dcfce7, #bbf7d0); border-left: 4px solid #22c55e; }
+        
+        .banner-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        }
+        
+        .countdown-box {
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        /* 悬浮功能按钮 */
+        .float-btn-group {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .float-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .float-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .float-btn.print {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+        
+        .float-btn.print:hover {
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+        }
+        
+        .float-btn.share {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+        
+        .float-btn.share:hover {
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+        }
+        
+        .float-btn.top {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+        
+        .float-btn.top:hover {
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        }
+        
+        .tooltip {
+            position: absolute;
+            right: 64px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+        
+        .float-btn-wrapper:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+    
+    /* ========== card-glass 浅色背景文字防御 ========== */
+    /* 防止card-glass把浅色背景上的灰色文字也强制变白 */
+    .card-glass .bg-white .text-gray-800,
+    .card-glass .bg-white .text-gray-700,
+    .card-glass .bg-white .text-gray-600,
+    .card-glass .bg-white .text-gray-500,
+    .card-glass .bg-white .text-gray-400 {
+        color: #1f2937 !important;
+    }
+    
+    .card-glass .bg-white .text-gray-300,
+    .card-glass .bg-white .text-gray-200 {
+        color: #9ca3af !important;
+    }
+    
+    /* 白色背景上的主题色文字恢复 */
+    .card-glass .bg-white .text-indigo-600,
+    .card-glass .bg-white .text-purple-600,
+    .card-glass .bg-white .text-blue-600,
+    .card-glass .bg-white .text-green-600,
+    .card-glass .bg-white .text-orange-600,
+    .card-glass .bg-white .text-red-600 {
+        color: inherit !important;
+    }
+    
+    /* 浅色渐变背景 (from-*-50 / to-*-50) */
+    .card-glass [class*="from-"][class*="-50"] .text-gray-800,
+    .card-glass [class*="from-"][class*="-50"] .text-gray-700,
+    .card-glass [class*="from-"][class*="-50"] .text-gray-600,
+    .card-glass [class*="from-"][class*="-50"] .text-gray-500,
+    .card-glass [class*="from-"][class*="-50"] .text-gray-400,
+    .card-glass [class*="to-"][class*="-50"] .text-gray-800,
+    .card-glass [class*="to-"][class*="-50"] .text-gray-700,
+    .card-glass [class*="to-"][class*="-50"] .text-gray-600,
+    .card-glass [class*="to-"][class*="-50"] .text-gray-500,
+    .card-glass [class*="to-"][class*="-50"] .text-gray-400 {
+        color: #1f2937 !important;
+    }
+    
+    /* 浅灰背景 */
+    .card-glass .bg-gray-100 .text-gray-800,
+    .card-glass .bg-gray-100 .text-gray-700,
+    .card-glass .bg-gray-100 .text-gray-600,
+    .card-glass .bg-gray-100 .text-gray-500,
+    .card-glass .bg-gray-200 .text-gray-800,
+    .card-glass .bg-gray-200 .text-gray-700,
+    .card-glass .bg-gray-200 .text-gray-600,
+    .card-glass .bg-gray-200 .text-gray-500 {
+        color: #374151 !important;
+    }
+    
+    /* 卡片内浅色背景块标题文字 */
+    .card-glass .bg-white h1, .card-glass .bg-white h2, .card-glass .bg-white h3,
+    .card-glass .bg-white h4, .card-glass .bg-white h5, .card-glass .bg-white h6,
+    .card-glass [class*="from-"][class*="-50"] h1,
+    .card-glass [class*="from-"][class*="-50"] h2,
+    .card-glass [class*="from-"][class*="-50"] h3,
+    .card-glass [class*="from-"][class*="-50"] h4,
+    .card-glass [class*="from-"][class*="-50"] h5,
+    .card-glass [class*="from-"][class*="-50"] h6 {
+        color: #111827 !important;
+    }
+    /* ========== 防御结束 ========== */
+</style>
+
+
+
+<style>
+/* ===== 悬浮目录导航 ===== */
+.toc-wrapper {
+    position: fixed;
+    top: 120px;
+    width: 220px;
+    max-height: calc(100vh - 160px);
+    background: rgba(139, 92, 246, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+    z-index: 90;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.toc-right {
+    right: 20px;
+}
+
+.toc-left {
+    left: 20px;
+}
+
+.toc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    user-select: none;
+}
+
+.toc-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+}
+
+.toc-header svg {
+    color: rgba(255, 255, 255, 0.7);
+    transition: transform 0.3s ease;
+}
+
+.toc-wrapper.collapsed .toc-header svg {
+    transform: rotate(-90deg);
+}
+
+.toc-content {
+    max-height: calc(100vh - 220px);
+    overflow-y: auto;
+    padding: 8px 0;
+    transition: max-height 0.3s ease;
+}
+
+.toc-wrapper.collapsed .toc-content {
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.toc-item {
+    display: block;
+    padding: 8px 16px;
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.toc-item:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.08);
+    border-left-color: rgba(255, 255, 255, 0.3);
+}
+
+.toc-item.active {
+    color: white;
+    font-weight: 500;
+    background: rgba(102, 126, 234, 0.3);
+    border-left-color: #667eea;
+}
+
+.toc-item.pl-4 {
+    padding-left: 32px;
+    font-size: 0.75rem;
+}
+
+/* 滚动条样式 */
+.toc-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.toc-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.toc-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.toc-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* 大屏显示优化 */
+@media (min-width: 1400px) {
+    .toc-wrapper {
+        width: 260px;
+    }
+    .toc-right {
+        right: calc((100vw - 64rem) / 2 - 300px);
+    }
+    .toc-left {
+        left: calc((100vw - 64rem) / 2 - 300px);
+    }
+}
+
+            /* 平板端优化 - 折叠为悬浮按钮 */
+            @media (max-width: 1200px) {
+                .toc-wrapper {
+                    top: auto;
+                    bottom: 80px;
+                    right: 16px;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 240px;
+                    height: auto;
+                    max-height: 60vh;
+                    border-radius: 16px;
+                    top: auto;
+                    bottom: 80px;
+                }
+                
+                .toc-wrapper .toc-header {
+                    justify-content: center;
+                    padding: 12px;
+                    border-bottom: none;
+                }
+                
+                .toc-wrapper.expanded .toc-header {
+                    justify-content: space-between;
+                    padding: 12px 16px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                
+                .toc-wrapper .toc-title {
+                    display: none;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    display: block;
+                    font-size: 0.875rem;
+                }
+                
+                .toc-wrapper .toc-content {
+                    max-height: 0;
+                    padding: 0;
+                    opacity: 0;
+                    transition: all 0.3s ease;
+                }
+                
+                .toc-wrapper.expanded .toc-content {
+                    max-height: calc(60vh - 56px);
+                    padding: 8px 0;
+                    opacity: 1;
+                }
+                
+                .toc-wrapper .toc-header svg {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+            
+            /* 手机端 - 更小的悬浮按钮 */
+            @media (max-width: 480px) {
+                .toc-wrapper {
+                    width: 40px;
+                    height: 40px;
+                    bottom: 70px;
+                    right: 12px;
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 200px;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    font-size: 0.8rem;
+                }
+            }
+</style>
+    <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
+</head>
+<body class="pb-20">
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3 flex-shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">📊</span>
+                </div>
+                <span class="text-white font-bold text-lg whitespace-nowrap">投资研究中心</span>
+            </div>
+            <div class="nav-links flex items-center space-x-1 flex-wrap gap-1">
+                <a href="/daily-news-insight/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a>
+                <a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a>
+                <a href="/daily-news-insight/intraday/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a>
+                <a href="/daily-news-insight/aftermarket/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a>
+                <a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a>
+                <a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a>
+                <a href="/daily-news-insight/weekly_outlook/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周三前瞻</a>
+                <a href="/daily-news-insight/周末速递/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a>
+                <a href="/daily-news-insight/明日催化剂/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a>
+                                <a href="/daily-news-insight/s级催化扫描/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a>
+                
+                <a href="/daily-news-insight/monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
+            </div>
+            <button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
+            </div>
+    </nav>
+    
+    <!-- 移动端全屏菜单 -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
+        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a>
+        <a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a>
+        <a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中快报</a>
+        <a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后速递</a>
+        <a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链总览</a>
+        <a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a>
+        <a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a>
+        <a href="/daily-news-insight/周末速递/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a>
+        <a href="/daily-news-insight/明日催化剂/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化剂</a>
+                <a href="/daily-news-insight/s级催化扫描/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⭐ S级催化扫描</a>
+        
+        <a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🗓️ 月度总结</a>
+    </div>
+    
+    
+
+    <div class="max-w-6xl mx-auto px-4 pt-24">
+        <!-- 【报告头版 + 倒计时】 -->
+        <div class="banner-gradient rounded-2xl p-8 mb-6 text-white shadow-2xl">
+            <div class="text-center mb-6">
+                <h1 class="text-4xl font-black mb-3">英伟达COMPUTEX 2026 深度研究报告</h1>
+                <p class="text-xl text-white/90">黄仁勋keynote前瞻 · CPU与先进封装影响全面分析</p>
+<p class="text-white/60 text-sm mt-2">🕒 最新更新：2026年6月6日 11:15</p>
+            </div>
+            
+            <!-- 倒计时 -->
+            <div class="flex justify-center gap-4 mb-6">
+                <div class="countdown-box rounded-xl px-6 py-4 text-center">
+                    <div class="text-3xl font-black" id="hours">24</div>
+                    <div class="text-xs text-white/70">距离keynote</div>
+                </div>
+                <div class="countdown-box rounded-xl px-6 py-4 text-center">
+                    <div class="text-3xl font-black">🚀</div>
+                    <div class="text-xs text-white/70">6月2日开讲</div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-4 gap-4">
+                <div class="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
+                    <div class="text-3xl font-black mb-1">Rubin</div>
+                    <div class="text-sm text-white/80">下一代架构</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
+                    <div class="text-3xl font-black mb-1">N1X</div>
+                    <div class="text-sm text-white/80">Arm PC芯片</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
+                    <div class="text-3xl font-black mb-1">3D IC</div>
+                    <div class="text-sm text-white/80">先进封装</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
+                    <div class="text-3xl font-black mb-1">HBM4</div>
+                    <div class="text-sm text-white/80">下一代内存</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 【第一区：核心判断摘要】 -->
+        <div class="card-glass p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="w-2 h-8 rounded-full bg-gradient-to-b from-purple-500 to-pink-500"></span>
+                🎯 核心判断摘要 · 本次大会三大看点
+            </h2>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="p-4 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-100">
+                    <h3 class="font-bold text-red-700 mb-2">看点一：Rubin架构发布</h3>
+                    <p class="text-sm text-gray-600 mb-2">台积电3nm/2nm工艺，CoWoS-L封装，8层HBM4，推理吞吐量比Blackwell高35倍</p>
+                    <div class="text-xs font-semibold text-red-600">影响：⭐⭐⭐⭐⭐ 重塑AI算力格局</div>
+                </div>
+                <div class="p-4 bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl border border-orange-100">
+                    <h3 class="font-bold text-orange-700 mb-2">看点二：N1X Arm PC芯片</h3>
+                    <p class="text-sm text-gray-600 mb-2">英伟达正式进军PC CPU市场，挑战x86霸主地位，高通/苹果/英特尔三国杀变四方</p>
+                    <div class="text-xs font-semibold text-orange-600">影响：⭐⭐⭐⭐⭐ CPU市场地震</div>
+                </div>
+                <div class="p-4 bg-gradient-to-br from-yellow-50 to-green-50 rounded-xl border border-yellow-100">
+                    <h3 class="font-bold text-yellow-700 mb-2">看点三：先进封装路线图</h3>
+                    <p class="text-sm text-gray-600 mb-2">CoWoS升级、3D IC路线图、台积电产能分配，封装成为AI芯片最大瓶颈</p>
+                    <div class="text-xs font-semibold text-yellow-600">影响：⭐⭐⭐⭐ 决定供应链格局</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 【第二区：对CPU市场的影响分析】 -->
+        <div class="card-glass p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 rounded-full bg-gradient-to-b from-orange-500 to-red-500"></span>
+                💻 对CPU市场的影响 · N1X Arm PC芯片深度分析
+            </h2>
+            
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-4 text-lg">英伟达N1X vs 竞品对比</h3>
+                    <div class="space-y-3">
+                        <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold text-green-800">🏆 英伟达 N1X (新品)</span>
+                                <span class="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-bold">Arm架构</span>
+                            </div>
+                            <div class="text-sm text-gray-600 space-y-1">
+                                <div>• GPU性能：CUDA核心 + RTX光线追踪 = 碾压级优势</div>
+                                <div>• AI算力：集成Transformer引擎，远超竞品</div>
+                                <div>• 生态：CUDA生态护城河，开发者首选</div>
+                                <div>• 目标市场：AI PC、工作站、开发者平台</div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold text-blue-800">🍎 苹果 M系列</span>
+                                <span class="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-bold">Arm架构</span>
+                            </div>
+                            <div class="text-sm text-gray-600 space-y-1">
+                                <div>• 优势：能效比、软硬件一体化、用户体验领先</div>
+                                <div>• 劣势：GPU生态弱，AI开发工具链不完善</div>
+                                <div>• 风险：开发者转向N1X做AI应用开发</div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold text-purple-800">📱 高通 骁龙X Elite</span>
+                                <span class="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full font-bold">Arm架构</span>
+                            </div>
+                            <div class="text-sm text-gray-600 space-y-1">
+                                <div>• 优势：NPU算力强，5G连接，Windows生态合作</div>
+                                <div>• 劣势：GPU性能远逊英伟达，缺乏CUDA生态</div>
+                                <div>• 风险：N1X发布后，AI PC定位直接被碾压</div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-gray-200">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-bold text-gray-800">🔷 英特尔 / AMD</span>
+                                <span class="bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded-full font-bold">x86架构</span>
+                            </div>
+                            <div class="text-sm text-gray-600 space-y-1">
+                                <div>• 优势：x86生态成熟，企业市场根深蒂固</div>
+                                <div>• 劣势：能效比落后，AI算力不足，架构演进缓慢</div>
+                                <div>• 风险：AI PC时代彻底失势，市场份额加速下滑</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-4 text-lg">市场格局变化预判</h3>
+                    
+                    <div style="height: 220px;" class="mb-4">
+                        <canvas id="cpuChart"></canvas>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="impact-high p-4 rounded-xl">
+                            <div class="font-bold text-red-800 mb-1">🔴 高度影响：高通骁龙X系列</div>
+                            <p class="text-sm text-gray-700">N1X定位与骁龙X高度重叠但GPU/AI性能碾压，高通AI PC战略可能直接被"降维打击"，市场份额预期从15%下调至5-8%</p>
+                        </div>
+                        
+                        <div class="impact-high p-4 rounded-xl">
+                            <div class="font-bold text-red-800 mb-1">🔴 高度影响：英特尔</div>
+                            <p class="text-sm text-gray-700">x86生态护城河被AI时代打破，英特尔PC CPU市场份额可能从65%加速下滑至50%以下，酷睿Ultra AI卖点被N1X全面超越</p>
+                        </div>
+                        
+                        <div class="impact-medium p-4 rounded-xl">
+                            <div class="font-bold text-yellow-800 mb-1">🟡 中度影响：苹果M系列</div>
+                            <p class="text-sm text-gray-700">消费级市场影响有限，但专业开发者市场可能流失，Mac作为AI开发平台的吸引力下降，预计影响5-10%的高端Mac份额</p>
+                        </div>
+                        
+                        <div class="impact-medium p-4 rounded-xl">
+                            <div class="font-bold text-yellow-800 mb-1">🟡 中度影响：AMD</div>
+                            <p class="text-sm text-gray-700">锐龙AI系列同样面临N1X竞争，但AMD显卡业务与英伟达有合作关系，影响相对小于英特尔，预计份额波动3-5%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 【第三区：对先进封装的影响分析】 -->
+        <div class="card-glass p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 rounded-full bg-gradient-to-b from-blue-500 to-purple-500"></span>
+                🔬 对先进封装的影响 · CoWoS与3D IC路线图
+            </h2>
+            
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-4 text-lg">Rubin架构封装规格升级</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-200">
+                            <div class="font-bold text-purple-800 mb-2">封装类型：CoWoS-L (超级版本)</div>
+                            <div class="grid grid-cols-2 gap-3 text-sm">
+                                <div>
+                                    <span class="text-gray-500">中介层尺寸：</span>
+                                    <span class="font-semibold">3x TDI (超大型)</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">HBM层数：</span>
+                                    <span class="font-semibold">8层 HBM4</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">HBM容量：</span>
+                                    <span class="font-semibold">192GB/芯片</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">带宽：</span>
+                                    <span class="font-semibold">8TB/s+</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
+                            <div class="font-bold text-blue-800 mb-2">制造工艺：台积电 3nm → 2nm演进</div>
+                            <div class="text-sm text-gray-600 space-y-1">
+                                <div>• 首批Rubin采用N3E工艺（增强版3nm）</div>
+                                <div>• 2027年迭代版本升级到N2（2nm GAA）</div>
+                                <div>• 3D IC堆叠密度提升50% vs Blackwell</div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                            <div class="font-bold text-green-800 mb-2">核心创新：3D SoIC + CoWoS 混合封装</div>
+                            <div class="text-sm text-gray-600 space-y-1">
+                                <div>• 计算芯粒(3nm) + IO芯粒(6nm) 3D堆叠</div>
+                                <div>• HBM4通过2.5D CoWoS连接</div>
+                                <div>• 凸点密度突破200万/mm²</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-4 text-lg">产业链影响与弹性测算</h3>
+                    
+                    <div class="overflow-x-auto mb-4">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b-2 border-gray-200 bg-gray-50">
+                                    <th class="text-left py-2 px-3 font-bold">环节</th>
+                                    <th class="text-left py-2 px-3 font-bold">标的</th>
+                                    <th class="text-center py-2 px-3 font-bold">影响程度</th>
+                                    <th class="text-center py-2 px-3 font-bold">弹性空间</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr class="impact-high">
+                                    <td class="py-2 px-3 font-semibold">CoWoS封装</td>
+                                    <td class="py-2 px-3 font-bold">台积电</td>
+                                    <td class="py-2 px-3 text-center font-bold text-red-600">⭐⭐⭐⭐⭐</td>
+                                    <td class="py-2 px-3 text-center">CoWoS产能2027年需扩3倍</td>
+                                </tr>
+                                <tr class="impact-high">
+                                    <td class="py-2 px-3 font-semibold">先进封装材料</td>
+                                    <td class="py-2 px-3 font-bold">安靠/长电科技</td>
+                                    <td class="py-2 px-3 text-center font-bold text-red-600">⭐⭐⭐⭐</td>
+                                    <td class="py-2 px-3 text-center">CoWoS封测需求增250%</td>
+                                </tr>
+                                <tr class="impact-high">
+                                    <td class="py-2 px-3 font-semibold">HBM内存</td>
+                                    <td class="py-2 px-3 font-bold">SK海力士/三星</td>
+                                    <td class="py-2 px-3 text-center font-bold text-red-600">⭐⭐⭐⭐⭐</td>
+                                    <td class="py-2 px-3 text-center">HBM4需求爆发式增长</td>
+                                </tr>
+                                <tr class="impact-medium">
+                                    <td class="py-2 px-3 font-semibold">中介层/TSV</td>
+                                    <td class="py-2 px-3 font-bold">欣兴/南电</td>
+                                    <td class="py-2 px-3 text-center font-bold text-orange-600">⭐⭐⭐⭐</td>
+                                    <td class="py-2 px-3 text-center">超大尺寸中介层紧缺</td>
+                                </tr>
+                                <tr class="impact-medium">
+                                    <td class="py-2 px-3 font-semibold">EMIB/FOVEROS</td>
+                                    <td class="py-2 px-3 font-bold">英特尔代工</td>
+                                    <td class="py-2 px-3 text-center font-bold text-orange-600">⭐⭐⭐</td>
+                                    <td class="py-2 px-3 text-center">竞争压力增大，需加速追赶</td>
+                                </tr>
+                                <tr class="impact-low">
+                                    <td class="py-2 px-3 font-semibold">传统封装</td>
+                                    <td class="py-2 px-3 font-bold">通富微电等</td>
+                                    <td class="py-2 px-3 text-center font-bold text-green-600">⭐⭐</td>
+                                    <td class="py-2 px-3 text-center">影响有限</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="p-4 bg-red-50 rounded-xl border border-red-200">
+                        <div class="font-bold text-red-800 mb-2">⚠️ 关键预判：先进封装成为最大瓶颈</div>
+                        <p class="text-sm text-gray-700">Rubin对CoWoS-L和HBM4的需求远超当前产能，预计2026Q4-2027Q1先进封装将成为AI芯片扩产的最大瓶颈，台积电封装产能争夺战将进入白热化</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 【第四区：产业链核心标的影响矩阵】 -->
+        <div class="card-glass p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 rounded-full bg-gradient-to-b from-green-500 to-teal-500"></span>
+                📊 产业链核心标的影响矩阵
+            </h2>
+            
+            <div class="grid grid-cols-3 gap-4">
+                <!-- 英伟达供应链受益 -->
+                <div class="p-5 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                    <h3 class="font-bold text-green-800 mb-4 text-center">✅ 英伟达供应链受益</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center justify-between p-2 bg-white rounded-lg">
+                            <span class="font-semibold">工业富联</span>
+                            <span class="text-green-600 font-bold">+30~50%弹性</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-white rounded-lg">
+                            <span class="font-semibold">中际旭创</span>
+                            <span class="text-green-600 font-bold">+25~40%弹性</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-white rounded-lg">
+                            <span class="font-semibold">沪电股份</span>
+                            <span class="text-green-600 font-bold">+20~35%弹性</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-white rounded-lg">
+                            <span class="font-semibold">胜宏科技</span>
+                            <span class="text-green-600 font-bold">+20~30%弹性</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-white rounded-lg">
+                            <span class="font-semibold">台积电</span>
+                            <span class="text-green-600 font-bold">+15~25%弹性</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 竞争承压 -->
+                <div class="p-5 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-200">
+                    <h3 class="font-bold text-red-800 mb-4 text-center">⚠️ 竞争承压标的</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center justify-between p-2 bg-white rounded-lg">
+                            <span class="font-semibold">英特尔</span>
+                            <span class="text-red-600 font-bold">CPU市场下滑</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-white rounded-lg">
+                            <span class="font-semibold">高通</span>
+                            <span class="text-red-600 font-bold">骁龙X被挤压</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-white rounded-lg">
+                            <span class="font-semibold">AMD</span>
+                            <span class="text-orange-600 font-bold">MI系列竞争加剧</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-white rounded-lg">
+                            <span class="font-semibold">博通</span>
+                            <span class="text-orange-600 font-bold">ASIC业务受冲击</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 细分增量机会 -->
+                <div class="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                    <h3 class="font-bold text-blue-800 mb-4 text-center">🚀 细分增量机会</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center justify-between p-2 bg-white rounded-lg">
+                            <span class="font-semibold">HBM产业链</span>
+                            <span class="text-blue-600 font-bold">需求+300%</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-white rounded-lg">
+                            <span class="font-semibold">CoWoS封测</span>
+                            <span class="text-blue-600 font-bold">产能+200%</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-white rounded-lg">
+                            <span class="font-semibold">光模块1.6T</span>
+                            <span class="text-blue-600 font-bold">升级周期启动</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-white rounded-lg">
+                            <span class="font-semibold">液冷散热</span>
+                            <span class="text-blue-600 font-bold">英维克等受益</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 【第五区：时间线与催化节点】 -->
+        <div class="card-glass p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 rounded-full bg-gradient-to-b from-yellow-500 to-orange-500"></span>
+                ⏰ 时间线与关键催化节点
+            </h2>
+            
+            <div class="relative pl-8">
+                <div class="absolute left-2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-purple-500 via-blue-500 to-green-500"></div>
+                
+                <!-- 今天 -->
+                <div class="relative mb-8">
+                    <div class="timeline-dot absolute -left-6 mt-1 z-10 animate-pulse"></div>
+                    <div class="bg-gradient-to-r from-purple-50 to-transparent p-4 rounded-xl border-l-4 border-purple-400">
+                        <div class="font-bold text-purple-800 mb-1">6月1日 · 今天</div>
+                        <p class="text-sm text-gray-600">COMPUTEX台北展开幕，各厂商展台开放参观，产业链交流会密集召开</p>
+                    </div>
+                </div>
+                
+                <!-- keynote -->
+                <div class="relative mb-8">
+                    <div class="timeline-dot absolute -left-6 mt-1 z-10 bg-red-500"></div>
+                    <div class="bg-gradient-to-r from-red-50 to-transparent p-4 rounded-xl border-l-4 border-red-400">
+                        <div class="font-bold text-red-800 mb-1">6月2日 · 黄仁勋Keynote (S级核心)</div>
+                        <p class="text-sm text-gray-600 mb-2">预计发布：Rubin架构细节 + N1X PC芯片 + 下一代AI计算路线图 + 先进封装战略</p>
+                        <div class="flex gap-2">
+                            <span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded font-bold">市场高预期</span>
+                            <span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-0.5 rounded font-bold">波动率上升</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 一周后 -->
+                <div class="relative mb-8">
+                    <div class="timeline-dot absolute -left-6 mt-1 z-10 bg-orange-500"></div>
+                    <div class="bg-gradient-to-r from-orange-50 to-transparent p-4 rounded-xl border-l-4 border-orange-400">
+                        <div class="font-bold text-orange-800 mb-1">6月上旬 · 订单确认期 (关键验证)</div>
+                        <p class="text-sm text-gray-600">云厂商与ODM确认Rubin首波订单，台积电CoWoS产能分配结果出炉，供应链订单可见度提升至2027Q1</p>
+                    </div>
+                </div>
+                
+                <!-- Q3 -->
+                <div class="relative mb-8">
+                    <div class="timeline-dot absolute -left-6 mt-1 z-10 bg-blue-500"></div>
+                    <div class="bg-gradient-to-r from-blue-50 to-transparent p-4 rounded-xl border-l-4 border-blue-400">
+                        <div class="font-bold text-blue-800 mb-1">2026 Q3 · 流片与样品交付</div>
+                        <p class="text-sm text-gray-600">Rubin首轮流片完成，N1X开始向PC OEM送样测试，HBM4供应商资格认证完成</p>
+                    </div>
+                </div>
+                
+                <!-- Q4 -->
+                <div class="relative">
+                    <div class="timeline-dot absolute -left-6 mt-1 z-10 bg-green-500"></div>
+                    <div class="bg-gradient-to-r from-green-50 to-transparent p-4 rounded-xl border-l-4 border-green-400">
+                        <div class="font-bold text-green-800 mb-1">2026 Q4 - 2027 Q1 · 量产爬坡</div>
+                        <p class="text-sm text-gray-600">Rubin大规模量产启动，N1X首款产品上市，先进封装产能瓶颈将在这一阶段充分显现</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 【第六区：投资策略与风险提示】 -->
+        <div class="card-glass p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 rounded-full bg-gradient-to-b from-gray-500 to-gray-700"></span>
+                🎯 投资策略与风险提示
+            </h2>
+            
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-4 text-lg">✅ 核心配置策略</h3>
+                    <div class="space-y-3">
+                        <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                            <div class="font-bold text-green-800 mb-2">主攻方向：英伟达核心供应链</div>
+                            <p class="text-sm text-gray-600 mb-2">工业富联（制造）、中际旭创（光模块）、沪电股份（PCB）、台积电（代工/封装）</p>
+                            <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold">配置建议：超配50-60%</span>
+                        </div>
+                        
+                        <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                            <div class="font-bold text-blue-800 mb-2">弹性方向：HBM与先进封装</div>
+                            <p class="text-sm text-gray-600 mb-2">SK海力士（HBM主力）、三星电子、安靠科技、长电科技、欣兴电子</p>
+                            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold">配置建议：配置20-30%</span>
+                        </div>
+                        
+                        <div class="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+                            <div class="font-bold text-purple-800 mb-2">主题方向：液冷与AI基础设施</div>
+                            <p class="text-sm text-gray-600 mb-2">英维克（液冷龙头）、佳力图、中科曙光，Rubin功耗提升驱动新一轮液冷建设</p>
+                            <span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-bold">配置建议：配置10-20%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-4 text-lg">⚠️ 主要风险提示</h3>
+                    <div class="space-y-3">
+                        <div class="p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl border border-red-200">
+                            <div class="font-bold text-red-800 mb-1">风险一：不及预期风险</div>
+                            <p class="text-sm text-gray-600">市场对Rubin和N1X预期极高，任何规格低于预期或量产时间延后都可能引发板块回调</p>
+                        </div>
+                        
+                        <div class="p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl border border-red-200">
+                            <div class="font-bold text-red-800 mb-1">风险二：先进封装产能瓶颈</div>
+                            <p class="text-sm text-gray-600">CoWoS-L产能扩张速度可能跟不上需求，导致Rubin实际出货量低于预期，影响供应链业绩兑现</p>
+                        </div>
+                        
+                        <div class="p-4 bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl border border-orange-200">
+                            <div class="font-bold text-orange-800 mb-1">风险三：N1X生态建设不及预期</div>
+                            <p class="text-sm text-gray-600">Windows on Arm生态成熟度、软件兼容性、开发者迁移速度可能慢于预期，影响N1X普及</p>
+                        </div>
+                        
+                        <div class="p-4 bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl border border-orange-200">
+                            <div class="font-bold text-orange-800 mb-1">风险四：宏观AI需求波动</div>
+                            <p class="text-sm text-gray-600">云厂商资本开支可能受宏观经济影响调整，AI服务器需求存在不确定性，需密切跟踪订单数据</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 【第七区：明日预判要点清单】 -->
+        <div class="card-glass p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 rounded-full bg-gradient-to-b from-indigo-500 to-purple-500"></span>
+                📋 6月2日Keynote重点关注清单（待验证）
+            </h2>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-3">
+                    <h3 class="font-bold text-gray-800 text-lg">🔬 Rubin架构相关</h3>
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                        <input type="checkbox" class="w-5 h-5">
+                        <span class="text-sm">发布具体性能参数（FP8算力、功耗）</span>
+                    </div>
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                        <input type="checkbox" class="w-5 h-5">
+                        <span class="text-sm">确认HBM4规格（层数、带宽、容量）</span>
+                    </div>
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                        <input type="checkbox" class="w-5 h-5">
+                        <span class="text-sm">公布CoWoS-L封装细节与台积电产能</span>
+                    </div>
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                        <input type="checkbox" class="w-5 h-5">
+                        <span class="text-sm">给出量产时间表和首波客户名单</span>
+                    </div>
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                        <input type="checkbox" class="w-5 h-5">
+                        <span class="text-sm">公布价格定位与Blackwell迭代计划</span>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <h3 class="font-bold text-gray-800 text-lg">💻 N1X CPU相关</h3>
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                        <input type="checkbox" class="w-5 h-5">
+                        <span class="text-sm">正式发布NVIDIA N1X芯片品牌名</span>
+                    </div>
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                        <input type="checkbox" class="w-5 h-5">
+                        <span class="text-sm">公布核心数、GPU规格、AI算力参数</span>
+                    </div>
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                        <input type="checkbox" class="w-5 h-5">
+                        <span class="text-sm">宣布首发OEM合作伙伴（联想/惠普/戴尔等）</span>
+                    </div>
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                        <input type="checkbox" class="w-5 h-5">
+                        <span class="text-sm">给出上市时间和价格区间</span>
+                    </div>
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                        <input type="checkbox" class="w-5 h-5">
+                        <span class="text-sm">展示Windows + CUDA统一开发环境</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-200">
+                <div class="flex items-start gap-3">
+                    <span class="text-2xl">💡</span>
+                    <div>
+                        <p class="font-bold text-yellow-800">策略建议：6月1日持仓观望，6月2日keynote后根据发布内容动态调整</p>
+                        <p class="text-sm text-yellow-700 mt-1">超预期 → 加仓英伟达供应链；符合预期 → 持有；不及预期 → 减仓兑现部分收益</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="text-center text-white/60 text-sm py-10">
+            <p class="text-lg font-bold text-white mb-2">MLCC Pro v2.0 Professional</p>
+            <p>Level1 深度研报 · 英伟达COMPUTEX前瞻分析</p>
+            <p class="mt-2">数据来源：英伟达官方、台积电、供应链调研、行业研报</p>
+            <p class="mt-4 text-xs text-white/40">免责声明：本报告为前瞻分析性质，具体内容以6月2日官方发布为准，不构成任何投资建议。</p>
+        </div>
+    </div>
+
+    <!-- 悬浮功能按钮 -->
+    <div class="float-btn-group">
+        <div class="float-btn-wrapper relative">
+            <button class="float-btn print" onclick="window.print()" title="打印/导出PDF">
+                <i class="fa fa-print"></i>
+            </button>
+            <span class="tooltip">打印 / 导出PDF</span>
+        </div>
+        
+        <div class="float-btn-wrapper relative">
+            <button class="float-btn share" onclick="shareReport()" title="分享链接">
+                <i class="fa fa-share-alt"></i>
+            </button>
+            <span class="tooltip">复制分享链接</span>
+        </div>
+        
+        <div class="float-btn-wrapper relative">
+            <button class="float-btn top" onclick="scrollToTop()" title="返回顶部">
+                <i class="fa fa-arrow-up"></i>
+            </button>
+            <span class="tooltip">返回顶部</span>
+        </div>
+    </div>
+
+    <script>
+        // 返回顶部
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 分享链接
+        function shareReport() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(function() {
+                alert('链接已复制到剪贴板！');
+            }).catch(function(err) {
+                prompt('请手动复制链接:', url);
+            });
+        }
+        
+        // CPU市场份额变化图
+        const cpuCtx = document.getElementById('cpuChart').getContext('2d');
+        new Chart(cpuCtx, {
+            type: 'bar',
+            data: {
+                labels: ['英特尔', 'AMD', '苹果', '高通', '英伟达'],
+                datasets: [
+                    {
+                        label: '2026Q1 (当前)',
+                        data: [65, 18, 12, 5, 0],
+                        backgroundColor: 'rgba(102, 126, 234, 0.5)',
+                        borderColor: '#667eea',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '2027Q4 (预测 N1X发布后)',
+                        data: [50, 16, 11, 4, 19],
+                        backgroundColor: 'rgba(168, 85, 247, 0.7)',
+                        borderColor: '#a855f7',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'PC CPU市场份额变化预测 (%)',
+                        font: { weight: 'bold' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 70
+                    }
+                }
+            }
+        });
+    </script>
+
+    <!-- 移动端全屏菜单 -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
+        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a>
+        <a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a>
+        <a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中快报</a>
+        <a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后速递</a>
+        <a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链总览</a>
+        <a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a>
+        <a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a>
+        <a href="/daily-news-insight/周末速递/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a>
+        <a href="/daily-news-insight/明日催化剂/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化剂</a>
+        <a href="/daily-news-insight/s级催化扫描/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⭐ S级催化扫描</a>
+        <a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🗓️ 月度总结</a>
+    </div>
+
+
+</div>
+
+
+
+<!-- 悬浮目录导航 -->
+<div id="tableOfContents" class="toc-wrapper toc-right">
+    <div class="toc-header" onclick="toggleTOC()">
+        <span class="toc-title">目录导航</span>
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+    </div>
+    <div id="tocContent" class="toc-content">
+        <div id="tocContainer" class="toc-container"></div>
+    </div>
+</div>
+
+<script>
+// ==================== 悬浮目录导航 ====================
+function toggleTOC() {
+    const toc = document.getElementById('tableOfContents');
+    if (toc) {
+        // 移动端使用expanded类，桌面端使用collapsed类
+        if (window.innerWidth <= 1200) {
+            toc.classList.toggle('expanded');
+        } else {
+            toc.classList.toggle('collapsed');
+        }
+    }
+}
+
+// 监听窗口大小变化，重置TOC状态
+window.addEventListener('resize', function() {
+    const toc = document.getElementById('tableOfContents');
+    if (toc) {
+        if (window.innerWidth > 1200) {
+            toc.classList.remove('expanded');
+        } else {
+            // 移动端默认收起
+            toc.classList.remove('expanded');
+        }
+    }
+});
+
+function initTableOfContents() {
+    const tocContainer = document.getElementById('tocContainer');
+    if (!tocContainer) return;
+    
+    // 自动提取页面中的h2和h3标题（在main内容区域内）
+    const contentArea = document.querySelector('.pro-container, .report-content, main, .content');
+    const headings = contentArea 
+        ? contentArea.querySelectorAll('h2, h3') 
+        : document.querySelectorAll('h2, h3');
+    
+    if (headings.length === 0) {
+        const toc = document.getElementById('tableOfContents');
+        if (toc) toc.style.display = 'none';
+        return;
+    }
+    
+    // 为标题生成id
+    headings.forEach(function(heading, index) {
+        if (!heading.id) {
+            const text = heading.textContent || heading.innerText;
+            const slug = text.trim().replace(/\s+/g, '-').replace(/[^\w\-\u4e00-\u9fa5]/g, '').substring(0, 30);
+            heading.id = 'section-' + index + '-' + slug;
+        }
+    });
+    
+    // 生成目录HTML
+    var tocHTML = '';
+    headings.forEach(function(heading) {
+        const level = parseInt(heading.tagName.substring(1));
+        const title = heading.textContent || heading.innerText;
+        const indent = level === 3 ? 'pl-4' : '';
+        tocHTML += '<a href="#' + heading.id + '" class="toc-item ' + indent + '" data-level="' + level + '">' + title.trim() + '</a>';
+    });
+    
+    tocContainer.innerHTML = tocHTML;
+    
+    // 为目录项添加平滑滚动
+    tocContainer.querySelectorAll('.toc-item').forEach(function(item) {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            var target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                var offset = 100;
+                var targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    
+    // 初始化滚动高亮
+    initTOCScrollSpy();
+}
+
+function initTOCScrollSpy() {
+    const tocItems = document.querySelectorAll('.toc-item');
+    if (tocItems.length === 0) return;
+    
+    const sections = [];
+    tocItems.forEach(function(item) {
+        const id = item.getAttribute('href').substring(1);
+        const section = document.getElementById(id);
+        if (section) {
+            sections.push({
+                element: section,
+                navItem: item,
+                top: section.offsetTop - 120
+            });
+        }
+    });
+    
+    if (sections.length === 0) return;
+    
+    function updateActiveTOC() {
+        const scrollPosition = window.pageYOffset;
+        var currentIndex = 0;
+        for (var i = 0; i < sections.length; i++) {
+            if (scrollPosition >= sections[i].top) {
+                currentIndex = i;
+            }
+        }
+        tocItems.forEach(function(item) {
+            item.classList.remove('active');
+        });
+        if (sections[currentIndex]) {
+            sections[currentIndex].navItem.classList.add('active');
+        }
+    }
+    
+    window.addEventListener('scroll', updateActiveTOC);
+    updateActiveTOC();
+}
+
+// 页面加载完成后初始化
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTableOfContents);
+} else {
+    setTimeout(initTableOfContents, 100);
+}
+</script>
+
+<!-- 悬浮按钮组 -->
+<div id="floatingButtons" class="fixed right-6 bottom-6 flex flex-col gap-2 z-50">
+    <!-- 阅读进度条 -->
+    <div class="reading-progress-bar fixed top-0 left-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-600 z-50" id="readingProgress" style="width: 0%;"></div>
+    
+    <!-- 回到顶部按钮 -->
+    <button id="backToTop" class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center text-gray-600 hover:text-indigo-600 opacity-0 translate-y-4 pointer-events-none" onclick="scrollToTop()" title="回到顶部">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+        </svg>
+    </button>
+    
+    <!-- 打印按钮 -->
+    <button class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center text-gray-600 hover:text-indigo-600" onclick="window.print()" title="打印页面">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+        </svg>
+    </button>
+    
+    <!-- 分享按钮 -->
+    <button class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center text-gray-600 hover:text-indigo-600" onclick="sharePage()" title="分享">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+        </svg>
+    </button>
+</div>
+
+<style>
+    .reading-progress-bar {
+        transition: width 0.1s ease-out;
+    }
+    
+    #backToTop.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+    
+    #floatingButtons button {
+        transition: all 0.3s ease;
+    }
+    
+    #floatingButtons button:hover {
+        transform: scale(1.1);
+    }
+    
+    @media print {
+        #floatingButtons, .reading-progress-bar {
+            display: none !important;
+        }
+    }
+</style>
+
+<script>
+    // 回到顶部
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // 分享页面
+    function sharePage() {
+        if (navigator.share) {
+            navigator.share({
+                title: document.title,
+                url: window.location.href
+            });
+        } else {
+            // 复制链接到剪贴板
+            navigator.clipboard.writeText(window.location.href).then(function() {
+                alert('链接已复制到剪贴板');
+            }).catch(function() {
+                prompt('复制链接：', window.location.href);
+            });
+        }
+    }
+    
+    // 滚动监听 - 更新进度条和回到顶部按钮
+    window.addEventListener('scroll', function() {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        
+        // 更新进度条
+        const progressBar = document.getElementById('readingProgress');
+        if (progressBar) {
+            progressBar.style.width = scrollPercent + '%';
+        }
+        
+        // 显示/隐藏回到顶部按钮
+        const backToTop = document.getElementById('backToTop');
+        if (backToTop) {
+            if (scrollTop > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        }
+    });
+</script>
+
+    <script src="/daily-news-insight/assets/stock-popup.js"></script>
+</body>
+</html>

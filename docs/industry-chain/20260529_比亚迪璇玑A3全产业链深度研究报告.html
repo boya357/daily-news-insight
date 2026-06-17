@@ -1,0 +1,2250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>比亚迪璇玑A3智驾芯片全产业链深度研究报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        /* ===== 标准导航栏样式 ===== */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 2147483647 !important;
+            isolation: isolate !important;
+            pointer-events: auto !important;
+        }
+.glass-nav * {
+            position: relative;
+            z-index: 2147483647 !important;
+            pointer-events: auto !important;
+        }
+.hamburger-btn {
+            display: none;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 99999;
+        }
+.mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102,126,234,0.98) 0%, rgba(118,75,162,0.98) 100%);
+            z-index: 99998;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+.mobile-menu.show {
+            display: flex;
+        }
+.mobile-menu-item {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 15px 30px;
+            text-decoration: none;
+            text-align: center;
+            width: 100%;
+            max-width: 300px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+.close-menu-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+@media (max-width: 768px) {
+            .nav-links {
+                display: none !important;
+            }
+            
+            .hamburger-btn {
+                display: block !important;
+            }
+
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+        
+        * { font-family: 'Noto Sans SC', sans-serif; }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #1a1a40 75%, #2d1b69 100%);
+        }
+        
+        .purple-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-gradient {
+            background: linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .glow {
+            box-shadow: 0 0 40px rgba(102, 126, 234, 0.3);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .star-rating { color: #fbbf24; }
+        
+        .section-divider {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #667eea, #764ba2, transparent);
+        }
+        
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .risk-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+        }
+        
+        .value-bar {
+            transition: width 1.5s ease-out;
+        }
+        
+        .timeline-dot::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a2e; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #667eea, #764ba2); border-radius: 4px; }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+
+
+
+<style>
+/* ===== 悬浮目录导航 ===== */
+.toc-wrapper {
+    position: fixed;
+    top: 120px;
+    width: 220px;
+    max-height: calc(100vh - 160px);
+    background: rgba(139, 92, 246, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+    z-index: 90;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.toc-right {
+    right: 20px;
+}
+
+.toc-left {
+    left: 20px;
+}
+
+.toc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    user-select: none;
+}
+
+.toc-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+}
+
+.toc-header svg {
+    color: rgba(255, 255, 255, 0.7);
+    transition: transform 0.3s ease;
+}
+
+.toc-wrapper.collapsed .toc-header svg {
+    transform: rotate(-90deg);
+}
+
+.toc-content {
+    max-height: calc(100vh - 220px);
+    overflow-y: auto;
+    padding: 8px 0;
+    transition: max-height 0.3s ease;
+}
+
+.toc-wrapper.collapsed .toc-content {
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.toc-item {
+    display: block;
+    padding: 8px 16px;
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.toc-item:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.08);
+    border-left-color: rgba(255, 255, 255, 0.3);
+}
+
+.toc-item.active {
+    color: white;
+    font-weight: 500;
+    background: rgba(102, 126, 234, 0.3);
+    border-left-color: #667eea;
+}
+
+.toc-item.pl-4 {
+    padding-left: 32px;
+    font-size: 0.75rem;
+}
+
+/* 滚动条样式 */
+.toc-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.toc-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.toc-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.toc-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* 大屏显示优化 */
+@media (min-width: 1400px) {
+    .toc-wrapper {
+        width: 260px;
+    }
+    .toc-right {
+        right: calc((100vw - 64rem) / 2 - 300px);
+    }
+    .toc-left {
+        left: calc((100vw - 64rem) / 2 - 300px);
+    }
+}
+
+            /* 平板端优化 - 折叠为悬浮按钮 */
+            @media (max-width: 1200px) {
+                .toc-wrapper {
+                    top: auto;
+                    bottom: 80px;
+                    right: 16px;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 240px;
+                    height: auto;
+                    max-height: 60vh;
+                    border-radius: 16px;
+                    top: auto;
+                    bottom: 80px;
+                }
+                
+                .toc-wrapper .toc-header {
+                    justify-content: center;
+                    padding: 12px;
+                    border-bottom: none;
+                }
+                
+                .toc-wrapper.expanded .toc-header {
+                    justify-content: space-between;
+                    padding: 12px 16px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                
+                .toc-wrapper .toc-title {
+                    display: none;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    display: block;
+                    font-size: 0.875rem;
+                }
+                
+                .toc-wrapper .toc-content {
+                    max-height: 0;
+                    padding: 0;
+                    opacity: 0;
+                    transition: all 0.3s ease;
+                }
+                
+                .toc-wrapper.expanded .toc-content {
+                    max-height: calc(60vh - 56px);
+                    padding: 8px 0;
+                    opacity: 1;
+                }
+                
+                .toc-wrapper .toc-header svg {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+            
+            /* 手机端 - 更小的悬浮按钮 */
+            @media (max-width: 480px) {
+                .toc-wrapper {
+                    width: 40px;
+                    height: 40px;
+                    bottom: 70px;
+                    right: 12px;
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 200px;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    font-size: 0.8rem;
+                }
+            }
+</style>
+    <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
+</head>
+<body class="gradient-bg min-h-screen text-white">
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3 flex-shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">📊</span>
+                </div>
+                <span class="text-white font-bold text-lg whitespace-nowrap">投资研究中心</span>
+            </div>
+            <div class="nav-links flex items-center space-x-1 flex-wrap gap-1">
+                <a href="/daily-news-insight/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a>
+                <a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a>
+                <a href="/daily-news-insight/intraday/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a>
+                <a href="/daily-news-insight/aftermarket/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a>
+                <a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a>
+                <a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a>
+                <a href="/daily-news-insight/weekly_outlook/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周三前瞻</a>
+                <a href="/daily-news-insight/周末速递/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a>
+                <a href="/daily-news-insight/明日催化剂/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a>
+                                <a href="/daily-news-insight/s级催化扫描/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a>
+                
+                <a href="/daily-news-insight/monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
+            </div>
+            <button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
+            </div>
+    </nav>
+    
+    <!-- 移动端全屏菜单 -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
+        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a>
+        <a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a>
+        <a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中快报</a>
+        <a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后速递</a>
+        <a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链总览</a>
+        <a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a>
+        <a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a>
+        <a href="/daily-news-insight/周末速递/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a>
+        <a href="/daily-news-insight/明日催化剂/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化剂</a>
+                <a href="/daily-news-insight/s级催化扫描/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⭐ S级催化扫描</a>
+        
+        <a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🗓️ 月度总结</a>
+    </div>
+    
+    <script>
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('show');
+            document.body.style.overflow = document.getElementById('mobileMenu').classList.contains('show') ? 'hidden' : '';
+        }
+    </script>
+
+    <!-- Header -->
+    <header class="relative overflow-hidden py-16 px-6">
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full filter blur-3xl animate-pulse-slow"></div>
+            <div class="absolute bottom-20 right-20 w-96 h-96 bg-blue-500 rounded-full filter blur-3xl animate-pulse-slow" style="animation-delay: 2s;"></div>
+        </div>
+        
+        <div class="max-w-6xl mx-auto relative z-10">
+            <div class="text-center">
+                <div class="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-6">
+                    <i class="fa fa-microchip text-2xl text-purple-400"></i>
+                    <span class="text-sm font-medium">深度产业研究</span>
+                </div>
+                <h1 class="text-5xl md:text-6xl font-black mb-6 leading-tight">
+                    <span class="text-gradient">比亚迪璇玑A3</span>
+                    <br>
+                    <span class="text-white/90">智驾芯片全产业链深度研究报告</span>
+                </h1>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto mb-8 leading-relaxed">
+                    中国首款4nm车规级智驾芯片深度解析<br>
+                    从上游半导体到下游整车应用的全产业链价值挖掘
+                </p>
+                <div class="flex flex-wrap justify-center gap-6 text-sm">
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5">
+                        <i class="fa fa-calendar text-purple-400"></i>
+                        <span>发布日期：2026年5月29日</span>
+                    </div>
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5">
+                        <i class="fa fa-bar-chart text-blue-400"></i>
+                        <span>报告类型：产业链深度研究</span>
+                    </div>
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5">
+                        <i class="fa fa-industry text-green-400"></i>
+                        <span>覆盖环节：全产业链12个细分领域</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Executive Summary -->
+    <section class="py-12 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="card-gradient rounded-3xl p-8 glow">
+                <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                    <i class="fa fa-lightbulb-o text-yellow-400"></i>
+                    核心结论摘要
+                </h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white/5 rounded-xl p-6 border border-white/10">
+                    <div class="text-4xl font-black text-gradient mb-2">4nm</div>
+                    <p class="text-gray-300 text-sm">车规级制程，难度等同于消费电子2nm，王传福亲证"我们不做期货"</p>
+                </div>
+                <div class="bg-white/5 rounded-xl p-6 border border-white/10">
+                    <div class="text-4xl font-black text-gradient mb-2">2100<span class="text-2xl">TOPS</span></div>
+                    <p class="text-gray-300 text-sm">3颗芯片并联总算力，原生支持L3/L4高阶自动驾驶</p>
+                </div>
+                <div class="bg-white/5 rounded-xl p-6 border border-white/10">
+                    <div class="text-4xl font-black text-gradient mb-2">7000+</div>
+                    <p class="text-gray-300 text-sm">芯片研发团队，5座晶圆制造厂，千亿级研发投入</p>
+                </div>
+                <div class="bg-white/5 rounded-xl p-6 border border-white/10">
+                    <div class="text-4xl font-black text-gradient mb-2">1/3</div>
+                    <p class="text-gray-300 text-sm">成本仅为英伟达同类芯片的1/3，推动智驾平权核心基础</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 目录导航 -->
+    <section class="py-8 px-6">
+        <div class="max-w-6xl mx-auto">
+        <div class="card-gradient rounded-2xl p-6">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <i class="fa fa-list text-purple-400"></i>
+                报告目录
+            </h3>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                <a href="#section1" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 transition-all hover:translate-x-2">
+                    <span class="w-8 h-8 rounded-lg purple-gradient flex items-center justify-center font-bold">一</span>
+                    <span>上游产业链 - 芯片制造环节</span>
+                </a>
+                <a href="#section2" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 transition-all hover:translate-x-2">
+                    <span class="w-8 h-8 rounded-lg purple-gradient flex items-center justify-center font-bold">二</span>
+                    <span>中游产业链 - 芯片设计与集成</span>
+                </a>
+                <a href="#section3" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 transition-all hover:translate-x-2">
+                    <span class="w-8 h-8 rounded-lg purple-gradient flex items-center justify-center font-bold">三</span>
+                    <span>下游产业链 - 整车应用与生态</span>
+                </a>
+                <a href="#section4" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 transition-all hover:translate-x-2">
+                    <span class="w-8 h-8 rounded-lg purple-gradient flex items-center justify-center font-bold">四</span>
+                    <span>产业链深度对比与预判</span>
+                </a>
+                <a href="#section5" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 transition-all hover:translate-x-2">
+                    <span class="w-8 h-8 rounded-lg purple-gradient flex items-center justify-center font-bold">五</span>
+                    <span>风险与不确定性分析</span>
+                </a>
+                <a href="#section6" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 transition-all hover:translate-x-2">
+                    <span class="w-8 h-8 rounded-lg purple-gradient flex items-center justify-center font-bold">六</span>
+                    <span>投资策略与受益标的</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 1: 上游产业链 -->
+    <section id="section1" class="py-16 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="section-divider mb-12"></div>
+            <h2 class="text-4xl font-black mb-4 text-center">
+                <span class="text-gradient">一、上游产业链</span>
+            </h2>
+            <p class="text-center text-gray-300 text-center mb-12 max-w-3xl mx-auto text-lg">
+                从EDA工具、IP核、晶圆制造、半导体材料、设备、封测六大环节全景解析
+            </p>
+
+            <!-- 1.1 EDA工具 -->
+            <div class="card-gradient rounded-2xl p-8 mb-8 risk-card transition-all duration-300">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <i class="fa fa-cogs text-blue-400"></i>
+                    1.1 EDA工具：国产EDA在车规芯片中的应用进展
+                </h3>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="text-lg font-semibold mb-4 text-purple-300">市场格局与技术现状</h4>
+                        <ul class="space-y-3 text-gray-300">
+                            <li class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1"></i>
+                                <span><strong>全球垄断格局：</strong>新思(Synopsys)、楷登(Cadence)、西门子EDA占据全球70%+市场份额，形成全流程+工艺绑定+专利壁垒闭环</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1"></i>
+                                <span><strong>国产突破：</strong>华大九天作为国产唯一全流程EDA，模拟工艺覆盖率年底超80%，核心仿真工具获4nm认证</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1"></i>
+                                <span><strong>技术差距：</strong>成熟制程(28nm及以上)基本可用，14nm部分打通，7nm以下与高端数字仍明显落后</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-4 text-purple-300">车规芯片EDA关键需求</h4>
+                        <div class="space-y-4">
+                            <div class="bg-white/5 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm">功能安全验证</span>
+                                    <span class="text-xs text-yellow-400">ASIL-D级</span>
+                                </div>
+                                <div class="w-full bg-gray-700 rounded-full h-2">
+                                    <div class="value-bar bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full" style="width: 95%"></div>
+                                </div>
+                            </div>
+                            <div class="bg-white/5 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm">可靠性仿真</span>
+                                    <span class="text-xs text-yellow-400">极端环境模拟</span>
+                                </div>
+                                <div class="w-full bg-gray-700 rounded-full h-2">
+                                    <div class="value-bar bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full" style="width: 90%"></div>
+                                </div>
+                            </div>
+                            <div class="bg-white/5 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm">良率优化</span>
+                                    <span class="text-xs text-yellow-400">车规级标准</span>
+                                </div>
+                                <div class="w-full bg-gray-700 rounded-full h-2">
+                                    <div class="value-bar bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full" style="width: 85%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/30">
+                    <p class="text-sm text-yellow-200 flex items-start gap-2">
+                        <i class="fa fa-info-circle mt-1"></i>
+                        <strong>数据来源：</strong>华大九天2025年半年报、浦银国际研究、行业专家访谈
+                    </p>
+                </div>
+            </div>
+
+            <!-- 1.2 IP核 -->
+            <div class="card-gradient rounded-2xl p-8 mb-8 risk-card transition-all duration-300">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <i class="fa fa-cube text-purple-400"></i>
+                    1.2 IP核：CPU/GPU/NPU IP供应商与国产替代现状
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-white/20">
+                                <th class="text-left py-3 px-4">IP类型</th>
+                                <th class="text-left py-3 px-4">主流供应商</th>
+                                <th class="text-left py-3 px-4">技术特点</th>
+                                <th class="text-left py-3 px-4">国产替代进度</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-300">
+                            <tr class="border-b border-white/10 hover:bg-white/5">
+                                <td class="py-4 px-4 font-medium">CPU IP</td>
+                                <td class="py-4 px-4">ARM (Cortex-A/R系列)</td>
+                                <td class="py-4 px-4">16核高性能架构，主频2.5GHz</td>
+                                <td class="py-4 px-4"><span class="text-yellow-400">■■■□□</span> 部分替代中</td>
+                            </tr>
+                            <tr class="border-b border-white/10 hover:bg-white/5">
+                                <td class="py-4 px-4 font-medium">GPU IP</td>
+                                <td class="py-4 px-4">ARM Mali、Imagination</td>
+                                <td class="py-4 px-4">并行计算加速，图形渲染</td>
+                                <td class="py-4 px-4"><span class="text-orange-400">■■□□□</span> 追赶中</td>
+                            </tr>
+                            <tr class="border-b border-white/10 hover:bg-white/5">
+                                <td class="py-4 px-4 font-medium">NPU IP</td>
+                                <td class="py-4 px-4">寒武纪、芯原、自研</td>
+                                <td class="py-4 px-4">AI专用加速，Transformer优化</td>
+                                <td class="py-4 px-4"><span class="text-green-400">■■■■□</span> 快速突破</td>
+                            </tr>
+                            <tr class="hover:bg-white/5">
+                                <td class="py-4 px-4 font-medium">ISP IP</td>
+                                <td class="py-4 px-4">芯原、黑芝麻自研</td>
+                                <td class="py-4 px-4">图像处理，多摄融合</td>
+                                <td class="py-4 px-4"><span class="text-green-400">■■■■■</span> 基本自主</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-6 grid md:grid-cols-2 gap-6">
+                    <div class="bg-white/5 rounded-lg p-4">
+                        <h5 class="font-semibold text-purple-300 mb-2">璇玑A3 IP策略</h5>
+                        <p class="text-sm text-gray-300">
+                            采用"ARM架构授权+自研NPU加速器"的混合模式，核心IP自主率超80%，关键指令集深度优化适配智驾算法
+                        </p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg p-4">
+                        <h5 class="font-semibold text-purple-300 mb-2">华为韬定律启示</h5>
+                        <p class="text-sm text-gray-300">
+                            华为"灵犀"指令集在ARM基础上新增多线程调度、硬件加密等扩展，异构计算效率提升25%+
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1.3 晶圆制造 -->
+            <div class="card-gradient rounded-2xl p-8 mb-8 risk-card transition-all duration-300">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <i class="fa fa-industry text-green-400"></i>
+                    1.3 晶圆制造：4nm车规级晶圆代工格局与产能分析
+                </h3>
+                <div class="grid md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl p-6 border border-blue-500/30">
+                        <div class="text-center mb-4">
+                            <i class="fa fa-globe text-4xl text-blue-400"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-center mb-2">台积电</h4>
+                        <ul class="text-sm text-gray-300 space-y-2">
+                            <li>• 4nm车规级量产主力</li>
+                            <li>• 南京Fab 16产能支持</li>
+                            <li>• 良率：85%-90%</li>
+                            <li>• 英伟达/高通核心代工厂</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gradient-to-br from-red-500/20 to-orange-500/20 rounded-xl p-6 border border-red-500/30">
+                        <div class="text-center mb-4">
+                            <i class="fa fa-flag text-4xl text-red-400"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-center mb-2">三星</h4>
+                        <ul class="text-sm text-gray-300 space-y-2">
+                            <li>• 4nm SF4P工艺</li>
+                            <li>• 良率突破80%（2026年）</li>
+                            <li>• Groq、百度等客户</li>
+                            <li>• 车规级认证推进中</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-500/20 to-teal-500/20 rounded-xl p-6 border border-green-500/30">
+                        <div class="text-center mb-4">
+                            <i class="fa fa-rocket text-4xl text-green-400"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-center mb-2">中芯国际</h4>
+                        <ul class="text-sm text-gray-300 space-y-2">
+                            <li>• N+2工艺等效7nm</li>
+                            <li>• 良率约50%-70%</li>
+                            <li>• 车规级验证通过</li>
+                            <li>• 国产替代备选方案</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="bg-white/5 rounded-xl p-6">
+                    <h4 class="font-semibold mb-4 text-purple-300">比亚迪5座晶圆制造厂布局</h4>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-4 text-center text-sm">
+                        <div class="bg-white/5 rounded-lg p-4">
+                            <div class="text-lg font-bold text-blue-400 mb-1">宁波厂</div>
+                            <div class="text-gray-400">6/8英寸</div>
+                            <div class="text-gray-500 text-xs mt-1">IGBT功率芯片</div>
+                        </div>
+                        <div class="bg-white/5 rounded-lg p-4">
+                            <div class="text-lg font-bold text-purple-400 mb-1">长沙厂</div>
+                            <div class="text-gray-400">8英寸</div>
+                            <div class="text-gray-500 text-xs mt-1">SiC碳化硅产线</div>
+                        </div>
+                        <div class="bg-white/5 rounded-lg p-4">
+                            <div class="text-lg font-bold text-green-400 mb-1">成都厂</div>
+                            <div class="text-gray-400">12英寸</div>
+                            <div class="text-gray-500 text-xs mt-1">国内最大车规级</div>
+                        </div>
+                        <div class="bg-white/5 rounded-lg p-4">
+                            <div class="text-lg font-bold text-yellow-400 mb-1">惠州厂</div>
+                            <div class="text-gray-400">8英寸</div>
+                            <div class="text-gray-500 text-xs mt-1">MCU/BMS芯片</div>
+                        </div>
+                        <div class="bg-white/5 rounded-lg p-4">
+                            <div class="text-lg font-bold text-red-400 mb-1">济南厂</div>
+                            <div class="text-gray-400">规划中</div>
+                            <div class="text-gray-500 text-xs mt-1">先进制程产线</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 p-4 bg-blue-500/10 rounded-lg border border-blue-500/30">
+                    <p class="text-sm text-blue-200 flex items-start gap-2">
+                        <i class="fa fa-info-circle mt-1"></i>
+                        <strong>重要说明：</strong>璇玑A3 4nm制程目前主要由台积电代工，比亚迪自有产线主要覆盖成熟制程（IGBT、SiC、MCU等），先进制程自主化仍需3-5年时间。
+                    </p>
+                </div>
+            </div>
+
+            <!-- 1.4 材料与设备 -->
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <div class="card-gradient rounded-2xl p-8 risk-card transition-all duration-300">
+                    <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                        <i class="fa fa-flask text-orange-400"></i>
+                        1.4 半导体材料
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span class="font-medium">光刻胶</span>
+                            <span class="text-sm text-gray-400">ArF/KrF车规级</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span class="font-medium">大硅片</span>
+                            <span class="text-sm text-gray-400">12英寸沪硅产业</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span class="font-medium">特种气体</span>
+                            <span class="text-sm text-gray-400">高纯电子特气</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span class="font-medium">靶材</span>
+                            <span class="text-sm text-gray-400">高端溅射靶材</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span class="font-medium">湿化学品</span>
+                            <span class="text-sm text-gray-400">G5级超净高纯</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-gradient rounded-2xl p-8 risk-card transition-all duration-300">
+                    <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                        <i class="fa fa-wrench text-teal-400"></i>
+                        1.5 半导体设备
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span class="font-medium">光刻机</span>
+                            <span class="text-sm text-gray-400">DUV成熟可用</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span class="font-medium">刻蚀机</span>
+                            <span class="text-sm text-gray-400">中微公司5nm验证</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span class="font-medium">薄膜沉积</span>
+                            <span class="text-sm text-gray-400">北方华创</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span class="font-medium">清洗设备</span>
+                            <span class="text-sm text-gray-400">至纯科技</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <span class="font-medium">检测设备</span>
+                            <span class="text-sm text-gray-400">芯源微/长川</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1.6 先进封装 -->
+            <div class="card-gradient rounded-2xl p-8 risk-card transition-all duration-300">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <i class="fa fa-cubes text-pink-400"></i>
+                    1.6 封测端：先进封装(CoWoS/Chiplet)车规级技术与供应商
+                </h3>
+                <div class="grid md:grid-cols-3 gap-6 mb-6">
+                    <div class="text-center p-6 bg-white/5 rounded-xl">
+                        <i class="fa fa-microchip text-3xl text-purple-400 mb-3"></i>
+                        <h4 class="font-bold mb-2">长电科技</h4>
+                        <p class="text-sm text-gray-400">XDFOI高密度封装，支持4nm及以下先进制程，全球少数具备全栈先进封装能力</p>
+                    </div>
+                    <div class="text-center p-6 bg-white/5 rounded-xl">
+                        <i class="fa fa-link text-3xl text-blue-400 mb-3"></i>
+                        <h4 class="font-bold mb-2">通富微电</h4>
+                        <p class="text-sm text-gray-400">大尺寸FCBGA和Chiplet封装领域优势显著，5nm Chiplet技术已实现量产</p>
+                    </div>
+                    <div class="text-center p-6 bg-white/5 rounded-xl">
+                        <i class="fa fa-code-fork text-3xl text-green-400 mb-3"></i>
+                        <h4 class="font-bold mb-2">盛合晶微</h4>
+                        <p class="text-sm text-gray-400">国内硅基2.5D封装龙头，市占率约85%，12英寸Bumping产能国内最大</p>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-xl p-6 border border-purple-500/30">
+                    <h4 class="font-semibold mb-3 text-purple-300">车规级封装关键挑战</h4>
+                    <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-300">
+                        <div class="flex items-start gap-2">
+                            <i class="fa fa-exclamation-triangle text-yellow-400 mt-1"></i>
+                            <span>宽温域可靠性：-40℃至125℃稳定工作，热膨胀系数匹配</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fa fa-exclamation-triangle text-yellow-400 mt-1"></i>
+                            <span>振动与冲击：车载复杂环境下的互连可靠性</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fa fa-exclamation-triangle text-yellow-400 mt-1"></i>
+                            <span>寿命要求：15年/30万公里长期稳定性</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fa fa-exclamation-triangle text-yellow-400 mt-1"></i>
+                            <span>功能安全：ASIL-D等级封装设计要求</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: 中游产业链 -->
+    <section id="section2" class="py-16 px-6 bg-black/20">
+        <div class="max-w-6xl mx-auto">
+            <div class="section-divider mb-12"></div>
+            <h2 class="text-4xl font-black mb-4 text-center">
+                <span class="text-gradient">二、中游产业链</span>
+            </h2>
+            <p class="text-center text-gray-300 text-center mb-12 max-w-3xl mx-auto text-lg">
+                芯片设计、域控制器集成、PCB材料三大核心环节深度剖析
+            </p>
+
+            <!-- 2.1 比亚迪半导体 -->
+            <div class="card-gradient rounded-2xl p-8 mb-8 risk-card transition-all duration-300">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <i class="fa fa-building text-blue-400"></i>
+                    2.1 比亚迪半导体：自研能力、产能规划、对外供应策略
+                </h3>
+                
+                <!-- 核心参数卡片 -->
+                <div class="grid md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white/5 rounded-xl p-5 text-center">
+                        <div class="text-3xl font-black text-gradient">24</div>
+                        <div class="text-sm text-gray-400 mt-1">年芯片研发历史</div>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-5 text-center">
+                        <div class="text-3xl font-black text-gradient">567</div>
+                        <div class="text-sm text-gray-400 mt-1">款车规级芯片</div>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-5 text-center">
+                        <div class="text-3xl font-black text-gradient">46</div>
+                        <div class="text-sm text-gray-400 mt-1">个外部车企品牌</div>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-5 text-center">
+                        <div class="text-3xl font-black text-gradient">1000+</div>
+                        <div class="text-sm text-gray-400 mt-1">亿元累计投入</div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="text-lg font-semibold mb-4 text-purple-300">全流程自研能力</h4>
+                        <div class="space-y-3 text-gray-300 text-sm">
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1"></i>
+                                <span><strong>产品定义：</strong>深度理解整车需求，芯片定义与车型开发同步</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1"></i>
+                                <span><strong>架构设计：</strong>CPU/GPU/NPU异构架构自研优化</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1"></i>
+                                <span><strong>电路设计：</strong>全定制化电路优化，能效比提升20%</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1"></i>
+                                <span><strong>版图设计：</strong>物理实现与工艺协同优化</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1"></i>
+                                <span><strong>晶圆制造：</strong>5座晶圆厂，覆盖6-12英寸产线</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1"></i>
+                                <span><strong>封装测试：</strong>车规级封装与可靠性验证能力</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-4 text-purple-300">对外供应策略</h4>
+                        <div class="bg-white/5 rounded-xl p-5 space-y-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-medium">IGBT功率芯片</span>
+                                    <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">已规模化外供</span>
+                                </div>
+                                <p class="text-xs text-gray-400">国内市占率34.3%，已向46个品牌供货</p>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-medium">SiC碳化硅</span>
+                                    <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">快速上量中</span>
+                                </div>
+                                <p class="text-xs text-gray-400">长沙产线良品率达98%，800V平台核心器件</p>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-medium">MCU/BMS芯片</span>
+                                    <span class="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded">稳步推进</span>
+                                </div>
+                                <p class="text-xs text-gray-400">国内唯一完整BMS方案供应商</p>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-medium">璇玑A3智驾芯片</span>
+                                    <span class="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded">先内后外</span>
+                                </div>
+                                <p class="text-xs text-gray-400">优先满足比亚迪全系需求后逐步外供</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2.2 智驾芯片设计 -->
+            <div class="card-gradient rounded-2xl p-8 mb-8 risk-card transition-all duration-300">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <i class="fa fa-sitemap text-purple-400"></i>
+                    2.2 智驾芯片设计：算力架构、AI加速、功能安全设计
+                </h3>
+                
+                <div class="overflow-x-auto mb-6">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-white/20 bg-white/5">
+                                <th class="text-left py-3 px-4">参数指标</th>
+                                <th class="text-center py-3 px-4">璇玑A3</th>
+                                <th class="text-center py-3 px-4">英伟达Orin-X</th>
+                                <th class="text-center py-3 px-4">地平线征程6</th>
+                                <th class="text-center py-3 px-4">高通Ride Flex</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-300">
+                            <tr class="border-b border-white/10">
+                                <td class="py-3 px-4 font-medium">制程工艺</td>
+                                <td class="py-3 px-4 text-center text-green-400 font-bold">4nm车规级</td>
+                                <td class="py-3 px-4 text-center">7nm</td>
+                                <td class="py-3 px-4 text-center">5nm</td>
+                                <td class="py-3 px-4 text-center">4nm</td>
+                            </tr>
+                            <tr class="border-b border-white/10 bg-white/5">
+                                <td class="py-3 px-4 font-medium">单颗算力(TOPS)</td>
+                                <td class="py-3 px-4 text-center text-green-400 font-bold">~700</td>
+                                <td class="py-3 px-4 text-center">254</td>
+                                <td class="py-3 px-4 text-center">400-500</td>
+                                <td class="py-3 px-4 text-center">~600</td>
+                            </tr>
+                            <tr class="border-b border-white/10">
+                                <td class="py-3 px-4 font-medium">CPU核心</td>
+                                <td class="py-3 px-4 text-center text-green-400 font-bold">16核</td>
+                                <td class="py-3 px-4 text-center">12核ARM</td>
+                                <td class="py-3 px-4 text-center">12核ARM</td>
+                                <td class="py-3 px-4 text-center">16核</td>
+                            </tr>
+                            <tr class="border-b border-white/10 bg-white/5">
+                                <td class="py-3 px-4 font-medium">内存带宽</td>
+                                <td class="py-3 px-4 text-center text-green-400 font-bold">273GB/s</td>
+                                <td class="py-3 px-4 text-center">200GB/s</td>
+                                <td class="py-3 px-4 text-center">~256GB/s</td>
+                                <td class="py-3 px-4 text-center">~300GB/s</td>
+                            </tr>
+                            <tr class="border-b border-white/10">
+                                <td class="py-3 px-4 font-medium">功能安全</td>
+                                <td class="py-3 px-4 text-center text-green-400 font-bold">ASIL-D</td>
+                                <td class="py-3 px-4 text-center">ASIL-D</td>
+                                <td class="py-3 px-4 text-center">ASIL-D</td>
+                                <td class="py-3 px-4 text-center">ASIL-D</td>
+                            </tr>
+                            <tr class="bg-white/5">
+                                <td class="py-3 px-4 font-medium">支持自动驾驶等级</td>
+                                <td class="py-3 px-4 text-center text-green-400 font-bold">L3/L4</td>
+                                <td class="py-3 px-4 text-center">L2/L3</td>
+                                <td class="py-3 px-4 text-center">L2/L3</td>
+                                <td class="py-3 px-4 text-center">L2/L3/L4</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="bg-gradient-to-br from-green-500/20 to-teal-500/20 rounded-xl p-6 border border-green-500/30">
+                        <h4 class="font-bold mb-3 flex items-center gap-2">
+                            <i class="fa fa-bolt text-green-400"></i>
+                            能效比优势
+                        </h4>
+                        <p class="text-sm text-gray-300">
+                            单位算力功耗较同级产品降低20%，通过4nm工艺优化+芯片架构重构，单颗芯片功耗控制在50W以内，无需额外大型散热装置。
+                        </p>
+                    </div>
+                    <div class="bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl p-6 border border-blue-500/30">
+                        <h4 class="font-bold mb-3 flex items-center gap-2">
+                            <i class="fa fa-rocket text-blue-400"></i>
+                            算力利用率翻倍
+                        </h4>
+                        <p class="text-sm text-gray-300">
+                            结合自研底层算法深度优化，算力利用率提升100%，2100TOPS算力可完全转化为智驾能力，无冗余浪费。
+                        </p>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl p-6 border border-purple-500/30">
+                        <h4 class="font-bold mb-3 flex items-center gap-2">
+                            <i class="fa fa-shield text-purple-400"></i>
+                            功能安全设计
+                        </h4>
+                        <p class="text-sm text-gray-300">
+                            获得ISO 26262 ASIL-D最高功能安全等级认证，通过硬件冗余、故障检测、安全机制全链路覆盖。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2.3 域控制器与PCB -->
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card-gradient rounded-2xl p-8 risk-card transition-all duration-300">
+                    <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                        <i class="fa fa-microchip text-green-400"></i>
+                        2.3 域控制器集成
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4 p-4 bg-white/5 rounded-xl">
+                            <div class="w-12 h-12 rounded-lg purple-gradient flex items-center justify-center flex-shrink-0">
+                                <i class="fa fa-car text-white"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-bold">德赛西威</h5>
+                                <p class="text-sm text-gray-400">国内智能驾驶域控制器龙头，与比亚迪深度合作，IPU04系列大规模量产</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4 p-4 bg-white/5 rounded-xl">
+                            <div class="w-12 h-12 rounded-lg bg-blue-500/30 flex items-center justify-center flex-shrink-0">
+                                <i class="fa fa-cogs text-white"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-bold">华阳集团</h5>
+                                <p class="text-sm text-gray-400">智能座舱域控领先供应商，逐步切入智驾域控领域</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4 p-4 bg-white/5 rounded-xl">
+                            <div class="w-12 h-12 rounded-lg bg-teal-500/30 flex items-center justify-center flex-shrink-0">
+                                <i class="fa fa-code-fork text-white"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-bold">经纬恒润</h5>
+                                <p class="text-sm text-gray-400">全栈式汽车电子方案商，底盘域控技术积累深厚</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-gradient rounded-2xl p-8 risk-card transition-all duration-300">
+                    <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                        <i class="fa fa-circuit-board text-orange-400"></i>
+                        2.4 PCB/CCL材料
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4 p-4 bg-white/5 rounded-xl">
+                            <div class="w-12 h-12 rounded-lg bg-orange-500/30 flex items-center justify-center flex-shrink-0">
+                                <i class="fa fa-microchip text-white"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-bold">深南电路</h5>
+                                <p class="text-sm text-gray-400">FC-BGA载板龙头，4nm载板核心供应商，高端PCB国内领军</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4 p-4 bg-white/5 rounded-xl">
+                            <div class="w-12 h-12 rounded-lg bg-yellow-500/30 flex items-center justify-center flex-shrink-0">
+                                <i class="fa fa-server text-white"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-bold">沪电股份</h5>
+                                <p class="text-sm text-gray-400">车载高阶PCB主力供应商，20层以上高多层板量产能力</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4 p-4 bg-white/5 rounded-xl">
+                            <div class="w-12 h-12 rounded-lg bg-red-500/30 flex items-center justify-center flex-shrink-0">
+                                <i class="fa fa-cube text-white"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-bold">生益科技</h5>
+                                <p class="text-sm text-gray-400">高频高速覆铜板龙头，车载高频材料通过车规认证</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: 下游产业链 -->
+    <section id="section3" class="py-16 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="section-divider mb-12"></div>
+            <h2 class="text-4xl font-black mb-4 text-center">
+                <span class="text-gradient">三、下游产业链</span>
+            </h2>
+            <p class="text-center text-gray-300 text-center mb-12 max-w-3xl mx-auto text-lg">
+                感知层、执行层、软件层、整车应用与生态建设全景图
+            </p>
+
+            <!-- 3.1 感知层 -->
+            <div class="card-gradient rounded-2xl p-8 mb-8 risk-card transition-all duration-300">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <i class="fa fa-eye text-blue-400"></i>
+                    3.1 感知层：车载摄像头CIS、毫米波雷达、激光雷达
+                </h3>
+                
+                <div class="grid md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl p-6 border border-blue-500/30">
+                        <div class="text-center mb-4">
+                            <i class="fa fa-camera text-4xl text-blue-400"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-center mb-4">摄像头CIS</h4>
+                        <div class="space-y-3 text-sm text-gray-300">
+                            <div class="flex justify-between">
+                                <span>韦尔股份(豪威)</span>
+                                <span class="text-blue-400">市占40%+</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>联创电子</span>
+                                <span class="text-blue-400">ADAS镜头60-70%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>欧菲光</span>
+                                <span class="text-blue-400">车载镜头核心</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 p-3 bg-white/5 rounded-lg text-xs text-gray-400">
+                            <i class="fa fa-info-circle text-blue-400 mr-1"></i>
+                            单车搭载8-12颗摄像头，8MP成为标配
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl p-6 border border-purple-500/30">
+                        <div class="text-center mb-4">
+                            <i class="fa fa-wifi text-4xl text-purple-400"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-center mb-4">毫米波雷达</h4>
+                        <div class="space-y-3 text-sm text-gray-300">
+                            <div class="flex justify-between">
+                                <span>德赛西威</span>
+                                <span class="text-purple-400">77GHz量产</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>华域汽车</span>
+                                <span class="text-purple-400">4D成像雷达</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>华为海思</span>
+                                <span class="text-purple-400">芯片方案</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 p-3 bg-white/5 rounded-lg text-xs text-gray-400">
+                            <i class="fa fa-info-circle text-purple-400 mr-1"></i>
+                            4D成像雷达逐步替代传统雷达，单车5-6颗
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-green-500/20 to-teal-500/20 rounded-xl p-6 border border-green-500/30">
+                        <div class="text-center mb-4">
+                            <i class="fa fa-sun-o text-4xl text-green-400"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-center mb-4">激光雷达</h4>
+                        <div class="space-y-3 text-sm text-gray-300">
+                            <div class="flex justify-between">
+                                <span>比亚迪自研</span>
+                                <span class="text-green-400">1080线，600米</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>华为</span>
+                                <span class="text-green-400">96线混合固态</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>万集科技</span>
+                                <span class="text-green-400">路侧+车侧</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 p-3 bg-white/5 rounded-lg text-xs text-gray-400">
+                            <i class="fa fa-info-circle text-green-400 mr-1"></i>
+                            比亚迪1080线激光雷达成本降至千元级
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white/5 rounded-xl p-6">
+                    <h4 class="font-semibold mb-4 text-purple-300">传感器配置方案</h4>
+                    <div class="grid md:grid-cols-3 gap-4 text-center text-sm">
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <div class="text-lg font-bold text-yellow-400 mb-2">天神之眼C</div>
+                            <div class="text-gray-400">纯视觉方案<br>8MP摄像头×8</div>
+                            <div class="text-xs text-gray-500 mt-2">10-20万元车型</div>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <div class="text-lg font-bold text-blue-400 mb-2">天神之眼B</div>
+                            <div class="text-gray-400">激光雷达×1 + 摄像头×11<br>毫米波雷达×5</div>
+                            <div class="text-xs text-gray-500 mt-2">20-30万元车型</div>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <div class="text-lg font-bold text-purple-400 mb-2">天神之眼A</div>
+                            <div class="text-gray-400">激光雷达×3 + 摄像头×12<br>4D成像雷达×5</div>
+                            <div class="text-xs text-gray-500 mt-2">30万元以上高端</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3.2 执行层与软件层 -->
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <div class="card-gradient rounded-2xl p-8 risk-card transition-all duration-300">
+                    <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                        <i class="fa fa-cogs text-orange-400"></i>
+                        3.2 执行层：线控底盘与制动系统
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-white/5 rounded-xl">
+                            <h5 class="font-bold mb-2 flex items-center gap-2">
+                                <i class="fa fa-car text-green-400"></i>
+                                伯特利：线控制动龙头
+                            </h5>
+                            <p class="text-sm text-gray-400 mb-2">WCBS线控制动系统市占率国内第一，比亚迪核心供应商</p>
+                            <div class="flex gap-2">
+                                <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">One-Box方案</span>
+                                <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">冗余设计</span>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-xl">
+                            <h5 class="font-bold mb-2 flex items-center gap-2">
+                                <i class="fa fa-steering-wheel text-blue-400"></i>
+                                耐世特/恒隆：线控转向
+                            </h5>
+                            <p class="text-sm text-gray-400 mb-2">EPS电动助力转向系统，L3级以上自动驾驶必备线控转向</p>
+                            <div class="flex gap-2">
+                                <span class="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded">SBW技术</span>
+                                <span class="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded">安全冗余</span>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-xl">
+                            <h5 class="font-bold mb-2 flex items-center gap-2">
+                                <i class="fa fa-road text-purple-400"></i>
+                                比亚迪弗迪科技：自研底盘域控
+                            </h5>
+                            <p class="text-sm text-gray-400 mb-2">e平台3.0核心技术，集成车身控制、热管理、动力域控一体化</p>
+                            <div class="flex gap-2">
+                                <span class="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded">CTB技术</span>
+                                <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">iTAC技术</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-gradient rounded-2xl p-8 risk-card transition-all duration-300">
+                    <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                        <i class="fa fa-code text-teal-400"></i>
+                        3.3 软件层：OS、算法、中间件
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-white/5 rounded-xl">
+                            <h5 class="font-bold mb-2 flex items-center gap-2">
+                                <i class="fa fa-linux text-green-400"></i>
+                                中科创达：智能驾驶OS
+                            </h5>
+                            <p class="text-sm text-gray-400 mb-2">智能座舱OS市占率领先，智驾OS与多家车企合作开发</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-xl">
+                            <h5 class="font-bold mb-2 flex items-center gap-2">
+                                <i class="fa fa-brain text-purple-400"></i>
+                                东软集团：自动驾驶算法
+                            </h5>
+                            <p class="text-sm text-gray-400 mb-2">V2X车路协同、高精地图、自动驾驶算法全栈能力</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-xl">
+                            <h5 class="font-bold mb-2 flex items-center gap-2">
+                                <i class="fa fa-puzzle-piece text-blue-400"></i>
+                                百度Apollo：开放生态
+                            </h5>
+                            <p class="text-sm text-gray-400 mb-2">高精地图、自动驾驶算法、云服务完整解决方案</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-xl">
+                            <h5 class="font-bold mb-2 flex items-center gap-2">
+                                <i class="fa fa-shield text-yellow-400"></i>
+                                比亚迪自研：天神之眼算法
+                            </h5>
+                            <p class="text-sm text-gray-400 mb-2">城市领航NOA、高速NOA、自动泊车全场景覆盖</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3.4 整车应用与生态 -->
+            <div class="card-gradient rounded-2xl p-8 risk-card transition-all duration-300">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <i class="fa fa-car text-red-400"></i>
+                    3.4 整车应用与生态建设
+                </h3>
+                
+                <div class="grid md:grid-cols-2 gap-8 mb-6">
+                    <div>
+                        <h4 class="text-lg font-semibold mb-4 text-purple-300">比亚迪全系车型装车规划</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                                <span class="font-medium">仰望品牌</span>
+                                <span class="text-sm text-green-400">璇玑A3 + 3颗标配</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                                <span class="font-medium">腾势品牌</span>
+                                <span class="text-sm text-blue-400">璇玑A3 + 2颗标配</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                                <span class="font-medium">方程豹品牌</span>
+                                <span class="text-sm text-yellow-400">璇玑A3 + 1/2颗</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                                <span class="font-medium">海洋/王朝系列</span>
+                                <span class="text-sm text-purple-400">全系可选装，12000元</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                                <span class="font-medium">海鸥/海豚等入门</span>
+                                <span class="text-sm text-gray-400">逐步下探，推动智驾平权</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-4 text-purple-300">开发者生态建设</h4>
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1"></i>
+                                <span class="text-sm text-gray-300"><strong>开放平台：</strong>传感器数据接口、算力调用API、工具链开放</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1"></i>
+                                <span class="text-sm text-gray-300"><strong>数据闭环：</strong>310万辆车每日生成超2亿公里真实行驶数据</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1"></i>
+                                <span class="text-sm text-gray-300"><strong>算法迭代：</strong>基于海量数据的持续学习与OTA升级</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1"></i>
+                                <span class="text-sm text-gray-300"><strong>合作伙伴：</strong>高校、科研机构、创业公司联合创新</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-xl p-6 border border-yellow-500/30">
+                    <h4 class="font-semibold mb-3 flex items-center gap-2">
+                        <i class="fa fa-exclamation-triangle text-yellow-400"></i>
+                        城市领航安全兜底政策
+                    </h4>
+                    <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-300">
+                        <div>
+                            <p class="font-medium text-yellow-200 mb-2">保障范围：</p>
+                            <p>天神之眼A/B新老用户，OTA升级后均可享受
+                            </p>
+                        </div>
+                        <div>
+                            <p class="font-medium text-yellow-200 mb-2">保障内容：</p>
+                            <p>车辆维修、第三方财产损失、人身伤害
+                            </p>
+                        </div>
+                        <div>
+                            <p class="font-medium text-yellow-200 mb-2">保障期限：</p>
+                            <p>一年期，不设赔付上限
+                            </p>
+                        </div>
+                        <div>
+                            <p class="font-medium text-yellow-200 mb-2">行业意义：</p>
+                            <p>全球首个城市领航兜底，重塑用户信任基础
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: 产业链深度对比与预判 -->
+    <section id="section4" class="py-16 px-6 bg-black/20">
+        <div class="max-w-6xl mx-auto">
+            <div class="section-divider mb-12"></div>
+            <h2 class="text-4xl font-black mb-4 text-center">
+                <span class="text-gradient">四、产业链深度对比与预判</span>
+            </h2>
+            <p class="text-center text-gray-300 text-center mb-12 max-w-3xl mx-auto text-lg">
+                英伟达对比、国产替代时序、业绩弹性测算、投资时钟与标的排序
+            </p>
+
+            <!-- 4.1 英伟达对比 -->
+            <div class="card-gradient rounded-2xl p-8 mb-8 risk-card transition-all duration-300">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <i class="fa fa-balance-scale text-blue-400"></i>
+                    4.1 与英伟达产业链控制力对比
+                </h3>
+                
+                <div class="overflow-x-auto mb-6">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-white/20 bg-white/5">
+                                <th class="text-left py-3 px-4">对比维度</th>
+                                <th class="text-center py-3 px-4">英伟达</th>
+                                <th class="text-center py-3 px-4">比亚迪</th>
+                                <th class="text-center py-3 px-4">差异分析</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-300">
+                            <tr class="border-b border-white/10">
+                                <td class="py-3 px-4 font-medium">产业链长度</td>
+                                <td class="py-3 px-4 text-center">芯片设计+软件生态</td>
+                                <td class="py-3 px-4 text-center text-green-400 font-bold">全链路垂直整合</td>
+                                <td class="py-3 px-4 text-center">比亚迪更长，覆盖制造到整车</td>
+                            </tr>
+                            <tr class="border-b border-white/10 bg-white/5">
+                                <td class="py-3 px-4 font-medium">生态开放度</td>
+                                <td class="py-3 px-4 text-center text-green-400 font-bold">全球开放生态</td>
+                                <td class="py-3 px-4 text-center">封闭垂直整合</td>
+                                <td class="py-3 px-4 text-center">英伟达客户数量优势</td>
+                            </tr>
+                            <tr class="border-b border-white/10">
+                                <td class="py-3 px-4 font-medium">成本控制力</td>
+                                <td class="py-3 px-4 text-center">高毛利模式</td>
+                                <td class="py-3 px-4 text-center text-green-400 font-bold">自研自产成本优势</td>
+                                <td class="py-3 px-4 text-center">比亚迪成本仅1/3</td>
+                            </tr>
+                            <tr class="border-b border-white/10 bg-white/5">
+                                <td class="py-3 px-4 font-medium">数据闭环</td>
+                                <td class="py-3 px-4 text-center">依赖车企数据</td>
+                                <td class="py-3 px-4 text-center text-green-400 font-bold">自有310万辆数据</td>
+                                <td class="py-3 px-4 text-center">比亚迪数据规模优势</td>
+                            </tr>
+                            <tr class="border-b border-white/10">
+                                <td class="py-3 px-4 font-medium">芯片单价</td>
+                                <td class="py-3 px-4 text-center">Orin-X ~500美元</td>
+                                <td class="py-3 px-4 text-center text-green-400 font-bold">璇玑A3 ~170美元</td>
+                                <td class="py-3 px-4 text-center">成本优势显著</td>
+                            </tr>
+                            <tr class="bg-white/5">
+                                <td class="py-3 px-4 font-medium">客户数量</td>
+                                <td class="py-3 px-4 text-center text-green-400 font-bold">200+车企/科技公司</td>
+                                <td class="py-3 px-4 text-center">46个外部品牌</td>
+                                <td class="py-3 px-4 text-center">英伟达客户生态更广</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white/5 rounded-xl p-6">
+                        <h4 class="font-semibold mb-3 text-blue-300">英伟达优势：生态壁垒</h4>
+                        <ul class="text-sm text-gray-300 space-y-2">
+                            <li>• CUDA开发者生态全球垄断，算法迁移成本高</li>
+                            <li>• 与全球主流车企深度绑定，客户基础庞大</li>
+                            <li>• AI大模型底层优化积累深厚，Transformer加速领先</li>
+                            <li>• 从L2到L4全系列产品矩阵覆盖</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-6">
+                        <h4 class="font-semibold mb-3 text-green-300">比亚迪优势：垂直整合</h4>
+                        <ul class="text-sm text-gray-300 space-y-2">
+                            <li>• 芯片-算法-整车-数据全链路闭环</li>
+                            <li>• 极致成本控制，可下探至入门车型</li>
+                            <li>• 中国路况深度优化，算力利用率翻倍</li>
+                            <li>• 供应链安全可控，不受外部断供风险</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4.2 国产替代传导时序 -->
+            <div class="card-gradient rounded-2xl p-8 mb-8 risk-card transition-all duration-300">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <i class="fa fa-line-chart text-green-400"></i>
+                    4.2 国产替代传导时序与渗透率预测
+                </h3>
+                
+                <div class="relative pl-8 space-y-8">
+                    <div class="relative timeline-dot pl-8">
+                        <div class="absolute left-0 top-0 w-2 h-full bg-gradient-to-b from-green-500 to-transparent"></div>
+                        <h4 class="text-lg font-bold text-green-400 mb-2">2026-2027年：感知层率先替代</h4>
+                        <p class="text-sm text-gray-300 mb-2">
+                            <strong>核心逻辑：</strong>摄像头CIS、毫米波雷达技术门槛相对较低，国产供应链成熟度高，率先实现大规模替代
+                        </p>
+                        <div class="flex gap-4 text-xs">
+                            <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full">韦尔股份 CIS 70%替代</span>
+                            <span class="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full">联创电子 镜头 60%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="relative timeline-dot pl-8">
+                        <div class="absolute left-0 top-0 w-2 h-full bg-gradient-to-b from-blue-500 to-transparent"></div>
+                        <h4 class="text-lg font-bold text-blue-400 mb-2">2027-2028年：执行层加速渗透</h4>
+                        <p class="text-sm text-gray-300 mb-2">
+                            <strong>核心逻辑：</strong>线控制动、线控转向技术突破，国产方案性价比优势显现，伯特利等龙头企业技术成熟
+                        </p>
+                        <div class="flex gap-4 text-xs">
+                            <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full">伯特利 线控制动 50%</span>
+                            <span class="bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full">底盘域控 国产化</span>
+                        </div>
+                    </div>
+                    
+                    <div class="relative timeline-dot pl-8">
+                        <div class="absolute left-0 top-0 w-2 h-full bg-gradient-to-b from-purple-500 to-transparent"></div>
+                        <h4 class="text-lg font-bold text-purple-400 mb-2">2028-2030年：芯片层全面突破</h4>
+                        <p class="text-sm text-gray-300 mb-2">
+                            <strong>核心逻辑：</strong>高阶智驾芯片技术追赶完成，地平线、黑芝麻、比亚迪形成三足鼎立，国产替代进入深水区
+                        </p>
+                        <div class="flex gap-4 text-xs">
+                            <span class="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full">智驾SoC 国产化率40%</span>
+                            <span class="bg-red-500/20 text-red-400 px-3 py-1 rounded-full">车规MCU 替代60%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 bg-white/5 rounded-xl p-6">
+                    <h4 class="font-semibold mb-4 text-purple-300">各环节业绩弹性测算</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-white/20">
+                                    <th class="text-left py-3 px-4">产业链环节</th>
+                                    <th class="text-center py-3 px-4">单车价值量(元)</th>
+                                    <th class="text-center py-3 px-4">2026渗透率</th>
+                                    <th class="text-center py-3 px-4">2030渗透率</th>
+                                    <th class="text-center py-3 px-4">市场空间(亿元)</th>
+                                    <th class="text-center py-3 px-4">弹性评级</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-gray-300">
+                                <tr class="border-b border-white/10 hover:bg-white/5">
+                                    <td class="py-3 px-4 font-medium">智驾芯片</td>
+                                    <td class="py-3 px-4 text-center">1,500-5,000</td>
+                                    <td class="py-3 px-4 text-center">35%</td>
+                                    <td class="py-3 px-4 text-center">75%</td>
+                                    <td class="py-3 px-4 text-center">800-1200</td>
+                                    <td class="py-3 px-4 text-center text-red-400">★★★★★</td>
+                                </tr>
+                                <tr class="border-b border-white/10 hover:bg-white/5">
+                                    <td class="py-3 px-4 font-medium">激光雷达</td>
+                                    <td class="py-3 px-4 text-center">3,000-8,000</td>
+                                    <td class="py-3 px-4 text-center">25%</td>
+                                    <td class="py-3 px-4 text-center">60%</td>
+                                    <td class="py-3 px-4 text-center">600-900</td>
+                                    <td class="py-3 px-4 text-center text-red-400">★★★★★</td>
+                                </tr>
+                                <tr class="border-b border-white/10 hover:bg-white/5">
+                                    <td class="py-3 px-4 font-medium">域控制器</td>
+                                    <td class="py-3 px-4 text-center">5,000-12,000</td>
+                                    <td class="py-3 px-4 text-center">30%</td>
+                                    <td class="py-3 px-4 text-center">70%</td>
+                                    <td class="py-3 px-4 text-center">700-1000</td>
+                                    <td class="py-3 px-4 text-center text-orange-400">★★★★☆</td>
+                                </tr>
+                                <tr class="border-b border-white/10 hover:bg-white/5">
+                                    <td class="py-3 px-4 font-medium">线控底盘</td>
+                                    <td class="py-3 px-4 text-center">3,000-6,000</td>
+                                    <td class="py-3 px-4 text-center">20%</td>
+                                    <td class="py-3 px-4 text-center">65%</td>
+                                    <td class="py-3 px-4 text-center">500-800</td>
+                                    <td class="py-3 px-4 text-center text-orange-400">★★★★☆</td>
+                                </tr>
+                                <tr class="border-b border-white/10 hover:bg-white/5">
+                                    <td class="py-3 px-4 font-medium">车载摄像头</td>
+                                    <td class="py-3 px-4 text-center">1,500-3,000</td>
+                                    <td class="py-3 px-4 text-center">60%</td>
+                                    <td class="py-3 px-4 text-center">90%</td>
+                                    <td class="py-3 px-4 text-center">300-500</td>
+                                    <td class="py-3 px-4 text-center text-yellow-400">★★★☆☆</td>
+                                </tr>
+                                <tr class="hover:bg-white/5">
+                                    <td class="py-3 px-4 font-medium">毫米波雷达</td>
+                                    <td class="py-3 px-4 text-center">1,000-2,500</td>
+                                    <td class="py-3 px-4 text-center">70%</td>
+                                    <td class="py-3 px-4 text-center">95%</td>
+                                    <td class="py-3 px-4 text-center">200-400</td>
+                                    <td class="py-3 px-4 text-center text-yellow-400">★★★☆☆</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-4">
+                        <i class="fa fa-info-circle mr-1"></i>
+                        数据来源：Frost & Sullivan、乘联会、行业专家访谈，基于2030年中国新能源汽车销量1500万辆测算
+                    </p>
+                </div>
+            </div>
+
+            <!-- 4.3 投资时钟与标的排序 -->
+            <div class="card-gradient rounded-2xl p-8 risk-card transition-all duration-300">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <i class="fa fa-clock-o text-purple-400"></i>
+                    4.3 产业链投资时钟与受益标的优先级排序
+                </h3>
+                
+                <div class="grid md:grid-cols-4 gap-4 mb-8">
+                    <div class="text-center p-5 rounded-xl bg-gradient-to-br from-blue-500/30 to-purple-500/30 border border-blue-500/30">
+                        <div class="text-2xl mb-2">Q1 2026</div>
+                        <div class="font-bold text-blue-300">概念验证期</div>
+                        <div class="text-xs text-gray-400 mt-2">技术发布、量产爬坡</div>
+                    </div>
+                    <div class="text-center p-5 rounded-xl bg-gradient-to-br from-green-500/30 to-teal-500/30 border border-green-500/30">
+                        <div class="text-2xl mb-2">Q2-Q4 2026</div>
+                        <div class="font-bold text-green-300">上车验证期</div>
+                        <div class="text-xs text-gray-400 mt-2">定点放量、产能爬坡</div>
+                    </div>
+                    <div class="text-center p-5 rounded-xl bg-gradient-to-br from-yellow-500/30 to-orange-500/30 border border-yellow-500/30">
+                        <div class="text-2xl mb-2">2027</div>
+                        <div class="font-bold text-yellow-300">业绩兑现期</div>
+                        <div class="text-xs text-gray-400 mt-2">规模化装车、业绩释放</div>
+                    </div>
+                    <div class="text-center p-5 rounded-xl bg-gradient-to-br from-red-500/30 to-pink-500/30 border border-red-500/30">
+                        <div class="text-2xl mb-2">2028+</div>
+                        <div class="font-bold text-red-300">生态繁荣期</div>
+                        <div class="text-xs text-gray-400 mt-2">软件订阅、数据变现</div>
+                    </div>
+                </div>
+
+                <div class="bg-white/5 rounded-xl p-6">
+                    <h4 class="font-semibold mb-4 text-purple-300">五星受益标的优先级排序</h4>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4 p-4 bg-gradient-to-r from-red-500/10 to-transparent rounded-lg border-l-4 border-red-500">
+                            <div class="text-2xl font-black text-red-400 w-8">01</div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-bold text-lg">韦尔股份</span>
+                                    <span class="star-rating">★★★★★</span>
+                                </div>
+                                <p class="text-sm text-gray-300 mb-2">车载CIS全球龙头，市占率40%+，直接受益于智能驾驶摄像头数量增加与规格升级，8MP渗透率提升，比亚迪核心供应商</p>
+                                <div class="flex gap-2">
+                                    <span class="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded">CIS龙头</span>
+                                    <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">比亚迪核心</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4 p-4 bg-gradient-to-r from-orange-500/10 to-transparent rounded-lg border-l-4 border-orange-500">
+                            <div class="text-2xl font-black text-orange-400 w-8">02</div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-bold text-lg">德赛西威</span>
+                                    <span class="star-rating">★★★★★</span>
+                                </div>
+                                <p class="text-sm text-gray-300 mb-2">国内智能驾驶域控制器绝对龙头，IPU04系列大规模量产，与比亚迪在智能座舱和智驾域深度合作，舱驾一体产品领先</p>
+                                <div class="flex gap-2">
+                                    <span class="text-xs bg-orange-500/20 text-orange-400 px-2 py-1 rounded">域控龙头</span>
+                                    <span class="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded">舱驾一体</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4 p-4 bg-gradient-to-r from-yellow-500/10 to-transparent rounded-lg border-l-4 border-yellow-500">
+                            <div class="text-2xl font-black text-yellow-400 w-8">03</div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-bold text-lg">伯特利</span>
+                                    <span class="star-rating">★★★★☆</span>
+                                </div>
+                                <p class="text-sm text-gray-300 mb-2">线控制动国内龙头，WCBS产品市占率第一，比亚迪核心供应商，线控底盘最受益标的，L3以上自动驾驶必备执行端产品</p>
+                                <div class="flex gap-2">
+                                    <span class="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded">线控制动</span>
+                                    <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">比亚迪核心</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4 p-4 bg-gradient-to-r from-green-500/10 to-transparent rounded-lg border-l-4 border-green-500">
+                            <div class="text-2xl font-black text-green-400 w-8">04</div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-bold text-lg">中科创达</span>
+                                    <span class="star-rating">★★★★☆</span>
+                                </div>
+                                <p class="text-sm text-gray-300 mb-2">智能驾驶OS与中间件龙头，智能座舱市占率领先，与多家车企合作开发智驾OS，软件定义汽车核心受益标的</p>
+                                <div class="flex gap-2">
+                                    <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">OS龙头</span>
+                                    <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">软件定义汽车</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4 p-4 bg-gradient-to-r from-blue-500/10 to-transparent rounded-lg border-l-4 border-blue-500">
+                            <div class="text-2xl font-black text-blue-400 w-8">05</div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-bold text-lg">联创电子</span>
+                                    <span class="star-rating">★★★★☆</span>
+                                </div>
+                                <p class="text-sm text-gray-300 mb-2">ADAS车载镜头核心供应商，市占率60-70%，8MP高清镜头大规模量产，英伟达、Mobileye、比亚迪核心供应商</p>
+                                <div class="flex gap-2">
+                                    <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">车载镜头</span>
+                                    <span class="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded">8MP高清</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4 p-4 bg-gradient-to-r from-purple-500/10 to-transparent rounded-lg border-l-4 border-purple-500">
+                            <div class="text-2xl font-black text-purple-400 w-8">06</div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-bold text-lg">深南电路</span>
+                                    <span class="star-rating">★★★☆☆</span>
+                                </div>
+                                <p class="text-sm text-gray-300 mb-2">FC-BGA封装载板国内龙头，高端PCB领军企业，4nm芯片载板核心供应商，车载高阶PCB核心受益</p>
+                                <div class="flex gap-2">
+                                    <span class="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded">载板龙头</span>
+                                    <span class="text-xs bg-orange-500/20 text-orange-400 px-2 py-1 rounded">4nm认证</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4 p-4 bg-gradient-to-r from-pink-500/10 to-transparent rounded-lg border-l-4 border-pink-500">
+                            <div class="text-2xl font-black text-pink-400 w-8">07</div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-bold text-lg">长电科技</span>
+                                    <span class="star-rating">★★★☆☆</span>
+                                </div>
+                                <p class="text-sm text-gray-300 mb-2">全球第三、国内第一封测龙头，XDFOI先进封装技术支持4nm及以下，车规级封装能力领先</p>
+                                <div class="flex gap-2">
+                                    <span class="text-xs bg-pink-500/20 text-pink-400 px-2 py-1 rounded">先进封装</span>
+                                    <span class="text-xs bg-teal-500/20 text-teal-400 px-2 py-1 rounded">4nm能力</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: 风险与不确定性 -->
+    <section id="section5" class="py-16 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="section-divider mb-12"></div>
+            <h2 class="text-4xl font-black mb-4 text-center">
+                <span class="text-gradient">五、风险与不确定性</span>
+            </h2>
+            <p class="text-center text-gray-300 text-center mb-12 max-w-3xl mx-auto text-lg">
+                产能瓶颈、出口管制、竞品迭代、认证周期四大风险分析
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card-gradient rounded-2xl p-8 risk-card transition-all duration-300 border-l-4 border-red-500">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 rounded-xl bg-red-500/20 flex items-center justify-center">
+                            <i class="fa fa-exclamation-triangle text-2xl text-red-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">5.1 4nm良率爬坡进度与产能瓶颈</h3>
+                            <p class="text-sm text-gray-400">先进制程量产风险分析</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4 text-gray-300">
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <h4 class="font-semibold text-red-300 mb-2">良率爬坡风险</h4>
+                            <p class="text-sm">4nm车规级芯片良率要求远高于消费电子，初期良率可能低于预期，影响量产进度推迟</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <h4 class="font-semibold text-red-300 mb-2">产能供给风险</h4>
+                            <p class="text-sm">台积电4nm产能紧张，AI芯片与车规芯片竞争产能，可能出现产能分配不足情况</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <h4 class="font-semibold text-red-300 mb-2">替代方案</h4>
+                            <p class="text-sm">中芯国际N+2工艺等效7nm，可作为成熟制程替代方案，但性能与功耗存在差距</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-gradient rounded-2xl p-8 risk-card transition-all duration-300 border-l-4 border-orange-500">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 rounded-xl bg-orange-500/20 flex items-center justify-center">
+                            <i class="fa fa-globe text-2xl text-orange-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">5.2 美国出口管制升级风险</h3>
+                            <p class="text-sm text-gray-400">地缘政治风险分析</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4 text-gray-300">
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <h4 class="font-semibold text-orange-300 mb-2">EDA工具限制</h4>
+                            <p class="text-sm">美国可能进一步限制先进制程EDA工具出口，影响芯片设计能力</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <h4 class="font-semibold text-orange-300 mb-2">制造设备禁运</h4>
+                            <p class="text-sm">EUV光刻机等先进制造设备禁运，限制国内先进制程产能建设</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <h4 class="font-semibold text-orange-300 mb-2">IP授权风险</h4>
+                            <p class="text-sm">ARM架构授权可能受限，影响芯片架构设计能力</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-gradient rounded-2xl p-8 risk-card transition-all duration-300 border-l-4 border-yellow-500">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                            <i class="fa fa-users text-2xl text-yellow-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">5.3 竞品技术迭代速度</h3>
+                            <p class="text-sm text-gray-400">市场竞争风险分析</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4 text-gray-300">
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <h4 class="font-semibold text-yellow-300 mb-2">英伟达Thor芯片</h4>
+                            <p class="text-sm">2000TOPS算力，预计2026年量产，生态优势明显</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <h4 class="font-semibold text-yellow-300 mb-2">地平线征程6</h4>
+                            <p class="text-sm">5nm制程，500TOPS算力，开放生态策略</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <h4 class="font-semibold text-yellow-300 mb-2">华为昇腾系列</h4>
+                            <p class="text-sm">全栈自研能力，问界车型大规模验证</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-gradient rounded-2xl p-8 risk-card transition-all duration-300 border-l-4 border-purple-500">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                            <i class="fa fa-certificate text-2xl text-purple-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">5.4 车规认证周期风险</h3>
+                            <p class="text-sm text-gray-400">认证合规风险分析</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4 text-gray-300">
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <h4 class="font-semibold text-purple-300 mb-2">AEC-Q100认证</h4>
+                            <p class="text-sm">车规级芯片可靠性认证，周期12-18个月</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <h4 class="font-semibold text-purple-300 mb-2">ISO 26262功能安全</h4>
+                            <p class="text-sm">ASIL-D等级认证，周期18-24个月</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <h4 class="font-semibold text-purple-300 mb-2">车载验证周期</h4>
+                            <p class="text-sm">整车级验证，极端环境测试，周期12个月以上</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 6: 总结与展望 -->
+    <section id="section6" class="py-16 px-6 bg-black/20">
+        <div class="max-w-6xl mx-auto">
+            <div class="section-divider mb-12"></div>
+            <h2 class="text-4xl font-black mb-4 text-center">
+                <span class="text-gradient">六、总结与投资建议</span>
+            </h2>
+
+            <div class="card-gradient rounded-2xl p-8 glow">
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                            <i class="fa fa-star text-yellow-400"></i>
+                            核心结论
+                        </h3>
+                        <div class="space-y-4 text-gray-300">
+                            <p class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1 text-xl"></i>
+                                <span><strong>璇玑A3是国产智驾芯片里程碑：</strong>4nm车规级制程、700TOPS单颗算力、2100TOPS整车算力，性能达到全球第一梯队，部分指标领先海外竞品</span>
+                            </p>
+                            <p class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1 text-xl"></i>
+                                <span><strong>全链路自研构建深厚壁垒：</strong>比亚迪是全球唯一拥有芯片设计-晶圆制造-封装测试-整车应用全链路能力的车企，垂直整合优势显著</span>
+                            </p>
+                            <p class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1 text-xl"></i>
+                                <span><strong>成本优势推动智驾平权：</strong>自研芯片成本仅为英伟达同类产品的1/3，可将高阶智驾下探至10万元级别，推动智能驾驶全民普惠</span>
+                            </p>
+                            <p class="flex items-start gap-3">
+                                <i class="fa fa-check-circle text-green-400 mt-1 text-xl"></i>
+                                <span><strong>产业链投资机会明确：</strong>感知层率先受益，执行层加速渗透，芯片层长期弹性最大，建议超配智驾芯片、激光雷达、域控制器赛道</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                            <i class="fa fa-lightbulb-o text-blue-400"></i>
+                            投资建议
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gradient-to-r from-green-500/10 to-transparent rounded-lg border-l-4 border-green-500">
+                                <h4 class="font-bold text-green-300 mb-2">短期推荐（6-12个月）</h4>
+                                <p class="text-sm text-gray-300">关注感知层确定性机会：韦尔股份（CIS）、联创电子（车载镜头）、德赛西威（域控制器）</p>
+                            </div>
+                            <div class="p-4 bg-gradient-to-r from-blue-500/10 to-transparent rounded-lg border-l-4 border-blue-500">
+                                <h4 class="font-bold text-blue-300 mb-2">中期推荐（1-2年）</h4>
+                                <p class="text-sm text-gray-300">关注执行层放量机会：伯特利（线控制动）、中科创达（智驾OS）、华阳集团（域控）</p>
+                            </div>
+                            <div class="p-4 bg-gradient-to-r from-purple-500/10 to-transparent rounded-lg border-l-4 border-purple-500">
+                                <h4 class="font-bold text-purple-300 mb-2">长期推荐（2年以上）</h4>
+                                <p class="text-sm text-gray-300">关注芯片层与半导体设备材料国产替代：深南电路（载板）、长电科技（封测）、华大九天（EDA）</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-500/20 via-blue-500/20 to-purple-500/20 rounded-xl p-8 border border-purple-500/30 text-center">
+                    <i class="fa fa-quote-left text-4xl text-purple-400/50 mb-4"></i>
+                    <p class="text-xl text-gray-200 italic mb-4">
+                        "电动化上半场看电池，智能化下半场看芯片。璇玑A3的发布，标志着中国汽车工业在智能驾驶核心芯片领域实现了从追赶到并跑的关键跨越，是中国汽车智能化转型的里程碑事件。"
+                    </p>
+                    <p class="text-sm text-gray-400">—— 王传福，比亚迪董事长</p>
+                </div>
+
+                <div class="mt-8 flex flex-wrap justify-center gap-4 text-sm text-gray-500">
+                    <span>报告编制：产业研究团队</span>
+                    <span>发布日期：2026年5月29日</span>
+                    <span>数据截止：2026年5月28日</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 px-6 border-t border-white/10">
+        <div class="max-w-6xl mx-auto text-center text-sm text-gray-500">
+            <p class="mb-2">本报告仅供参考，不构成任何投资建议。投资有风险，入市需谨慎。</p>
+            <p>报告中的信息均来源于公开渠道，我们力求准确可靠，但不对信息的准确性和完整性作出任何保证。</p>
+        </div>
+    </footer>
+
+    <!-- 移动端全屏菜单 -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
+        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a>
+        <a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a>
+        <a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中快报</a>
+        <a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后速递</a>
+        <a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链总览</a>
+        <a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a>
+        <a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a>
+        <a href="/daily-news-insight/周末速递/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a>
+        <a href="/daily-news-insight/明日催化剂/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化剂</a>
+        <a href="/daily-news-insight/s级催化扫描/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⭐ S级催化扫描</a>
+        <a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🗓️ 月度总结</a>
+    </div>
+
+
+</div>
+
+
+
+<!-- 悬浮目录导航 -->
+<div id="tableOfContents" class="toc-wrapper toc-right">
+    <div class="toc-header" onclick="toggleTOC()">
+        <span class="toc-title">目录导航</span>
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+    </div>
+    <div id="tocContent" class="toc-content">
+        <div id="tocContainer" class="toc-container"></div>
+    </div>
+</div>
+
+<script>
+// ==================== 悬浮目录导航 ====================
+function toggleTOC() {
+    const toc = document.getElementById('tableOfContents');
+    if (toc) {
+        // 移动端使用expanded类，桌面端使用collapsed类
+        if (window.innerWidth <= 1200) {
+            toc.classList.toggle('expanded');
+        } else {
+            toc.classList.toggle('collapsed');
+        }
+    }
+}
+
+// 监听窗口大小变化，重置TOC状态
+window.addEventListener('resize', function() {
+    const toc = document.getElementById('tableOfContents');
+    if (toc) {
+        if (window.innerWidth > 1200) {
+            toc.classList.remove('expanded');
+        } else {
+            // 移动端默认收起
+            toc.classList.remove('expanded');
+        }
+    }
+});
+
+function initTableOfContents() {
+    const tocContainer = document.getElementById('tocContainer');
+    if (!tocContainer) return;
+    
+    // 自动提取页面中的h2和h3标题（在main内容区域内）
+    const contentArea = document.querySelector('.pro-container, .report-content, main, .content');
+    const headings = contentArea 
+        ? contentArea.querySelectorAll('h2, h3') 
+        : document.querySelectorAll('h2, h3');
+    
+    if (headings.length === 0) {
+        const toc = document.getElementById('tableOfContents');
+        if (toc) toc.style.display = 'none';
+        return;
+    }
+    
+    // 为标题生成id
+    headings.forEach(function(heading, index) {
+        if (!heading.id) {
+            const text = heading.textContent || heading.innerText;
+            const slug = text.trim().replace(/\s+/g, '-').replace(/[^\w\-\u4e00-\u9fa5]/g, '').substring(0, 30);
+            heading.id = 'section-' + index + '-' + slug;
+        }
+    });
+    
+    // 生成目录HTML
+    var tocHTML = '';
+    headings.forEach(function(heading) {
+        const level = parseInt(heading.tagName.substring(1));
+        const title = heading.textContent || heading.innerText;
+        const indent = level === 3 ? 'pl-4' : '';
+        tocHTML += '<a href="#' + heading.id + '" class="toc-item ' + indent + '" data-level="' + level + '">' + title.trim() + '</a>';
+    });
+    
+    tocContainer.innerHTML = tocHTML;
+    
+    // 为目录项添加平滑滚动
+    tocContainer.querySelectorAll('.toc-item').forEach(function(item) {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            var target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                var offset = 100;
+                var targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    
+    // 初始化滚动高亮
+    initTOCScrollSpy();
+}
+
+function initTOCScrollSpy() {
+    const tocItems = document.querySelectorAll('.toc-item');
+    if (tocItems.length === 0) return;
+    
+    const sections = [];
+    tocItems.forEach(function(item) {
+        const id = item.getAttribute('href').substring(1);
+        const section = document.getElementById(id);
+        if (section) {
+            sections.push({
+                element: section,
+                navItem: item,
+                top: section.offsetTop - 120
+            });
+        }
+    });
+    
+    if (sections.length === 0) return;
+    
+    function updateActiveTOC() {
+        const scrollPosition = window.pageYOffset;
+        var currentIndex = 0;
+        for (var i = 0; i < sections.length; i++) {
+            if (scrollPosition >= sections[i].top) {
+                currentIndex = i;
+            }
+        }
+        tocItems.forEach(function(item) {
+            item.classList.remove('active');
+        });
+        if (sections[currentIndex]) {
+            sections[currentIndex].navItem.classList.add('active');
+        }
+    }
+    
+    window.addEventListener('scroll', updateActiveTOC);
+    updateActiveTOC();
+}
+
+// 页面加载完成后初始化
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTableOfContents);
+} else {
+    setTimeout(initTableOfContents, 100);
+}
+</script>
+
+<!-- 悬浮按钮组 -->
+<div id="floatingButtons" class="fixed right-6 bottom-6 flex flex-col gap-2 z-50">
+    <!-- 阅读进度条 -->
+    <div class="reading-progress-bar fixed top-0 left-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-600 z-50" id="readingProgress" style="width: 0%;"></div>
+    
+    <!-- 回到顶部按钮 -->
+    <button id="backToTop" class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center text-gray-600 hover:text-indigo-600 opacity-0 translate-y-4 pointer-events-none" onclick="scrollToTop()" title="回到顶部">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+        </svg>
+    </button>
+    
+    <!-- 打印按钮 -->
+    <button class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center text-gray-600 hover:text-indigo-600" onclick="window.print()" title="打印页面">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+        </svg>
+    </button>
+    
+    <!-- 分享按钮 -->
+    <button class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center text-gray-600 hover:text-indigo-600" onclick="sharePage()" title="分享">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+        </svg>
+    </button>
+</div>
+
+<style>
+    .reading-progress-bar {
+        transition: width 0.1s ease-out;
+    }
+    
+    #backToTop.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+    
+    #floatingButtons button {
+        transition: all 0.3s ease;
+    }
+    
+    #floatingButtons button:hover {
+        transform: scale(1.1);
+    }
+    
+    @media print {
+        #floatingButtons, .reading-progress-bar {
+            display: none !important;
+        }
+    }
+</style>
+
+<script>
+    // 回到顶部
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // 分享页面
+    function sharePage() {
+        if (navigator.share) {
+            navigator.share({
+                title: document.title,
+                url: window.location.href
+            });
+        } else {
+            // 复制链接到剪贴板
+            navigator.clipboard.writeText(window.location.href).then(function() {
+                alert('链接已复制到剪贴板');
+            }).catch(function() {
+                prompt('复制链接：', window.location.href);
+            });
+        }
+    }
+    
+    // 滚动监听 - 更新进度条和回到顶部按钮
+    window.addEventListener('scroll', function() {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        
+        // 更新进度条
+        const progressBar = document.getElementById('readingProgress');
+        if (progressBar) {
+            progressBar.style.width = scrollPercent + '%';
+        }
+        
+        // 显示/隐藏回到顶部按钮
+        const backToTop = document.getElementById('backToTop');
+        if (backToTop) {
+            if (scrollTop > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        }
+    });
+</script>
+
+    <script src="/daily-news-insight/assets/stock-popup.js"></script>
+</body>
+</html>
