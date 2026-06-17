@@ -283,7 +283,7 @@ class IndustryChainClockProGenerator(ProGenerator):
             {allocation_section}
         '''
     
-    def publish(self, output_path: str = "docs/产业链时钟/index_pro.html"):
+    def publish(self, output_path: str = "docs/industry-chain-clock/index.html"):
         """发布到生产路径"""
         return super().publish(output_path)
 

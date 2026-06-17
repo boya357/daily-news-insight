@@ -342,7 +342,7 @@ class WeeklyEvolutionProGenerator(ProGenerator):
         """页面主要内容"""
         return self.generate()
     
-    def publish(self, output_path: str = "docs/周度进化报告/index_pro.html"):
+    def publish(self, output_path: str = "docs/weekly-evolution/index.html"):
         """发布到生产路径"""
         return super().publish(output_path)
 

@@ -803,7 +803,7 @@ class TopicDeepDiveProGenerator(ProGenerator):
         </div>
         '''
     
-    def publish(self, output_path: str = "docs/题材深度/index_pro.html"):
+    def publish(self, output_path: str = "docs/topic-depth/index.html"):
         """发布到生产路径"""
         return super().publish(output_path)
 

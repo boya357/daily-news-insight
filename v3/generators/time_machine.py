@@ -15,7 +15,7 @@ class TimeMachineGenerator:
     def __init__(self):
         self.base_dir = Path(__file__).resolve().parent.parent.parent
         self.data_dir = self.base_dir / 'data'
-        self.output_dir = self.base_dir / 'docs' / '数据时光机'
+        self.output_dir = self.base_dir / 'docs' / 'time-machine'
         self.output_dir.mkdir(parents=True, exist_ok=True)
     
     def get_available_dates(self):
@@ -55,7 +55,7 @@ class TimeMachineGenerator:
             ('产业链时钟', '产业链时钟/index.html', 'fa-clock'),
             ('S级催化', 's级催化扫描/latest.html', 'fa-bolt'),
             ('预判验证', '预判验证/index.html', 'fa-target'),
-            ('数据时光机', '数据时光机/index.html', 'fa-history'),
+            ('time-machine', '数据时光机/index.html', 'fa-history'),
             ('每日报告', 'daily/latest.html', 'fa-newspaper'),
         ]
         

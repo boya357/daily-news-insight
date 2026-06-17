@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoWoS先进封装产业链深度研究 - 投资研究中心</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #fff;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        /* 头部 */
+        .hero {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+        .hero h1 { font-size: 2.2rem; margin-bottom: 15px; background: linear-gradient(90deg, #667eea, #f093fb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero .subtitle { font-size: 1.1rem; color: rgba(255,255,255,0.7); margin-bottom: 20px; }
+        .hero .tags { display: flex; gap: 10px; flex-wrap: wrap; }
+        .hero .tag {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .hero .tag.hot { background: rgba(255, 107, 107, 0.2); border-color: rgba(255, 107, 107, 0.4); color: #ff6b6b; }
+        
+        /* 卡片通用样式 */
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+        }
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card h2 .icon { font-size: 1.5rem; }
+        
+        /* 数据概览 */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .overview-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+        }
+        .overview-item .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #667eea, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+        .overview-item .label { font-size: 0.85rem; color: rgba(255,255,255,0.6); }
+        
+        /* 核心逻辑 */
+        .core-logic {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: rgba(255,255,255,0.85);
+        }
+        .core-logic p { margin-bottom: 12px; }
+        
+        /* 催化剂 */
+        .catalysts { display: flex; flex-direction: column; gap: 10px; }
+        .catalyst-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 15px;
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 3px solid #ffc107;
+            border-radius: 0 8px 8px 0;
+        }
+        .catalyst-item .icon { font-size: 1.2rem; flex-shrink: 0; }
+        .catalyst-item .text { font-size: 0.9rem; color: rgba(255,255,255,0.85); }
+        
+        /* 产业链 */
+        .industry-section { margin-bottom: 25px; }
+        .industry-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .industry-section .upstream h3 { color: #4ecdc4; }
+        .industry-section .midstream h3 { color: #ffe66d; }
+        .industry-section .downstream h3 { color: #ff6b6b; }
+        
+        .chain-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+        }
+        .chain-link {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .chain-link .name { font-weight: 600; margin-bottom: 5px; font-size: 0.95rem; }
+        .chain-link .desc { font-size: 0.82rem; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+        .chain-link .companies { display: flex; flex-wrap: wrap; gap: 5px; }
+        .chain-link .company-tag {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            background: rgba(102, 126, 234, 0.2);
+            color: #a5b4fc;
+            border-radius: 4px;
+        }
+        
+        /* 核心标的 */
+        .company-list { display: flex; flex-direction: column; gap: 15px; }
+        .company-item {
+            display: grid;
+            grid-template-columns: 60px 1fr auto;
+            gap: 15px;
+            padding: 18px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            align-items: center;
+        }
+        .company-item .rank {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+        .company-item.rank-1 .rank { background: linear-gradient(135deg, #ffd700, #ffb347); color: #1a1a2e; }
+        .company-item.rank-2 .rank { background: linear-gradient(135deg, #c0c0c0, #a8a8a8); color: #1a1a2e; }
+        .company-item.rank-3 .rank { background: linear-gradient(135deg, #cd7f32, #b87333); color: #fff; }
+        .company-item.rank-other .rank { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+        
+        .company-info .name { font-size: 1.05rem; font-weight: 600; margin-bottom: 3px; }
+        .company-info .code { font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
+        .company-info .reason { font-size: 0.85rem; color: rgba(255,255,255,0.75); line-height: 1.6; }
+        
+        .company-meta { text-align: right; }
+        .company-meta .rating {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .rating.buy { background: rgba(76, 175, 80, 0.2); color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.3); }
+        .rating.strong-buy { background: rgba(255, 193, 7, 0.2); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); }
+        .rating.watch { background: rgba(158, 158, 158, 0.2); color: #9e9e9e; border: 1px solid rgba(158, 158, 158, 0.3); }
+        .company-meta .extra { font-size: 0.78rem; color: rgba(255,255,255,0.5); }
+        
+        /* 时间线 */
+        .timeline { position: relative; padding-left: 30px; }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 5px;
+            bottom: 5px;
+            width: 2px;
+            background: linear-gradient(to bottom, #667eea, #764ba2);
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 18px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 3px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 2px solid #fff;
+        }
+        .timeline-item .time {
+            font-size: 0.85rem;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .timeline-item .event { font-size: 0.9rem; color: rgba(255,255,255,0.8); }
+        
+        /* 风险提示 */
+        .risks { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+        .risk-item {
+            padding: 12px 15px;
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.2);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.75);
+        }
+        .risk-item::before { content: '⚠️ '; }
+        
+        /* 技术架构图 */
+        .tech-arch {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .arch-layers { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 100%; max-width: 500px; }
+        .arch-layer {
+            width: 100%;
+            padding: 15px;
+            text-align: center;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        .arch-layer.top { background: linear-gradient(90deg, rgba(255,107,107,0.3), rgba(255,107,107,0.1)); border: 1px solid rgba(255,107,107,0.3); }
+        .arch-layer.mid { background: linear-gradient(90deg, rgba(255,193,7,0.3), rgba(255,193,7,0.1)); border: 1px solid rgba(255,193,7,0.3); }
+        .arch-layer.bottom { background: linear-gradient(90deg, rgba(76,175,80,0.3), rgba(76,175,80,0.1)); border: 1px solid rgba(76,175,80,0.3); }
+        .arch-layer .layer-name { font-size: 0.95rem; margin-bottom: 4px; }
+        .arch-layer .layer-desc { font-size: 0.78rem; color: rgba(255,255,255,0.6); }
+        
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .hero { padding: 25px; }
+            .hero h1 { font-size: 1.6rem; }
+            .company-item { grid-template-columns: 50px 1fr; }
+            .company-meta { grid-column: 2; text-align: left; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="hero">
+            <h1>🔧 CoWoS先进封装产业链深度研究</h1>
+            <div class="subtitle">AI算力的隐形核心基建 · 台积电垄断格局下的国产替代机遇</div>
+            <div class="tags">
+                <span class="tag hot">🔥 AI算力</span>
+                <span class="tag">📦 先进封装</span>
+                <span class="tag">🇨🇳 国产替代</span>
+                <span class="tag">💎 高景气赛道</span>
+            </div>
+        </div>
+        
+        <!-- 核心数据概览 -->
+        <div class="card">
+            <h2><span class="icon">📊</span> 核心数据概览</h2>
+            <div class="overview-grid">
+                <div class="overview-item">
+                    <div class="value">180亿+美元</div>
+                    <div class="label">2026年全球市场规模</div>
+                </div>
+                <div class="overview-item">
+                    <div class="value">47%</div>
+                    <div class="label">2024-2028 CAGR</div>
+                </div>
+                <div class="overview-item">
+                    <div class="value">90%+</div>
+                    <div class="label">台积电市占率</div>
+                </div>
+                <div class="overview-item">
+                    <div class="value">A+</div>
+                    <div class="label">投资评级</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 核心投资逻辑 -->
+        <div class="card">
+            <h2><span class="icon">💡</span> 核心投资逻辑</h2>
+            <div class="core-logic">
+                <p>CoWoS（Chip-on-Wafer-on-Substrate）是台积电主导的2.5D先进封装技术，通过硅中介层（Silicon Interposer）实现GPU与HBM的高密度互联，带宽提升10倍、延迟降低70%、功耗下降40%，是当前高端AI芯片的<strong>唯一标配封装方案</strong>。</p>
+                <p><strong>AI算力需求爆发驱动产能紧缺：</strong>2024-2026年全球CoWoS需求预计增长170%，台积电订单排至2028年，客户甚至提前支付15亿美元预付款锁定产能。2026年台积电月产能12-14万片晶圆，供需缺口仍达10-20%。</p>
+                <p><strong>国产替代加速推进：</strong>国内CoWoS月产能约2万片，仅为台积电1/30。随着华为昇腾、寒武纪、海光信息等国产AI芯片放量，国产CoWoS封装需求激增。长电科技、盛合晶微等厂商技术突破迅速，良率已达85-98%。</p>
+                <p><strong>技术迭代打开长期空间：</strong>从CoWoS-S（硅基）→ CoWoS-L（玻璃基）→ CoPoS（面板级），封装尺寸从5.5倍光罩向14倍甚至40倍演进，单颗封装价值量持续提升。玻璃基板TGV技术为国内厂商提供弯道超车机会。</p>
+            </div>
+        </div>
+        
+        <!-- 技术架构 -->
+        <div class="card">
+            <h2><span class="icon">🏗️</span> CoWoS技术架构</h2>
+            <div class="tech-arch">
+                <div class="arch-layers">
+                    <div class="arch-layer top">
+                        <div class="layer-name">顶层 CoW — 芯片键合层</div>
+                        <div class="layer-desc">GPU/HBM/高速IO裸片微凸块键合，4-8颗HBM + 多GPU集成</div>
+                    </div>
+                    <div class="arch-layer mid">
+                        <div class="layer-name">中层 Interposer — 硅/玻璃中介层</div>
+                        <div class="layer-desc">TSV硅穿孔 + RDL重布线，实现高密度互联，带宽达3TB/s+</div>
+                    </div>
+                    <div class="arch-layer bottom">
+                        <div class="layer-name">底层 Substrate — ABF载板</div>
+                        <div class="layer-desc">高端封装基板，长期产能紧张，国产化率不足5%</div>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-top: 10px;">
+                三大技术路线：CoWoS-S（硅基·性能最强） | CoWoS-L（玻璃基·成本降30%） | CoWoS-R（树脂基·低成本）
+            </div>
+        </div>
+        
+        <!-- 核心催化剂 -->
+        <div class="card">
+            <h2><span class="icon">⚡</span> 核心催化剂</h2>
+            <div class="catalysts">
+                <div class="catalyst-item">
+                    <span class="icon">🚀</span>
+                    <div class="text"><strong>AI算力需求爆发：</strong>2026-2028年全球AI芯片出货量CAGR 40%+，每颗高端AI芯片100%配CoWoS+HBM</div>
+                </div>
+                <div class="catalyst-item">
+                    <span class="icon">🏭</span>
+                    <div class="text"><strong>台积电产能瓶颈：</strong>订单排至2028年，外溢订单超100亿美元，长电/通富/盛合晶微直接受益</div>
+                </div>
+                <div class="catalyst-item">
+                    <span class="icon">🇨🇳</span>
+                    <div class="text"><strong>国产算力崛起：</strong>昇腾/寒武纪/壁仞2026年放量，国产CoWoS渗透率从5%提升至30%</div>
+                </div>
+                <div class="catalyst-item">
+                    <span class="icon">🔬</span>
+                    <div class="text"><strong>技术迭代红利：</strong>CoWoS-L玻璃基2027年成熟，成本降30%，国内企业弯道超车机会</div>
+                </div>
+                <div class="catalyst-item">
+                    <span class="icon">💎</span>
+                    <div class="text"><strong>长鑫科技IPO催化：</strong>存储芯片超级周期，带动上游封装材料/设备需求</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 产业链全景 -->
+        <div class="card">
+            <h2><span class="icon">🔗</span> 产业链全景图</h2>
+            
+            <div class="industry-section upstream">
+                <h3>🌊 上游：材料与设备（国产化率<10%，技术壁垒最高）</h3>
+                <div class="chain-links">
+                    <div class="chain-link">
+                        <div class="name">ABF载板</div>
+                        <div class="desc">CoWoS刚需核心材料，产能最紧张，全球垄断</div>
+                        <div class="companies">
+                            <span class="company-tag">深南电路</span>
+                            <span class="company-tag">兴森科技</span>
+                            <span class="company-tag">生益科技</span>
+                        </div>
+                    </div>
+                    <div class="chain-link">
+                        <div class="name">硅中介层/TSV</div>
+                        <div class="desc">2.5D封装核心结构，实现高密度互联关键</div>
+                        <div class="companies">
+                            <span class="company-tag">盛合晶微</span>
+                            <span class="company-tag">沪硅产业</span>
+                        </div>
+                    </div>
+                    <div class="chain-link">
+                        <div class="name">微互联材料</div>
+                        <div class="desc">微凸块、键合胶、封测胶等核心耗材</div>
+                        <div class="companies">
+                            <span class="company-tag">飞凯材料</span>
+                            <span class="company-tag">华海诚科</span>
+                            <span class="company-tag">强力新材</span>
+                        </div>
+                    </div>
+                    <div class="chain-link">
+                        <div class="name">特种电子材料</div>
+                        <div class="desc">Low-Dk电子布、球形硅微粉等基板材料</div>
+                        <div class="companies">
+                            <span class="company-tag">宏和科技</span>
+                            <span class="company-tag">联瑞新材</span>
+                            <span class="company-tag">长海股份</span>
+                        </div>
+                    </div>
+                    <div class="chain-link">
+                        <div class="name">核心设备</div>
+                        <div class="desc">LDI光刻、TSV刻蚀、晶圆减薄、键合设备</div>
+                        <div class="companies">
+                            <span class="company-tag">芯碁微装</span>
+                            <span class="company-tag">中微公司</span>
+                            <span class="company-tag">北方华创</span>
+                            <span class="company-tag">华海清科</span>
+                        </div>
+                    </div>
+                    <div class="chain-link">
+                        <div class="name">玻璃基板（下一代）</div>
+                        <div class="desc">CoWoS-L/CoPoS核心，国内弯道超车机会</div>
+                        <div class="companies">
+                            <span class="company-tag">沃格光电</span>
+                            <span class="company-tag">兴森科技</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="industry-section midstream">
+                <h3>🏭 中游：封测与基板（产能为王，价值核心）</h3>
+                <div class="chain-links">
+                    <div class="chain-link">
+                        <div class="name">先进封测</div>
+                        <div class="desc">CoWoS封装代工，技术+产能双壁垒</div>
+                        <div class="companies">
+                            <span class="company-tag">长电科技</span>
+                            <span class="company-tag">通富微电</span>
+                            <span class="company-tag">盛合晶微</span>
+                            <span class="company-tag">甬矽电子</span>
+                        </div>
+                    </div>
+                    <div class="chain-link">
+                        <div class="name">封装基板</div>
+                        <div class="desc">ABF/FC-BGA高端基板，产业链最大短板</div>
+                        <div class="companies">
+                            <span class="company-tag">深南电路</span>
+                            <span class="company-tag">兴森科技</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="industry-section downstream">
+                <h3>💻 下游：应用场景（需求爆发端）</h3>
+                <div class="chain-links">
+                    <div class="chain-link">
+                        <div class="name">AI芯片/GPU</div>
+                        <div class="desc">英伟达、AMD、华为昇腾、寒武纪、海光信息</div>
+                        <div class="companies">
+                            <span class="company-tag">海光信息</span>
+                            <span class="company-tag">寒武纪</span>
+                            <span class="company-tag">龙芯中科</span>
+                        </div>
+                    </div>
+                    <div class="chain-link">
+                        <div class="name">HBM高带宽存储</div>
+                        <div class="desc">每颗AI芯片标配4-8颗HBM，量价齐升</div>
+                        <div class="companies">
+                            <span class="company-tag">佰维存储</span>
+                            <span class="company-tag">江波龙</span>
+                            <span class="company-tag">兆易创新</span>
+                        </div>
+                    </div>
+                    <div class="chain-link">
+                        <div class="name">HPC/网络芯片</div>
+                        <div class="desc">高端网络芯片、FPGA、超级计算</div>
+                        <div class="companies">
+                            <span class="company-tag">紫光国微</span>
+                            <span class="company-tag">复旦微电</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 核心标的深度分析 -->
+        <div class="card">
+            <h2><span class="icon">🏆</span> 核心标的排序与深度分析</h2>
+            <div class="company-list">
+                <div class="company-item rank-1">
+                    <div class="rank">1</div>
+                    <div class="company-info">
+                        <div class="name">长电科技</div>
+                        <div class="code">600584 · 国内封测龙头</div>
+                        <div class="reason">国内唯一全栈CoWoS能力厂商，自研XDFOI平台对标台积电三条技术路线，4nm+HBM已量产，月产能约1万片，良率85%+。深度绑定英伟达/AMD/海光/寒武纪，订单排至2028年。全球封测前三，先进封装营收占比持续提升，是国产替代最核心受益者。</div>
+                    </div>
+                    <div class="company-meta">
+                        <span class="rating strong-buy">强烈推荐</span>
+                        <div class="extra">市值：约850亿 | PE：28x</div>
+                        <div class="extra">弹性：高</div>
+                    </div>
+                </div>
+                
+                <div class="company-item rank-2">
+                    <div class="rank">2</div>
+                    <div class="company-info">
+                        <div class="name">盛合晶微</div>
+                        <div class="code">688820 · 硅基2.5D龙头</div>
+                        <div class="reason">国内硅基2.5D封装龙头（市占率85%），唯一规模化量产硅中介层的厂商，TSV/Bumping核心技术领先，良率达98%+。深度绑定华为昇腾950、寒武纪，随国产AI芯片放量业绩弹性巨大。HBM封装业务高速增长，是国内技术壁垒最高的先进封装厂商之一。</div>
+                    </div>
+                    <div class="company-meta">
+                        <span class="rating strong-buy">强烈推荐</span>
+                        <div class="extra">市值：约380亿 | PE：45x</div>
+                        <div class="extra">弹性：极高</div>
+                    </div>
+                </div>
+                
+                <div class="company-item rank-3">
+                    <div class="rank">3</div>
+                    <div class="company-info">
+                        <div class="name">通富微电</div>
+                        <div class="code">002156 · AMD核心伙伴</div>
+                        <div class="reason">AMD全球最大封测合作伙伴，专攻CoWoS-R树脂基路线，AMD贡献50%以上营收，是MI300/MI400核心封装供应商。Chiplet良率97%，类CoWoS-S方案成本降低40%，已送样英伟达。南通产线扩产20%，先进封装收入占比持续提升。</div>
+                    </div>
+                    <div class="company-meta">
+                        <span class="rating buy">推荐</span>
+                        <div class="extra">市值：约420亿 | PE：32x</div>
+                        <div class="extra">弹性：高</div>
+                    </div>
+                </div>
+                
+                <div class="company-item rank-other">
+                    <div class="rank">4</div>
+                    <div class="company-info">
+                        <div class="name">深南电路</div>
+                        <div class="code">002916 · ABF载板龙头</div>
+                        <div class="reason">国内ABF载板绝对龙头，FC-BGA已量产，HBM/AI载板主力供应商，通过英伟达认证。高端封装基板国产化率不足5%，公司是最主要的国产替代力量。产能扩张加速，受益于AI服务器需求爆发。</div>
+                    </div>
+                    <div class="company-meta">
+                        <span class="rating buy">推荐</span>
+                        <div class="extra">市值：约520亿 | PE：35x</div>
+                        <div class="extra">弹性：中高</div>
+                    </div>
+                </div>
+                
+                <div class="company-item rank-other">
+                    <div class="rank">5</div>
+                    <div class="company-info">
+                        <div class="name">兴森科技</div>
+                        <div class="code">002436 · HBM载板核心</div>
+                        <div class="reason">收购揖斐电大幅扩充ABF载板产能，良率处于国内第一梯队，是HBM堆叠载板核心供应商。同时布局玻璃基板技术，受益下一代CoWoS-L/CoPoS封装技术迭代。PCB+IC载板双轮驱动。</div>
+                    </div>
+                    <div class="company-meta">
+                        <span class="rating buy">推荐</span>
+                        <div class="extra">市值：约210亿 | PE：40x</div>
+                        <div class="extra">弹性：中高</div>
+                    </div>
+                </div>
+                
+                <div class="company-item rank-other">
+                    <div class="rank">6</div>
+                    <div class="company-info">
+                        <div class="name">芯碁微装</div>
+                        <div class="code">688630 · LDI光刻设备龙头</div>
+                        <div class="reason">国内LDI直写光刻设备龙头，CoWoS中介层RDL精细布线核心设备供应商，替代尼康佳能。在手订单超亿元，助力国内封测厂实现类CoWoS量产。半导体设备国产替代核心标的，受益于先进封装产线建设浪潮。</div>
+                    </div>
+                    <div class="company-meta">
+                        <span class="rating buy">推荐</span>
+                        <div class="extra">市值：约160亿 | PE：55x</div>
+                        <div class="extra">弹性：极高</div>
+                    </div>
+                </div>
+                
+                <div class="company-item rank-other">
+                    <div class="rank">7</div>
+                    <div class="company-info">
+                        <div class="name">沃格光电</div>
+                        <div class="code">603773 · 玻璃基板先行者</div>
+                        <div class="reason">卡位TGV玻璃基板赛道，已建成量产线并进入客户验证阶段。玻璃基板成本比硅基低30%，是下一代CoWoS-L/CoPoS的核心材料。台积电首次公开玻璃基板验证进展，行业加速推进，公司先发优势明显，潜在弹性巨大。</div>
+                    </div>
+                    <div class="company-meta">
+                        <span class="rating watch">关注</span>
+                        <div class="extra">市值：约95亿 | PE：65x</div>
+                        <div class="extra">弹性：极高</div>
+                    </div>
+                </div>
+                
+                <div class="company-item rank-other">
+                    <div class="rank">8</div>
+                    <div class="company-info">
+                        <div class="name">华海诚科</div>
+                        <div class="code">688535 · HBM封装材料专家</div>
+                        <div class="reason">国内唯一通过HBM认证的塑封料厂商，HBM专用GMC密封材料+底部填充胶，直接受益HBM与CoWoS封装爆发式增长。已进入长电科技、通富微电等主流封测厂供应链。细分领域国产替代龙头，业绩弹性大。</div>
+                    </div>
+                    <div class="company-meta">
+                        <span class="rating watch">关注</span>
+                        <div class="extra">市值：约75亿 | PE：58x</div>
+                        <div class="extra">弹性：高</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 发展时间线 -->
+        <div class="card">
+            <h2><span class="icon">📅</span> 行业发展时间线与关键节点</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="time">2026年Q2</div>
+                    <div class="event">台积电CoWoS月产能达12-14万片晶圆，行业供需缺口约20%</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="time">2026年底</div>
+                    <div class="event">供需缺口收窄至10%；CoPoS材料与设备认证完成；台积电首次公开玻璃基板验证进展</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="time">2027年中</div>
+                    <div class="event">CoWoS-L玻璃基量产；台积电产能再增60%+；国内厂商加速跟进</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="time">2027年底</div>
+                    <div class="event">全球2.5D封装供需趋于缓和；日月光/安森等OSAT厂商产能释放</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="time">2028-2029年</div>
+                    <div class="event">CoPoS面板级封装量产；英伟达Feynman平台率先采用；14倍光罩尺寸CoWoS量产</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="time">2029年及以后</div>
+                    <div class="event">40倍光罩尺寸SoW-X系统级晶圆封装；玻璃基板成为主流；国内厂商实现全产业链突破</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 风险提示 -->
+        <div class="card">
+            <h2><span class="icon">⚠️</span> 风险提示</h2>
+            <div class="risks">
+                <div class="risk-item">技术迭代风险：CoWoS技术壁垒高，硅中介层/TSV良率突破难度大，技术路线变更可能导致现有投资贬值</div>
+                <div class="risk-item">产能释放风险：台积电2027年大规模扩产后，外溢订单可能减少，国内厂商订单能见度下降</div>
+                <div class="risk-item">需求不及预期：AI资本开支周期波动，若云厂商削减GPU采购，将直接影响CoWoS需求</div>
+                <div class="risk-item">价格竞争风险：国内封测厂商纷纷扩产先进封装，可能引发价格战，压缩利润空间</div>
+                <div class="risk-item">HBM配套风险：HBM产能持续紧张，可能成为限制CoWoS出货量的瓶颈环节</div>
+                <div class="risk-item">地缘政治风险：中美科技博弈加剧，先进封装可能成为新的管制领域</div>
+            </div>
+        </div>
+        
+        <!-- 页脚 -->
+        <div style="text-align: center; padding: 30px 0; color: rgba(255,255,255,0.4); font-size: 0.8rem;">
+            <p>📈 投资研究中心 · 产业链深度研究系列</p>
+            <p style="margin-top: 5px;">数据截至：2026年6月17日 | 仅供参考，不构成投资建议</p>
+        </div>
+    </div>
+</body>
+</html>

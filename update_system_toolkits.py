@@ -68,7 +68,7 @@ def update_topic_picker():
     print("🎯 更新智能选题助手...")
     try:
         generator = TopicPickerProGenerator(data_dir=DATA_DIR)
-        output_path = os.path.join(DOCS_DIR, '智能选题助手', 'index.html')
+        output_path = os.path.join(DOCS_DIR, 'topic-picker', 'index.html')
         result = generator.publish(output_path)
         print(f"   ✅ 更新完成")
         print(f"   输出路径: {output_path}")
@@ -101,7 +101,7 @@ def update_prediction_center():
     print("🔮 更新预判验证中心...")
     try:
         generator = PredictionCenterProGenerator(data_dir=DATA_DIR)
-        output_path = os.path.join(DOCS_DIR, '预判验证中心', 'index.html')
+        output_path = os.path.join(DOCS_DIR, 'prediction-center', 'index.html')
         result = generator.publish(output_path)
         print(f"   ✅ 更新完成")
         print(f"   输出路径: {output_path}")
@@ -133,7 +133,7 @@ def update_topic_health():
     print("💚 更新题材健康度报告...")
     try:
         generator = TopicHealthProGenerator(data_dir=DATA_DIR)
-        output_path = os.path.join(DOCS_DIR, '题材健康度报告', 'index.html')
+        output_path = os.path.join(DOCS_DIR, 'topic-health', 'index.html')
         result = generator.publish(output_path)
         print(f"   ✅ 更新完成")
         print(f"   输出路径: {output_path}")
@@ -149,7 +149,7 @@ def update_sector_heatmap():
     print("🔥 更新板块热力图...")
     try:
         generator = SectorHeatmapProGenerator(data_dir=DATA_DIR)
-        output_path = os.path.join(DOCS_DIR, '板块热力图', 'index.html')
+        output_path = os.path.join(DOCS_DIR, 'sector-heatmap', 'index.html')
         result = generator.publish(output_path)
         print(f"   ✅ 更新完成")
         print(f"   输出路径: {output_path}")
@@ -230,7 +230,7 @@ def update_time_machine():
     print("⏰ 更新数据时光机...")
     try:
         generator = TimeMachinePage(data_dir=DATA_DIR)
-        output_path = os.path.join(DOCS_DIR, '数据时光机', 'index.html')
+        output_path = os.path.join(DOCS_DIR, 'time-machine', 'index.html')
         result = generator.publish(output_path)
         print(f"   ✅ 更新完成")
         print(f"   输出路径: {output_path}")
@@ -247,7 +247,7 @@ def update_industry_chain_clock():
     try:
         generator = IndustryChainClockProGenerator(data_dir=DATA_DIR)
         generator.load_data()
-        output_path = os.path.join(DOCS_DIR, '产业链时钟', 'index.html')
+        output_path = os.path.join(DOCS_DIR, 'industry-chain-clock', 'index.html')
         result = generator.publish(output_path)
         print(f"   ✅ 更新完成")
         print(f"   输出路径: {output_path}")
@@ -264,18 +264,18 @@ def update_industry_chain_clock():
 
 TOOL_MAP = {
     'alert': ('智能预警系统', update_alert_system),
-    'topic': ('智能选题助手', update_topic_picker),
+    'topic': ('topic-picker', update_topic_picker),
     'portfolio': ('持仓智能预警仪表盘', update_portfolio_dashboard),
-    'prediction': ('预判验证中心', update_prediction_center),
+    'prediction': ('prediction-center', update_prediction_center),
     'evolution': ('周度进化报告', update_weekly_evolution),
-    'health': ('题材健康度报告', update_topic_health),
-    'heatmap': ('板块热力图', update_sector_heatmap),
+    'health': ('topic-health', update_topic_health),
+    'heatmap': ('sector-heatmap', update_sector_heatmap),
     'longhubang': ('龙虎榜透视', update_longhubang),
     'home': ('首页', update_home_page),
     'workflow': ('工作流监控中心', update_workflow_status),
     'weekly_outlook': ('周三前瞻', update_weekly_outlook),
-    'time_machine': ('数据时光机', update_time_machine),
-    'industry_chain': ('产业链时钟', update_industry_chain_clock),
+    'time_machine': ('time-machine', update_time_machine),
+    'industry_chain': ('industry-chain-clock', update_industry_chain_clock),
 }
 
 # ============================================================

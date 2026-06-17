@@ -1232,7 +1232,7 @@ class PortfolioDashboardProGenerator:
             f.write(html)
         return filepath
     
-    def publish(self, output_path: str = "docs/持仓智能预警仪表盘/index.html"):
+    def publish(self, output_path: str = "docs/portfolio/index.html"):
         """发布到生产路径"""
         try:
             html = self.generate()

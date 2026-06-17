@@ -386,7 +386,7 @@ class AlertSystemProGenerator(ProGenerator):
     def publish(self, output_path: str = None):
         """发布到生产路径"""
         if output_path is None:
-            output_path = "docs/alerts/index_pro.html"
+            output_path = "docs/alert-system/index.html"
         return super().publish(output_path)
 
 

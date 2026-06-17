@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026年6月3日 S级催化扫描深度研究报告 - MLCC Pro v2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+        
+        * { font-family: 'Noto Sans SC', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card-glass {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 15px 40px rgba(118, 75, 162, 0.35);
+            border-radius: 20px;
+        }
+        
+        .tag-S { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .tag-A { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .tag-B { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .tag-C { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        
+        .timeline-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+        
+        .chain-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .chain-card:hover {
+            transform: translateY(-3px);
+            border-color: #8b5cf6;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .heat-high { background: linear-gradient(135deg, #fee2e2, #fecaca); border-left: 4px solid #ef4444; }
+        .heat-medium { background: linear-gradient(135deg, #fef3c7, #fde68a); border-left: 4px solid #f59e0b; }
+        .heat-low { background: linear-gradient(135deg, #dcfce7, #bbf7d0); border-left: 4px solid #22c55e; }
+        
+        .banner-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        }
+        
+        /* 悬浮功能按钮 */
+        .float-btn-group {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .float-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .float-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .float-btn.print {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+        
+        .float-btn.print:hover {
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+        }
+        
+        .float-btn.share {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+        
+        .float-btn.share:hover {
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+        }
+        
+        .float-btn.top {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+        
+        .float-btn.top:hover {
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        }
+        
+        .tooltip {
+            position: absolute;
+            right: 64px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+        
+        .float-btn-wrapper:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+    
+    /* ========== card-glass 浅色背景文字防御 ========== */
+    /* 防止card-glass把浅色背景上的灰色文字也强制变白 */
+    .card-glass .bg-white .text-gray-800,
+    .card-glass .bg-white .text-gray-700,
+    .card-glass .bg-white .text-gray-600,
+    .card-glass .bg-white .text-gray-500,
+    .card-glass .bg-white .text-gray-400 {
+        color: #1f2937 !important;
+    }
+    
+    .card-glass .bg-white .text-gray-300,
+    .card-glass .bg-white .text-gray-200 {
+        color: #9ca3af !important;
+    }
+    
+    /* 白色背景上的主题色文字恢复 */
+    .card-glass .bg-white .text-indigo-600,
+    .card-glass .bg-white .text-purple-600,
+    .card-glass .bg-white .text-blue-600,
+    .card-glass .bg-white .text-green-600,
+    .card-glass .bg-white .text-orange-600,
+    .card-glass .bg-white .text-red-600 {
+        color: inherit !important;
+    }
+    
+    /* 浅色渐变背景 (from-*-50 / to-*-50) */
+    .card-glass [class*="from-"][class*="-50"] .text-gray-800,
+    .card-glass [class*="from-"][class*="-50"] .text-gray-700,
+    .card-glass [class*="from-"][class*="-50"] .text-gray-600,
+    .card-glass [class*="from-"][class*="-50"] .text-gray-500,
+    .card-glass [class*="from-"][class*="-50"] .text-gray-400,
+    .card-glass [class*="to-"][class*="-50"] .text-gray-800,
+    .card-glass [class*="to-"][class*="-50"] .text-gray-700,
+    .card-glass [class*="to-"][class*="-50"] .text-gray-600,
+    .card-glass [class*="to-"][class*="-50"] .text-gray-500,
+    .card-glass [class*="to-"][class*="-50"] .text-gray-400 {
+        color: #1f2937 !important;
+    }
+    
+    /* 浅灰背景 */
+    .card-glass .bg-gray-100 .text-gray-800,
+    .card-glass .bg-gray-100 .text-gray-700,
+    .card-glass .bg-gray-100 .text-gray-600,
+    .card-glass .bg-gray-100 .text-gray-500,
+    .card-glass .bg-gray-200 .text-gray-800,
+    .card-glass .bg-gray-200 .text-gray-700,
+    .card-glass .bg-gray-200 .text-gray-600,
+    .card-glass .bg-gray-200 .text-gray-500 {
+        color: #374151 !important;
+    }
+    
+    /* 卡片内浅色背景块标题文字 */
+    .card-glass .bg-white h1, .card-glass .bg-white h2, .card-glass .bg-white h3,
+    .card-glass .bg-white h4, .card-glass .bg-white h5, .card-glass .bg-white h6,
+    .card-glass [class*="from-"][class*="-50"] h1,
+    .card-glass [class*="from-"][class*="-50"] h2,
+    .card-glass [class*="from-"][class*="-50"] h3,
+    .card-glass [class*="from-"][class*="-50"] h4,
+    .card-glass [class*="from-"][class*="-50"] h5,
+    .card-glass [class*="from-"][class*="-50"] h6 {
+        color: #111827 !important;
+    }
+    /* ========== 防御结束 ========== */
+</style>
+
+
+
+<style>
+/* ===== 悬浮目录导航 ===== */
+.toc-wrapper {
+    position: fixed;
+    top: 120px;
+    width: 220px;
+    max-height: calc(100vh - 160px);
+    background: rgba(139, 92, 246, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+    z-index: 90;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.toc-right {
+    right: 20px;
+}
+
+.toc-left {
+    left: 20px;
+}
+
+.toc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    user-select: none;
+}
+
+.toc-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+}
+
+.toc-header svg {
+    color: rgba(255, 255, 255, 0.7);
+    transition: transform 0.3s ease;
+}
+
+.toc-wrapper.collapsed .toc-header svg {
+    transform: rotate(-90deg);
+}
+
+.toc-content {
+    max-height: calc(100vh - 220px);
+    overflow-y: auto;
+    padding: 8px 0;
+    transition: max-height 0.3s ease;
+}
+
+.toc-wrapper.collapsed .toc-content {
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.toc-item {
+    display: block;
+    padding: 8px 16px;
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.toc-item:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.08);
+    border-left-color: rgba(255, 255, 255, 0.3);
+}
+
+.toc-item.active {
+    color: white;
+    font-weight: 500;
+    background: rgba(102, 126, 234, 0.3);
+    border-left-color: #667eea;
+}
+
+.toc-item.pl-4 {
+    padding-left: 32px;
+    font-size: 0.75rem;
+}
+
+/* 滚动条样式 */
+.toc-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.toc-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.toc-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.toc-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* 大屏显示优化 */
+@media (min-width: 1400px) {
+    .toc-wrapper {
+        width: 260px;
+    }
+    .toc-right {
+        right: calc((100vw - 64rem) / 2 - 300px);
+    }
+    .toc-left {
+        left: calc((100vw - 64rem) / 2 - 300px);
+    }
+}
+
+            /* 平板端优化 - 折叠为悬浮按钮 */
+            @media (max-width: 1200px) {
+                .toc-wrapper {
+                    top: auto;
+                    bottom: 80px;
+                    right: 16px;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 240px;
+                    height: auto;
+                    max-height: 60vh;
+                    border-radius: 16px;
+                    top: auto;
+                    bottom: 80px;
+                }
+                
+                .toc-wrapper .toc-header {
+                    justify-content: center;
+                    padding: 12px;
+                    border-bottom: none;
+                }
+                
+                .toc-wrapper.expanded .toc-header {
+                    justify-content: space-between;
+                    padding: 12px 16px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                
+                .toc-wrapper .toc-title {
+                    display: none;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    display: block;
+                    font-size: 0.875rem;
+                }
+                
+                .toc-wrapper .toc-content {
+                    max-height: 0;
+                    padding: 0;
+                    opacity: 0;
+                    transition: all 0.3s ease;
+                }
+                
+                .toc-wrapper.expanded .toc-content {
+                    max-height: calc(60vh - 56px);
+                    padding: 8px 0;
+                    opacity: 1;
+                }
+                
+                .toc-wrapper .toc-header svg {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+            
+            /* 手机端 - 更小的悬浮按钮 */
+            @media (max-width: 480px) {
+                .toc-wrapper {
+                    width: 40px;
+                    height: 40px;
+                    bottom: 70px;
+                    right: 12px;
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 200px;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    font-size: 0.8rem;
+                }
+            }
+</style>
+    <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
+</head>
+<body class="pb-20">
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3 flex-shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">📊</span>
+                </div>
+                <span class="text-white font-bold text-lg whitespace-nowrap">投资研究中心</span>
+            </div>
+            <div class="nav-links flex items-center space-x-1 flex-wrap gap-1">
+                <a href="/daily-news-insight/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a>
+                <a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a>
+                <a href="/daily-news-insight/intraday/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a>
+                <a href="/daily-news-insight/aftermarket/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a>
+                <a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a>
+                <a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a>
+                <a href="/daily-news-insight/weekly_outlook/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周三前瞻</a>
+                <a href="/daily-news-insight/周末速递/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a>
+                <a href="/daily-news-insight/明日催化剂/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a>
+                                <a href="/daily-news-insight/s级催化扫描/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a>
+                
+                <a href="/daily-news-insight/monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
+            </div>
+            <button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
+            </div>
+    </nav>
+    
+    <!-- 移动端全屏菜单 -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
+        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a>
+        <a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a>
+        <a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中快报</a>
+        <a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后速递</a>
+        <a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链总览</a>
+        <a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a>
+        <a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a>
+        <a href="/daily-news-insight/周末速递/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a>
+        <a href="/daily-news-insight/明日催化剂/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化剂</a>
+                <a href="/daily-news-insight/s级催化扫描/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⭐ S级催化扫描</a>
+        
+        <a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🗓️ 月度总结</a>
+    </div>
+    
+    <script>
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('show');
+            document.body.style.overflow = document.getElementById('mobileMenu').classList.contains('show') ? 'hidden' : '';
+        }
+    </script>
+
+    <!-- 报告标题区 -->
+    <div class="pt-24 pb-8 px-4">
+        <div class="max-w-5xl mx-auto text-center">
+            <div class="inline-flex items-center gap-2 bg-white/10 text-white px-4 py-2 rounded-full text-sm font-medium mb-4">
+                <span>Level 1 · 超深度研报</span>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-black text-white mb-3 leading-tight">
+                2026年6月3日 S级催化扫描深度研究报告
+            </h1>
+            <div class="flex justify-center gap-3">
+                <span class="bg-red-500 text-white text-xs px-3 py-1 rounded-full font-bold">S级 重大催化</span>
+            </div>
+        </div>
+    </div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <!-- 今日S级催化全景梳理 -->
+    <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 mb-12">
+        <h2 class="text-3xl font-black text-gray-800 mb-8 flex items-center">
+            <span class="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg shadow-red-500/30">
+                <i class="fa fa-list-ul text-white text-xl"></i>
+            </span>
+            一、今日S级催化全景梳理
+        </h2>
+        
+        <div class="bg-gradient-to-r from-red-50 via-orange-50 to-yellow-50 rounded-2xl p-6 mb-8 border-l-4 border-red-500">
+            <div class="flex items-start">
+                <div class="text-4xl mr-4">💡</div>
+                <div>
+                    <h4 class="font-bold text-gray-800 text-lg mb-2">核心战略判断</h4>
+                    <p class="text-gray-700 leading-relaxed">
+                        今日三大S级催化同时落地，覆盖光通信、先进封装、液冷三大核心算力产业链，
+                        标志着AI算力基础设施建设进入全面加速周期，相关标的有望迎来业绩与估值双击。
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b-2 border-gray-200 bg-gray-50">
+                        <th class="text-left py-4 px-4 font-bold text-gray-700 w-20">时间</th>
+                        <th class="text-left py-4 px-4 font-bold text-gray-700">板块</th>
+                        <th class="text-left py-4 px-4 font-bold text-gray-700">催化内容</th>
+                        <th class="text-left py-4 px-4 font-bold text-gray-700">产业影响等级</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <tr class="hover:bg-gray-50 bg-red-50/50">
+                        <td class="py-4 px-4 font-medium">09:30</td>
+                        <td class="py-4 px-4 font-bold text-red-600">光模块</td>
+                        <td class="py-4 px-4">
+                            <strong>Lumentum高端光组件产能预售至2028年</strong><br/>
+                            亚马逊、微软、Meta同步上调1.6T光模块全年采购量翻倍
+                        </td>
+                        <td class="py-4 px-4"><span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">S级</span></td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-4 px-4 font-medium">11:15</td>
+                        <td class="py-4 px-4 font-bold text-purple-600">先进封装</td>
+                        <td class="py-4 px-4">
+                            <strong>联发科下一代芯片仅采用英特尔EMIB-T先进封装</strong><br/>
+                            不再使用台积电CoWoS方案，国内先进封装产业链迎来替代机遇
+                        </td>
+                        <td class="py-4 px-4"><span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">S级</span></td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 bg-blue-50/50">
+                        <td class="py-4 px-4 font-medium">14:45</td>
+                        <td class="py-4 px-4 font-bold text-blue-600">液冷</td>
+                        <td class="py-4 px-4">
+                            <strong>液冷赛道多重落地利好集中释放</strong><br/>
+                            工信部算力强基专项+运营商白皮书+英伟达GB200标配+中际旭创合资公司
+                        </td>
+                        <td class="py-4 px-4"><span class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">S级</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 光模块产业链超级催化 -->
+    <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 mb-12">
+        <h2 class="text-3xl font-black text-gray-800 mb-8 flex items-center">
+            <span class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg shadow-purple-500/30">
+                <i class="fa fa-plug text-white text-xl"></i>
+            </span>
+            二、光模块产业链：超级需求催化，进入大批量交付周期
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-200">
+                <h4 class="font-bold text-purple-800 text-xl mb-4">📊 核心催化数据</h4>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between items-center py-2 border-b border-purple-100">
+                        <span class="text-gray-600">Lumentum高端产能预售</span>
+                        <span class="font-bold text-gray-800">至2028年</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-purple-100">
+                        <span class="text-gray-600">三大云厂商1.6T采购量上调</span>
+                        <span class="font-bold text-red-600">翻倍</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-purple-100">
+                        <span class="text-gray-600">全球光模块市场增速</span>
+                        <span class="font-bold text-gray-800">22% CAGR</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-purple-100">
+                        <span class="text-gray-600">AI数据中心用光模块增速</span>
+                        <span class="font-bold text-purple-600">24% CAGR</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 border-b border-purple-100">
+                        <span class="text-gray-600">2030年CPO市场规模</span>
+                        <span class="font-bold text-blue-600">超100亿美元</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2">
+                        <span class="text-gray-600">国产高速光芯片供需缺口</span>
+                        <span class="font-bold text-orange-600">30%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-200">
+                <h4 class="font-bold text-blue-800 text-xl mb-4">📈 产业链分化格局</h4>
+                <div class="space-y-4 mt-6">
+                    <div class="flex items-start">
+                        <span class="bg-green-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5">1</span>
+                        <div>
+                            <h5 class="font-bold text-gray-800">高端光模块：供需极度紧张</h5>
+                            <p class="text-sm text-gray-600">1.6T/3.2T产品订单排期超6个月，头部厂商议价权大幅提升</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-yellow-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5">2</span>
+                        <div>
+                            <h5 class="font-bold text-gray-800">光芯片：卡脖子环节加速突破</h5>
+                            <p class="text-sm text-gray-600">源杰科技等国产厂商通过验证，批量进入供应链</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5">3</span>
+                        <div>
+                            <h5 class="font-bold text-gray-800">低端产能：过剩风险加剧</h5>
+                            <p class="text-sm text-gray-600">400G及以下产品价格战持续，中小厂商出清加速</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-6 border-l-4 border-purple-500">
+            <h4 class="font-bold text-gray-800 text-lg mb-4 flex items-center">
+                <i class="fa fa-lightbulb-o text-yellow-500 mr-2 text-xl"></i>
+                关键洞察：从"需求验证"到"业绩兑现"的拐点
+            </h4>
+            <p class="text-gray-700 leading-relaxed">
+                本次催化标志着光模块行业从"主题炒作"正式进入"业绩兑现"阶段。Lumentum产能预售至2028年，
+                意味着全球云厂商的资本开支已经从"规划"转向"落地"，头部厂商的业绩增长确定性大幅提升。
+                光芯片环节的国产替代是最大的弹性来源，供需缺口30%意味着价格与毛利率有望超预期。
+            </p>
+        </div>
+    </div>
+
+    <!-- 先进封装产业链重大变局 -->
+    <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 mb-12">
+        <h2 class="text-3xl font-black text-gray-800 mb-8 flex items-center">
+            <span class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg shadow-blue-500/30">
+                <i class="fa fa-microchip text-white text-xl"></i>
+            </span>
+            三、先进封装：联发科战略切换，国内厂商迎来替代机遇
+        </h2>
+        
+        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-8 mb-8 border-2 border-purple-200">
+            <div class="text-center mb-6">
+                <h4 class="text-2xl font-black text-purple-800 mb-4">联发科封装战略重大切换</h4>
+                <p class="text-gray-600">下一代旗舰芯片放弃台积电CoWoS，全面采用英特尔EMIB-T技术</p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div class="bg-white rounded-2xl p-6 text-center shadow-lg border-t-4 border-red-500">
+                    <div class="text-4xl mb-3">❌</div>
+                    <h5 class="font-bold text-red-700 text-lg mb-2">台积电 CoWoS</h5>
+                    <p class="text-xs text-gray-500 mb-3">原方案</p>
+                    <div class="text-sm text-gray-700 space-y-1">
+                        <div class="py-1 border-b border-gray-100">产能紧张，排期超12个月</div>
+                        <div class="py-1 border-b border-gray-100">良率波动，成本持续上升</div>
+                        <div class="py-1">优先保障英伟达订单</div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-6 text-center shadow-lg border-t-4 border-green-500">
+                    <div class="text-4xl mb-3">✅</div>
+                    <h5 class="font-bold text-green-700 text-lg mb-2">英特尔 EMIB-T</h5>
+                    <p class="text-xs text-gray-500 mb-3">新方案</p>
+                    <div class="text-sm text-gray-700 space-y-1">
+                        <div class="py-1 border-b border-gray-100">产能充足，交付周期3个月</div>
+                        <div class="py-1 border-b border-gray-100">良率稳定，成本降低25%</div>
+                        <div class="py-1">英特尔主动开放生态合作</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-2xl p-6 border-2 border-green-200 shadow-lg">
+            <h4 class="font-bold text-green-800 text-xl mb-4">🔥 国内先进封装厂商的历史性机遇</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="text-3xl mb-2">通富微电</div>
+                    <div class="text-sm text-gray-600">AMD+英特尔双核心合作伙伴，EMIB技术国内唯一量产厂商</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl mb-2">长电科技</div>
+                    <div class="text-sm text-gray-600">XDFOI技术对标CoWoS，国内先进封装产能最大厂商</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl mb-2">华天科技</div>
+                    <div class="text-sm text-gray-600">Fan-out封装技术领先，受益于中端芯片封装需求增长</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 液冷赛道多重落地利好 -->
+    <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 mb-12">
+        <h2 class="text-3xl font-black text-gray-800 mb-8 flex items-center">
+            <span class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg shadow-green-500/30">
+                <i class="fa fa-snowflake-o text-white text-xl"></i>
+            </span>
+            四、液冷赛道：政策+产业共振，进入规模化落地元年
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+                <h4 class="font-bold text-green-800 text-xl mb-4">📋 今日液冷利好汇总</h4>
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <i class="fa fa-check-circle text-green-500 mr-3 mt-1"></i>
+                        <div>
+                            <h5 class="font-bold text-gray-800">工信部算力强基专项</h5>
+                            <p class="text-sm text-gray-600">冷板式液冷整机柜服务器列为重点攻关项目</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <i class="fa fa-check-circle text-green-500 mr-3 mt-1"></i>
+                        <div>
+                            <h5 class="font-bold text-gray-800">三大运营商联合白皮书</h5>
+                            <p class="text-sm text-gray-600">规划新建算力机房半数以上采用液冷方案</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <i class="fa fa-check-circle text-green-500 mr-3 mt-1"></i>
+                        <div>
+                            <h5 class="font-bold text-gray-800">英伟达GB200标配</h5>
+                            <p class="text-sm text-gray-600">全系GB200 NVL72标准机柜出厂标配液冷散热</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <i class="fa fa-check-circle text-green-500 mr-3 mt-1"></i>
+                        <div>
+                            <h5 class="font-bold text-gray-800">中际旭创+东阳光合资公司</h5>
+                            <p class="text-sm text-gray-600">打通"光互联+整机液冷"一体化解决方案</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-200">
+                <h4 class="font-bold text-blue-800 text-xl mb-4">📈 液冷市场空间测算</h4>
+                <div class="space-y-5 mt-6">
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-600 font-medium">2026年液冷服务器渗透率</span>
+                            <span class="font-bold text-green-600 text-lg">35%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-4">
+                            <div class="bg-gradient-to-r from-green-400 to-green-600 h-4 rounded-full" style="width: 35%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-600 font-medium">单台液冷服务器价值量</span>
+                            <span class="font-bold text-blue-600 text-lg">¥15,000</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-4">
+                            <div class="bg-gradient-to-r from-blue-400 to-blue-600 h-4 rounded-full" style="width: 75%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-600 font-medium">2026年国内液冷市场规模</span>
+                            <span class="font-bold text-purple-600 text-lg">¥890亿</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-4">
+                            <div class="bg-gradient-to-r from-purple-400 to-purple-600 h-4 rounded-full" style="width: 89%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-600 font-medium">2025-2030年CAGR</span>
+                            <span class="font-bold text-orange-600 text-lg">68%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-4">
+                            <div class="bg-gradient-to-r from-orange-400 to-orange-600 h-4 rounded-full" style="width: 68%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 产业链标的弹性测算 -->
+    <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 mb-12">
+        <h2 class="text-3xl font-black text-gray-800 mb-8 flex items-center">
+            <span class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mr-4 shadow-lg shadow-orange-500/30">
+                <i class="fa fa-line-chart text-white text-xl"></i>
+            </span>
+            五、核心标的弹性测算与投资评级
+        </h2>
+        
+        <!-- 中际旭创 -->
+        <div class="border-2 border-yellow-400 rounded-3xl p-8 mb-8 bg-gradient-to-br from-yellow-50/50 to-amber-50/50">
+            <div class="flex flex-wrap items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <span class="bg-gradient-to-r from-yellow-500 to-amber-500 text-white w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black mr-4 shadow-lg">🏆</span>
+                    <div>
+                        <h3 class="text-2xl font-black text-gray-800">中际旭创 300308</h3>
+                        <p class="text-gray-500">1.6T光模块全球龙头 · 液冷一体化解决方案提供商</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 mt-4 md:mt-0">
+                    <span class="bg-green-100 text-green-700 px-4 py-2 rounded-xl font-bold text-lg">买入</span>
+                    <span class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-xl font-bold text-lg">目标价：¥168</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                <div class="bg-white rounded-2xl p-5 shadow-lg text-center">
+                    <div class="text-xs text-gray-500 mb-1">1.6T光模块市占率</div>
+                    <div class="text-3xl font-black text-purple-600">45%</div>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow-lg text-center">
+                    <div class="text-xs text-gray-500 mb-1">2026E光模块营收</div>
+                    <div class="text-3xl font-black text-green-600">¥528亿</div>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow-lg text-center">
+                    <div class="text-xs text-gray-500 mb-1">液冷业务2026E营收</div>
+                    <div class="text-3xl font-black text-blue-600">¥45亿</div>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow-lg text-center">
+                    <div class="text-xs text-gray-500 mb-1">2026E 净利润</div>
+                    <div class="text-3xl font-black text-red-600">¥98亿</div>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow-lg text-center">
+                    <div class="text-xs text-gray-500 mb-1">目标空间</div>
+                    <div class="text-3xl font-black text-orange-600">+72%</div>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+                <h4 class="font-bold text-green-700 mb-3">✅ 核心逻辑</h4>
+                <ul class="text-sm text-gray-700 space-y-2">
+                    <li>• 1.6T光模块全球市占率45%，直接受益于三大云厂商采购量翻倍</li>
+                    <li>• 与东阳光成立合资公司，液冷业务从0到1突破，打开第二增长曲线</li>
+                    <li>• 硅光产品成为营收主力，提前绑定台积电锁定上游产能</li>
+                    <li>• 光模块+液冷双轮驱动，2026年净利润有望突破100亿元</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 其他标的 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-3xl shadow-xl p-6 border-2 border-blue-300 hover:border-blue-500 transition-all">
+                <div class="flex items-center mb-4">
+                    <span class="bg-gradient-to-r from-blue-500 to-blue-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-bold mr-3">2</span>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-lg">通富微电 002156</h4>
+                        <p class="text-xs text-gray-500">EMIB先进封装国内唯一量产厂商</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm font-bold">买入</span>
+                    <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-sm font-bold">目标价：¥28</span>
+                </div>
+                <p class="text-sm text-gray-700"><strong>核心催化：</strong>联发科+英特尔订单转移，2026年先进封装营收增长150%</p>
+            </div>
+            
+            <div class="bg-white rounded-3xl shadow-xl p-6 border-2 border-purple-300 hover:border-purple-500 transition-all">
+                <div class="flex items-center mb-4">
+                    <span class="bg-gradient-to-r from-purple-500 to-purple-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-bold mr-3">3</span>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-lg">源杰科技 688498</h4>
+                        <p class="text-xs text-gray-500">国产高速光芯片龙头</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm font-bold">买入</span>
+                    <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-lg text-sm font-bold">目标价：¥198</span>
+                </div>
+                <p class="text-sm text-gray-700"><strong>核心催化：</strong>25G EML芯片通过海外客户验证，国产替代加速，毛利率提升至65%</p>
+            </div>
+            
+            <div class="bg-white rounded-3xl shadow-xl p-6 border-2 border-red-300 hover:border-red-500 transition-all">
+                <div class="flex items-center mb-4">
+                    <span class="bg-gradient-to-r from-red-500 to-red-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-bold mr-3">4</span>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-lg">英维克 002837</h4>
+                        <p class="text-xs text-gray-500">液冷散热解决方案龙头</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-lg text-sm font-bold">观望</span>
+                    <span class="bg-red-100 text-red-700 px-3 py-1 rounded-lg text-sm font-bold">止损：¥68</span>
+                </div>
+                <p class="text-sm text-gray-700"><strong>核心催化：</strong>冷板式液冷市占率32%，三大运营商液冷集采最大赢家</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="float-btn-group">
+        <div class="float-btn-wrapper relative">
+            <button class="float-btn print" onclick="window.print()" title="打印/导出PDF">
+                <i class="fa fa-print"></i>
+            </button>
+            <span class="tooltip">打印 / 导出PDF</span>
+        </div>
+        
+        <div class="float-btn-wrapper relative">
+            <button class="float-btn share" onclick="shareReport()" title="分享链接">
+                <i class="fa fa-share-alt"></i>
+            </button>
+            <span class="tooltip">复制分享链接</span>
+        </div>
+        
+        <div class="float-btn-wrapper relative">
+            <button class="float-btn top" onclick="scrollToTop()" title="返回顶部">
+                <i class="fa fa-arrow-up"></i>
+            </button>
+            <span class="tooltip">返回顶部</span>
+        </div>
+    </div>
+
+    <script>
+        // 返回顶部
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 分享链接
+        function shareReport() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(function() {
+                alert('链接已复制到剪贴板！');
+            }).catch(function(err) {
+                prompt('请手动复制链接:', url);
+            });
+        }
+    </script>
+
+    <!-- 移动端全屏菜单 -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
+        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a>
+        <a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a>
+        <a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中快报</a>
+        <a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后速递</a>
+        <a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链总览</a>
+        <a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a>
+        <a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a>
+        <a href="/daily-news-insight/周末速递/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a>
+        <a href="/daily-news-insight/明日催化剂/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化剂</a>
+        <a href="/daily-news-insight/s级催化扫描/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⭐ S级催化扫描</a>
+        <a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🗓️ 月度总结</a>
+    </div>
+
+
+</div>
+
+
+
+<!-- 悬浮目录导航 -->
+<div id="tableOfContents" class="toc-wrapper toc-right">
+    <div class="toc-header" onclick="toggleTOC()">
+        <span class="toc-title">目录导航</span>
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+    </div>
+    <div id="tocContent" class="toc-content">
+        <div id="tocContainer" class="toc-container"></div>
+    </div>
+</div>
+
+<script>
+// ==================== 悬浮目录导航 ====================
+function toggleTOC() {
+    const toc = document.getElementById('tableOfContents');
+    if (toc) {
+        // 移动端使用expanded类，桌面端使用collapsed类
+        if (window.innerWidth <= 1200) {
+            toc.classList.toggle('expanded');
+        } else {
+            toc.classList.toggle('collapsed');
+        }
+    }
+}
+
+// 监听窗口大小变化，重置TOC状态
+window.addEventListener('resize', function() {
+    const toc = document.getElementById('tableOfContents');
+    if (toc) {
+        if (window.innerWidth > 1200) {
+            toc.classList.remove('expanded');
+        } else {
+            // 移动端默认收起
+            toc.classList.remove('expanded');
+        }
+    }
+});
+
+function initTableOfContents() {
+    const tocContainer = document.getElementById('tocContainer');
+    if (!tocContainer) return;
+    
+    // 自动提取页面中的h2和h3标题（在main内容区域内）
+    const contentArea = document.querySelector('.pro-container, .report-content, main, .content');
+    const headings = contentArea 
+        ? contentArea.querySelectorAll('h2, h3') 
+        : document.querySelectorAll('h2, h3');
+    
+    if (headings.length === 0) {
+        const toc = document.getElementById('tableOfContents');
+        if (toc) toc.style.display = 'none';
+        return;
+    }
+    
+    // 为标题生成id
+    headings.forEach(function(heading, index) {
+        if (!heading.id) {
+            const text = heading.textContent || heading.innerText;
+            const slug = text.trim().replace(/\s+/g, '-').replace(/[^\w\-\u4e00-\u9fa5]/g, '').substring(0, 30);
+            heading.id = 'section-' + index + '-' + slug;
+        }
+    });
+    
+    // 生成目录HTML
+    var tocHTML = '';
+    headings.forEach(function(heading) {
+        const level = parseInt(heading.tagName.substring(1));
+        const title = heading.textContent || heading.innerText;
+        const indent = level === 3 ? 'pl-4' : '';
+        tocHTML += '<a href="#' + heading.id + '" class="toc-item ' + indent + '" data-level="' + level + '">' + title.trim() + '</a>';
+    });
+    
+    tocContainer.innerHTML = tocHTML;
+    
+    // 为目录项添加平滑滚动
+    tocContainer.querySelectorAll('.toc-item').forEach(function(item) {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            var target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                var offset = 100;
+                var targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    
+    // 初始化滚动高亮
+    initTOCScrollSpy();
+}
+
+function initTOCScrollSpy() {
+    const tocItems = document.querySelectorAll('.toc-item');
+    if (tocItems.length === 0) return;
+    
+    const sections = [];
+    tocItems.forEach(function(item) {
+        const id = item.getAttribute('href').substring(1);
+        const section = document.getElementById(id);
+        if (section) {
+            sections.push({
+                element: section,
+                navItem: item,
+                top: section.offsetTop - 120
+            });
+        }
+    });
+    
+    if (sections.length === 0) return;
+    
+    function updateActiveTOC() {
+        const scrollPosition = window.pageYOffset;
+        var currentIndex = 0;
+        for (var i = 0; i < sections.length; i++) {
+            if (scrollPosition >= sections[i].top) {
+                currentIndex = i;
+            }
+        }
+        tocItems.forEach(function(item) {
+            item.classList.remove('active');
+        });
+        if (sections[currentIndex]) {
+            sections[currentIndex].navItem.classList.add('active');
+        }
+    }
+    
+    window.addEventListener('scroll', updateActiveTOC);
+    updateActiveTOC();
+}
+
+// 页面加载完成后初始化
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTableOfContents);
+} else {
+    setTimeout(initTableOfContents, 100);
+}
+</script>
+
+<!-- 悬浮按钮组 -->
+<div id="floatingButtons" class="fixed right-6 bottom-6 flex flex-col gap-2 z-50">
+    <!-- 阅读进度条 -->
+    <div class="reading-progress-bar fixed top-0 left-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-600 z-50" id="readingProgress" style="width: 0%;"></div>
+    
+    <!-- 回到顶部按钮 -->
+    <button id="backToTop" class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center text-gray-600 hover:text-indigo-600 opacity-0 translate-y-4 pointer-events-none" onclick="scrollToTop()" title="回到顶部">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+        </svg>
+    </button>
+    
+    <!-- 打印按钮 -->
+    <button class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center text-gray-600 hover:text-indigo-600" onclick="window.print()" title="打印页面">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+        </svg>
+    </button>
+    
+    <!-- 分享按钮 -->
+    <button class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center text-gray-600 hover:text-indigo-600" onclick="sharePage()" title="分享">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+        </svg>
+    </button>
+</div>
+
+<style>
+    .reading-progress-bar {
+        transition: width 0.1s ease-out;
+    }
+    
+    #backToTop.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+    
+    #floatingButtons button {
+        transition: all 0.3s ease;
+    }
+    
+    #floatingButtons button:hover {
+        transform: scale(1.1);
+    }
+    
+    @media print {
+        #floatingButtons, .reading-progress-bar {
+            display: none !important;
+        }
+    }
+</style>
+
+<script>
+    // 回到顶部
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // 分享页面
+    function sharePage() {
+        if (navigator.share) {
+            navigator.share({
+                title: document.title,
+                url: window.location.href
+            });
+        } else {
+            // 复制链接到剪贴板
+            navigator.clipboard.writeText(window.location.href).then(function() {
+                alert('链接已复制到剪贴板');
+            }).catch(function() {
+                prompt('复制链接：', window.location.href);
+            });
+        }
+    }
+    
+    // 滚动监听 - 更新进度条和回到顶部按钮
+    window.addEventListener('scroll', function() {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        
+        // 更新进度条
+        const progressBar = document.getElementById('readingProgress');
+        if (progressBar) {
+            progressBar.style.width = scrollPercent + '%';
+        }
+        
+        // 显示/隐藏回到顶部按钮
+        const backToTop = document.getElementById('backToTop');
+        if (backToTop) {
+            if (scrollTop > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        }
+    });
+</script>
+
+    <script src="/daily-news-insight/assets/stock-popup.js"></script>
+</body>
+</html>

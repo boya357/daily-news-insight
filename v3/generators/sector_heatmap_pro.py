@@ -235,7 +235,7 @@ class SectorHeatmapProGenerator(ProGenerator):
             {cold_sectors}
         '''
     
-    def publish(self, output_path: str = "docs/板块热力图/index_pro.html"):
+    def publish(self, output_path: str = "docs/sector-heatmap/index.html"):
         """发布到生产路径"""
         return super().publish(output_path)
 

@@ -31,12 +31,12 @@ class SLevelCatalystProGenerator(ReportProGenerator):
         self.active_page = "S级催化"
         self.topics = []
     
-    def add_scan_summary(self, count: int = 3, top_topic: str = "AI算力"):
+    def add_scan_summary(self, s_plus_count: int = 1, s_count: int = 3, a_plus_count: int = 2, top_topic: str = "AI算力"):
         """添加扫描总览 - 使用DataGrid展示关键数据"""
         data_items = [
-            {'title': 'S+级催化', 'value': '1', 'icon': '🚀', 'unit': '个', 'desc': '<span class="text-red-400">最高等级</span>'},
-            {'title': 'S级催化', 'value': str(count), 'icon': '⚡', 'unit': '个', 'desc': '<span class="text-orange-400">强烈推荐</span>'},
-            {'title': 'A+级催化', 'value': '2', 'icon': '💎', 'unit': '个', 'desc': '<span class="text-yellow-400">值得关注</span>'},
+            {'title': 'S+级催化', 'value': str(s_plus_count), 'icon': '🚀', 'unit': '个', 'desc': '<span class="text-red-400">最高等级</span>'},
+            {'title': 'S级催化', 'value': str(s_count), 'icon': '⚡', 'unit': '个', 'desc': '<span class="text-orange-400">强烈推荐</span>'},
+            {'title': 'A+级催化', 'value': str(a_plus_count), 'icon': '💎', 'unit': '个', 'desc': '<span class="text-yellow-400">值得关注</span>'},
             {'title': '最确定方向', 'value': top_topic, 'icon': '🎯', 'desc': '<span class="text-green-400">综合评分最高</span>'},
         ]
         
@@ -52,7 +52,7 @@ class SLevelCatalystProGenerator(ReportProGenerator):
                 </span>
             </div>
             <p class="text-white/80 leading-relaxed text-sm">
-                本期扫描发现 <span class="text-red-400 font-bold">{count}</span> 个S级催化事件，
+                本期扫描发现 <span class="text-red-400 font-bold">{s_plus_count + s_count + a_plus_count}</span> 个重点催化事件，其中S+级{s_plus_count}个、S级{s_count}个、A+级{a_plus_count}个，
                 其中 <span class="text-yellow-400 font-semibold">{top_topic}</span> 方向确定性最高，
                 建议重点关注。
             </p>
@@ -206,6 +206,75 @@ class SLevelCatalystProGenerator(ReportProGenerator):
         tab_content = self.create_tab_pane(tabs=tabs, tab_id="s-level-topics", style="default")
         self.add_section("S级题材深度分析", tab_content, "💎")
     
+    def add_a_plus_catalysts(self, catalysts: list = None):
+        """添加A+级催化事件列表"""
+        if catalysts is None:
+            catalysts = [
+                {
+                    "name": "新能源汽车销量超预期",
+                    "score": 82,
+                    "summary": "5月新能源汽车销量同比增长超50%，出口量创新高",
+                    "catalysts": ["销量超预期", "出口大增"],
+                    "related_stocks": ["比亚迪", "宁德时代", "理想汽车"],
+                    "time_window": "1-2个月",
+                },
+                {
+                    "name": "半导体设备国产化加速",
+                    "score": 80,
+                    "summary": "国产半导体设备中标率持续提升，关键零部件取得突破",
+                    "catalysts": ["国产化加速", "订单饱满"],
+                    "related_stocks": ["中微公司", "北方华创", "拓荆科技"],
+                    "time_window": "3-6个月",
+                },
+            ]
+        
+        cards_html = ''
+        for i, cat in enumerate(catalysts):
+            name = cat.get("name", "")
+            score = cat.get("score", 0)
+            summary = cat.get("summary", "")
+            cat_list = cat.get("catalysts", [])
+            stocks = cat.get("related_stocks", [])
+            time_window = cat.get("time_window", "")
+            
+            cat_tags = ' '.join([
+                '<span class="bg-yellow-500/20 text-yellow-400 text-xs px-2 py-1 rounded-full border border-yellow-500/30">⚡ ' + c + '</span>'
+                for c in cat_list
+            ])
+            
+            stock_tags = ' '.join([
+                '<span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded">' + s + '</span>'
+                for s in stocks
+            ])
+            
+            card_html = '<div class="card-glass rounded-xl p-4">'
+            card_html += '<div class="flex items-start justify-between mb-3">'
+            card_html += '<div class="flex items-center gap-2">'
+            card_html += '<span class="text-yellow-400 font-bold">A+</span>'
+            card_html += '<span class="text-white font-bold">' + name + '</span>'
+            card_html += '</div>'
+            card_html += '<span class="text-sm font-bold text-yellow-400">' + str(score) + '分</span>'
+            card_html += '</div>'
+            card_html += '<p class="text-white/70 text-sm leading-relaxed mb-3">' + summary + '</p>'
+            card_html += '<div class="mb-2">'
+            card_html += '<div class="text-xs text-white/40 mb-1">核心催化</div>'
+            card_html += '<div class="flex flex-wrap gap-1.5">' + cat_tags + '</div>'
+            card_html += '</div>'
+            card_html += '<div class="mb-2">'
+            card_html += '<div class="text-xs text-white/40 mb-1">相关标的</div>'
+            card_html += '<div class="flex flex-wrap gap-1">' + stock_tags + '</div>'
+            card_html += '</div>'
+            card_html += '<div class="text-xs text-white/40 mt-2">'
+            card_html += '时间窗口：<span class="text-white/70">' + time_window + '</span>'
+            card_html += '</div>'
+            card_html += '</div>'
+            
+            cards_html += card_html
+        
+        content_html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">' + cards_html + '</div>'
+        
+        self.add_section("A+级催化事件", content_html, "💎")
+
     def add_catalysts_calendar(self, events: list = None):
         """添加S级催化日历"""
         if events is None:
@@ -342,6 +411,7 @@ class SLevelCatalystProGenerator(ReportProGenerator):
         """构建标准版本的S级催化扫描"""
         self.add_scan_summary()
         self.add_s_level_topics()
+        self.add_a_plus_catalysts()
         self.add_catalysts_calendar()
         self.add_industry_chain_analysis()
         self.add_investment_strategy()

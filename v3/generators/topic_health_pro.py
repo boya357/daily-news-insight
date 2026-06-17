@@ -444,7 +444,7 @@ class TopicHealthProGenerator(ProGenerator):
             {risk_opp}
         '''
     
-    def publish(self, output_path: str = "docs/题材健康度报告/index_pro.html"):
+    def publish(self, output_path: str = "docs/topic-health/index.html"):
         """发布到生产路径"""
         return super().publish(output_path)
 

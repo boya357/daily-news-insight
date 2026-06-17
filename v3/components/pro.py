@@ -1331,7 +1331,7 @@ class NavBar(Component):
             ('龙虎榜', '/daily-news-insight/longhubang/index.html'),
             ('周复盘', '/daily-news-insight/weekly_review/latest.html'),
             ('周三前瞻', '/daily-news-insight/weekly_outlook/latest.html'),
-            ('题材深度', '/daily-news-insight/题材深度/index.html'),
+            ('题材深度', '/daily-news-insight/topic-depth/index.html'),
         ]
         
         nav_links = ''
@@ -1355,7 +1355,7 @@ class NavBar(Component):
             ('📊 数据时光机', '/daily-news-insight/time-machine/index.html'),
             ('🧠 智能选题', '/daily-news-insight/topic-picker/index.html'),
             ('💡 题材健康度', '/daily-news-insight/topic-health/index.html'),
-            ('🔍 题材深度', '/daily-news-insight/题材深度/index.html'),
+            ('🔍 题材深度', '/daily-news-insight/topic-depth/index.html'),
             ('📅 月度总结', '/daily-news-insight/monthly/latest.html'),
         ]
         
