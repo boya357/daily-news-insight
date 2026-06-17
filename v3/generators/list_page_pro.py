@@ -263,7 +263,9 @@ class ListPageProGenerator(ProGenerator):
                 <span class="text-xs text-white/40">Pro v3.5</span>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- LIST_START -->
                 {cards_html}
+                <!-- LIST_END -->
             </div>
         '''
         
