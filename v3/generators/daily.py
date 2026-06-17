@@ -97,8 +97,8 @@ class DailyReportGenerator:
         """
         indices = self.indices
         market = self.market_data
-        sentiment = market.get('sentiment', {})
-        market_data = market.get('market_data', {})
+        sentiment = {}
+        market_data = market
         
         # 指数卡片
         index_cards_html = ''
@@ -911,8 +911,8 @@ class DailyReportGenerator:
         """每日总结 - 专业版"""
         # 基于市场数据生成总结
         market = self.market_data
-        market_data = market.get('market_data', {})
-        sentiment = market.get('sentiment', {})
+        market_data = market
+        sentiment = {}
         
         turnover = market_data.get('turnover', '')
         fg = sentiment.get('fear_greed', 50)

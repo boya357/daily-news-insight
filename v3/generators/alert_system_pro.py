@@ -42,6 +42,12 @@ class AlertSystemProGenerator(ProGenerator):
         self.warning_alerts = self.data.get('warning_alerts', [])
         self.info_alerts = self.data.get('info_alerts', [])
         self.strategy = self.data.get('strategy', {})
+        # 加载持仓数据
+        try:
+            portfolio_data = self.data_loader.get_data("portfolio")
+            self.portfolio_stocks = portfolio_data.get("stocks", [])
+        except:
+            self.portfolio_stocks = []
     
     def _generate_risk_overview(self) -> str:
         """生成风险总览区域"""
@@ -220,6 +226,90 @@ class AlertSystemProGenerator(ProGenerator):
         
         return GlassCard(content=content, padding="p-6", extra_class="mb-6").render()
     
+    def _generate_portfolio_monitor(self) -> str:
+        """生成持仓风险监控 - 股票卡片展示"""
+        if not self.portfolio_stocks:
+            return ''
+        
+        cards = []
+        for stock in self.portfolio_stocks:
+            name = stock.get('name', '')
+            code = stock.get('code', '')
+            icon = stock.get('icon', '📈')
+            current = stock.get('current_price', 0)
+            today_change = stock.get('today_change', 0) * 100
+            stop_loss = stock.get('stop_loss_price', 0)
+            advice = stock.get('advice', {})
+            advice_type = advice.get('type', 'hold')
+            
+            # 涨跌颜色
+            change_color = 'text-green-400' if today_change >= 0 else 'text-red-400'
+            change_sign = '+' if today_change >= 0 else ''
+            
+            # 风险状态颜色
+            status_colors = {
+                'sell': ('red', '🔴 建议止损'),
+                'watch': ('yellow', '🟡 密切关注'),
+                'hold': ('green', '🟢 持有观望'),
+            }
+            status_color, status_label = status_colors.get(advice_type, ('yellow', '🟡 关注'))
+            
+            # 距离止损
+            if stop_loss and current:
+                distance_sl = (current - stop_loss) / stop_loss * 100
+                distance_text = f"{distance_sl:+.2f}%"
+                distance_color = 'text-green-400' if distance_sl >= 0 else 'text-red-400'
+            else:
+                distance_text = '--'
+                distance_color = 'text-white/50'
+            
+            card_content = f'''
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">{icon}</span>
+                    <div>
+                        <h4 class="text-white font-bold">{name}</h4>
+                        <span class="text-xs text-white/50">{code}</span>
+                    </div>
+                </div>
+                <span class="px-2 py-1 bg-{status_color}-500/20 text-{status_color}-400 text-xs font-bold rounded-full">
+                    {status_label}
+                </span>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                    <div class="text-lg font-bold text-white">{current:.2f}</div>
+                    <div class="text-xs text-white/50">当前价</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-lg font-bold {change_color}">{change_sign}{today_change:.2f}%</div>
+                    <div class="text-xs text-white/50">今日涨跌</div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between text-sm border-t border-white/10 pt-2">
+                <div>
+                    <span class="text-white/50">止损价: </span>
+                    <span class="text-white/80">{stop_loss:.2f}</span>
+                </div>
+                <div>
+                    <span class="text-white/50">距止损: </span>
+                    <span class="{distance_color} font-medium">{distance_text}</span>
+                </div>
+            </div>
+            '''
+            cards.append({'content': card_content})
+        
+        cards_html = self.create_card_group(cards=cards, cols=2, card_style='subtle')
+        
+        content = f'''
+            {SectionTitle(text='📦 持仓风险监控', icon='📦').render()}
+            <p class="text-sm text-white/60 mb-4">实时监控持仓标的风险状态，及时预警止损信号</p>
+            {cards_html}
+        '''
+        
+        return GlassCard(content=content, padding="p-6", extra_class="mb-6").render()
+
+
     def _generate_strategy_section(self) -> str:
         """生成应对策略区域"""
         strategy = self.strategy
@@ -280,11 +370,13 @@ class AlertSystemProGenerator(ProGenerator):
         info_section = self._generate_alerts_section(
             '信息提示', 'ℹ️', self.info_alerts, 'safe'
         )
+        portfolio_monitor = self._generate_portfolio_monitor()
         strategy_section = self._generate_strategy_section()
         
         return f'''
             {risk_overview}
             {monitor_cards}
+            {portfolio_monitor}
             {critical_section}
             {warning_section}
             {info_section}
@@ -311,3 +403,4 @@ if __name__ == '__main__':
     print(f"   文件大小: {len(html)} 字节")
     print(f"   风险指数: {generator.risk_index}")
     print(f"   监控维度: {len(generator.monitor_cards)} 个")
+    print(f"   持仓股票: {len(generator.portfolio_stocks)} 只")

@@ -29,20 +29,55 @@ class TopicDeepDiveProGenerator(ProGenerator):
             data_dir=data_dir,
             show_toc=True,
         )
+        self.topics = {}
+        self.current_topic = {}
+        self.current_topic_id = ""
 
     def load_data(self):
         """加载题材详情数据"""
         super().load_data()
         self.data = self.data_loader.get_data("topic_details")
         self.topics = self.data.get('topics', {})
-        # 获取第一个题材作为当前题材
+        # 如果已有选择的题材ID且存在，保持选择；否则选第一个
         if self.topics:
-            first_key = next(iter(self.topics.keys()))
-            self.current_topic = self.topics[first_key]
-            self.current_topic_id = first_key
+            if self.current_topic_id and self.current_topic_id in self.topics:
+                self.current_topic = self.topics[self.current_topic_id]
+            else:
+                first_key = next(iter(self.topics.keys()))
+                self.current_topic = self.topics[first_key]
+                self.current_topic_id = first_key
         else:
             self.current_topic = {}
             self.current_topic_id = '' 
+
+    def set_topic(self, topic_id: str):
+        """设置当前要生成的题材
+        Args:
+            topic_id: 题材ID，如'topic_s004'
+        Returns:
+            self 支持链式调用
+        """
+        if not self._data_loaded:
+            self.load_data()
+        if topic_id in self.topics:
+            self.current_topic = self.topics[topic_id]
+            self.current_topic_id = topic_id
+            # 更新标题
+            topic_name = self.current_topic.get('name', '')
+            # 避免标题重复，如果名称已包含"深度研究"就不加后缀
+            if '深度研究' in topic_name:
+                self.title = topic_name
+            else:
+                self.title = f"{topic_name}深度研究"
+        else:
+            raise ValueError(f"题材ID {topic_id} 不存在，可用: {list(self.topics.keys())}")
+        return self
+
+    def get_topic_list(self):
+        """获取所有可用题材列表"""
+        if not self._data_loaded:
+            self.load_data()
+        return [(tid, t.get('name', '')) for tid, t in self.topics.items()]
     
     def _generate_toc(self) -> str:
         """生成题材导航 - 卡片组风格"""
@@ -383,6 +418,19 @@ class TopicDeepDiveProGenerator(ProGenerator):
         
         return GlassCard(content=content, padding="p-6", extra_class="mb-6").render()
     
+
+    def _tag_to_importance(self, tag: str) -> str:
+        """将标签转换为importance等级"""
+        if not tag:
+            return 'medium'
+        if '核心' in tag or '龙头' in tag:
+            return 'high'
+        elif '重要' in tag or '中军' in tag:
+            return 'medium'
+        elif tag:
+            return 'low'
+        return 'medium'
+
     def _generate_downstream_demand(self) -> str:
         """生成下游需求分析 - 卡片组"""
         topic = self.current_topic
@@ -439,8 +487,8 @@ class TopicDeepDiveProGenerator(ProGenerator):
         cards = []
         for comp in companies[:6]:  # 最多显示6个
             name = comp.get('name', '')
-            role = comp.get('role', '') or comp.get('tag', '')
-            importance = comp.get('importance', 'medium')
+            role = comp.get('role', '') or comp.get('desc', '') or comp.get('tag', '')
+            importance = comp.get('importance', self._tag_to_importance(comp.get('tag', '')))
             
             imp_color = {'high': 'text-green-400', 'medium': 'text-yellow-400', 'low': 'text-gray-400'}.get(importance, 'text-white/60')
             
@@ -490,15 +538,15 @@ class TopicDeepDiveProGenerator(ProGenerator):
                 continue
             
             section_name = section.get('name', section_names.get(section_key, section_key))
-            description = section.get('description', '')
+            description = section.get('description', '') or section.get('desc', '')
             companies = section.get('companies', [])
             
             # 公司卡片组
             cards = []
             for comp in companies:
                 comp_name = comp.get('name', '')
-                role = comp.get('role', '')
-                importance = comp.get('importance', 'medium')
+                role = comp.get('role', '') or comp.get('desc', '')
+                importance = comp.get('importance', self._tag_to_importance(comp.get('tag', '')))
                 
                 imp_label = {'high': '核心', 'medium': '重要', 'low': '一般'}.get(importance, '重要')
                 imp_color = {'high': 'red', 'medium': 'yellow', 'low': 'green'}.get(importance, 'blue')
@@ -560,22 +608,22 @@ class TopicDeepDiveProGenerator(ProGenerator):
             cards = []
             for stock in tier_stocks:
                 name = stock.get('name', '')
-                role = stock.get('role', '')
+                code = stock.get('code', '')
                 logic = stock.get('logic', '')
                 target_price = stock.get('target_price', '')
-                elasticity = stock.get('elasticity_score', '')
-                risk_level = stock.get('risk_level', '')
+                rating = stock.get('rating', '')
+                pe_ratio = stock.get('pe_ratio', '')
                 market_cap = stock.get('market_cap', '')
                 
                 card_content = f'''
                 <div class="flex items-center justify-between mb-3">
                     <div>
                         <h4 class="text-white font-bold">{name}</h4>
-                        <p class="text-xs text-white/50">{role}</p>
+                        <p class="text-xs text-white/50">{code}</p>
                     </div>
                     <div class="text-right">
                         <div class="text-sm text-purple-400 font-medium">{market_cap}</div>
-                        <div class="text-xs text-white/40">风险: {risk_level}</div>
+                        <div class="text-xs text-white/40">PE: {pe_ratio}</div>
                     </div>
                 </div>
                 <div class="mb-2">
@@ -583,8 +631,8 @@ class TopicDeepDiveProGenerator(ProGenerator):
                     <p class="text-xs text-white/70">{logic}</p>
                 </div>
                 <div class="flex items-center justify-between text-xs">
-                    <span class="text-white/50">弹性评分</span>
-                    <span class="text-green-400 font-medium">{elasticity}分</span>
+                    <span class="text-white/50">评级</span>
+                    <span class="text-green-400 font-medium">{rating}</span>
                 </div>
                 {target_price and f'<div class="mt-2 text-xs text-yellow-400">🎯 {target_price}</div>'}
                 '''
@@ -613,7 +661,7 @@ class TopicDeepDiveProGenerator(ProGenerator):
         
         timeline_html = ''
         for i, cat in enumerate(catalysts):
-            date = cat.get('date', '')
+            date = cat.get('time', cat.get('date', ''))
             event = cat.get('event', '')
             impact = cat.get('impact', '')
             importance = cat.get('importance', 'medium')

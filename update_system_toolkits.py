@@ -222,6 +222,42 @@ def update_weekly_outlook():
         print(f"   ❌ 更新失败: {e}")
         return False
 
+
+def update_time_machine():
+    """更新数据时光机 - Pro版"""
+    from generators.time_machine_pro import TimeMachinePage
+    
+    print("⏰ 更新数据时光机...")
+    try:
+        generator = TimeMachinePage(data_dir=DATA_DIR)
+        output_path = os.path.join(DOCS_DIR, '数据时光机', 'index.html')
+        result = generator.publish(output_path)
+        print(f"   ✅ 更新完成")
+        print(f"   输出路径: {output_path}")
+        return True
+    except Exception as e:
+        print(f"   ❌ 更新失败: {e}")
+        return False
+
+def update_industry_chain_clock():
+    """更新产业链时钟 - Pro版"""
+    from generators.industry_chain_pro import IndustryChainClockProGenerator
+    
+    print("🔗 更新产业链时钟...")
+    try:
+        generator = IndustryChainClockProGenerator(data_dir=DATA_DIR)
+        generator.load_data()
+        output_path = os.path.join(DOCS_DIR, '产业链时钟', 'index.html')
+        result = generator.publish(output_path)
+        print(f"   ✅ 更新完成")
+        print(f"   输出路径: {output_path}")
+        return True
+    except Exception as e:
+        print(f"   ❌ 更新失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
 # ============================================================
 # 工具映射表
 # ============================================================
@@ -238,6 +274,8 @@ TOOL_MAP = {
     'home': ('首页', update_home_page),
     'workflow': ('工作流监控中心', update_workflow_status),
     'weekly_outlook': ('周三前瞻', update_weekly_outlook),
+    'time_machine': ('数据时光机', update_time_machine),
+    'industry_chain': ('产业链时钟', update_industry_chain_clock),
 }
 
 # ============================================================

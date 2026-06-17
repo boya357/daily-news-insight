@@ -1326,13 +1326,12 @@ class NavBar(Component):
             ('日报', '/daily-news-insight/daily/latest.html'),
             ('盘中', '/daily-news-insight/intraday/latest.html'),
             ('盘后', '/daily-news-insight/aftermarket/latest.html'),
-            ('产业链', '/daily-news-insight/industry_chain/latest.html'),
+            ('持仓', '/daily-news-insight/portfolio/index.html'),
+            ('预警', '/daily-news-insight/alert-system/index.html'),
+            ('龙虎榜', '/daily-news-insight/longhubang/index.html'),
             ('周复盘', '/daily-news-insight/weekly_review/latest.html'),
             ('周三前瞻', '/daily-news-insight/weekly_outlook/latest.html'),
-            ('周末速递', '/daily-news-insight/周末速递/latest.html'),
-            ('明日催化', '/daily-news-insight/明日催化剂/latest.html'),
-            ('S级催化', '/daily-news-insight/s级催化扫描/latest.html'),
-            ('月报', '/daily-news-insight/monthly/latest.html'),
+            ('题材深度', '/daily-news-insight/题材深度/index.html'),
         ]
         
         nav_links = ''
@@ -1347,13 +1346,17 @@ class NavBar(Component):
             ('📰 日报', '/daily-news-insight/daily/latest.html'),
             ('📈 盘中快报', '/daily-news-insight/intraday/latest.html'),
             ('📉 盘后速递', '/daily-news-insight/aftermarket/latest.html'),
-            ('🔗 产业链总览', '/daily-news-insight/industry_chain/latest.html'),
+            ('💼 持仓监控', '/daily-news-insight/portfolio/index.html'),
+            ('⚠️ 智能预警', '/daily-news-insight/alert-system/index.html'),
+            ('🐉 龙虎榜', '/daily-news-insight/longhubang/index.html'),
             ('📋 周复盘', '/daily-news-insight/weekly_review/latest.html'),
             ('🔮 周三前瞻', '/daily-news-insight/weekly_outlook/latest.html'),
-            ('📦 周末速递', '/daily-news-insight/周末速递/latest.html'),
-            ('⏰ 明日催化剂', '/daily-news-insight/明日催化剂/latest.html'),
-            ('⭐ S级催化扫描', '/daily-news-insight/s级催化扫描/latest.html'),
-            ('🗓️ 月度总结', '/daily-news-insight/monthly/latest.html'),
+            ('🔥 板块热力', '/daily-news-insight/sector-heatmap/index.html'),
+            ('📊 数据时光机', '/daily-news-insight/time-machine/index.html'),
+            ('🧠 智能选题', '/daily-news-insight/topic-picker/index.html'),
+            ('💡 题材健康度', '/daily-news-insight/topic-health/index.html'),
+            ('🔍 题材深度', '/daily-news-insight/题材深度/index.html'),
+            ('📅 月度总结', '/daily-news-insight/monthly/latest.html'),
         ]
         
         mobile_links = ''
