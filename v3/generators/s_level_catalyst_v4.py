@@ -167,6 +167,50 @@ class SLevelCatalystV4Generator:
         </div>
         '''
     
+    def _render_stock_diagnosis(self, stock) -> str:
+        """渲染单只股票的四维详细诊断"""
+        
+        def render_dimension(name: str, status: str, items: list, icon: str) -> str:
+            """渲染单个维度的诊断"""
+            status_class = "good" if status in ["强势", "流入", "利好", "向好"] else "bad" if status in ["弱势", "流出", "利空", "下滑"] else "neutral"
+            
+            items_html = ""
+            for item in items[:4]:  # 最多显示4条
+                item_color = "#10B981" if item.status == "good" else "#EF4444" if item.status == "bad" else "#F59E0B"
+                items_html += f'''
+                <div class="diagnosis-item">
+                    <span class="diagnosis-icon" style="color: {item_color};">{item.icon}</span>
+                    <span class="diagnosis-text">{item.text}</span>
+                </div>
+                '''
+            
+            return f'''
+            <div class="diagnosis-dimension">
+                <div class="dim-header">
+                    <span class="dim-icon">{icon}</span>
+                    <span class="dim-name">{name}</span>
+                    <span class="dim-status status-{status_class}">{status}</span>
+                </div>
+                <div class="dim-items">
+                    {items_html}
+                </div>
+            </div>
+            '''
+        
+        tech_html = render_dimension("技术面", stock.technical_status or "中性", stock.technical_items, "📊")
+        fund_html = render_dimension("资金面", stock.fund_status or "中性", stock.fund_items, "💰")
+        news_html = render_dimension("消息面", stock.news_status or "中性", stock.news_items, "📰")
+        industry_html = render_dimension("产业面", stock.industry_status or "中性", stock.industry_items, "🏭")
+        
+        return f'''
+        <div class="stock-diagnosis-detail">
+            {tech_html}
+            {fund_html}
+            {news_html}
+            {industry_html}
+        </div>
+        '''
+    
     def _render_portfolio_section(self) -> str:
         """渲染持仓跟踪模块"""
         if not self.portfolio_result:
@@ -200,27 +244,8 @@ class SLevelCatalystV4Generator:
             else:
                 risk_tag = '<span class="v4-tag v4-tag-green">低风险</span>'
             
-            # 诊断指标
-            diagnosis_html = f'''
-            <div class="v4-diagnosis-grid">
-                <div class="v4-diagnosis-item {"good" if stock.technical_status == "强势" else "bad" if stock.technical_status == "弱势" else "neutral"}">
-                    <div class="dim-name">技术面</div>
-                    <div class="dim-value">{stock.technical_status or "-"}</div>
-                </div>
-                <div class="v4-diagnosis-item {"good" if stock.fund_status == "流入" else "bad"}">
-                    <div class="dim-name">资金面</div>
-                    <div class="dim-value">{stock.fund_status or "-"}</div>
-                </div>
-                <div class="v4-diagnosis-item">
-                    <div class="dim-name">消息面</div>
-                    <div class="dim-value">{stock.news_status or "-"}</div>
-                </div>
-                <div class="v4-diagnosis-item">
-                    <div class="dim-name">产业面</div>
-                    <div class="dim-value">{stock.industry_status or "-"}</div>
-                </div>
-            </div>
-            '''
+            # 诊断指标 - 四维详细诊断
+            diagnosis_html = self._render_stock_diagnosis(stock)
             
             stocks_html += f'''
             <div class="v4-stock-card">

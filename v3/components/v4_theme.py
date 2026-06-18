@@ -11,17 +11,18 @@ V4 主题配置 - 白底清爽风格
 
 
 class V4Theme:
-    """V4主题配置常量"""
+    """V4主题配置常量 - 紫色玻璃背景 + 白色卡片"""
     
-    # 主色调
-    PRIMARY_COLOR = '#2563EB'  # 主蓝色
-    PRIMARY_LIGHT = '#3B82F6'
-    PRIMARY_DARK = '#1D4ED8'
+    # 主色调 - 紫色系
+    PRIMARY_COLOR = '#667eea'  # 主紫色
+    PRIMARY_LIGHT = '#818cf8'
+    PRIMARY_DARK = '#4f46e5'
     
     SECONDARY_COLOR = '#64748B'  # 次级灰
     
     # 背景色
-    BG_PAGE = '#F8FAFC'  # 页面背景 - 浅灰
+    BG_GRADIENT_START = '#667eea'  # 渐变起始色
+    BG_GRADIENT_END = '#764ba2'    # 渐变结束色
     BG_CARD = '#FFFFFF'  # 卡片背景 - 纯白
     BG_SUBTLE = '#F1F5F9'  # 次级背景
     
@@ -78,7 +79,9 @@ class V4Theme:
 
 
 def get_v4_theme_css() -> str:
-    """获取V4主题全局CSS"""
+    """获取V4主题全局CSS
+    设计：紫色玻璃背景 + 白色卡片，专业清爽且有高级感
+    """
     return '''
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap');
@@ -89,7 +92,7 @@ def get_v4_theme_css() -> str:
             }
             
             body {
-                background: #F8FAFC;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 min-height: 100vh;
                 padding-top: 70px;
                 color: #1E293B;
@@ -106,18 +109,19 @@ def get_v4_theme_css() -> str:
                 max-width: 800px;
             }
             
-            /* 卡片样式 */
+            /* 卡片样式 - 紫色背景上的白色卡片 */
             .v4-card {
                 background: #FFFFFF;
-                border: 1px solid #E2E8F0;
+                border: 1px solid rgba(255, 255, 255, 0.8);
                 border-radius: 16px;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.25), 0 2px 8px rgba(0, 0, 0, 0.08);
                 color: #1E293B;
-                transition: box-shadow 0.2s ease, transform 0.2s ease;
+                transition: box-shadow 0.3s ease, transform 0.3s ease;
             }
             
             .v4-card:hover {
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 20px 60px rgba(102, 126, 234, 0.35), 0 4px 16px rgba(0, 0, 0, 0.12);
+                transform: translateY(-2px);
             }
             
             .v4-card-header {
@@ -171,8 +175,8 @@ def get_v4_theme_css() -> str:
             }
             
             .v4-tag-blue {
-                background: rgba(37, 99, 235, 0.1);
-                color: #2563EB;
+                background: rgba(102, 126, 234, 0.1);
+                color: #667eea;
             }
             
             .v4-tag-green {
@@ -273,7 +277,7 @@ def get_v4_theme_css() -> str:
                 transition: width 0.5s ease;
             }
             
-            .v4-progress-fill.blue { background: linear-gradient(90deg, #2563EB, #3B82F6); }
+            .v4-progress-fill.blue { background: linear-gradient(90deg, #667eea, #818cf8); }
             .v4-progress-fill.green { background: linear-gradient(90deg, #10B981, #34D399); }
             .v4-progress-fill.red { background: linear-gradient(90deg, #EF4444, #F87171); }
             .v4-progress-fill.orange { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
@@ -284,11 +288,12 @@ def get_v4_theme_css() -> str:
                 border: 1px solid #E2E8F0;
                 border-radius: 12px;
                 padding: 20px;
-                transition: all 0.2s ease;
+                transition: all 0.3s ease;
             }
             
             .v4-stock-card:hover {
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+                border-color: rgba(102, 126, 234, 0.3);
                 transform: translateY(-2px);
             }
             
@@ -321,7 +326,7 @@ def get_v4_theme_css() -> str:
                 font-weight: 500;
             }
             
-            /* 诊断指标 */
+            /* 诊断指标 - 简化版 */
             .v4-diagnosis-grid {
                 display: grid;
                 grid-template-columns: repeat(4, 1fr);
@@ -352,18 +357,96 @@ def get_v4_theme_css() -> str:
             .v4-diagnosis-item.bad .dim-value { color: #DC2626; }
             .v4-diagnosis-item.neutral .dim-value { color: #F59E0B; }
             
-            /* 导航栏 */
+            /* 详细诊断面板 */
+            .stock-diagnosis-detail {
+                margin-top: 16px;
+                display: grid;
+                gap: 12px;
+            }
+            
+            .diagnosis-dimension {
+                background: #F8FAFC;
+                border-radius: 10px;
+                padding: 12px 14px;
+            }
+            
+            .dim-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+            
+            .dim-icon {
+                font-size: 1rem;
+            }
+            
+            .dim-name {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #1E293B;
+                flex: 1;
+            }
+            
+            .dim-status {
+                font-size: 0.75rem;
+                font-weight: 600;
+                padding: 2px 8px;
+                border-radius: 12px;
+            }
+            
+            .dim-status.status-good {
+                background: rgba(22, 163, 74, 0.1);
+                color: #16A34A;
+            }
+            
+            .dim-status.status-bad {
+                background: rgba(220, 38, 38, 0.1);
+                color: #DC2626;
+            }
+            
+            .dim-status.status-neutral {
+                background: rgba(245, 158, 11, 0.1);
+                color: #F59E0B;
+            }
+            
+            .dim-items {
+                display: grid;
+                gap: 6px;
+            }
+            
+            .diagnosis-item {
+                display: flex;
+                align-items: flex-start;
+                gap: 8px;
+                font-size: 0.8125rem;
+                color: #475569;
+                line-height: 1.4;
+            }
+            
+            .diagnosis-icon {
+                font-size: 0.875rem;
+                font-weight: 700;
+                flex-shrink: 0;
+                margin-top: 1px;
+            }
+            
+            .diagnosis-text {
+                flex: 1;
+            }
+            
+            /* 导航栏 - 玻璃态 */
             .v4-nav {
                 position: fixed;
                 top: 0;
                 left: 0;
                 right: 0;
                 height: 60px;
-                background: rgba(255, 255, 255, 0.95);
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-                border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                background: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+                box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
                 z-index: 1000;
                 display: flex;
                 align-items: center;
@@ -373,7 +456,7 @@ def get_v4_theme_css() -> str:
             .v4-nav-logo {
                 font-size: 1.25rem;
                 font-weight: 700;
-                color: #2563EB;
+                color: #667eea;
                 margin-right: 32px;
             }
             
@@ -395,16 +478,16 @@ def get_v4_theme_css() -> str:
             }
             
             .v4-nav-item:hover {
-                background: #F1F5F9;
-                color: #1E293B;
+                background: rgba(102, 126, 234, 0.1);
+                color: #667eea;
             }
             
             .v4-nav-item.active {
-                background: rgba(37, 99, 235, 0.1);
-                color: #2563EB;
+                background: rgba(102, 126, 234, 0.15);
+                color: #667eea;
             }
             
-            /* 页面标题区 */
+            /* 页面标题区 - 紫色背景上的浅色文字 */
             .v4-page-header {
                 text-align: center;
                 padding: 40px 0 32px;
@@ -413,19 +496,20 @@ def get_v4_theme_css() -> str:
             .v4-page-header h1 {
                 font-size: 2rem;
                 font-weight: 800;
-                color: #1E293B;
+                color: #FFFFFF;
                 margin: 0 0 8px 0;
+                text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             }
             
             .v4-page-header .subtitle {
                 font-size: 1rem;
-                color: #64748B;
+                color: rgba(255, 255, 255, 0.85);
                 margin-bottom: 8px;
             }
             
             .v4-page-header .update-time {
                 font-size: 0.875rem;
-                color: #94A3B8;
+                color: rgba(255, 255, 255, 0.6);
             }
             
             /* 列表项 */
@@ -472,9 +556,9 @@ def get_v4_theme_css() -> str:
             }
             
             .v4-alert.info {
-                background: rgba(37, 99, 235, 0.05);
-                border-left-color: #2563EB;
-                color: #1E40AF;
+                background: rgba(102, 126, 234, 0.08);
+                border-left-color: #667eea;
+                color: #4f46e5;
             }
             
             .v4-alert.success {
@@ -522,7 +606,7 @@ def get_v4_theme_css() -> str:
                 top: 0;
                 left: 0;
                 height: 3px;
-                background: linear-gradient(90deg, #2563EB, #7C3AED);
+                background: linear-gradient(90deg, #667eea, #764ba2);
                 z-index: 1001;
                 width: 0%;
                 transition: width 0.1s ease;

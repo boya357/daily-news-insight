@@ -21,6 +21,30 @@ from content.base import ContentModel, ContentAnalyzer, AnalysisDimension
 
 
 @dataclass
+class DiagnosisItem:
+    """诊断条目 - 带状态标记"""
+    text: str  # 描述文字
+    status: str = "neutral"  # good/neutral/bad -> ✓/⚪/❌
+    icon: str = "⚪"  # 显示图标
+    
+    def __post_init__(self):
+        if self.status == "good":
+            self.icon = "✓"
+        elif self.status == "bad":
+            self.icon = "❌"
+        else:
+            self.icon = "⚪"
+
+
+@dataclass
+class DimensionDiagnosis:
+    """维度诊断结果"""
+    name: str  # 维度名称
+    status: str  # 整体状态：强势/流入/利好/向好 等
+    items: List[DiagnosisItem] = field(default_factory=list)  # 详细条目
+
+
+@dataclass
 class StockAnalysis:
     """单只股票的分析结果"""
     code: str
@@ -33,19 +57,23 @@ class StockAnalysis:
     # 技术面
     technical_status: str = ""  # 强势/弱势/震荡
     technical_desc: str = ""
+    technical_items: List[DiagnosisItem] = field(default_factory=list)
     
     # 资金面
     fund_status: str = ""  # 流入/流出
     fund_desc: str = ""
     main_fund: float = 0  # 主力资金净额
+    fund_items: List[DiagnosisItem] = field(default_factory=list)
     
     # 消息面
     news_status: str = ""  # 利好/利空/中性
     news_desc: str = ""
+    news_items: List[DiagnosisItem] = field(default_factory=list)
     
     # 产业面
     industry_status: str = ""
     industry_desc: str = ""
+    industry_items: List[DiagnosisItem] = field(default_factory=list)
     
     # 风险
     risk_level: str = ""  # 低/中/高
@@ -194,21 +222,29 @@ class PortfolioAnalyzer(ContentAnalyzer):
         # 解析诊断信息
         diagnosis = stock_data.get('diagnosis', {})
         
+        # 技术面诊断
         tech = diagnosis.get('technical', {})
         stock.technical_status = tech.get('status', '')
         stock.technical_desc = f"{tech.get('title', '')}：{tech.get('value', '')}（{tech.get('desc', '')}）"
+        stock.technical_items = self._generate_technical_items(tech, stock.today_change_pct)
         
+        # 资金面诊断
         fund = diagnosis.get('fund', {})
         stock.fund_status = fund.get('status', '')
         stock.fund_desc = f"{fund.get('title', '')}：{fund.get('value', '')}（{fund.get('desc', '')}）"
+        stock.fund_items = self._generate_fund_items(fund, stock.main_fund)
         
+        # 消息面诊断
         news = diagnosis.get('news', {})
         stock.news_status = news.get('status', '')
         stock.news_desc = f"{news.get('title', '')}：{news.get('value', '')}（{news.get('desc', '')}）"
+        stock.news_items = self._generate_news_items(news)
         
+        # 产业面诊断
         industry = diagnosis.get('industry', {})
         stock.industry_status = industry.get('status', '')
         stock.industry_desc = f"{industry.get('title', '')}：{industry.get('value', '')}（{industry.get('desc', '')}）"
+        stock.industry_items = self._generate_industry_items(industry)
         
         # 风险等级
         stock.risk_level = stock_data.get('risk_level', '')
@@ -223,6 +259,171 @@ class PortfolioAnalyzer(ContentAnalyzer):
         stock.stress_test = stock_data.get('stress_test', {})
         
         return stock
+    
+    def _generate_technical_items(self, tech: Dict, today_change: float) -> List[DiagnosisItem]:
+        """生成技术面诊断条目"""
+        items = []
+        
+        # 均线多头排列
+        status = tech.get('status', '')
+        if status == '强势':
+            items.append(DiagnosisItem(text="均线多头排列，趋势向上", status="good"))
+        elif status == '弱势':
+            items.append(DiagnosisItem(text="均线空头排列，趋势向下", status="bad"))
+        else:
+            items.append(DiagnosisItem(text="均线交织，趋势不明朗", status="neutral"))
+        
+        # 成交量
+        if today_change > 3:
+            items.append(DiagnosisItem(text="放量上涨，资金关注", status="good"))
+        elif today_change < -3:
+            items.append(DiagnosisItem(text="放量下跌，资金出逃", status="bad"))
+        elif today_change > 0:
+            items.append(DiagnosisItem(text="温和放量，走势稳健", status="good"))
+        else:
+            items.append(DiagnosisItem(text="成交量平稳，观望情绪浓", status="neutral"))
+        
+        # 技术指标
+        tech_desc = tech.get('desc', '')
+        if '超买' in tech_desc or '强势' in tech_desc:
+            items.append(DiagnosisItem(text="短期技术指标处于强势区间", status="good"))
+        elif '超卖' in tech_desc or '弱势' in tech_desc:
+            items.append(DiagnosisItem(text="短期技术指标处于弱势区间", status="bad"))
+        else:
+            items.append(DiagnosisItem(text="技术指标中性，等待方向选择", status="neutral"))
+        
+        # 支撑压力位
+        items.append(DiagnosisItem(text="支撑位有效，压力位待突破", status="neutral"))
+        
+        return items
+    
+    def _generate_fund_items(self, fund: Dict, main_fund) -> List[DiagnosisItem]:
+        """生成资金面诊断条目"""
+        items = []
+        
+        # 确保main_fund是数值类型
+        try:
+            main_fund_val = float(main_fund) if main_fund else 0
+        except (ValueError, TypeError):
+            main_fund_val = 0
+        
+        # 主力资金
+        if main_fund_val > 0:
+            items.append(DiagnosisItem(text="主力资金净流入", status="good"))
+        elif main_fund_val < 0:
+            items.append(DiagnosisItem(text="主力资金净流出", status="bad"))
+        else:
+            items.append(DiagnosisItem(text="主力资金进出平衡", status="neutral"))
+        
+        # 资金持续性
+        fund_status = fund.get('status', '')
+        if fund_status == '流入':
+            items.append(DiagnosisItem(text="主力资金持续流入", status="good"))
+        elif fund_status == '流出':
+            items.append(DiagnosisItem(text="主力资金持续流出", status="bad"))
+        else:
+            items.append(DiagnosisItem(text="资金流向波动较大", status="neutral"))
+        
+        # 机构持仓
+        fund_desc = fund.get('desc', '')
+        if '增持' in fund_desc or '加仓' in fund_desc:
+            items.append(DiagnosisItem(text="机构持仓比例提升", status="good"))
+        elif '减持' in fund_desc or '减仓' in fund_desc:
+            items.append(DiagnosisItem(text="机构持仓比例下降", status="bad"))
+        else:
+            items.append(DiagnosisItem(text="机构持仓保持稳定", status="neutral"))
+        
+        # 北向资金
+        if '北向' in fund_desc and '流入' in fund_desc:
+            items.append(DiagnosisItem(text="北向资金持续加仓", status="good"))
+        elif '北向' in fund_desc and '流出' in fund_desc:
+            items.append(DiagnosisItem(text="北向资金持续减仓", status="bad"))
+        else:
+            items.append(DiagnosisItem(text="北向资金动向平稳", status="neutral"))
+        
+        return items
+    
+    def _generate_news_items(self, news: Dict) -> List[DiagnosisItem]:
+        """生成消息面诊断条目"""
+        items = []
+        
+        news_status = news.get('status', '')
+        news_desc = news.get('desc', '')
+        
+        # 行业消息
+        if news_status == '利好':
+            items.append(DiagnosisItem(text="行业政策利好频出", status="good"))
+        elif news_status == '利空':
+            items.append(DiagnosisItem(text="行业存在负面消息", status="bad"))
+        else:
+            items.append(DiagnosisItem(text="行业消息面平稳", status="neutral"))
+        
+        # 公司消息
+        if '重大' in news_desc and '利好' in news_desc:
+            items.append(DiagnosisItem(text="公司有重大利好事件", status="good"))
+        elif '重大' in news_desc and '利空' in news_desc:
+            items.append(DiagnosisItem(text="公司有重大利空事件", status="bad"))
+        else:
+            items.append(DiagnosisItem(text="消息面平静，无重大事件", status="neutral"))
+        
+        # 行业景气度
+        if '喜忧参半' in news_desc:
+            items.append(DiagnosisItem(text="行业消息喜忧参半", status="neutral"))
+        elif '向好' in news_desc or '景气' in news_desc:
+            items.append(DiagnosisItem(text="行业整体消息面向好", status="good"))
+        else:
+            items.append(DiagnosisItem(text="行业消息整体中性", status="neutral"))
+        
+        # 公司经营
+        if '稳定' in news_desc or '增长' in news_desc:
+            items.append(DiagnosisItem(text="公司经营情况稳定", status="good"))
+        elif '下滑' in news_desc or '亏损' in news_desc:
+            items.append(DiagnosisItem(text="公司经营面临压力", status="bad"))
+        else:
+            items.append(DiagnosisItem(text="公司经营情况正常", status="neutral"))
+        
+        return items
+    
+    def _generate_industry_items(self, industry: Dict) -> List[DiagnosisItem]:
+        """生成产业面诊断条目"""
+        items = []
+        
+        industry_status = industry.get('status', '')
+        industry_desc = industry.get('desc', '')
+        
+        # 行业景气度
+        if industry_status == '向好':
+            items.append(DiagnosisItem(text="行业景气度向上", status="good"))
+        elif industry_status == '下滑':
+            items.append(DiagnosisItem(text="行业景气度下行", status="bad"))
+        else:
+            items.append(DiagnosisItem(text="行业景气度平稳", status="neutral"))
+        
+        # 增长趋势
+        if '持续提升' in industry_desc or '高速增长' in industry_desc:
+            items.append(DiagnosisItem(text="行业景气度持续提升", status="good"))
+        elif '下滑' in industry_desc or '放缓' in industry_desc:
+            items.append(DiagnosisItem(text="行业增速有所放缓", status="bad"))
+        else:
+            items.append(DiagnosisItem(text="行业保持稳定增长", status="neutral"))
+        
+        # 下游需求
+        if '旺盛' in industry_desc or '增长' in industry_desc:
+            items.append(DiagnosisItem(text="下游需求旺盛", status="good"))
+        elif '疲软' in industry_desc or '下降' in industry_desc:
+            items.append(DiagnosisItem(text="下游需求疲软", status="bad"))
+        else:
+            items.append(DiagnosisItem(text="下游需求平稳", status="neutral"))
+        
+        # 政策支持
+        if '政策支持' in industry_desc or '政策利好' in industry_desc:
+            items.append(DiagnosisItem(text="政策支持力度加大", status="good"))
+        elif '监管' in industry_desc or '政策收紧' in industry_desc:
+            items.append(DiagnosisItem(text="面临政策监管压力", status="bad"))
+        else:
+            items.append(DiagnosisItem(text="政策环境整体稳定", status="neutral"))
+        
+        return items
     
     def _calculate_overall_risk(self, stocks: List[StockAnalysis]) -> str:
         """计算组合整体风险等级"""
