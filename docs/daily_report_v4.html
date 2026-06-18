@@ -1,0 +1,3529 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📰 每日市场日报</title>
+    <style>
+        
+            @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap');
+            
+            * { 
+                font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                box-sizing: border-box;
+            }
+            
+            body {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding-top: 70px;
+                color: #1E293B;
+                line-height: 1.6;
+                margin: 0;
+            }
+            
+            .v4-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 24px;
+            }
+            
+            .v4-container.narrow {
+                max-width: 800px;
+            }
+            
+            /* 卡片样式 - 紫色背景上的白色卡片 */
+            .v4-card {
+                background: #FFFFFF;
+                border: 1px solid rgba(255, 255, 255, 0.8);
+                border-radius: 16px;
+                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.25), 0 2px 8px rgba(0, 0, 0, 0.08);
+                color: #1E293B;
+                transition: box-shadow 0.3s ease, transform 0.3s ease;
+            }
+            
+            .v4-card:hover {
+                box-shadow: 0 20px 60px rgba(102, 126, 234, 0.35), 0 4px 16px rgba(0, 0, 0, 0.12);
+                transform: translateY(-2px);
+            }
+            
+            .v4-card-header {
+                padding: 20px 24px;
+                border-bottom: 1px solid #F1F5F9;
+                font-weight: 600;
+                font-size: 1.125rem;
+                color: #1E293B;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .v4-card-body {
+                padding: 24px;
+            }
+            
+            .v4-card-footer {
+                padding: 16px 24px;
+                border-top: 1px solid #F1F5F9;
+                background: #F8FAFC;
+                border-radius: 0 0 16px 16px;
+            }
+            
+            /* 文字颜色 */
+            .text-primary { color: #1E293B !important; }
+            .text-secondary { color: #64748B !important; }
+            .text-muted { color: #94A3B8 !important; }
+            .text-up { color: #DC2626 !important; }
+            .text-down { color: #16A34A !important; }
+            .text-flat { color: #64748B !important; }
+            .text-blue { color: #2563EB !important; }
+            .text-orange { color: #F59E0B !important; }
+            
+            /* 背景色 */
+            .bg-white { background: #FFFFFF !important; }
+            .bg-gray-50 { background: #F8FAFC !important; }
+            .bg-gray-100 { background: #F1F5F9 !important; }
+            .bg-blue-50 { background: rgba(37, 99, 235, 0.05) !important; }
+            .bg-green-50 { background: rgba(22, 163, 74, 0.05) !important; }
+            .bg-red-50 { background: rgba(220, 38, 38, 0.05) !important; }
+            
+            /* 标签徽章 */
+            .v4-tag {
+                display: inline-block;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 500;
+                line-height: 1.5;
+            }
+            
+            .v4-tag-blue {
+                background: rgba(102, 126, 234, 0.1);
+                color: #667eea;
+            }
+            
+            .v4-tag-green {
+                background: rgba(22, 163, 74, 0.1);
+                color: #16A34A;
+            }
+            
+            .v4-tag-red {
+                background: rgba(220, 38, 38, 0.1);
+                color: #DC2626;
+            }
+            
+            .v4-tag-orange {
+                background: rgba(245, 158, 11, 0.1);
+                color: #F59E0B;
+            }
+            
+            .v4-tag-gray {
+                background: rgba(100, 116, 139, 0.1);
+                color: #64748B;
+            }
+            
+            /* 章节标题 */
+            .v4-section {
+                margin-bottom: 24px;
+            }
+            
+            .v4-section-title {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: #1E293B;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            
+            .v4-section-title .icon {
+                font-size: 1.5rem;
+            }
+            
+            .v4-section-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 16px;
+            }
+            
+            .v4-section-header-left {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            
+            .v4-section-icon {
+                font-size: 1.5rem;
+            }
+            
+            .v4-section-title-text {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: #FFFFFF;
+                margin: 0;
+            }
+            
+            .v4-section-subtitle {
+                font-size: 0.875rem;
+                color: rgba(255, 255, 255, 0.7);
+                margin: 4px 0 0 0;
+            }
+            
+            /* 数据网格 */
+            .v4-data-grid {
+                display: grid;
+                gap: 16px;
+            }
+            
+            .v4-data-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+            .v4-data-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+            .v4-data-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+            
+            @media (max-width: 768px) {
+                .v4-data-grid.cols-2,
+                .v4-data-grid.cols-3,
+                .v4-data-grid.cols-4 {
+                    grid-template-columns: 1fr;
+                }
+            }
+            
+            /* 数据项 */
+            .v4-data-item {
+                text-align: center;
+                padding: 20px;
+                background: #F8FAFC;
+                border-radius: 12px;
+            }
+            
+            .v4-data-item .label {
+                font-size: 0.875rem;
+                color: #64748B;
+                margin-bottom: 8px;
+            }
+            
+            .v4-data-item .value {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #1E293B;
+            }
+            
+            .v4-data-item .value.small {
+                font-size: 1.125rem;
+            }
+            
+            /* 分割线 */
+            .v4-divider {
+                height: 1px;
+                background: #E2E8F0;
+                margin: 16px 0;
+            }
+            
+            /* 进度条 */
+            .v4-progress-bar {
+                height: 8px;
+                border-radius: 4px;
+                background: #F1F5F9;
+                overflow: hidden;
+            }
+            
+            .v4-progress-fill {
+                height: 100%;
+                border-radius: 4px;
+                transition: width 0.5s ease;
+            }
+            
+            .v4-progress-fill.blue { background: linear-gradient(90deg, #667eea, #818cf8); }
+            .v4-progress-fill.green { background: linear-gradient(90deg, #10B981, #34D399); }
+            .v4-progress-fill.red { background: linear-gradient(90deg, #EF4444, #F87171); }
+            .v4-progress-fill.orange { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+            
+            /* 股票卡片 */
+            .v4-stock-card {
+                background: #FFFFFF;
+                border: 1px solid #E2E8F0;
+                border-radius: 12px;
+                padding: 20px;
+                transition: all 0.3s ease;
+                margin-bottom: 16px;
+            }
+            
+            .v4-stock-card:hover {
+                box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+                border-color: rgba(102, 126, 234, 0.3);
+                transform: translateY(-2px);
+            }
+            
+            .v4-stock-card .stock-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+            }
+            
+            .v4-stock-card .stock-name {
+                font-size: 1.125rem;
+                font-weight: 600;
+                color: #1E293B;
+            }
+            
+            .v4-stock-card .stock-code {
+                font-size: 0.875rem;
+                color: #94A3B8;
+            }
+            
+            .v4-stock-card .stock-price {
+                font-size: 1.75rem;
+                font-weight: 700;
+                margin: 8px 0;
+            }
+            
+            .v4-stock-card .stock-change {
+                font-size: 0.875rem;
+                font-weight: 500;
+            }
+            
+            .stock-price-info {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+                margin-bottom: 16px;
+            }
+            
+            .price-item {
+                text-align: center;
+            }
+            
+            .price-item .label {
+                font-size: 0.75rem;
+                color: #94A3B8;
+                margin-bottom: 4px;
+            }
+            
+            .price-item .value {
+                font-size: 1rem;
+                font-weight: 600;
+                color: #1E293B;
+            }
+            
+            /* 诊断指标 - 简化版 */
+            .v4-diagnosis-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+                margin-top: 16px;
+            }
+            
+            .v4-diagnosis-item {
+                text-align: center;
+                padding: 10px 8px;
+                background: #F8FAFC;
+                border-radius: 8px;
+            }
+            
+            .v4-diagnosis-item .dim-name {
+                font-size: 0.75rem;
+                color: #94A3B8;
+                margin-bottom: 4px;
+            }
+            
+            .v4-diagnosis-item .dim-value {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #1E293B;
+            }
+            
+            .v4-diagnosis-item.good .dim-value { color: #16A34A; }
+            .v4-diagnosis-item.bad .dim-value { color: #DC2626; }
+            .v4-diagnosis-item.neutral .dim-value { color: #F59E0B; }
+            
+            /* 详细诊断面板 - 1x4横向网格 */
+            .stock-diagnosis-detail {
+                margin-top: 16px;
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+            
+            .diagnosis-dimension {
+                background: #F8FAFC;
+                border-radius: 10px;
+                padding: 12px 14px;
+                transition: all 0.2s ease;
+            }
+            
+            .diagnosis-dimension:hover {
+                background: #F1F5F9;
+                transform: translateY(-1px);
+            }
+            
+            .dim-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+            
+            .dim-icon {
+                font-size: 1rem;
+            }
+            
+            .dim-name {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #1E293B;
+                flex: 1;
+            }
+            
+            .dim-status {
+                font-size: 0.7rem;
+                font-weight: 600;
+                padding: 2px 8px;
+                border-radius: 12px;
+                white-space: nowrap;
+            }
+            
+            .dim-status.status-good {
+                background: rgba(22, 163, 74, 0.1);
+                color: #16A34A;
+            }
+            
+            .dim-status.status-bad {
+                background: rgba(220, 38, 38, 0.1);
+                color: #DC2626;
+            }
+            
+            .dim-status.status-neutral {
+                background: rgba(245, 158, 11, 0.1);
+                color: #F59E0B;
+            }
+            
+            .dim-items {
+                display: grid;
+                gap: 5px;
+            }
+            
+            .diagnosis-item {
+                display: flex;
+                align-items: flex-start;
+                gap: 6px;
+                font-size: 0.75rem;
+                color: #475569;
+                line-height: 1.3;
+            }
+            
+            .diagnosis-icon {
+                font-size: 0.75rem;
+                font-weight: 700;
+                flex-shrink: 0;
+                margin-top: 1px;
+            }
+            
+            .diagnosis-text {
+                flex: 1;
+            }
+            
+            /* 移动端诊断面板改为单列 */
+            @media (max-width: 640px) {
+                .stock-diagnosis-detail {
+                    grid-template-columns: 1fr;
+                }
+            }
+            
+            /* 导航栏 - 深色玻璃态（与V3一致） */
+            .v4-nav {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 60px;
+                background: rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                padding: 0 24px;
+                transition: background 0.3s ease;
+            }
+            
+            .v4-nav.scrolled {
+                background: rgba(0, 0, 0, 0.7);
+            }
+            
+            .v4-nav-logo {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: white;
+                margin-right: 32px;
+                white-space: nowrap;
+            }
+            
+            .v4-nav-menu {
+                display: flex;
+                gap: 4px;
+                flex: 1;
+                overflow-x: auto;
+            }
+            
+            .v4-nav-item {
+                padding: 8px 16px;
+                border-radius: 8px;
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: rgba(255, 255, 255, 0.8);
+                cursor: pointer;
+                transition: all 0.2s ease;
+                text-decoration: none;
+                position: relative;
+                white-space: nowrap;
+            }
+            
+            .v4-nav-item:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.1);
+            }
+            
+            .v4-nav-item.active {
+                color: white;
+                background: rgba(255, 255, 255, 0.15);
+            }
+            
+            .v4-nav-item::after {
+                content: '';
+                position: absolute;
+                bottom: -2px;
+                left: 50%;
+                width: 0;
+                height: 2px;
+                background: linear-gradient(90deg, #667eea, #764ba2);
+                transition: all 0.3s ease;
+                transform: translateX(-50%);
+                border-radius: 1px;
+            }
+            
+            .v4-nav-item:hover::after,
+            .v4-nav-item.active::after {
+                width: 60%;
+            }
+            
+            /* 页面标题区 - 紫色背景上的浅色文字 */
+            .v4-page-header {
+                text-align: center;
+                padding: 40px 0 32px;
+            }
+            
+            .v4-page-header h1 {
+                font-size: 2rem;
+                font-weight: 800;
+                color: #FFFFFF;
+                margin: 0 0 8px 0;
+                text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            .v4-page-header .subtitle {
+                font-size: 1rem;
+                color: rgba(255, 255, 255, 0.85);
+                margin-bottom: 8px;
+            }
+            
+            .v4-page-header .update-time {
+                font-size: 0.875rem;
+                color: rgba(255, 255, 255, 0.6);
+            }
+            
+            /* 列表项 */
+            .v4-list-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px 0;
+                border-bottom: 1px solid #F1F5F9;
+            }
+            
+            .v4-list-item:last-child {
+                border-bottom: none;
+            }
+            
+            .v4-list-item .item-label {
+                color: #64748B;
+                font-size: 0.875rem;
+            }
+            
+            .v4-list-item .item-value {
+                color: #1E293B;
+                font-weight: 500;
+            }
+            
+            /* 风险警示条 */
+            .v4-alert {
+                padding: 16px 20px;
+                border-radius: 12px;
+                border-left: 4px solid;
+                margin-bottom: 16px;
+            }
+            
+            .v4-alert.warning {
+                background: rgba(245, 158, 11, 0.05);
+                border-left-color: #F59E0B;
+                color: #92400E;
+            }
+            
+            .v4-alert.danger {
+                background: rgba(220, 38, 38, 0.05);
+                border-left-color: #DC2626;
+                color: #991B1B;
+            }
+            
+            .v4-alert.info {
+                background: rgba(102, 126, 234, 0.08);
+                border-left-color: #667eea;
+                color: #4f46e5;
+            }
+            
+            .v4-alert.success {
+                background: rgba(22, 163, 74, 0.05);
+                border-left-color: #16A34A;
+                color: #166534;
+            }
+            
+            /* 回到顶部按钮 */
+            #backToTop {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                width: 50px;
+                height: 50px;
+                background: linear-gradient(135deg, #6366f1, #a855f7);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                z-index: 9998;
+                opacity: 0;
+                transform: translateY(20px);
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+                border: none;
+                font-size: 18px;
+            }
+            
+            #backToTop:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            }
+            
+            #backToTop.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            /* 操作按钮组 - 左下角 */
+            .v4-action-buttons {
+                position: fixed;
+                bottom: 30px;
+                left: 30px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                z-index: 9998;
+            }
+            
+            .v4-action-btn {
+                width: 50px;
+                height: 50px;
+                background: rgba(30, 30, 50, 0.8);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                font-size: 18px;
+            }
+            
+            .v4-action-btn:hover {
+                background: rgba(99, 102, 241, 0.8);
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            }
+            
+            /* 阅读进度条 */
+            #progressBar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+                z-index: 1001;
+                width: 0%;
+                transition: width 0.1s ease;
+            }
+            
+            /* ===== 悬浮目录导航 ===== */
+            .v4-toc {
+                position: fixed;
+                top: 120px;
+                right: 20px;
+                width: 220px;
+                max-height: calc(100vh - 160px);
+                background: rgba(30, 30, 50, 0.8);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+                z-index: 90;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .v4-toc-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                cursor: pointer;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                user-select: none;
+            }
+            
+            .v4-toc-title {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: white;
+            }
+            
+            .v4-toc-toggle {
+                color: rgba(255, 255, 255, 0.7);
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 1rem;
+                transition: transform 0.3s ease;
+            }
+            
+            .v4-toc.collapsed .v4-toc-toggle {
+                transform: rotate(-90deg);
+            }
+            
+            .v4-toc-items {
+                max-height: calc(100vh - 220px);
+                overflow-y: auto;
+                padding: 8px 0;
+                transition: max-height 0.3s ease;
+            }
+            
+            .v4-toc.collapsed .v4-toc-items {
+                max-height: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            
+            .v4-toc-item {
+                display: block;
+                padding: 8px 16px;
+                font-size: 0.8125rem;
+                color: rgba(255, 255, 255, 0.7);
+                text-decoration: none;
+                border-left: 3px solid transparent;
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+            
+            .v4-toc-item:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.08);
+                border-left-color: rgba(255, 255, 255, 0.3);
+            }
+            
+            .v4-toc-item.active {
+                color: white;
+                font-weight: 500;
+                background: rgba(102, 126, 234, 0.3);
+                border-left-color: #667eea;
+            }
+            
+            /* TOC滚动条样式 */
+            .v4-toc-items::-webkit-scrollbar {
+                width: 4px;
+            }
+            
+            .v4-toc-items::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            
+            .v4-toc-items::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 2px;
+            }
+            
+            .v4-toc-items::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.4);
+            }
+            
+            /* 平板端优化 - 折叠为悬浮按钮 */
+            @media (max-width: 1200px) {
+                .v4-toc {
+                    top: auto;
+                    bottom: 80px;
+                    right: 16px;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                
+                .v4-toc.expanded {
+                    width: 240px;
+                    height: auto;
+                    max-height: 60vh;
+                    border-radius: 16px;
+                    top: auto;
+                    bottom: 80px;
+                }
+            }
+            
+            /* 响应式 */
+            @media (max-width: 768px) {
+                body {
+                    padding-top: 60px;
+                }
+                
+                .v4-container {
+                    padding: 0 16px;
+                }
+                
+                .v4-page-header h1 {
+                    font-size: 1.5rem;
+                }
+                
+                .v4-card-body {
+                    padding: 16px;
+                }
+                
+                .v4-diagnosis-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                
+                .v4-nav {
+                    padding: 0 16px;
+                }
+                
+                .v4-nav-menu {
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                }
+                
+                .stock-price-info {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+            
+            /* 压力测试模块 */
+            .stress-test-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+            
+            .stress-test-item {
+                background: #F8FAFC;
+                border-radius: 12px;
+                padding: 16px;
+            }
+            
+            .stress-test-label {
+                font-size: 0.875rem;
+                color: #64748B;
+                margin-bottom: 8px;
+            }
+            
+            .stress-test-value {
+                font-size: 1.25rem;
+                font-weight: 700;
+            }
+            
+            .stress-test-bar {
+                height: 6px;
+                background: #E2E8F0;
+                border-radius: 3px;
+                margin-top: 8px;
+                overflow: hidden;
+            }
+            
+            .stress-test-bar-fill {
+                height: 100%;
+                border-radius: 3px;
+                transition: width 0.5s ease;
+            }
+            
+            /* 行业分布 */
+            .industry-chart {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .industry-bar-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            
+            .industry-name {
+                width: 80px;
+                font-size: 0.875rem;
+                color: #64748B;
+                flex-shrink: 0;
+            }
+            
+            .industry-bar {
+                flex: 1;
+                height: 24px;
+                background: #F1F5F9;
+                border-radius: 12px;
+                overflow: hidden;
+                position: relative;
+            }
+            
+            .industry-bar-fill {
+                height: 100%;
+                border-radius: 12px;
+                transition: width 0.5s ease;
+            }
+            
+            .industry-value {
+                width: 50px;
+                text-align: right;
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #1E293B;
+                flex-shrink: 0;
+            }
+            
+            /* 风险指标网格 */
+            .risk-metrics-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+            
+            .risk-metric {
+                background: #F8FAFC;
+                border-radius: 10px;
+                padding: 14px;
+                text-align: center;
+            }
+            
+            .risk-metric-label {
+                font-size: 0.75rem;
+                color: #94A3B8;
+                margin-bottom: 6px;
+            }
+            
+            .risk-metric-value {
+                font-size: 1.125rem;
+                font-weight: 700;
+                color: #1E293B;
+            }
+            
+            .risk-metric-bar {
+                height: 4px;
+                background: #E2E8F0;
+                border-radius: 2px;
+                margin-top: 8px;
+                overflow: hidden;
+            }
+            
+            .risk-metric-bar-fill {
+                height: 100%;
+                border-radius: 2px;
+            }
+            
+            /* Tab组件 */
+            .v4-tabs {
+                display: flex;
+                gap: 4px;
+                margin-bottom: 20px;
+                background: rgba(255, 255, 255, 0.1);
+                padding: 4px;
+                border-radius: 12px;
+            }
+            
+            .v4-tab-btn {
+                flex: 1;
+                padding: 10px 16px;
+                background: transparent;
+                border: none;
+                border-radius: 10px;
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 0.875rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            
+            .v4-tab-btn:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.1);
+            }
+            
+            .v4-tab-btn.active {
+                background: white;
+                color: #1E293B;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+            
+            .v4-tab-panel {
+                display: none;
+            }
+            
+            .v4-tab-panel.active {
+                display: block;
+            }
+            
+            /* 卡片内Tab组件 */
+            .card-tabs {
+                display: flex;
+                gap: 4px;
+                border-bottom: 2px solid #E2E8F0;
+                margin-bottom: 20px;
+            }
+            .card-tab-btn {
+                padding: 10px 20px;
+                background: none;
+                border: none;
+                border-bottom: 2px solid transparent;
+                margin-bottom: -2px;
+                font-size: 14px;
+                font-weight: 500;
+                color: #64748B;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            .card-tab-btn:hover {
+                color: #3B82F6;
+            }
+            .card-tab-btn.active {
+                color: #667eea;
+                border-bottom-color: #667eea;
+            }
+            .card-tab-content {
+                display: none;
+            }
+            .card-tab-content.active {
+                display: block;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            /* 雷达图 */
+            .radar-chart-container {
+                position: relative;
+                width: 200px;
+                height: 200px;
+                margin: 0 auto;
+            }
+            .radar-chart {
+                width: 100%;
+                height: 100%;
+            }
+            .radar-polygon {
+                fill: rgba(102, 126, 234, 0.2);
+                stroke: #667eea;
+                stroke-width: 2;
+                transition: all 0.3s ease;
+            }
+            .radar-grid {
+                fill: none;
+                stroke: #E2E8F0;
+                stroke-width: 1;
+            }
+            .radar-axis {
+                stroke: #E2E8F0;
+                stroke-width: 1;
+            }
+            .radar-label {
+                font-size: 11px;
+                fill: #64748B;
+                text-anchor: middle;
+            }
+            .radar-score {
+                font-size: 10px;
+                fill: #334155;
+                font-weight: 600;
+            }
+            
+            /* 题材卡片 */
+            .topic-card {
+                background: #FFFFFF;
+                border: 1px solid #E2E8F0;
+                border-radius: 16px;
+                padding: 24px;
+                transition: all 0.3s ease;
+                margin-bottom: 20px;
+            }
+            .topic-card:hover {
+                box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2);
+                border-color: rgba(102, 126, 234, 0.3);
+                transform: translateY(-2px);
+            }
+            .topic-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 16px;
+            }
+            .topic-title {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: #1E293B;
+                margin: 0;
+            }
+            .topic-rating {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .topic-rating-badge {
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+            .rating-S {
+                background: rgba(220, 38, 38, 0.1);
+                color: #DC2626;
+            }
+            .rating-A {
+                background: rgba(245, 158, 11, 0.1);
+                color: #F59E0B;
+            }
+            .rating-B {
+                background: rgba(37, 99, 235, 0.1);
+                color: #3B82F6;
+            }
+            .topic-score {
+                font-size: 1.5rem;
+                font-weight: 800;
+                color: #667eea;
+            }
+            .topic-desc {
+                color: #64748B;
+                font-size: 0.875rem;
+                line-height: 1.6;
+                margin-bottom: 16px;
+            }
+            .topic-content-row {
+                display: grid;
+                grid-template-columns: 200px 1fr;
+                gap: 24px;
+                align-items: start;
+            }
+            .topic-radar-section {
+                text-align: center;
+            }
+            .topic-detail-section {
+                flex: 1;
+            }
+            
+            /* 核心标的 */
+            .target-stocks {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                margin-bottom: 16px;
+            }
+            .stock-target-card {
+                background: #F8FAFC;
+                border-radius: 10px;
+                padding: 12px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .stock-target-info {
+                flex: 1;
+            }
+            .stock-target-name {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #1E293B;
+                margin-bottom: 2px;
+            }
+            .stock-target-tag {
+                font-size: 0.6875rem;
+                color: #64748B;
+            }
+            .stock-target-metrics {
+                display: flex;
+                gap: 8px;
+            }
+            .metric-pill {
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 0.6875rem;
+                font-weight: 500;
+            }
+            .metric-flex {
+                background: rgba(220, 38, 38, 0.1);
+                color: #DC2626;
+            }
+            .metric-risk {
+                background: rgba(245, 158, 11, 0.1);
+                color: #F59E0B;
+            }
+            
+            /* 催化事件时间线 */
+            .catalyst-timeline {
+                margin-top: 12px;
+            }
+            .catalyst-item {
+                display: flex;
+                gap: 12px;
+                padding: 8px 0;
+                border-bottom: 1px dashed #E2E8F0;
+            }
+            .catalyst-item:last-child {
+                border-bottom: none;
+            }
+            .catalyst-date {
+                font-size: 0.75rem;
+                color: #64748B;
+                flex-shrink: 0;
+                width: 60px;
+            }
+            .catalyst-content {
+                font-size: 0.8125rem;
+                color: #334155;
+                flex: 1;
+            }
+            
+            /* 产业链图谱 */
+            .industry-chain {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+                margin: 16px 0;
+            }
+            .chain-section {
+                background: #F8FAFC;
+                border-radius: 10px;
+                padding: 14px;
+            }
+            .chain-section-title {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #1E293B;
+                margin-bottom: 10px;
+                padding-bottom: 8px;
+                border-bottom: 2px solid #667eea;
+                display: inline-block;
+            }
+            .chain-items {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .chain-item {
+                padding: 4px 10px;
+                background: white;
+                border: 1px solid #E2E8F0;
+                border-radius: 6px;
+                font-size: 0.75rem;
+                color: #475569;
+            }
+            
+            /* 投资策略四象限 */
+            .strategy-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                margin: 16px 0;
+            }
+            .strategy-item {
+                background: #F8FAFC;
+                border-radius: 10px;
+                padding: 14px;
+                border-left: 3px solid #667eea;
+            }
+            .strategy-item.warning {
+                border-left-color: #F59E0B;
+            }
+            .strategy-item.danger {
+                border-left-color: #DC2626;
+            }
+            .strategy-item.success {
+                border-left-color: #16A34A;
+            }
+            .strategy-label {
+                font-size: 0.75rem;
+                color: #64748B;
+                margin-bottom: 4px;
+            }
+            .strategy-value {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #1E293B;
+            }
+            
+            /* 板块热度排行 */
+            .sector-ranking-list {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            .sector-rank-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 10px 12px;
+                background: #F8FAFC;
+                border-radius: 8px;
+                transition: all 0.2s ease;
+            }
+            .sector-rank-item:hover {
+                background: #F1F5F9;
+            }
+            .rank-number {
+                width: 24px;
+                height: 24px;
+                line-height: 24px;
+                text-align: center;
+                border-radius: 6px;
+                font-size: 0.75rem;
+                font-weight: 700;
+                flex-shrink: 0;
+            }
+            .rank-number.top1 {
+                background: rgba(220, 38, 38, 0.1);
+                color: #DC2626;
+            }
+            .rank-number.top2 {
+                background: rgba(245, 158, 11, 0.1);
+                color: #F59E0B;
+            }
+            .rank-number.top3 {
+                background: rgba(234, 179, 8, 0.1);
+                color: #CA8A04;
+            }
+            .rank-number.normal {
+                background: rgba(100, 116, 139, 0.1);
+                color: #64748B;
+            }
+            .sector-name {
+                flex: 1;
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: #1E293B;
+            }
+            .sector-bar-container {
+                width: 120px;
+                height: 6px;
+                background: #E2E8F0;
+                border-radius: 3px;
+                overflow: hidden;
+            }
+            .sector-bar-fill {
+                height: 100%;
+                border-radius: 3px;
+                transition: width 0.5s ease;
+            }
+            .sector-change {
+                width: 60px;
+                text-align: right;
+                font-size: 0.875rem;
+                font-weight: 600;
+                flex-shrink: 0;
+            }
+            
+            /* 市场概览网格 */
+            .market-overview-grid {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                gap: 24px;
+            }
+            .indices-chart-section {
+                background: #F8FAFC;
+                border-radius: 12px;
+                padding: 20px;
+            }
+            .market-sentiment-section {
+                background: #F8FAFC;
+                border-radius: 12px;
+                padding: 20px;
+            }
+            .index-bar-chart {
+                display: flex;
+                align-items: flex-end;
+                justify-content: space-around;
+                height: 150px;
+                padding: 20px 0;
+            }
+            .index-bar-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+            }
+            .index-bar {
+                width: 40px;
+                border-radius: 4px 4px 0 0;
+                min-height: 20px;
+                transition: height 0.5s ease;
+            }
+            .index-bar.up {
+                background: linear-gradient(to top, #DC2626, #F87171);
+            }
+            .index-bar.down {
+                background: linear-gradient(to top, #16A34A, #4ADE80);
+            }
+            .index-bar-value {
+                font-size: 0.875rem;
+                font-weight: 700;
+            }
+            .index-bar-label {
+                font-size: 0.75rem;
+                color: #64748B;
+            }
+            
+            /* 情绪温度计 */
+            .sentiment-gauge {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            .sentiment-score {
+                font-size: 2.5rem;
+                font-weight: 800;
+                margin-bottom: 8px;
+            }
+            .sentiment-level {
+                font-size: 1rem;
+                font-weight: 600;
+                margin-bottom: 12px;
+            }
+            .sentiment-bar-bg {
+                height: 8px;
+                background: linear-gradient(to right, #16A34A, #F59E0B, #DC2626);
+                border-radius: 4px;
+                margin-bottom: 8px;
+                position: relative;
+            }
+            .sentiment-indicator {
+                position: absolute;
+                top: -4px;
+                width: 16px;
+                height: 16px;
+                background: white;
+                border: 3px solid #1E293B;
+                border-radius: 50%;
+                transform: translateX(-50%);
+                transition: left 0.5s ease;
+            }
+            .sentiment-labels {
+                display: flex;
+                justify-content: space-between;
+                font-size: 0.75rem;
+                color: #94A3B8;
+            }
+            
+            /* 市场数据统计 */
+            .market-stats-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .market-stat-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 0;
+                border-bottom: 1px solid #E2E8F0;
+            }
+            .market-stat-item:last-child {
+                border-bottom: none;
+            }
+            .market-stat-label {
+                font-size: 0.8125rem;
+                color: #64748B;
+            }
+            .market-stat-value {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #1E293B;
+            }
+            
+            /* 响应式调整 */
+            @media (max-width: 768px) {
+                .topic-content-row {
+                    grid-template-columns: 1fr;
+                }
+                .topic-radar-section {
+                    order: -1;
+                }
+                .target-stocks {
+                    grid-template-columns: 1fr;
+                }
+                .industry-chain {
+                    grid-template-columns: 1fr;
+                }
+                .strategy-grid {
+                    grid-template-columns: 1fr;
+                }
+                .market-overview-grid {
+                    grid-template-columns: 1fr;
+                }
+                .sector-bar-container {
+                    width: 80px;
+                }
+            }
+            
+            /* ===== V4 新版题材卡片 ===== */
+            .topic-card-v4 {
+                background: #FFFFFF;
+                border-radius: 16px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+                overflow: hidden;
+                margin-bottom: 24px;
+                transition: box-shadow 0.3s ease, transform 0.3s ease;
+            }
+            .topic-card-v4:hover {
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+                transform: translateY(-2px);
+            }
+            
+            .topic-card-header {
+                padding: 24px;
+                border-bottom: 1px solid #F1F5F9;
+            }
+            .topic-header-content {
+                display: flex;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            .topic-icon {
+                font-size: 48px;
+                line-height: 1;
+                flex-shrink: 0;
+            }
+            .topic-header-info {
+                flex: 1;
+            }
+            .topic-header-top {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 8px;
+            }
+            .topic-name {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #1E293B;
+                margin: 0;
+            }
+            .topic-badges {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+            .level-badge {
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 0.8125rem;
+                font-weight: 600;
+            }
+            .score-badge {
+                background: #1E293B;
+                color: #FCD34D;
+                padding: 4px 14px;
+                border-radius: 20px;
+                font-size: 0.875rem;
+                font-weight: 700;
+            }
+            .topic-desc {
+                color: #64748B;
+                font-size: 0.9375rem;
+                line-height: 1.6;
+                margin: 0;
+            }
+            
+            .topic-card-body {
+                padding: 24px;
+            }
+            
+            .topic-section-title {
+                font-size: 1rem;
+                font-weight: 600;
+                color: #1E293B;
+                margin: 0 0 12px 0;
+            }
+            
+            .topic-score-row {
+                display: grid;
+                grid-template-columns: 1fr 220px;
+                gap: 24px;
+                align-items: center;
+                margin-bottom: 24px;
+            }
+            
+            /* 六维评分条 */
+            .dim-bars-container {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .dim-bar-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .dim-bar-label {
+                width: 60px;
+                font-size: 0.8125rem;
+                color: #64748B;
+                flex-shrink: 0;
+            }
+            .dim-bar-track {
+                flex: 1;
+                height: 8px;
+                background: #F1F5F9;
+                border-radius: 4px;
+                overflow: hidden;
+            }
+            .dim-bar-fill {
+                height: 100%;
+                border-radius: 4px;
+                transition: width 0.5s ease;
+            }
+            .dim-bar-score {
+                width: 40px;
+                text-align: right;
+                font-size: 0.8125rem;
+                font-weight: 600;
+                color: #334155;
+                flex-shrink: 0;
+            }
+            
+            .topic-radar-wrap {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            /* 核心标的 */
+            .topic-stocks-section {
+                margin-bottom: 20px;
+            }
+            .topic-stocks-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .topic-stock-tag {
+                padding: 6px 14px;
+                background: #F8FAFC;
+                border: 1px solid #E2E8F0;
+                border-radius: 8px;
+                font-size: 0.8125rem;
+                color: #475569;
+                font-weight: 500;
+            }
+            
+            /* 产业链 */
+            .topic-chain-section {
+                margin: 20px 0;
+                padding-top: 20px;
+                border-top: 1px solid #F1F5F9;
+            }
+            .chain-flow {
+                display: flex;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .chain-node {
+                flex: 1;
+                background: #F0FDF4;
+                border: 1px solid #BBF7D0;
+                border-radius: 10px;
+                padding: 12px;
+                text-align: center;
+            }
+            .chain-node-title {
+                font-weight: 600;
+                color: #166534;
+                font-size: 0.875rem;
+                margin-bottom: 4px;
+            }
+            .chain-node-desc {
+                font-size: 0.75rem;
+                color: #22C55E;
+                line-height: 1.4;
+            }
+            .chain-arrow {
+                display: flex;
+                align-items: center;
+                color: #CBD5E1;
+                font-size: 20px;
+                font-weight: bold;
+            }
+            
+            /* 投资策略 */
+            .topic-strategy-section {
+                margin: 20px 0;
+                padding-top: 20px;
+                border-top: 1px solid #F1F5F9;
+            }
+            .strategy-text {
+                color: #475569;
+                font-size: 0.875rem;
+                line-height: 1.7;
+                margin: 0;
+                background: #EFF6FF;
+                padding: 12px 16px;
+                border-radius: 8px;
+                border-left: 3px solid #3B82F6;
+            }
+            
+            /* 风险提示 */
+            .topic-risk-section {
+                margin: 20px 0 0 0;
+                padding-top: 20px;
+                border-top: 1px solid #F1F5F9;
+            }
+            .risk-text {
+                color: #DC2626;
+                font-size: 0.875rem;
+                line-height: 1.6;
+                margin: 0;
+                background: #FEF2F2;
+                padding: 12px 16px;
+                border-radius: 8px;
+                border-left: 3px solid #DC2626;
+            }
+            
+            /* Tab 切换组件 */
+            .card-tabs-container {
+                margin-bottom: 24px;
+            }
+            .card-tabs-header {
+                display: flex;
+                gap: 4px;
+                border-bottom: 2px solid #E2E8F0;
+                margin-bottom: 20px;
+            }
+            .card-tab-btn {
+                padding: 10px 20px;
+                background: none;
+                border: none;
+                border-bottom: 2px solid transparent;
+                margin-bottom: -2px;
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: #64748B;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            .card-tab-btn:hover {
+                color: #667eea;
+            }
+            .card-tab-btn.active {
+                color: #667eea;
+                border-bottom-color: #667eea;
+            }
+            .card-tab-count {
+                background: #F1F5F9;
+                color: #64748B;
+                padding: 2px 8px;
+                border-radius: 10px;
+                font-size: 0.75rem;
+                margin-left: 6px;
+            }
+            .card-tab-btn.active .card-tab-count {
+                background: rgba(102, 126, 234, 0.1);
+                color: #667eea;
+            }
+            .card-tab-content {
+                display: none;
+                animation: fadeIn 0.3s ease;
+            }
+            .card-tab-content.active {
+                display: block;
+            }
+            
+            /* 响应式 */
+            @media (max-width: 768px) {
+                .topic-score-row {
+                    grid-template-columns: 1fr;
+                }
+                .topic-radar-wrap {
+                    order: -1;
+                }
+                .chain-flow {
+                    flex-direction: column;
+                }
+                .chain-arrow {
+                    justify-content: center;
+                    transform: rotate(90deg);
+                }
+                .topic-header-top {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 8px;
+                }
+                .topic-badges {
+                    flex-wrap: wrap;
+                }
+                .topic-icon {
+                    font-size: 36px;
+                }
+                .topic-name {
+                    font-size: 1.25rem;
+                }
+            }
+            
+            /* 动画 */
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+    
+        
+        .v4-page-header {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+        .v4-page-title h1 {
+            font-size: 36px;
+            font-weight: 800;
+            color: #1E293B;
+            margin: 0 0 8px 0;
+        }
+        .v4-page-subtitle {
+            font-size: 16px;
+            color: #64748B;
+            margin: 0;
+        }
+        .v4-header-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 600px;
+            margin: 30px auto 0;
+        }
+        .v4-stat-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            text-align: center;
+        }
+        .v4-stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1E293B;
+            line-height: 1.2;
+        }
+        .v4-stat-label {
+            font-size: 13px;
+            color: #64748B;
+            margin-top: 4px;
+        }
+        .v4-market-overview {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+        .v4-bar-chart-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 120px;
+            padding: 20px 0;
+        }
+        .v4-bar-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+        .v4-bar-value {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .v4-bar-chart {
+            width: 30px;
+            height: 80px;
+            background: #F1F5F9;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .v4-bar {
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            transition: height 0.3s ease;
+        }
+        .v4-bar-label {
+            font-size: 12px;
+            color: #64748B;
+            margin-top: 8px;
+        }
+        .v4-market-stats {
+            background: #F1F5F9;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .v4-sentiment-score {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .v4-sentiment-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .v4-sentiment-desc {
+            font-size: 12px;
+            color: #64748B;
+            margin-top: 4px;
+        }
+        .v4-market-counts {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 16px;
+        }
+        .v4-count-item {
+            text-align: center;
+        }
+        .v4-count-value {
+            display: block;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .v4-count-label {
+            font-size: 12px;
+            color: #64748B;
+        }
+        .v4-portfolio-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .v4-stock-card {
+            padding: 24px;
+        }
+        .v4-stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .v4-stock-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .v4-stock-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1E293B;
+            margin: 0;
+        }
+        .v4-stock-code {
+            font-size: 13px;
+            color: #94A3B8;
+        }
+        .v4-stock-prices {
+            text-align: right;
+        }
+        .v4-price-current {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1E293B;
+        }
+        .v4-price-change {
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .v4-stock-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 16px 0;
+            border-top: 1px solid #F1F5F9;
+            border-bottom: 1px solid #F1F5F9;
+            margin-bottom: 16px;
+        }
+        .v4-metric {
+            text-align: center;
+        }
+        .v4-metric-label {
+            display: block;
+            font-size: 12px;
+            color: #64748B;
+            margin-bottom: 4px;
+        }
+        .v4-metric-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1E293B;
+        }
+        .v4-diagnosis-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .v4-diagnosis-card {
+            background: #F1F5F9;
+            border-radius: 10px;
+            padding: 12px;
+        }
+        .v4-diagnosis-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .v4-diagnosis-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1E293B;
+        }
+        .v4-diagnosis-status {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            background: currentColor;
+            opacity: 0.15;
+            border-radius: 4px;
+            margin-left: auto;
+        }
+        .v4-diagnosis-items {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .v4-diagnosis-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            font-size: 11px;
+            color: #64748B;
+            line-height: 1.4;
+        }
+        .v4-diagnosis-icon {
+            flex-shrink: 0;
+            font-size: 10px;
+        }
+        .v4-stock-advice {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #F1F5F9;
+        }
+        .v4-advice-text {
+            font-size: 13px;
+            color: #64748B;
+            line-height: 1.6;
+        }
+        .v4-strategy-overview {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #F1F5F9;
+        }
+        .v4-strategy-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #1E293B;
+            margin: 0;
+        }
+        .v4-point-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .v4-point-list li {
+            font-size: 14px;
+            color: #64748B;
+            line-height: 1.6;
+        }
+        .v4-risk-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 16px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .v4-risk-item {
+            font-size: 14px;
+            color: #64748B;
+            line-height: 1.6;
+        }
+        .v4-risk-disclaimer {
+            font-size: 12px;
+            color: #94A3B8;
+            margin: 0;
+            padding-top: 12px;
+            border-top: 1px solid #F1F5F9;
+        }
+        .v4-card-subtitle {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1E293B;
+            margin: 0 0 12px 0;
+        }
+        .v4-hot-sectors {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .v4-sector-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #F1F5F9;
+        }
+        .v4-sector-item:last-child {
+            border-bottom: none;
+        }
+        .v4-sector-rank {
+            font-size: 16px;
+            font-weight: 700;
+            width: 24px;
+            text-align: center;
+        }
+        .v4-sector-name {
+            font-size: 14px;
+            color: #1E293B;
+            width: 120px;
+            flex-shrink: 0;
+        }
+        .v4-sector-bar {
+            flex: 1;
+            height: 8px;
+            background: #F1F5F9;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .v4-sector-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .v4-sector-change {
+            font-size: 13px;
+            font-weight: 600;
+            width: 70px;
+            text-align: right;
+        }
+        
+        /* 新闻模块样式 */
+        .v4-news-summary {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+        .v4-news-sentiment {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .v4-sentiment-gauge {
+            text-align: center;
+            padding: 20px;
+            background: #F1F5F9;
+            border-radius: 16px;
+        }
+        .v4-sentiment-icon {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .v4-sentiment-label {
+            font-size: 13px;
+            color: #64748B;
+            margin-bottom: 4px;
+        }
+        .v4-sentiment-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .v4-sentiment-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .v4-sentiment-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .v4-sentiment-bar-label {
+            width: 40px;
+            font-size: 12px;
+            color: #64748B;
+        }
+        .v4-sentiment-bar-track {
+            flex: 1;
+            height: 8px;
+            background: #F1F5F9;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .v4-sentiment-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .v4-bar-positive {
+            background: #DC2626;
+        }
+        .v4-bar-negative {
+            background: #16A34A;
+        }
+        .v4-sentiment-bar-value {
+            width: 40px;
+            text-align: right;
+            font-size: 12px;
+            font-weight: 600;
+            color: #1E293B;
+        }
+        .v4-news-themes {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .v4-theme-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .v4-theme-tag {
+            padding: 4px 12px;
+            background: rgba(139, 92, 246, 0.1);
+            color: #7C3AED;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .v4-news-summary-text {
+            font-size: 13px;
+            color: #64748B;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        /* 新闻列表样式 */
+        .v4-news-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .v4-news-item {
+            padding: 16px;
+            background: #F1F5F9;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+        .v4-news-item:hover {
+            background: #F1F5F9;
+        }
+        .v4-news-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .v4-news-category {
+            font-size: 12px;
+            color: #64748B;
+        }
+        .v4-news-source {
+            font-size: 12px;
+            color: #94A3B8;
+        }
+        .v4-news-time {
+            font-size: 12px;
+            color: #94A3B8;
+        }
+        .v4-news-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1E293B;
+            margin: 0 0 8px 0;
+            line-height: 1.5;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+        .v4-news-sentiment-icon {
+            font-size: 16px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+        .v4-news-desc {
+            font-size: 13px;
+            color: #64748B;
+            line-height: 1.6;
+            margin: 0 0 10px 0;
+        }
+        .v4-news-footer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .v4-sector-mini-tag {
+            padding: 2px 8px;
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .v4-news-catalytic {
+            font-size: 12px;
+            color: #F59E0B;
+            margin-left: auto;
+        }
+        
+        /* Tab切换样式 */
+        .v4-tabs {
+            display: flex;
+            gap: 4px;
+            border-bottom: 2px solid #F1F5F9;
+            margin-bottom: 16px;
+            overflow-x: auto;
+        }
+        .v4-tab-btn {
+            padding: 10px 16px;
+            background: none;
+            border: none;
+            font-size: 13px;
+            font-weight: 500;
+            color: #64748B;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        .v4-tab-btn:hover {
+            color: #1E293B;
+        }
+        .v4-tab-btn.active {
+            color: #7C3AED;
+            border-bottom-color: #7C3AED;
+            font-weight: 600;
+        }
+        .v4-tab-panels {
+            min-height: 200px;
+        }
+        .v4-tab-content {
+            display: none;
+        }
+        .v4-tab-content.active {
+            display: block;
+        }
+        .v4-news-item-simple {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #F1F5F9;
+        }
+        .v4-news-item-simple:last-child {
+            border-bottom: none;
+        }
+        .v4-news-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .v4-news-title-simple {
+            flex: 1;
+            font-size: 13px;
+            color: #1E293B;
+            line-height: 1.4;
+        }
+        .v4-news-time-simple {
+            font-size: 12px;
+            color: #94A3B8;
+            flex-shrink: 0;
+        }
+        
+        /* 板块影响追踪 */
+        .v4-sector-impact-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .v4-sector-impact-item {
+            padding: 12px 16px;
+            background: #F1F5F9;
+            border-radius: 10px;
+        }
+        .v4-sector-impact-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .v4-sector-impact-header .v4-sector-rank {
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            background: #EEF2FF;
+            color: #4F46E5;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .v4-sector-impact-header .v4-sector-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1E293B;
+            width: auto;
+        }
+        .v4-sector-news-count {
+            font-size: 12px;
+            color: #64748B;
+        }
+        .v4-sector-sentiment {
+            margin-left: auto;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .v4-sector-impact-news {
+            font-size: 12px;
+            color: #64748B;
+            line-height: 1.5;
+            padding-left: 34px;
+        }
+        
+        @media (max-width: 768px) {
+            .v4-header-stats { grid-template-columns: 1fr; gap: 12px; }
+            .v4-market-overview { grid-template-columns: 1fr; }
+            .v4-stock-metrics { grid-template-columns: repeat(2, 1fr); }
+            .v4-diagnosis-grid { grid-template-columns: repeat(2, 1fr); }
+            .v4-page-title h1 { font-size: 28px; }
+            .v4-sector-name { width: 100px; font-size: 13px; }
+        }
+        
+        
+        /* 头部统计卡片 */
+        .v4-header-stats {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .v4-stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 14px 20px;
+            text-align: center;
+            min-width: 90px;
+            transition: all 0.3s ease;
+        }
+        .v4-stat-card:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        .v4-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        .v4-stat-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* 题材卡片网格 */
+        .daily-topics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        .daily-topic-card {
+            background: #F8FAFC;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid #E2E8F0;
+        }
+        .daily-topic-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border-color: #CBD5E1;
+        }
+        .daily-topic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .daily-topic-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1E293B;
+        }
+        .daily-topic-rating {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .daily-topic-summary {
+            font-size: 0.875rem;
+            color: #64748B;
+            line-height: 1.6;
+            margin: 0 0 12px 0;
+        }
+        .daily-topic-catalyst {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            font-size: 0.8125rem;
+            color: #F59E0B;
+            background: rgba(245, 158, 11, 0.08);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+        .catalyst-icon {
+            flex-shrink: 0;
+        }
+        .catalyst-text {
+            flex: 1;
+            line-height: 1.5;
+        }
+        
+        /* 新闻卡片 */
+        .news-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .news-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #E2E8F0;
+            transition: all 0.3s ease;
+        }
+        .news-card:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            border-color: #CBD5E1;
+        }
+        .news-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .news-icon {
+            font-size: 1rem;
+        }
+        .news-tag {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+        }
+        .news-source {
+            font-size: 0.75rem;
+            color: #94A3B8;
+        }
+        .news-time {
+            font-size: 0.75rem;
+            color: #94A3B8;
+            margin-left: auto;
+        }
+        .news-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1E293B;
+            margin: 0 0 8px 0;
+            line-height: 1.5;
+        }
+        .news-summary {
+            font-size: 0.875rem;
+            color: #64748B;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        /* 明日展望 */
+        .outlook-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .outlook-card {
+            display: flex;
+            gap: 14px;
+            padding: 18px;
+            background: #F8FAFC;
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
+        }
+        .outlook-icon {
+            font-size: 1.75rem;
+            flex-shrink: 0;
+        }
+        .outlook-content {
+            flex: 1;
+        }
+        .outlook-title {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #1E293B;
+            margin: 0 0 6px 0;
+        }
+        .outlook-text {
+            font-size: 0.875rem;
+            color: #64748B;
+            line-height: 1.6;
+            margin: 0;
+        }
+        .outlook-focus-section {
+            padding-top: 20px;
+            border-top: 1px solid #E2E8F0;
+        }
+        .outlook-section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1E293B;
+            margin: 0 0 12px 0;
+        }
+        .outlook-focus-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .outlook-focus-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: #F8FAFC;
+            border-radius: 8px;
+        }
+        .focus-dot {
+            width: 6px;
+            height: 6px;
+            background: #667eea;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .focus-text {
+            font-size: 0.875rem;
+            color: #475569;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .daily-topics-grid {
+                grid-template-columns: 1fr;
+            }
+            .v4-header-stats {
+                gap: 8px;
+            }
+            .v4-stat-card {
+                padding: 10px 14px;
+                min-width: 70px;
+            }
+            .v4-stat-value {
+                font-size: 1.125rem;
+            }
+            .outlook-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+    </style>
+</head>
+<body class="v4-body">
+    
+        <nav class="v4-nav" id="topNav">
+            <div class="v4-nav-logo">📊 投资研究中心</div>
+            <div class="v4-nav-menu">
+                <a class="v4-nav-item " href="/daily-news-insight/index.html">🏠 首页</a><a class="v4-nav-item " href="/daily-news-insight/daily/latest.html">📰 日报</a><a class="v4-nav-item " href="/daily-news-insight/intraday/latest.html">📈 盘中</a><a class="v4-nav-item " href="/daily-news-insight/aftermarket/latest.html">📉 盘后</a><a class="v4-nav-item " href="/daily-news-insight/industry_chain/latest.html">🔗 产业链</a><a class="v4-nav-item " href="/daily-news-insight/weekly_review/latest.html">📋 周复盘</a><a class="v4-nav-item " href="/daily-news-insight/weekly_outlook/latest.html">🔮 周三前瞻</a><a class="v4-nav-item " href="/daily-news-insight/周末速递/latest.html">📦 周末速递</a><a class="v4-nav-item " href="/daily-news-insight/明日催化剂/latest.html">⏰ 明日催化</a><a class="v4-nav-item " href="/daily-news-insight/s级催化扫描/latest.html">⭐ S级催化</a><a class="v4-nav-item " href="/daily-news-insight/monthly/latest.html">🗓️ 月报</a>
+            </div>
+        </nav>
+        
+    <main class="v4-main">
+        <div class="v4-container">
+            
+        
+        <section class="v4-section" id="section-header">
+            <div class="v4-page-header">
+                <div class="v4-page-title">
+                    <h1>📰 每日市场日报</h1>
+                    <p class="v4-page-subtitle">全景市场复盘 · 核心题材挖掘 · 明日策略前瞻</p>
+                </div>
+                
+        <div class="v4-header-stats">
+            <div class="v4-stat-card">
+                <div class="v4-stat-value" style="color: #EF4444;">-0.43%</div>
+                <div class="v4-stat-label">上证指数</div>
+            </div>
+            <div class="v4-stat-card">
+                <div class="v4-stat-value" style="color: #10B981;">3630</div>
+                <div class="v4-stat-label">上涨家数</div>
+            </div>
+            <div class="v4-stat-card">
+                <div class="v4-stat-value" style="color: #EF4444;">1870</div>
+                <div class="v4-stat-label">下跌家数</div>
+            </div>
+            <div class="v4-stat-card">
+                <div class="v4-stat-value">偏多</div>
+                <div class="v4-stat-label">市场情绪</div>
+            </div>
+            <div class="v4-stat-card">
+                <div class="v4-stat-value">0</div>
+                <div class="v4-stat-label">核心题材</div>
+            </div>
+            <div class="v4-stat-card">
+                <div class="v4-stat-value">0</div>
+                <div class="v4-stat-label">热点板块</div>
+            </div>
+        </div>
+        
+            </div>
+        </section>
+        
+        
+        <section class="v4-section" id="section-overview">
+            
+        <div class="v4-section-header">
+            <h2 class="v4-section-title">📈 市场概览</h2>
+            <span class="v4-section-tag v4-tag-blue">实时</span>
+        </div>
+        
+            <div class="v4-card v4-market-overview">
+                <div class="v4-market-chart">
+                    <h3 class="v4-card-subtitle">主要指数</h3>
+                    <div class="v4-bar-chart-container">
+                        
+            <div class="v4-bar-item">
+                <div class="v4-bar-value" style="color: #16A34A;">-0.43%</div>
+                <div class="v4-bar-chart">
+                    <div class="v4-bar" style="height: 8.958333333333334px; background: #16A34A;"></div>
+                </div>
+                <div class="v4-bar-label">上证指数</div>
+            </div>
+            
+            <div class="v4-bar-item">
+                <div class="v4-bar-value" style="color: #DC2626;">+0.94%</div>
+                <div class="v4-bar-chart">
+                    <div class="v4-bar" style="height: 19.583333333333336px; background: #DC2626;"></div>
+                </div>
+                <div class="v4-bar-label">深证成指</div>
+            </div>
+            
+            <div class="v4-bar-item">
+                <div class="v4-bar-value" style="color: #DC2626;">+2.05%</div>
+                <div class="v4-bar-chart">
+                    <div class="v4-bar" style="height: 42.70833333333334px; background: #DC2626;"></div>
+                </div>
+                <div class="v4-bar-label">创业板指</div>
+            </div>
+            
+            <div class="v4-bar-item">
+                <div class="v4-bar-value" style="color: #DC2626;">+3.84%</div>
+                <div class="v4-bar-chart">
+                    <div class="v4-bar" style="height: 80.0px; background: #DC2626;"></div>
+                </div>
+                <div class="v4-bar-label">科创50</div>
+            </div>
+            
+                    </div>
+                </div>
+                <div class="v4-market-stats">
+                    <h3 class="v4-card-subtitle">市场情绪</h3>
+                    <div class="v4-sentiment-score">
+                        <span class="v4-sentiment-value" style="color: #DC2626;">偏多</span>
+                        <div class="v4-sentiment-desc">好</div>
+                    </div>
+                    <div class="v4-market-counts">
+                        <div class="v4-count-item">
+                            <span class="v4-count-value" style="color: #DC2626;">3630</span>
+                            <span class="v4-count-label">上涨</span>
+                        </div>
+                        <div class="v4-count-item">
+                            <span class="v4-count-value" style="color: #16A34A;">1870</span>
+                            <span class="v4-count-label">下跌</span>
+                        </div>
+                        <div class="v4-count-item">
+                            <span class="v4-count-value" style="color: #64748B;">0</span>
+                            <span class="v4-count-label">平盘</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        
+        <section class="v4-section" id="section-news-summary">
+            
+        <div class="v4-section-header">
+            <h2 class="v4-section-title">📰 新闻全景概览</h2>
+            <span class="v4-section-tag v4-tag-blue">12条资讯</span>
+        </div>
+        
+            <div class="v4-card">
+                <div class="v4-news-summary">
+                    <div class="v4-news-sentiment">
+                        <div class="v4-sentiment-gauge">
+                            <span class="v4-sentiment-icon">🟢</span>
+                            <div class="v4-sentiment-label">整体情绪</div>
+                            <div class="v4-sentiment-value" style="color: #DC2626;">
+                                市场情绪中性
+                            </div>
+                        </div>
+                        <div class="v4-sentiment-bars">
+                            <div class="v4-sentiment-bar-item">
+                                <div class="v4-sentiment-bar-label">正面</div>
+                                <div class="v4-sentiment-bar-track">
+                                    <div class="v4-sentiment-bar-fill v4-bar-positive" style="width: 41.7%;"></div>
+                                </div>
+                                <div class="v4-sentiment-bar-value">41.7%</div>
+                            </div>
+                            <div class="v4-sentiment-bar-item">
+                                <div class="v4-sentiment-bar-label">负面</div>
+                                <div class="v4-sentiment-bar-track">
+                                    <div class="v4-sentiment-bar-fill v4-bar-negative" style="width: 16.7%;"></div>
+                                </div>
+                                <div class="v4-sentiment-bar-value">16.7%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="v4-news-themes">
+                        <h4 class="v4-card-subtitle">核心主题</h4>
+                        <div class="v4-theme-tags">
+                            <span class="v4-theme-tag">行业面偏多</span><span class="v4-theme-tag">政策面偏空</span><span class="v4-theme-tag">国际面偏多</span>
+                        </div>
+                        <p class="v4-news-summary-text">今日共分析12条新闻，其中重要新闻8条。整体偏多，利好消息居多。核心主题：行业面偏多、政策面偏空、国际面偏多。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        
+        <section class="v4-section" id="section-important-news">
+            
+        <div class="v4-section-header">
+            <h2 class="v4-section-title">📰 重要资讯</h2>
+            <span class="v4-section-tag v4-tag-blue">必读新闻</span>
+        </div>
+        
+            <div class="news-list">
+                
+            <div class="news-card">
+                <div class="news-card-header">
+                    <span class="news-icon">📰</span>
+                    <span class="news-tag" style="background: #DC262620; color: #DC2626;">重大</span>
+                    <span class="news-source">中国政府网</span>
+                    <span class="news-time"></span>
+                </div>
+                <h4 class="news-title">国务院印发《关于促进人工智能产业发展的指导意见》</h4>
+                <p class="news-summary"></p>
+            </div>
+            
+            <div class="news-card">
+                <div class="news-card-header">
+                    <span class="news-icon">📈</span>
+                    <span class="news-tag" style="background: #F59E0B20; color: #F59E0B;">重要</span>
+                    <span class="news-source">华尔街见闻</span>
+                    <span class="news-time"></span>
+                </div>
+                <h4 class="news-title">美国CPI超预期回落，美联储降息预期升温</h4>
+                <p class="news-summary"></p>
+            </div>
+            
+            <div class="news-card">
+                <div class="news-card-header">
+                    <span class="news-icon">📈</span>
+                    <span class="news-tag" style="background: #F59E0B20; color: #F59E0B;">重要</span>
+                    <span class="news-source">公司公告</span>
+                    <span class="news-time"></span>
+                </div>
+                <h4 class="news-title">比亚迪5月销量突破50万辆，再创历史新高</h4>
+                <p class="news-summary"></p>
+            </div>
+            
+            <div class="news-card">
+                <div class="news-card-header">
+                    <span class="news-icon">📰</span>
+                    <span class="news-tag" style="background: #F59E0B20; color: #F59E0B;">重要</span>
+                    <span class="news-source">央行网站</span>
+                    <span class="news-time"></span>
+                </div>
+                <h4 class="news-title">央行宣布下调存款准备金率0.25个百分点</h4>
+                <p class="news-summary"></p>
+            </div>
+            
+            <div class="news-card">
+                <div class="news-card-header">
+                    <span class="news-icon">📉</span>
+                    <span class="news-tag" style="background: #F59E0B20; color: #F59E0B;">重要</span>
+                    <span class="news-source">证监会</span>
+                    <span class="news-time"></span>
+                </div>
+                <h4 class="news-title">证监会发布《上市公司监管新规》</h4>
+                <p class="news-summary"></p>
+            </div>
+            
+            <div class="news-card">
+                <div class="news-card-header">
+                    <span class="news-icon">📈</span>
+                    <span class="news-tag" style="background: #F59E0B20; color: #F59E0B;">重要</span>
+                    <span class="news-source">澎湃新闻</span>
+                    <span class="news-time"></span>
+                </div>
+                <h4 class="news-title">国产大飞机C919再获100架订单，商业化进程加速</h4>
+                <p class="news-summary"></p>
+            </div>
+            
+            <div class="news-card">
+                <div class="news-card-header">
+                    <span class="news-icon">📰</span>
+                    <span class="news-tag" style="background: #F59E0B20; color: #F59E0B;">重要</span>
+                    <span class="news-source">券商研报</span>
+                    <span class="news-time"></span>
+                </div>
+                <h4 class="news-title">医药集采政策边际缓和，创新药企业迎来估值修复</h4>
+                <p class="news-summary"></p>
+            </div>
+            
+            <div class="news-card">
+                <div class="news-card-header">
+                    <span class="news-icon">📈</span>
+                    <span class="news-tag" style="background: #F59E0B20; color: #F59E0B;">重要</span>
+                    <span class="news-source">国家统计局</span>
+                    <span class="news-time"></span>
+                </div>
+                <h4 class="news-title">5月CPI同比上涨0.3%，PPI降幅收窄至2.1%</h4>
+                <p class="news-summary"></p>
+            </div>
+            
+            </div>
+        </section>
+        
+        
+        
+        
+        <section class="v4-section" id="section-portfolio">
+            
+        <div class="v4-section-header">
+            <h2 class="v4-section-title">📋 持仓股诊断</h2>
+            <span class="v4-section-tag v4-tag-orange">4 只标的</span>
+        </div>
+        
+            <div class="v4-portfolio-list">
+                
+            <div class="v4-card v4-stock-card">
+                <div class="v4-stock-header">
+                    <div class="v4-stock-info">
+                        <h3 class="v4-stock-name">英维克</h3>
+                        <span class="v4-stock-code">002837</span>
+                        <span class="v4-tag v4-tag-red">卖出</span>
+                    </div>
+                    <div class="v4-stock-prices">
+                        <div class="v4-price-current">¥74.37</div>
+                        <div class="v4-price-change" style="color: #16A34A;">
+                            -0.34% 今日
+                        </div>
+                    </div>
+                </div>
+                <div class="v4-stock-metrics">
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">成本价</span>
+                        <span class="v4-metric-value">¥104.23</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">盈亏比例</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">-28.65%</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">止损位</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">¥98.00</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">距止损</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">-0.3%</span>
+                    </div>
+                </div>
+                
+        <div class="v4-diagnosis-grid">
+            
+            <div class="v4-diagnosis-card">
+                <div class="v4-diagnosis-header">
+                    <span class="v4-diagnosis-icon">📊</span>
+                    <span class="v4-diagnosis-name">技术面</span>
+                    <span class="v4-diagnosis-status" style="color: #DC2626;">强势</span>
+                </div>
+                <div class="v4-diagnosis-items">
+                    <div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">均线交织，趋势不明朗</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">成交量平稳，观望情绪浓</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">技术指标中性，等待方向选择</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">支撑位有效，压力位待突破</span></div>
+                </div>
+            </div>
+            
+            
+            <div class="v4-diagnosis-card">
+                <div class="v4-diagnosis-header">
+                    <span class="v4-diagnosis-icon">💰</span>
+                    <span class="v4-diagnosis-name">资金面</span>
+                    <span class="v4-diagnosis-status" style="color: #DC2626;">流入</span>
+                </div>
+                <div class="v4-diagnosis-items">
+                    <div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">主力资金进出平衡</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">资金流向波动较大</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">机构持仓保持稳定</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">北向资金动向平稳</span></div>
+                </div>
+            </div>
+            
+            
+            <div class="v4-diagnosis-card">
+                <div class="v4-diagnosis-header">
+                    <span class="v4-diagnosis-icon">📰</span>
+                    <span class="v4-diagnosis-name">消息面</span>
+                    <span class="v4-diagnosis-status" style="color: #F59E0B;">中性</span>
+                </div>
+                <div class="v4-diagnosis-items">
+                    <div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">行业消息面平稳</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">消息面平静，无重大事件</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">行业消息整体中性</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">公司经营情况正常</span></div>
+                </div>
+            </div>
+            
+            
+            <div class="v4-diagnosis-card">
+                <div class="v4-diagnosis-header">
+                    <span class="v4-diagnosis-icon">🏭</span>
+                    <span class="v4-diagnosis-name">产业面</span>
+                    <span class="v4-diagnosis-status" style="color: #DC2626;">向好</span>
+                </div>
+                <div class="v4-diagnosis-items">
+                    <div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">行业景气度平稳</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">行业保持稳定增长</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">下游需求平稳</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">政策环境整体稳定</span></div>
+                </div>
+            </div>
+            
+        </div>
+        
+                <div class="v4-stock-advice">
+                    <div class="v4-advice-text">💡 英维克今日上涨3.77%，AI液冷散热概念短期调整幅度较大，已跌破止损位，建议反弹减仓或止损</div>
+                </div>
+            </div>
+            
+            <div class="v4-card v4-stock-card">
+                <div class="v4-stock-header">
+                    <div class="v4-stock-info">
+                        <h3 class="v4-stock-name">铜冠铜箔</h3>
+                        <span class="v4-stock-code">301217</span>
+                        <span class="v4-tag v4-tag-blue">持有</span>
+                    </div>
+                    <div class="v4-stock-prices">
+                        <div class="v4-price-current">¥200.00</div>
+                        <div class="v4-price-change" style="color: #DC2626;">
+                            +10.08% 今日
+                        </div>
+                    </div>
+                </div>
+                <div class="v4-stock-metrics">
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">成本价</span>
+                        <span class="v4-metric-value">¥87.16</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">盈亏比例</span>
+                        <span class="v4-metric-value" style="color: #DC2626;">+129.46%</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">止损位</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">¥78.44</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">距止损</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">1.3%</span>
+                    </div>
+                </div>
+                
+        <div class="v4-diagnosis-grid">
+            
+            <div class="v4-diagnosis-card">
+                <div class="v4-diagnosis-header">
+                    <span class="v4-diagnosis-icon">📊</span>
+                    <span class="v4-diagnosis-name">技术面</span>
+                    <span class="v4-diagnosis-status" style="color: #DC2626;">强势</span>
+                </div>
+                <div class="v4-diagnosis-items">
+                    <div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">均线交织，趋势不明朗</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">✓</span><span class="v4-diagnosis-text">放量上涨，资金关注</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">技术指标中性，等待方向选择</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">支撑位有效，压力位待突破</span></div>
+                </div>
+            </div>
+            
+            
+            <div class="v4-diagnosis-card">
+                <div class="v4-diagnosis-header">
+                    <span class="v4-diagnosis-icon">💰</span>
+                    <span class="v4-diagnosis-name">资金面</span>
+                    <span class="v4-diagnosis-status" style="color: #DC2626;">流入</span>
+                </div>
+                <div class="v4-diagnosis-items">
+                    <div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">主力资金进出平衡</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">资金流向波动较大</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">机构持仓保持稳定</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">北向资金动向平稳</span></div>
+                </div>
+            </div>
+            
+            
+            <div class="v4-diagnosis-card">
+                <div class="v4-diagnosis-header">
+                    <span class="v4-diagnosis-icon">📰</span>
+                    <span class="v4-diagnosis-name">消息面</span>
+                    <span class="v4-diagnosis-status" style="color: #F59E0B;">中性</span>
+                </div>
+                <div class="v4-diagnosis-items">
+                    <div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">行业消息面平稳</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">消息面平静，无重大事件</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">行业消息整体中性</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">公司经营情况正常</span></div>
+                </div>
+            </div>
+            
+            
+            <div class="v4-diagnosis-card">
+                <div class="v4-diagnosis-header">
+                    <span class="v4-diagnosis-icon">🏭</span>
+                    <span class="v4-diagnosis-name">产业面</span>
+                    <span class="v4-diagnosis-status" style="color: #DC2626;">向好</span>
+                </div>
+                <div class="v4-diagnosis-items">
+                    <div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">行业景气度平稳</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">行业保持稳定增长</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">下游需求平稳</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">政策环境整体稳定</span></div>
+                </div>
+            </div>
+            
+        </div>
+        
+                <div class="v4-stock-advice">
+                    <div class="v4-advice-text">💡 铜冠铜箔今日上涨4.71%，继续创历史新高，HVLP铜箔国产替代+存储芯片封装需求爆发，建议继续持有，逢高分批减仓止盈</div>
+                </div>
+            </div>
+            
+            <div class="v4-card v4-stock-card">
+                <div class="v4-stock-header">
+                    <div class="v4-stock-info">
+                        <h3 class="v4-stock-name">雅克科技</h3>
+                        <span class="v4-stock-code">002409</span>
+                        <span class="v4-tag v4-tag-blue">持有</span>
+                    </div>
+                    <div class="v4-stock-prices">
+                        <div class="v4-price-current">¥150.16</div>
+                        <div class="v4-price-change" style="color: #DC2626;">
+                            +1.51% 今日
+                        </div>
+                    </div>
+                </div>
+                <div class="v4-stock-metrics">
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">成本价</span>
+                        <span class="v4-metric-value">¥108.80</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">盈亏比例</span>
+                        <span class="v4-metric-value" style="color: #DC2626;">+38.01%</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">止损位</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">¥87.04</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">距止损</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">0.6%</span>
+                    </div>
+                </div>
+                
+        <div class="v4-diagnosis-grid">
+            
+            <div class="v4-diagnosis-card">
+                <div class="v4-diagnosis-header">
+                    <span class="v4-diagnosis-icon">📊</span>
+                    <span class="v4-diagnosis-name">技术面</span>
+                    <span class="v4-diagnosis-status" style="color: #DC2626;">强势</span>
+                </div>
+                <div class="v4-diagnosis-items">
+                    <div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">均线交织，趋势不明朗</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">✓</span><span class="v4-diagnosis-text">温和放量，走势稳健</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">技术指标中性，等待方向选择</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">支撑位有效，压力位待突破</span></div>
+                </div>
+            </div>
+            
+            
+            <div class="v4-diagnosis-card">
+                <div class="v4-diagnosis-header">
+                    <span class="v4-diagnosis-icon">💰</span>
+                    <span class="v4-diagnosis-name">资金面</span>
+                    <span class="v4-diagnosis-status" style="color: #DC2626;">流入</span>
+                </div>
+                <div class="v4-diagnosis-items">
+                    <div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">主力资金进出平衡</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">资金流向波动较大</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">机构持仓保持稳定</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">北向资金动向平稳</span></div>
+                </div>
+            </div>
+            
+            
+            <div class="v4-diagnosis-card">
+                <div class="v4-diagnosis-header">
+                    <span class="v4-diagnosis-icon">📰</span>
+                    <span class="v4-diagnosis-name">消息面</span>
+                    <span class="v4-diagnosis-status" style="color: #DC2626;">利好</span>
+                </div>
+                <div class="v4-diagnosis-items">
+                    <div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">行业消息面平稳</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">消息面平静，无重大事件</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">行业消息整体中性</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">公司经营情况正常</span></div>
+                </div>
+            </div>
+            
+            
+            <div class="v4-diagnosis-card">
+                <div class="v4-diagnosis-header">
+                    <span class="v4-diagnosis-icon">🏭</span>
+                    <span class="v4-diagnosis-name">产业面</span>
+                    <span class="v4-diagnosis-status" style="color: #DC2626;">向好</span>
+                </div>
+                <div class="v4-diagnosis-items">
+                    <div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">行业景气度平稳</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">行业保持稳定增长</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">下游需求平稳</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">政策环境整体稳定</span></div>
+                </div>
+            </div>
+            
+        </div>
+        
+                <div class="v4-stock-advice">
+                    <div class="v4-advice-text">💡 雅克科技今日上涨4.39%，HBM前驱体龙头地位稳固，AI算力需求爆发带动业绩增长，建议继续持有，逢低可加仓</div>
+                </div>
+            </div>
+            
+            <div class="v4-card v4-stock-card">
+                <div class="v4-stock-header">
+                    <div class="v4-stock-info">
+                        <h3 class="v4-stock-name">*ST建艺</h3>
+                        <span class="v4-stock-code">002789</span>
+                        <span class="v4-tag v4-tag-blue">持有</span>
+                    </div>
+                    <div class="v4-stock-prices">
+                        <div class="v4-price-current">¥14.87</div>
+                        <div class="v4-price-change" style="color: #DC2626;">
+                            +5.01% 今日
+                        </div>
+                    </div>
+                </div>
+                <div class="v4-stock-metrics">
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">成本价</span>
+                        <span class="v4-metric-value">¥13.45</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">盈亏比例</span>
+                        <span class="v4-metric-value" style="color: #DC2626;">+10.56%</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">止损位</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">¥12.50</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">距止损</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">0.1%</span>
+                    </div>
+                </div>
+                
+        <div class="v4-diagnosis-grid">
+            
+            <div class="v4-diagnosis-card">
+                <div class="v4-diagnosis-header">
+                    <span class="v4-diagnosis-icon">📊</span>
+                    <span class="v4-diagnosis-name">技术面</span>
+                    <span class="v4-diagnosis-status" style="color: #16A34A;">弱势</span>
+                </div>
+                <div class="v4-diagnosis-items">
+                    <div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">均线交织，趋势不明朗</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">✓</span><span class="v4-diagnosis-text">放量上涨，资金关注</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">技术指标中性，等待方向选择</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">支撑位有效，压力位待突破</span></div>
+                </div>
+            </div>
+            
+            
+            <div class="v4-diagnosis-card">
+                <div class="v4-diagnosis-header">
+                    <span class="v4-diagnosis-icon">💰</span>
+                    <span class="v4-diagnosis-name">资金面</span>
+                    <span class="v4-diagnosis-status" style="color: #16A34A;">流出</span>
+                </div>
+                <div class="v4-diagnosis-items">
+                    <div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">主力资金进出平衡</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">资金流向波动较大</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">机构持仓保持稳定</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">北向资金动向平稳</span></div>
+                </div>
+            </div>
+            
+            
+            <div class="v4-diagnosis-card">
+                <div class="v4-diagnosis-header">
+                    <span class="v4-diagnosis-icon">📰</span>
+                    <span class="v4-diagnosis-name">消息面</span>
+                    <span class="v4-diagnosis-status" style="color: #F59E0B;">中性</span>
+                </div>
+                <div class="v4-diagnosis-items">
+                    <div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">行业消息面平稳</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">消息面平静，无重大事件</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">行业消息整体中性</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">公司经营情况正常</span></div>
+                </div>
+            </div>
+            
+            
+            <div class="v4-diagnosis-card">
+                <div class="v4-diagnosis-header">
+                    <span class="v4-diagnosis-icon">🏭</span>
+                    <span class="v4-diagnosis-name">产业面</span>
+                    <span class="v4-diagnosis-status" style="color: #DC2626;">向好</span>
+                </div>
+                <div class="v4-diagnosis-items">
+                    <div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">行业景气度平稳</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">行业保持稳定增长</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">下游需求平稳</span></div><div class="v4-diagnosis-item"><span class="v4-diagnosis-icon">⚪</span><span class="v4-diagnosis-text">政策环境整体稳定</span></div>
+                </div>
+            </div>
+            
+        </div>
+        
+                <div class="v4-stock-advice">
+                    <div class="v4-advice-text">💡 *ST建艺今日上涨2.98%，摘帽预期持续发酵，股价重回成本线上方，建议继续持有观察摘帽进展</div>
+                </div>
+            </div>
+            
+            </div>
+        </section>
+        
+        
+        <section class="v4-section" id="section-strategy">
+            
+        <div class="v4-section-header">
+            <h2 class="v4-section-title">🎯 操作策略建议</h2>
+            <span class="v4-section-tag v4-tag-green">今日策略</span>
+        </div>
+        
+            <div class="v4-card">
+                <div class="v4-strategy-overview">
+                    <p class="v4-strategy-text">组合整体浮盈0.40%；1只标的建议减仓或止损；3只标的建议持有。</p>
+                </div>
+                <div class="v4-strategy-points">
+                    <h3 class="v4-card-subtitle">个股操作要点</h3>
+                    <ul class="v4-point-list"><li>🔴 **英维克**：英维克今日上涨3.77%，AI液冷散热概念短期调整幅度较大，已跌破止损位，建议反弹减仓或止损</li><li>🔵 **铜冠铜箔**：铜冠铜箔今日上涨4.71%，继续创历史新高，HVLP铜箔国产替代+存储芯片封装需求爆发，建议继续持有，逢高分批减仓止盈</li><li>🔵 **雅克科技**：雅克科技今日上涨4.39%，HBM前驱体龙头地位稳固，AI算力需求爆发带动业绩增长，建议继续持有，逢低可加仓</li><li>🔵 ***ST建艺**：*ST建艺今日上涨2.98%，摘帽预期持续发酵，股价重回成本线上方，建议继续持有观察摘帽进展</li></ul>
+                </div>
+            </div>
+        </section>
+        
+        
+        <section class="v4-section" id="section-outlook">
+            
+        <div class="v4-section-header">
+            <h2 class="v4-section-title">🔮 明日展望</h2>
+            <span class="v4-section-tag v4-tag-purple">策略前瞻</span>
+        </div>
+        
+            <div class="v4-card">
+                <div class="v4-card-body">
+                    <div class="outlook-grid">
+                        <div class="outlook-card">
+                            <div class="outlook-icon">📊</div>
+                            <div class="outlook-content">
+                                <h4 class="outlook-title">市场判断</h4>
+                                <p class="outlook-text">短期震荡整理，中期趋势待确认</p>
+                            </div>
+                        </div>
+                        <div class="outlook-card">
+                            <div class="outlook-icon">🎯</div>
+                            <div class="outlook-content">
+                                <h4 class="outlook-title">操作策略</h4>
+                                <p class="outlook-text">市场偏强，可保持适度仓位。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="outlook-focus-section">
+                        <h4 class="outlook-section-title">📌 明日关注</h4>
+                        <div class="outlook-focus-list">
+                            <div class="outlook-focus-item"><span class="focus-dot"></span><span class="focus-text">关注量能变化</span></div><div class="outlook-focus-item"><span class="focus-dot"></span><span class="focus-text">观察板块轮动持续性</span></div><div class="outlook-focus-item"><span class="focus-dot"></span><span class="focus-text">留意北向资金流向</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        
+        <section class="v4-section" id="section-risk">
+            
+        <div class="v4-section-header">
+            <h2 class="v4-section-title">⚠️ 风险提示</h2>
+            <span class="v4-section-tag v4-tag-red">必读</span>
+        </div>
+        
+            <div class="v4-card v4-risk-card">
+                <ul class="v4-risk-list"><li class="v4-risk-item">🔴 **高风险警示**：英维克、铜冠铜箔、雅克科技、*ST建艺 距离止损位不足10%，请密切关注</li><li class="v4-risk-item">⚪ **系统性风险**：关注大盘整体走势，若出现系统性风险需及时减仓</li><li class="v4-risk-item">⚪ **流动性风险**：合理控制仓位，避免单只标的占比过高</li></ul>
+                <p class="v4-risk-disclaimer">* 以上分析仅供参考，不构成投资建议。投资有风险，入市需谨慎。</p>
+            </div>
+        </section>
+        
+        
+            
+        <footer class="v4-footer">
+            <p>数据更新时间：2026-06-18 17:16:16</p>
+            <p>📌 投资有风险，入市需谨慎 | 本报告仅供参考，不构成投资建议</p>
+        </footer>
+        
+        </div>
+    </main>
+    
+        <div class="v4-toc" id="toc">
+            <div class="v4-toc-header">
+                <span>📑 目录导航</span>
+                <button class="v4-toc-toggle" onclick="toggleToc()">−</button>
+            </div>
+            <div class="v4-toc-items" id="tocItems">
+                <a href="#section-header" class="v4-toc-item" data-section="section-header">今日概览</a><a href="#section-overview" class="v4-toc-item" data-section="section-overview">市场复盘</a><a href="#section-news-summary" class="v4-toc-item" data-section="section-news-summary">新闻全景</a><a href="#section-important-news" class="v4-toc-item" data-section="section-important-news">重要资讯</a><a href="#section-sectors" class="v4-toc-item" data-section="section-sectors">热点板块</a><a href="#section-topics" class="v4-toc-item" data-section="section-topics">核心题材</a><a href="#section-portfolio" class="v4-toc-item" data-section="section-portfolio">持仓诊断</a><a href="#section-strategy" class="v4-toc-item" data-section="section-strategy">操作策略</a><a href="#section-outlook" class="v4-toc-item" data-section="section-outlook">明日展望</a><a href="#section-risk" class="v4-toc-item" data-section="section-risk">风险提示</a>
+            </div>
+        </div>
+        
+    
+        <div class="v4-action-buttons">
+            <button class="v4-action-btn" onclick="refreshPage()" title="刷新">🔄</button>
+            <button class="v4-action-btn" onclick="toggleTheme()" title="主题切换">🌓</button>
+            <button class="v4-action-btn" onclick="sharePage()" title="分享">📤</button>
+            <button class="v4-action-btn" onclick="scrollToTop()" title="回到顶部">⬆️</button>
+        </div>
+        
+    
+        <script>
+            // 导航栏滚动效果
+            window.addEventListener('scroll', function() {
+                const nav = document.getElementById('topNav');
+                nav.classList.toggle('scrolled', window.scrollY > 50);
+            });
+            
+            // TOC目录高亮
+            window.addEventListener('scroll', function() {
+                const sections = document.querySelectorAll('.v4-section');
+                const tocItems = document.querySelectorAll('.v4-toc-item');
+                let currentSection = '';
+                sections.forEach(section => {
+                    if (window.scrollY >= section.offsetTop - 100) {
+                        currentSection = section.getAttribute('id');
+                    }
+                });
+                tocItems.forEach(item => {
+                    item.classList.toggle('active', item.getAttribute('data-section') === currentSection);
+                });
+            });
+            
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            });
+            
+            // TOC展开收起
+            function toggleToc() {
+                const tocItems = document.getElementById('tocItems');
+                const toggleBtn = document.querySelector('.v4-toc-toggle');
+                if (tocItems.style.display === 'none') {
+                    tocItems.style.display = 'block';
+                    toggleBtn.textContent = '−';
+                } else {
+                    tocItems.style.display = 'none';
+                    toggleBtn.textContent = '+';
+                }
+            }
+            
+            // 回到顶部
+            function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+            
+            // 刷新页面
+            function refreshPage() { window.location.reload(); }
+            
+            // 主题切换（占位）
+            function toggleTheme() { alert('主题切换功能开发中...'); }
+            
+            // 分享
+            function sharePage() {
+                if (navigator.share) {
+                    navigator.share({ title: document.title, url: window.location.href });
+                } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert('链接已复制到剪贴板');
+                }
+            }
+            
+            // Tab切换功能
+            function switchNewsTab(tabId) {
+                // 隐藏所有tab内容
+                document.querySelectorAll('.v4-tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                // 取消所有tab按钮激活状态
+                document.querySelectorAll('.v4-tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                // 显示选中的tab内容
+                const targetContent = document.getElementById(tabId);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+                // 激活对应的tab按钮
+                const targetBtn = document.querySelector(`[data-tab="${tabId}"]`);
+                if (targetBtn) {
+                    targetBtn.classList.add('active');
+                }
+            }
+            
+            // 通用Tab切换（支持多组Tab）
+            function switchTab(tabGroup, tabId) {
+                const group = document.getElementById(tabGroup);
+                if (!group) return;
+                
+                // 隐藏该组所有tab内容
+                group.querySelectorAll('.v4-tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                // 取消该组所有tab按钮激活状态
+                group.querySelectorAll('.v4-tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                // 显示选中的tab内容
+                const targetContent = document.getElementById(tabId);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+                // 激活对应的tab按钮
+                const targetBtn = group.querySelector(`[data-tab="${tabId}"]`);
+                if (targetBtn) {
+                    targetBtn.classList.add('active');
+                }
+            }
+        </script>
+        
+</body>
+</html>
+        
