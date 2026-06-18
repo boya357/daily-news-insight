@@ -919,13 +919,13 @@ def get_pro_theme_css() -> str:
                 font-weight: 500;
             }
             
-            .tab-panel {
+            .tab-container .tab-content .tab-panel {
                 display: none;
                 animation: fadeIn 0.3s ease;
             }
             
-            .tab-panel-active {
-                display: block;
+            .tab-container .tab-content .tab-panel.tab-panel-active {
+                display: block !important;
             }
             
             @keyframes fadeIn {
@@ -1006,14 +1006,26 @@ class SectionTitle(Component):
     """章节标题
     
     对应原始CSS类: section-title
+    支持主标题+副标题，增强视觉层次感
     """
     
-    def __init__(self, text: str, icon: str = ""):
+    def __init__(self, text: str, icon: str = "", subtitle: str = ""):
         self.text = text
         self.icon = icon
+        self.subtitle = subtitle
     
     def render(self) -> str:
-        icon_html = f'<span class="text-xl">{self.icon}</span>' if self.icon else ''
+        icon_html = f'<span class="text-2xl mr-3">{self.icon}</span>' if self.icon else ''
+        
+        if self.subtitle:
+            return f'''
+            <div class="mb-6">
+                <h2 class="section-title flex items-center mb-2">
+                    {icon_html}{self.text}
+                </h2>
+                <p class="text-white/50 text-sm ml-11 -mt-1">{self.subtitle}</p>
+            </div>
+            '''
         return f'<h2 class="section-title">{icon_html}{self.text}</h2>'
 
 
@@ -1756,10 +1768,12 @@ class TabPane(Component):
                 </button>
             '''
             
+            # 给激活的面板添加内联样式，确保显示
+            inline_style = ' style="display: block !important;"' if active_panel_class else ''
             panels_html += f'''
                 <div class="tab-panel {active_panel_class}" 
                      id="{self.tab_id}-panel-{i}"
-                     data-tab-index="{i}">
+                     data-tab-index="{i}"{inline_style}>
                     {content}
                 </div>
             '''
@@ -1789,12 +1803,14 @@ class TabPane(Component):
                 }}
             }});
             
-            // 更新面板显示
+            // 更新面板显示（双保险：类名 + 内联样式）
             container.querySelectorAll('.tab-panel').forEach((panel, i) => {{
                 if (i === index) {{
                     panel.classList.add('tab-panel-active');
+                    panel.style.display = 'block';
                 }} else {{
                     panel.classList.remove('tab-panel-active');
+                    panel.style.display = 'none';
                 }}
             }});
         }}
@@ -1965,6 +1981,7 @@ class ProPage:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{self.title} - 投资研究中心</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
     {theme_css}
     <style>
@@ -2001,3 +2018,224 @@ class ProPage:
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(html)
         return filepath
+
+
+# ============================================================
+# Pro版图表组件 - 深色玻璃态主题
+# 基于Chart.js，适配深色背景
+# ============================================================
+
+_pro_chart_counter = 0
+
+def get_pro_chart_cdn() -> str:
+    """获取Chart.js CDN引用"""
+    return '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>'
+
+
+class ProBaseChart:
+    """Pro版图表基类 - 深色主题"""
+    
+    def __init__(self, title: str = "", height: int = 280):
+        self.title = title
+        self.height = height
+        global _pro_chart_counter
+        _pro_chart_counter += 1
+        self.chart_id = f"pro_chart_{_pro_chart_counter}"
+    
+    def _get_base_options(self) -> dict:
+        return {
+            "responsive": True,
+            "maintainAspectRatio": False,
+            "plugins": {
+                "legend": {
+                    "display": True,
+                    "position": "bottom",
+                    "labels": {
+                        "usePointStyle": True,
+                        "padding": 16,
+                        "font": {"size": 11, "family": "'Noto Sans SC', sans-serif"},
+                        "color": "rgba(255, 255, 255, 0.7)"
+                    }
+                },
+                "title": {
+                    "display": bool(self.title),
+                    "text": self.title or "",
+                    "font": {"size": 14, "weight": "600", "family": "'Noto Sans SC', sans-serif"},
+                    "padding": {"bottom": 16},
+                    "color": "rgba(255, 255, 255, 0.9)"
+                },
+                "tooltip": {
+                    "backgroundColor": "rgba(0, 0, 0, 0.85)",
+                    "titleFont": {"size": 12, "weight": "600"},
+                    "bodyFont": {"size": 11},
+                    "padding": 10,
+                    "cornerRadius": 8,
+                    "borderColor": "rgba(255, 255, 255, 0.1)",
+                    "borderWidth": 1
+                }
+            }
+        }
+
+
+class ProLineChart(ProBaseChart):
+    """Pro版折线图"""
+    
+    def __init__(self, labels: list, datasets: list, title: str = "", height: int = 280, smooth: bool = True):
+        super().__init__(title, height)
+        self.labels = labels
+        self.datasets = datasets
+        self.smooth = smooth
+    
+    def render(self) -> str:
+        import json
+        
+        default_colors = [
+            {'bg': 'rgba(102, 126, 234, 0.3)', 'border': '#667eea'},
+            {'bg': 'rgba(240, 147, 251, 0.3)', 'border': '#f093fb'},
+            {'bg': 'rgba(16, 185, 129, 0.3)', 'border': '#10b981'},
+        ]
+        
+        chart_datasets = []
+        for i, ds in enumerate(self.datasets):
+            color = ds.get('color', {})
+            default = default_colors[i % len(default_colors)]
+            chart_datasets.append({
+                'label': ds.get('label', ''),
+                'data': ds.get('data', []),
+                'borderColor': color.get('border', default['border']),
+                'backgroundColor': color.get('bg', default['bg']),
+                'borderWidth': 2,
+                'fill': True,
+                'tension': 0.4 if self.smooth else 0,
+                'pointRadius': 4,
+                'pointBackgroundColor': color.get('border', default['border']),
+                'pointBorderColor': '#fff',
+                'pointBorderWidth': 2,
+            })
+        
+        options = self._get_base_options()
+        options['scales'] = {
+            'x': {
+                'grid': {'color': 'rgba(255,255,255,0.05)', 'drawBorder': False},
+                'ticks': {'color': 'rgba(255,255,255,0.5)', 'font': {'size': 10}}
+            },
+            'y': {
+                'beginAtZero': False,
+                'grid': {'color': 'rgba(255,255,255,0.05)', 'drawBorder': False},
+                'ticks': {'color': 'rgba(255,255,255,0.5)', 'font': {'size': 10}}
+            }
+        }
+        
+        config = {'type': 'line', 'data': {'labels': self.labels, 'datasets': chart_datasets}, 'options': options}
+        
+        return f'''
+        <div style="height: {self.height}px; width: 100%;">
+            <canvas id="{self.chart_id}"></canvas>
+        </div>
+        <script>
+        (function() {{
+            const ctx = document.getElementById('{self.chart_id}').getContext('2d');
+            new Chart(ctx, {json.dumps(config, ensure_ascii=False)});
+        }})();
+        </script>
+        '''
+
+
+class ProPieChart(ProBaseChart):
+    """Pro版饼图/环形图"""
+    
+    def __init__(self, labels: list, data: list, title: str = "", height: int = 280, donut: bool = True):
+        super().__init__(title, height)
+        self.labels = labels
+        self.data = data
+        self.donut = donut
+    
+    def render(self) -> str:
+        import json
+        
+        colors = ['#667eea', '#f093fb', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6', '#ec4899']
+        bg_colors = [colors[i % len(colors)] for i in range(len(self.data))]
+        
+        options = self._get_base_options()
+        options['cutout'] = '60%' if self.donut else '0%'
+        
+        config = {
+            'type': 'doughnut' if self.donut else 'pie',
+            'data': {
+                'labels': self.labels,
+                'datasets': [{'data': self.data, 'backgroundColor': bg_colors, 'borderColor': 'rgba(0,0,0,0.3)', 'borderWidth': 2, 'borderRadius': 4}]
+            },
+            'options': options
+        }
+        
+        return f'''
+        <div style="height: {self.height}px; width: 100%;">
+            <canvas id="{self.chart_id}"></canvas>
+        </div>
+        <script>
+        (function() {{
+            const ctx = document.getElementById('{self.chart_id}').getContext('2d');
+            new Chart(ctx, {json.dumps(config, ensure_ascii=False)});
+        }})();
+        </script>
+        '''
+
+
+class ProBarChart(ProBaseChart):
+    """Pro版柱状图"""
+    
+    def __init__(self, labels: list, datasets: list, title: str = "", height: int = 280, horizontal: bool = False):
+        super().__init__(title, height)
+        self.labels = labels
+        self.datasets = datasets
+        self.horizontal = horizontal
+    
+    def render(self) -> str:
+        import json
+        
+        default_colors = [
+            {'bg': 'rgba(102, 126, 234, 0.8)', 'border': '#667eea'},
+            {'bg': 'rgba(240, 147, 251, 0.8)', 'border': '#f093fb'},
+            {'bg': 'rgba(16, 185, 129, 0.8)', 'border': '#10b981'},
+        ]
+        
+        chart_datasets = []
+        for i, ds in enumerate(self.datasets):
+            color = ds.get('color', {})
+            default = default_colors[i % len(default_colors)]
+            chart_datasets.append({
+                'label': ds.get('label', ''),
+                'data': ds.get('data', []),
+                'backgroundColor': color.get('bg', default['bg']),
+                'borderColor': color.get('border', default['border']),
+                'borderWidth': 1,
+                'borderRadius': 4,
+            })
+        
+        options = self._get_base_options()
+        options['indexAxis'] = 'y' if self.horizontal else 'x'
+        options['scales'] = {
+            'x': {
+                'grid': {'color': 'rgba(255,255,255,0.05)', 'drawBorder': False},
+                'ticks': {'color': 'rgba(255,255,255,0.5)', 'font': {'size': 10}}
+            },
+            'y': {
+                'beginAtZero': True,
+                'grid': {'color': 'rgba(255,255,255,0.05)', 'drawBorder': False},
+                'ticks': {'color': 'rgba(255,255,255,0.5)', 'font': {'size': 10}}
+            }
+        }
+        
+        config = {'type': 'bar', 'data': {'labels': self.labels, 'datasets': chart_datasets}, 'options': options}
+        
+        return f'''
+        <div style="height: {self.height}px; width: 100%;">
+            <canvas id="{self.chart_id}"></canvas>
+        </div>
+        <script>
+        (function() {{
+            const ctx = document.getElementById('{self.chart_id}').getContext('2d');
+            new Chart(ctx, {json.dumps(config, ensure_ascii=False)});
+        }})();
+        </script>
+        '''
