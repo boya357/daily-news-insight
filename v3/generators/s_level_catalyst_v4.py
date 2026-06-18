@@ -78,11 +78,49 @@ class SLevelCatalystV4Generator:
             items_html += f'<a class="v4-nav-item {active_class}" href="/{url}">{name}</a>'
         
         return f'''
-        <div class="v4-nav">
+        <nav class="v4-nav" id="topNav">
             <div class="v4-nav-logo">📈 投资研究中心</div>
             <div class="v4-nav-menu">
                 {items_html}
             </div>
+        </nav>
+        '''
+    
+    def _render_toc(self) -> str:
+        """渲染悬浮目录导航"""
+        toc_items = [
+            ("市场概览", "section-overview"),
+            ("持仓股跟踪", "section-portfolio"),
+            ("热点板块扫描", "section-sectors"),
+            ("操作策略建议", "section-strategy"),
+            ("风险提示", "section-risk"),
+        ]
+        
+        items_html = ""
+        for title, anchor in toc_items:
+            items_html += f'<a class="toc-item" href="#{anchor}">{title}</a>'
+        
+        return f'''
+        <div class="toc-wrapper toc-right" id="tocWrapper">
+            <div class="toc-header" onclick="toggleToc()">
+                <span class="toc-title">📋 目录导航</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </div>
+            <div class="toc-content">
+                {items_html}
+            </div>
+        </div>
+        '''
+    
+    def _render_action_buttons(self) -> str:
+        """渲染左下角操作按钮组"""
+        return '''
+        <div class="action-buttons">
+            <button class="action-btn" title="刷新数据" onclick="refreshData()">🔄</button>
+            <button class="action-btn" title="切换主题" onclick="toggleTheme()">🎨</button>
+            <button class="action-btn" title="分享报告" onclick="shareReport()">🔗</button>
         </div>
         '''
     
@@ -120,7 +158,7 @@ class SLevelCatalystV4Generator:
             '''
         
         return f'''
-        <div class="v4-card mb-6">
+        <div class="v4-card mb-6" id="section-overview">
             <div class="v4-card-header">
                 <span>📊</span> 市场概览
             </div>
@@ -298,7 +336,7 @@ class SLevelCatalystV4Generator:
         total_return_str = f"+{total_return:.2f}%" if total_return >= 0 else f"{total_return:.2f}%"
         
         return f'''
-        <div class="v4-card mb-6">
+        <div class="v4-card mb-6" id="section-portfolio">
             <div class="v4-card-header">
                 <span>💼</span> 持仓股跟踪
                 <span class="v4-tag v4-tag-blue" style="margin-left: auto;">共 {len(stocks)} 只</span>
@@ -366,7 +404,7 @@ class SLevelCatalystV4Generator:
                 '''
         
         return f'''
-        <div class="v4-card mb-6">
+        <div class="v4-card mb-6" id="section-sectors">
             <div class="v4-card-header">
                 <span>🔥</span> 热点板块扫描
             </div>
@@ -382,7 +420,7 @@ class SLevelCatalystV4Generator:
             return ""
         
         return f'''
-        <div class="v4-card mb-6">
+        <div class="v4-card mb-6" id="section-strategy">
             <div class="v4-card-header">
                 <span>📝</span> 操作策略建议
             </div>
@@ -426,7 +464,7 @@ class SLevelCatalystV4Generator:
             risks_html += f'<li style="margin-bottom: 8px;">{risk}</li>'
         
         return f'''
-        <div class="v4-card mb-6">
+        <div class="v4-card mb-6" id="section-risk">
             <div class="v4-card-header">
                 <span>⚠️</span> 风险提示
             </div>
@@ -459,6 +497,8 @@ class SLevelCatalystV4Generator:
         
         # 构建页面各部分
         nav = self._render_nav("S级催化")
+        toc = self._render_toc()
+        action_buttons = self._render_action_buttons()
         header = self._render_page_header()
         market_overview = self._render_market_overview()
         portfolio = self._render_portfolio_section()
@@ -495,6 +535,12 @@ class SLevelCatalystV4Generator:
     <!-- 导航栏 -->
     {nav}
     
+    <!-- 悬浮目录 -->
+    {toc}
+    
+    <!-- 操作按钮组 -->
+    {action_buttons}
+    
     <!-- 主内容区 -->
     <div class="v4-container narrow">
         {header}
@@ -510,8 +556,21 @@ class SLevelCatalystV4Generator:
     <button id="backToTop" onclick="scrollToTop()">↑</button>
     
     <script>
-        // 阅读进度条
-        window.onscroll = function() {{
+        // ===== 导航栏滚动效果 =====
+        var nav = document.getElementById("topNav");
+        var lastScroll = 0;
+        
+        window.addEventListener("scroll", function() {{
+            var currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // 滚动时导航栏背景加深
+            if (currentScroll > 50) {{
+                nav.classList.add("scrolled");
+            }} else {{
+                nav.classList.remove("scrolled");
+            }}
+            
+            // 阅读进度条
             var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
             var scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
             var progress = (scrollTop / scrollHeight) * 100;
@@ -524,11 +583,81 @@ class SLevelCatalystV4Generator:
             }} else {{
                 backBtn.classList.remove("visible");
             }}
-        }};
+            
+            // TOC当前章节高亮
+            updateTocActive();
+            
+            lastScroll = currentScroll;
+        }});
         
+        // ===== 回到顶部 =====
         function scrollToTop() {{
             window.scrollTo({{ top: 0, behavior: "smooth" }});
         }}
+        
+        // ===== TOC目录切换 =====
+        function toggleToc() {{
+            var tocWrapper = document.getElementById("tocWrapper");
+            tocWrapper.classList.toggle("collapsed");
+        }}
+        
+        // ===== TOC当前章节高亮 =====
+        function updateTocActive() {{
+            var sections = ["section-overview", "section-portfolio", "section-sectors", "section-strategy", "section-risk"];
+            var tocItems = document.querySelectorAll(".toc-item");
+            var scrollPos = window.pageYOffset + 150;
+            
+            for (var i = sections.length - 1; i >= 0; i--) {{
+                var section = document.getElementById(sections[i]);
+                if (section && section.offsetTop <= scrollPos) {{
+                    tocItems.forEach(function(item) {{ item.classList.remove("active"); }});
+                    if (tocItems[i]) {{
+                        tocItems[i].classList.add("active");
+                    }}
+                    break;
+                }}
+            }}
+        }}
+        
+        // ===== 操作按钮功能 =====
+        function refreshData() {{
+            // 刷新页面重新加载数据
+            location.reload();
+        }}
+        
+        function toggleTheme() {{
+            // 主题切换提示
+            alert("主题切换功能开发中...");
+        }}
+        
+        function shareReport() {{
+            // 复制链接到剪贴板
+            var url = window.location.href;
+            navigator.clipboard.writeText(url).then(function() {{
+                alert("报告链接已复制到剪贴板！");
+            }}).catch(function() {{
+                alert("复制失败，请手动复制链接");
+            }});
+        }}
+        
+        // ===== 平滑滚动到锚点 =====
+        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {{
+            anchor.addEventListener("click", function(e) {{
+                e.preventDefault();
+                var target = document.querySelector(this.getAttribute("href"));
+                if (target) {{
+                    var offset = 80; // 导航栏高度偏移
+                    var targetPosition = target.offsetTop - offset;
+                    window.scrollTo({{
+                        top: targetPosition,
+                        behavior: "smooth"
+                    }});
+                }}
+            }});
+        }});
+        
+        // 初始化TOC状态
+        updateTocActive();
     </script>
 </body>
 </html>'''

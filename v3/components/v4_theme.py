@@ -357,17 +357,24 @@ def get_v4_theme_css() -> str:
             .v4-diagnosis-item.bad .dim-value { color: #DC2626; }
             .v4-diagnosis-item.neutral .dim-value { color: #F59E0B; }
             
-            /* 详细诊断面板 */
+            /* 详细诊断面板 - 2x2网格 */
             .stock-diagnosis-detail {
                 margin-top: 16px;
                 display: grid;
-                gap: 12px;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
             }
             
             .diagnosis-dimension {
                 background: #F8FAFC;
                 border-radius: 10px;
                 padding: 12px 14px;
+                transition: all 0.2s ease;
+            }
+            
+            .diagnosis-dimension:hover {
+                background: #F1F5F9;
+                transform: translateY(-1px);
             }
             
             .dim-header {
@@ -389,10 +396,11 @@ def get_v4_theme_css() -> str:
             }
             
             .dim-status {
-                font-size: 0.75rem;
+                font-size: 0.7rem;
                 font-weight: 600;
                 padding: 2px 8px;
                 border-radius: 12px;
+                white-space: nowrap;
             }
             
             .dim-status.status-good {
@@ -412,20 +420,20 @@ def get_v4_theme_css() -> str:
             
             .dim-items {
                 display: grid;
-                gap: 6px;
+                gap: 5px;
             }
             
             .diagnosis-item {
                 display: flex;
                 align-items: flex-start;
-                gap: 8px;
-                font-size: 0.8125rem;
+                gap: 6px;
+                font-size: 0.75rem;
                 color: #475569;
-                line-height: 1.4;
+                line-height: 1.3;
             }
             
             .diagnosis-icon {
-                font-size: 0.875rem;
+                font-size: 0.75rem;
                 font-weight: 700;
                 flex-shrink: 0;
                 margin-top: 1px;
@@ -435,28 +443,40 @@ def get_v4_theme_css() -> str:
                 flex: 1;
             }
             
-            /* 导航栏 - 玻璃态 */
+            /* 移动端诊断面板改为单列 */
+            @media (max-width: 640px) {
+                .stock-diagnosis-detail {
+                    grid-template-columns: 1fr;
+                }
+            }
+            
+            /* 导航栏 - 深色玻璃态（与V3一致） */
             .v4-nav {
                 position: fixed;
                 top: 0;
                 left: 0;
                 right: 0;
                 height: 60px;
-                background: rgba(255, 255, 255, 0.9);
+                background: rgba(0, 0, 0, 0.3);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
-                border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-                box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
                 z-index: 1000;
                 display: flex;
                 align-items: center;
                 padding: 0 24px;
+                transition: background 0.3s ease;
+            }
+            
+            .v4-nav.scrolled {
+                background: rgba(0, 0, 0, 0.7);
             }
             
             .v4-nav-logo {
                 font-size: 1.25rem;
                 font-weight: 700;
-                color: #667eea;
+                color: white;
                 margin-right: 32px;
             }
             
@@ -471,20 +491,39 @@ def get_v4_theme_css() -> str:
                 border-radius: 8px;
                 font-size: 0.875rem;
                 font-weight: 500;
-                color: #64748B;
+                color: rgba(255, 255, 255, 0.8);
                 cursor: pointer;
                 transition: all 0.2s ease;
                 text-decoration: none;
+                position: relative;
             }
             
             .v4-nav-item:hover {
-                background: rgba(102, 126, 234, 0.1);
-                color: #667eea;
+                color: white;
+                background: rgba(255, 255, 255, 0.1);
             }
             
             .v4-nav-item.active {
-                background: rgba(102, 126, 234, 0.15);
-                color: #667eea;
+                color: white;
+                background: rgba(255, 255, 255, 0.15);
+            }
+            
+            .v4-nav-item::after {
+                content: '';
+                position: absolute;
+                bottom: -2px;
+                left: 50%;
+                width: 0;
+                height: 2px;
+                background: linear-gradient(90deg, #667eea, #764ba2);
+                transition: all 0.3s ease;
+                transform: translateX(-50%);
+                border-radius: 1px;
+            }
+            
+            .v4-nav-item:hover::after,
+            .v4-nav-item.active::after {
+                width: 60%;
             }
             
             /* 页面标题区 - 紫色背景上的浅色文字 */
@@ -572,32 +611,67 @@ def get_v4_theme_css() -> str:
                 position: fixed;
                 bottom: 30px;
                 right: 30px;
-                width: 48px;
-                height: 48px;
-                background: #FFFFFF;
-                border: 1px solid #E2E8F0;
+                width: 50px;
+                height: 50px;
+                background: linear-gradient(135deg, #6366f1, #a855f7);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                color: #64748B;
+                color: white;
                 cursor: pointer;
                 z-index: 9998;
                 opacity: 0;
                 transform: translateY(20px);
                 transition: all 0.3s ease;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+                border: none;
+                font-size: 18px;
             }
             
             #backToTop:hover {
-                background: #F8FAFC;
-                color: #2563EB;
-                box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
             }
             
             #backToTop.visible {
                 opacity: 1;
                 transform: translateY(0);
+            }
+            
+            /* 操作按钮组 - 左下角 */
+            .action-buttons {
+                position: fixed;
+                bottom: 30px;
+                left: 30px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                z-index: 9998;
+            }
+            
+            .action-btn {
+                width: 50px;
+                height: 50px;
+                background: rgba(30, 30, 50, 0.8);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                font-size: 18px;
+            }
+            
+            .action-btn:hover {
+                background: rgba(99, 102, 241, 0.8);
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
             }
             
             /* 阅读进度条 */
@@ -606,10 +680,156 @@ def get_v4_theme_css() -> str:
                 top: 0;
                 left: 0;
                 height: 3px;
-                background: linear-gradient(90deg, #667eea, #764ba2);
+                background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
                 z-index: 1001;
                 width: 0%;
                 transition: width 0.1s ease;
+            }
+            
+            /* ===== 悬浮目录导航 ===== */
+            .toc-wrapper {
+                position: fixed;
+                top: 120px;
+                width: 220px;
+                max-height: calc(100vh - 160px);
+                background: rgba(139, 92, 246, 0.15);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 16px;
+                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+                z-index: 90;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .toc-right {
+                right: 20px;
+            }
+            
+            .toc-left {
+                left: 20px;
+            }
+            
+            .toc-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                cursor: pointer;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                user-select: none;
+            }
+            
+            .toc-title {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: white;
+            }
+            
+            .toc-header svg {
+                color: rgba(255, 255, 255, 0.7);
+                transition: transform 0.3s ease;
+            }
+            
+            .toc-wrapper.collapsed .toc-header svg {
+                transform: rotate(-90deg);
+            }
+            
+            .toc-content {
+                max-height: calc(100vh - 220px);
+                overflow-y: auto;
+                padding: 8px 0;
+                transition: max-height 0.3s ease;
+            }
+            
+            .toc-wrapper.collapsed .toc-content {
+                max-height: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            
+            .toc-item {
+                display: block;
+                padding: 8px 16px;
+                font-size: 0.8125rem;
+                color: rgba(255, 255, 255, 0.7);
+                text-decoration: none;
+                border-left: 3px solid transparent;
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+            
+            .toc-item:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.08);
+                border-left-color: rgba(255, 255, 255, 0.3);
+            }
+            
+            .toc-item.active {
+                color: white;
+                font-weight: 500;
+                background: rgba(102, 126, 234, 0.3);
+                border-left-color: #667eea;
+            }
+            
+            .toc-item.pl-4 {
+                padding-left: 32px;
+                font-size: 0.75rem;
+            }
+            
+            /* TOC滚动条样式 */
+            .toc-content::-webkit-scrollbar {
+                width: 4px;
+            }
+            
+            .toc-content::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            
+            .toc-content::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 2px;
+            }
+            
+            .toc-content::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.4);
+            }
+            
+            /* 大屏显示优化 */
+            @media (min-width: 1400px) {
+                .toc-wrapper {
+                    width: 260px;
+                }
+                .toc-right {
+                    right: calc((100vw - 64rem) / 2 - 300px);
+                }
+                .toc-left {
+                    left: calc((100vw - 64rem) / 2 - 300px);
+                }
+            }
+            
+            /* 平板端优化 - 折叠为悬浮按钮 */
+            @media (max-width: 1200px) {
+                .toc-wrapper {
+                    top: auto;
+                    bottom: 80px;
+                    right: 16px;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 240px;
+                    height: auto;
+                    max-height: 60vh;
+                    border-radius: 16px;
+                    top: auto;
+                    bottom: 80px;
+                }
             }
             
             /* 响应式 */
