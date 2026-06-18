@@ -113,8 +113,8 @@ class SLevelCatalystProGenerator(ReportProGenerator):
                 level_categories[level] = []
             level_categories[level].append(topic)
         
-        # 生成Tab内容
-        tabs = []
+        # 按等级分类展开显示（不用tab切换，确保100%可见）
+        sections_html = ''
         for level in ["S+", "S", "A+"]:
             if level not in level_categories:
                 continue
@@ -197,14 +197,24 @@ class SLevelCatalystProGenerator(ReportProGenerator):
                 })
             
             cards_html = self.create_card_group(cards=cards, cols=1, card_style='glass')
-            tabs.append({
-                'label': f'{level}级',
-                'content': cards_html
-            })
+            # 等级标题样式
+            level_color = {
+                'S+': 'from-orange-500 to-red-500',
+                'S': 'from-purple-500 to-pink-500',
+                'A+': 'from-blue-500 to-cyan-500',
+            }.get(level, 'from-gray-500 to-gray-600')
+            
+            sections_html += f'''
+            <div class="mb-6">
+                <h3 class="text-lg font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r {level_color}">
+                    {level}级题材
+                </h3>
+                {cards_html}
+            </div>
+            '''
         
-        # 使用Tab组件
-        tab_content = self.create_tab_pane(tabs=tabs, tab_id="s-level-topics", style="default")
-        self.add_section("S级题材深度分析", tab_content, "💎")
+        # 全部展开显示，不使用tab切换
+        self.add_section("S级题材深度分析", sections_html, "💎")
     
     def add_a_plus_catalysts(self, catalysts: list = None):
         """添加A+级催化事件列表"""
@@ -329,12 +339,13 @@ class SLevelCatalystProGenerator(ReportProGenerator):
         self.add_section("特别风险提示", cards_html, "⚠️")
     
     def add_industry_chain_analysis(self):
-        """添加产业链分析 - 使用Tab切换"""
+        """添加产业链分析 - 全部展开显示"""
         topics = self.topics if hasattr(self, 'topics') and self.topics else []
         if not topics:
             topics = [{'name': 'AI算力', 'logic': '算力需求爆发，产业链上下游受益'}]
         
-        tabs = []
+        # 全部展开，每个题材一个产业链分析块
+        sections_html = ''
         for topic in topics[:2]:
             name = topic.get('name', '')
             
@@ -376,13 +387,14 @@ class SLevelCatalystProGenerator(ReportProGenerator):
             </div>
             '''
             
-            tabs.append({
-                'label': name,
-                'content': chain_content
-            })
+            sections_html += f'''
+            <div class="mb-8">
+                <h4 class="text-base font-semibold text-white/90 mb-4">{name} 产业链</h4>
+                {chain_content}
+            </div>
+            '''
         
-        tab_content = self.create_tab_pane(tabs=tabs, tab_id="industry-chain", style="underline")
-        self.add_section("产业链分析", tab_content, "🔗")
+        self.add_section("产业链分析", sections_html, "🔗")
     
     def add_investment_strategy(self):
         """添加投资策略 - 使用卡片组"""
