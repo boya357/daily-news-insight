@@ -60,26 +60,21 @@ class SLevelCatalystV4Generator:
             with open(data_path, 'r', encoding='utf-8') as f:
                 self.topics_data = json.load(f)
     
-    def _render_nav(self, active: str = "S级催化") -> str:
-        """渲染导航栏"""
-        nav_items = [
-            ("首页", "index.html"),
-            ("盘中快报", "intraday/latest.html"),
-            ("S级催化", "s-level-catalyst/latest.html"),
-            ("持仓仪表盘", "portfolio/index.html"),
-            ("明日催化剂", "tomorrow-catalyst/index.html"),
-            ("题材健康度", "topic-health/index.html"),
-            ("预判验证", "prediction-verification/index.html"),
-        ]
+    def _render_nav(self, active_key: str = "s_level_catalyst") -> str:
+        """渲染导航栏 - 使用统一配置的11项导航"""
+        # 从核心配置导入导航项，确保全站统一
+        from core.config import NAV_ITEMS, SITE_ICON, SITE_NAME
         
         items_html = ""
-        for name, url in nav_items:
-            active_class = "active" if name == active else ""
-            items_html += f'<a class="v4-nav-item {active_class}" href="/{url}">{name}</a>'
+        for item in NAV_ITEMS:
+            active_class = "active" if item["key"] == active_key else ""
+            # 导航项使用图标+文字的形式，与V3一致
+            label = f'{item["icon"]} {item["label"]}'
+            items_html += f'<a class="v4-nav-item {active_class}" href="{item["path"]}">{label}</a>'
         
         return f'''
         <nav class="v4-nav" id="topNav">
-            <div class="v4-nav-logo">📈 投资研究中心</div>
+            <div class="v4-nav-logo">{SITE_ICON} {SITE_NAME}</div>
             <div class="v4-nav-menu">
                 {items_html}
             </div>

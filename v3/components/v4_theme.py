@@ -357,11 +357,11 @@ def get_v4_theme_css() -> str:
             .v4-diagnosis-item.bad .dim-value { color: #DC2626; }
             .v4-diagnosis-item.neutral .dim-value { color: #F59E0B; }
             
-            /* 详细诊断面板 - 2x2网格 */
+            /* 详细诊断面板 - 1x4横向网格 */
             .stock-diagnosis-detail {
                 margin-top: 16px;
                 display: grid;
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(4, 1fr);
                 gap: 10px;
             }
             

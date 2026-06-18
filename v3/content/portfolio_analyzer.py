@@ -224,25 +224,25 @@ class PortfolioAnalyzer(ContentAnalyzer):
         
         # 技术面诊断
         tech = diagnosis.get('technical', {})
-        stock.technical_status = tech.get('status', '')
+        stock.technical_status = self._map_status_to_chinese(tech.get('status', ''), 'technical')
         stock.technical_desc = f"{tech.get('title', '')}：{tech.get('value', '')}（{tech.get('desc', '')}）"
         stock.technical_items = self._generate_technical_items(tech, stock.today_change_pct)
         
         # 资金面诊断
         fund = diagnosis.get('fund', {})
-        stock.fund_status = fund.get('status', '')
+        stock.fund_status = self._map_status_to_chinese(fund.get('status', ''), 'fund')
         stock.fund_desc = f"{fund.get('title', '')}：{fund.get('value', '')}（{fund.get('desc', '')}）"
         stock.fund_items = self._generate_fund_items(fund, stock.main_fund)
         
         # 消息面诊断
         news = diagnosis.get('news', {})
-        stock.news_status = news.get('status', '')
+        stock.news_status = self._map_status_to_chinese(news.get('status', ''), 'news')
         stock.news_desc = f"{news.get('title', '')}：{news.get('value', '')}（{news.get('desc', '')}）"
         stock.news_items = self._generate_news_items(news)
         
         # 产业面诊断
         industry = diagnosis.get('industry', {})
-        stock.industry_status = industry.get('status', '')
+        stock.industry_status = self._map_status_to_chinese(industry.get('status', ''), 'industry')
         stock.industry_desc = f"{industry.get('title', '')}：{industry.get('value', '')}（{industry.get('desc', '')}）"
         stock.industry_items = self._generate_industry_items(industry)
         
@@ -424,6 +424,30 @@ class PortfolioAnalyzer(ContentAnalyzer):
             items.append(DiagnosisItem(text="政策环境整体稳定", status="neutral"))
         
         return items
+    
+    def _map_status_to_chinese(self, status: str, dimension: str) -> str:
+        """将英文状态值映射为中文
+        
+        Args:
+            status: 英文状态值 (good/neutral/bad)
+            dimension: 维度类型 (technical/fund/news/industry)
+            
+        Returns:
+            中文状态描述
+        """
+        # 如果已经是中文，直接返回
+        if status in ['强势', '弱势', '震荡', '流入', '流出', '利好', '利空', '中性', '向好', '下滑', '平稳']:
+            return status
+        
+        # 各维度的中文映射
+        mapping = {
+            'technical': {'good': '强势', 'neutral': '震荡', 'bad': '弱势'},
+            'fund': {'good': '流入', 'neutral': '平衡', 'bad': '流出'},
+            'news': {'good': '利好', 'neutral': '中性', 'bad': '利空'},
+            'industry': {'good': '向好', 'neutral': '平稳', 'bad': '下滑'},
+        }
+        
+        return mapping.get(dimension, {}).get(status, '中性')
     
     def _calculate_overall_risk(self, stocks: List[StockAnalysis]) -> str:
         """计算组合整体风险等级"""
