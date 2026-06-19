@@ -102,7 +102,12 @@ class SCatalystTopicsV4(V4BaseGenerator):
         
         # 深度报告链接
         topic_id = topic.get('id', '')
-        deep_dive_url = f"topic_deep_dive_{topic_id}.html" if topic_id else "#"
+        topic_name = topic.get('name', '')
+        if topic_id and topic_name:
+            safe_name = ''.join(c for c in topic_name if c.isalnum() or c in ('_', '-'))
+            deep_dive_url = f"report_{topic_id}_{safe_name}.html"
+        else:
+            deep_dive_url = "#"
         
         return {
             'level': level,
