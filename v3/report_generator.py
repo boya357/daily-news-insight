@@ -334,17 +334,12 @@ class ReportGenerator:
     def _update_stock_list_page(self):
         """更新个股分析列表页"""
         try:
-            from generators.list_page_pro import ListPageProGenerator
-
-            list_gen = ListPageProGenerator(
-                channel_key='stock_analysis',
-                docs_dir=str(self.docs_dir),
-                data_dir=str(self.data_dir),
-            )
-            list_gen.publish()
+            self.stock_manager.generate_list_page()
             print("✅ 个股分析列表页已更新")
         except Exception as e:
             print(f"⚠️  更新个股分析列表页失败: {e}")
+            import traceback
+            traceback.print_exc()
 
     def update_all_list_pages(self):
         """更新所有列表页"""

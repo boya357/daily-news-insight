@@ -262,6 +262,220 @@ class UnifiedStockManager:
 
 
 # 单例
+
+    def generate_list_page(self, output_path: str = None) -> str:
+        """生成个股分析列表页
+
+        Args:
+            output_path: 输出路径，默认为 docs/个股分析/index.html
+
+        Returns:
+            生成的HTML内容
+        """
+        data = self.load_stock_list()
+        stocks = data.get('stocks', {})
+
+        # 准备股票数据
+        stock_data = []
+        for name, info in stocks.items():
+            if isinstance(info, dict):
+                stock_data.append({
+                    'name': name,
+                    'code': info.get('code', ''),
+                    'sector': info.get('sector', ''),
+                    'rating': info.get('rating', ''),
+                    'data_level': info.get('data_level', 1),
+                })
+            else:
+                stock_data.append({
+                    'name': name,
+                    'code': info if isinstance(info, str) else '',
+                    'sector': '',
+                    'rating': '',
+                    'data_level': 1,
+                })
+
+        # 按名称排序
+        stock_data.sort(key=lambda x: x['name'])
+
+        # 统计数据
+        total = len(stock_data)
+        buy_rated = sum(1 for s in stock_data if s.get('rating') in ['买入', '增持'])
+        has_page = sum(1 for s in stock_data if s.get('data_level', 1) >= 3)
+
+        # 生成股票卡片HTML
+        cards_html = ''
+        for stock in stock_data:
+            name = stock['name']
+            code = stock.get('code', '')
+            sector = stock.get('sector', '')
+            rating = stock.get('rating', '')
+            has_detail = stock.get('data_level', 1) >= 3
+
+            link = name + '.html' if has_detail else '#'
+            cursor_class = 'cursor-pointer' if has_detail else 'cursor-not-allowed opacity-60'
+
+            rating_colors = {
+                '买入': 'text-green-400',
+                '增持': 'text-emerald-400',
+                '持有': 'text-yellow-400',
+                '减持': 'text-orange-400',
+                '卖出': 'text-red-400',
+                '已分析': 'text-blue-400',
+            }
+            rating_color = rating_colors.get(rating, 'text-white/60')
+
+            rating_bgs = {
+                '买入': 'bg-green-500/20',
+                '增持': 'bg-emerald-500/20',
+                '持有': 'bg-yellow-500/20',
+                '减持': 'bg-orange-500/20',
+                '卖出': 'bg-red-500/20',
+                '已分析': 'bg-blue-500/20',
+            }
+            rating_bg = rating_bgs.get(rating, 'bg-white/10')
+
+            rating_span = ''
+            if rating:
+                rating_span = '<span class="text-xs px-2 py-1 rounded-full ' + rating_bg + ' ' + rating_color + '">' + rating + '</span>'
+
+            sector_p = ''
+            if sector:
+                sector_p = '<p class="text-white/40 text-xs mt-2">' + sector + '</p>'
+
+            card = '<a href="' + link + '" class="glass-card rounded-xl p-4 ' + cursor_class + ' hover:border-blue-400/50 transition-all duration-300 group block">'
+            card += '<div class="flex items-start justify-between mb-2">'
+            card += '<div>'
+            card += '<h3 class="text-white font-bold text-lg group-hover:text-blue-400 transition-colors">' + name + '</h3>'
+            card += '<p class="text-white/50 text-sm">' + code + '</p>'
+            card += '</div>'
+            card += rating_span
+            card += '</div>'
+            card += sector_p
+            card += '<div class="mt-3 flex items-center text-blue-400/70 text-xs group-hover:text-blue-400">'
+            card += '<span>查看深度分析</span>'
+            card += '<svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">'
+            card += '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>'
+            card += '</svg>'
+            card += '</div>'
+            card += '</a>'
+            cards_html += card + '\n'
+
+        html = '<!DOCTYPE html>\n'
+        html += '<html lang="zh-CN">\n'
+        html += '<head>\n'
+        html += '    <meta charset="UTF-8">\n'
+        html += '    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
+        html += '    <title>个股分析中心 - 投资研究中心</title>\n'
+        html += '    <script src="https://cdn.tailwindcss.com"></script>\n'
+        html += '    <style>\n'
+        html += "        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');\n"
+        html += '        * { font-family: "Noto Sans SC", sans-serif; }\n'
+        html += '        body {\n'
+        html += '            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);\n'
+        html += '            min-height: 100vh;\n'
+        html += '            padding-top: 80px;\n'
+        html += '            color: white;\n'
+        html += '        }\n'
+        html += '        .nav-bar {\n'
+        html += '            position: fixed;\n'
+        html += '            top: 0;\n'
+        html += '            left: 0;\n'
+        html += '            right: 0;\n'
+        html += '            z-index: 100;\n'
+        html += '            background: rgba(15, 23, 42, 0.9);\n'
+        html += '            backdrop-filter: blur(20px);\n'
+        html += '            border-bottom: 1px solid rgba(255, 255, 255, 0.1);\n'
+        html += '        }\n'
+        html += '        .nav-link {\n'
+        html += '            color: rgba(255, 255, 255, 0.7);\n'
+        html += '            padding: 0.75rem 1rem;\n'
+        html += '            text-decoration: none;\n'
+        html += '            transition: color 0.3s;\n'
+        html += '        }\n'
+        html += '        .nav-link:hover, .nav-link.active {\n'
+        html += '            color: #60a5fa;\n'
+        html += '        }\n'
+        html += '        .glass-card {\n'
+        html += '            background: rgba(255, 255, 255, 0.05);\n'
+        html += '            backdrop-filter: blur(10px);\n'
+        html += '            border: 1px solid rgba(255, 255, 255, 0.1);\n'
+        html += '            border-radius: 1rem;\n'
+        html += '        }\n'
+        html += '        .section-title {\n'
+        html += '            border-left: 4px solid #3b82f6;\n'
+        html += '            padding-left: 1rem;\n'
+        html += '            margin-bottom: 1.5rem;\n'
+        html += '        }\n'
+        html += '    </style>\n'
+        html += '</head>\n'
+        html += '<body>\n'
+        html += '    <nav class="nav-bar">\n'
+        html += '        <div class="max-w-7xl mx-auto px-4 flex items-center h-16">\n'
+        html += '            <div class="text-xl font-bold text-white mr-8">📈 投资研究中心</div>\n'
+        html += '            <a href="../index.html" class="nav-link">首页</a>\n'
+        html += '            <a href="index.html" class="nav-link active">个股分析</a>\n'
+        html += '            <a href="../industry_chain/index.html" class="nav-link">产业链</a>\n'
+        html += '        </div>\n'
+        html += '    </nav>\n'
+        html += '\n'
+        html += '    <div class="max-w-7xl mx-auto px-4 py-8">\n'
+        html += '        <div class="text-center mb-12">\n'
+        html += '            <h1 class="text-4xl font-black text-white mb-3">🔍 个股分析中心</h1>\n'
+        html += '            <p class="text-white/60 text-lg">深度覆盖全市场核心标的，多维分析助力投资决策</p>\n'
+        html += '        </div>\n'
+        html += '\n'
+        html += '        <!-- 统计卡片 -->\n'
+        html += '        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">\n'
+        html += '            <div class="glass-card rounded-2xl p-6 text-center">\n'
+        html += '                <div class="text-4xl font-black text-blue-400 mb-2">' + str(total) + '</div>\n'
+        html += '                <div class="text-white/60">覆盖股票</div>\n'
+        html += '            </div>\n'
+        html += '            <div class="glass-card rounded-2xl p-6 text-center">\n'
+        html += '                <div class="text-4xl font-black text-green-400 mb-2">' + str(buy_rated) + '</div>\n'
+        html += '                <div class="text-white/60">推荐评级</div>\n'
+        html += '            </div>\n'
+        html += '            <div class="glass-card rounded-2xl p-6 text-center">\n'
+        html += '                <div class="text-4xl font-black text-purple-400 mb-2">' + str(has_page) + '</div>\n'
+        html += '                <div class="text-white/60">深度分析页</div>\n'
+        html += '            </div>\n'
+        html += '        </div>\n'
+        html += '\n'
+        html += '        <!-- 股票列表 -->\n'
+        html += '        <div class="section-title">\n'
+        html += '            <h2 class="text-2xl font-bold text-white">全部股票</h2>\n'
+        html += '            <p class="text-white/50 text-sm mt-1">按名称排序，点击查看深度分析报告</p>\n'
+        html += '        </div>\n'
+        html += '\n'
+        html += '        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">\n'
+        html += cards_html
+        html += '        </div>\n'
+        html += '    </div>\n'
+        html += '\n'
+        html += '    <footer class="mt-20 py-8 border-t border-white/10 text-center text-white/40 text-sm">\n'
+        html += '        <p>投资研究中心 · 数据驱动决策 · 股市有风险，投资需谨慎</p>\n'
+        html += '    </footer>\n'
+        html += '\n'
+        html += '    <!-- 悬浮卡片JS -->\n'
+        html += '    <script src="../js/stock-hover-card.js"></script>\n'
+        html += '</body>\n'
+        html += '</html>'
+
+        # 保存文件
+        if output_path is None:
+            output_path = str(self.pages_dir / 'index.html')
+
+        import os
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(html)
+
+        print(f"✅ 个股分析列表页已生成: {output_path}")
+        return html
+
+
+
+
 _manager = None
 
 def get_stock_manager(docs_dir: str = None) -> UnifiedStockManager:
