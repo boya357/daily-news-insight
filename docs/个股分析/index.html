@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个股分析 - 投资研究中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+        
+        * { font-family: 'Noto Sans SC', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card-glass {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 15px 40px rgba(118, 75, 162, 0.35);
+            border-radius: 20px;
+        }
+        
+        .stock-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+        }
+        
+        .stock-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+            border-color: #c7d2fe;
+        }
+        
+        .stock-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .stock-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .stock-code {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        
+        .stock-price {
+            font-size: 20px;
+            font-weight: 800;
+            text-align: right;
+        }
+        
+        .stock-change {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-top: 4px;
+            display: inline-block;
+        }
+        
+        .stock-change.up {
+            color: #059669;
+            background: #d1fae5;
+        }
+        
+        .stock-change.down {
+            color: #dc2626;
+            background: #fee2e2;
+        }
+        
+        .sector-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            background: #f3f4f6;
+            color: #6b7280;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-right: 4px;
+            margin-bottom: 4px;
+        }
+        
+        .rating-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        
+        .rating-buy {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        .rating-hold {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .rating-sell {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            background: white;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        .search-box .fa-search {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 16px;
+        }
+        
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        
+        .category-tab {
+            flex-shrink: 0;
+            padding: 8px 16px;
+            background: #f3f4f6;
+            color: #6b7280;
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        
+        .category-tab:hover {
+            background: #e5e7eb;
+        }
+        
+        .category-tab.active {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .grid-stocks {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        @media (max-width: 640px) {
+            .grid-stocks {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 移动端菜单 */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(102, 126, 234, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 10000;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            padding: 20px;
+        }
+        
+        .mobile-menu.show {
+            transform: translateX(0);
+        }
+        
+        .hamburger-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hamburger-btn { display: block; }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+        
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .stock-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed #e5e7eb;
+        }
+        
+        .metric-item {
+            font-size: 11px;
+            color: #6b7280;
+        }
+        
+        .metric-item span {
+            font-weight: 600;
+            color: #374151;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3 flex-shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">📊</span>
+                </div>
+                <span class="text-white font-bold text-lg whitespace-nowrap">投资研究中心</span>
+            </div>
+            <div class="nav-links flex items-center space-x-1 flex-wrap gap-1">
+                <a href="/daily-news-insight/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a>
+                <a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a>
+                <a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a>
+                <a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a>
+                <a href="/daily-news-insight/个股分析/" class="text-white bg-white/20 text-sm font-medium px-3 py-1.5 rounded-lg">个股分析</a>
+            </div>
+            <button class="hamburger-btn" onclick="toggleMobileMenu()">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- 移动端全屏菜单 -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button class="close-menu-btn" onclick="toggleMobileMenu()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 24px; cursor: pointer;">✕</button>
+        <div style="margin-top: 60px; display: flex; flex-direction: column; gap: 8px;">
+            <a href="/daily-news-insight/index.html" class="text-white/90 text-lg py-3 px-4 rounded-xl hover:bg-white/10 transition">🏠 首页</a>
+            <a href="/daily-news-insight/daily/latest.html" class="text-white/90 text-lg py-3 px-4 rounded-xl hover:bg-white/10 transition">📰 日报</a>
+            <a href="/daily-news-insight/industry_chain/latest.html" class="text-white/90 text-lg py-3 px-4 rounded-xl hover:bg-white/10 transition">🔗 产业链</a>
+            <a href="/daily-news-insight/weekly_review/latest.html" class="text-white/90 text-lg py-3 px-4 rounded-xl hover:bg-white/10 transition">📋 周复盘</a>
+            <a href="/daily-news-insight/个股分析/" class="text-white bg-white/20 text-lg py-3 px-4 rounded-xl font-medium">📈 个股分析</a>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="pt-20 pb-16 px-4">
+        <div class="max-w-5xl mx-auto">
+            
+            <!-- 头部标题 -->
+            <div class="text-center mb-8 pt-4">
+                <h1 class="text-3xl md:text-4xl font-black text-white mb-3">📈 个股深度分析</h1>
+                <p class="text-white/70 text-base">全维度分析 · 智能选股 · 实时数据</p>
+                <p class="text-white/50 text-sm mt-2" id="stockCount">共 0 只股票</p>
+            </div>
+
+            <div class="card-glass p-6 md:p-8">
+                <!-- 搜索框 -->
+                <div class="search-box">
+                    <i class="fa fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="搜索股票名称或代码..." oninput="filterStocks()">
+                </div>
+
+                <!-- 分类标签 -->
+                <div class="category-tabs" id="categoryTabs">
+                    <div class="category-tab active" data-category="all">全部</div>
+                    <!-- 动态生成分类标签 -->
+                </div>
+
+                <!-- 股票列表 -->
+                <div class="section-title">
+                    <i class="fa fa-list-ul text-indigo-500"></i>
+                    股票列表
+                </div>
+                
+                <div class="grid-stocks" id="stockGrid">
+                    <div class="empty-state">
+                        <div class="icon">📊</div>
+                        <p>加载中...</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 说明卡片 -->
+            <div class="mt-8 bg-white/10 backdrop-blur rounded-2xl p-6 text-white/80">
+                <h3 class="font-bold text-white mb-3">💡 功能说明</h3>
+                <ul class="space-y-2 text-sm">
+                    <li>• <strong>六维分析：</strong>技术面、行情面、题材面、基本面、消息面、游资视角</li>
+                    <li>• <strong>智能识别：</strong>全站任意页面的股票名称，鼠标悬停即可查看快速分析</li>
+                    <li>• <strong>数据更新：</strong>每日收盘后自动更新分析数据</li>
+                    <li>• <strong>风险提示：</strong>所有分析仅供参考，不构成投资建议</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // 移动端菜单
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('show');
+        }
+
+        // 股票数据
+        let allStocks = [];
+        let stockDataCache = {};
+        let currentCategory = 'all';
+
+        // 加载股票列表
+        async function loadStockList() {
+            try {
+                const res = await fetch('/daily-news-insight/data/stock_analysis/stock_list.json?_=' + Date.now());
+                if (res.ok) {
+                    const data = await res.json();
+                    allStocks = Object.entries(data.stocks || {}).map(([name, code]) => ({ name, code }));
+                    document.getElementById('stockCount').textContent = `共 ${allStocks.length} 只股票`;
+                    
+                    // 生成分类标签
+                    generateCategories(data.categories || data.sectors || {});
+                    
+                    // 渲染股票列表
+                    renderStockList(allStocks);
+                    
+                    // 预加载部分股票数据
+                    preloadStockData();
+                }
+            } catch (e) {
+                console.error('加载股票列表失败', e);
+                document.getElementById('stockGrid').innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">😕</div>
+                        <p>加载失败，请刷新重试</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 生成分类标签
+        function generateCategories(categories) {
+            const tabsContainer = document.getElementById('categoryTabs');
+            
+            // 如果没有分类数据，自动生成一些
+            if (Object.keys(categories).length === 0) {
+                // 默认分类
+                const defaultCats = ['AI算力', '半导体', '存储芯片', '人形机器人', '先进封装', '消费电子', '新能源', '医药生物', '金融地产'];
+                defaultCats.forEach(cat => {
+                    const tab = document.createElement('div');
+                    tab.className = 'category-tab';
+                    tab.dataset.category = cat;
+                    tab.textContent = cat;
+                    tab.onclick = () => selectCategory(cat);
+                    tabsContainer.appendChild(tab);
+                });
+                return;
+            }
+
+            Object.keys(categories).forEach(cat => {
+                const tab = document.createElement('div');
+                tab.className = 'category-tab';
+                tab.dataset.category = cat;
+                tab.textContent = cat;
+                tab.onclick = () => selectCategory(cat);
+                tabsContainer.appendChild(tab);
+            });
+        }
+
+        // 选择分类
+        function selectCategory(category) {
+            currentCategory = category;
+            
+            // 更新标签状态
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.category === category);
+            });
+            
+            filterStocks();
+        }
+
+        // 预加载股票数据
+        async function preloadStockData() {
+            // 预加载前10只股票的数据
+            const toLoad = allStocks.slice(0, 10);
+            for (const stock of toLoad) {
+                try {
+                    const res = await fetch(`/daily-news-insight/data/stock_analysis/${stock.code}.json`);
+                    if (res.ok) {
+                        stockDataCache[stock.code] = await res.json();
+                        // 更新卡片显示
+                        updateStockCard(stock.code);
+                    }
+                } catch (e) {
+                    // 忽略加载失败
+                }
+            }
+        }
+
+        // 更新股票卡片
+        function updateStockCard(code) {
+            const data = stockDataCache[code];
+            if (!data) return;
+            
+            const card = document.querySelector(`[data-code="${code}"]`);
+            if (!card) return;
+
+            const price = data.overall?.price || data.market?.current_price || data.technical?.ma?.ma5 || 0;
+            const change = data.overall?.change_pct || data.market?.change_pct || 0;
+            const rating = data.overall?.rating || '中性';
+            
+            card.querySelector('.stock-price').textContent = price.toFixed(2);
+            const changeEl = card.querySelector('.stock-change');
+            changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+            changeEl.className = 'stock-change ' + (change >= 0 ? 'up' : 'down');
+            
+            // 评级
+            const ratingEl = card.querySelector('.rating-badge');
+            ratingEl.textContent = rating;
+            ratingEl.className = 'rating-badge rating-' + (rating === '买入' ? 'buy' : rating === '卖出' ? 'sell' : 'hold');
+            
+            // 行业标签
+            if (data.sector) {
+                const tagsHtml = `<span class="sector-tag">${data.sector}</span>`;
+                card.querySelector('.sector-tags').innerHTML = tagsHtml;
+            }
+            
+            // 核心指标
+            const metricsHtml = `
+                <div class="metric-item">PE: <span>${data.fundamental?.pe_ratio?.toFixed(2) || '--'}</span></div>
+                <div class="metric-item">市值: <span>${data.fundamental?.market_cap ? ((data.fundamental.market_cap/100000000).toFixed(0)+'亿') : '--'}</span></div>
+            `;
+            card.querySelector('.stock-metrics').innerHTML = metricsHtml;
+        }
+
+        // 渲染股票列表
+        function renderStockList(stocks) {
+            const grid = document.getElementById('stockGrid');
+            
+            if (stocks.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="icon">🔍</div>
+                        <p>未找到匹配的股票</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = stocks.map(stock => {
+                const data = stockDataCache[stock.code];
+                const price = data?.overall?.price || data?.market?.current_price || data?.technical?.ma?.ma5 || '--';
+                const change = data?.overall?.change_pct || data?.market?.change_pct || 0;
+                const rating = data?.overall?.rating || '分析中';
+                const sector = data?.sector || '';
+                
+                return `
+                    <div class="stock-card" data-code="${stock.code}" onclick="goToDetail('${encodeURIComponent(stock.name)}')">
+                        <div class="stock-card-header">
+                            <div>
+                                <div class="stock-name">${stock.name}</div>
+                                <div class="stock-code">${stock.code}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div class="stock-price">${typeof price === 'number' ? price.toFixed(2) : price}</div>
+                                <div class="stock-change ${change >= 0 ? 'up' : 'down'}">${change >= 0 ? '+' : ''}${typeof change === 'number' ? change.toFixed(2) : '--'}%</div>
+                            </div>
+                        </div>
+                        <div class="sector-tags">
+                            ${sector ? `<span class="sector-tag">${sector}</span>` : ''}
+                        </div>
+                        <div class="stock-metrics">
+                            <div class="metric-item">PE: <span>${data?.fundamental?.pe_ratio?.toFixed(2) || '--'}</span></div>
+                            <div class="metric-item">评级: <span class="rating-badge rating-${rating === '买入' ? 'buy' : rating === '卖出' ? 'sell' : 'hold'}" style="font-size: 11px; padding: 2px 6px;">${rating}</span></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 搜索过滤
+        function filterStocks() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filtered = allStocks;
+            
+            // 关键词过滤
+            if (keyword) {
+                filtered = filtered.filter(s => 
+                    s.name.toLowerCase().includes(keyword) || 
+                    s.code.includes(keyword)
+                );
+            }
+            
+            // 分类过滤
+            if (currentCategory !== 'all') {
+                // 这里可以根据实际分类数据进行过滤
+                // 暂时简单处理：根据股票名称或代码匹配
+                filtered = filtered.filter(s => {
+                    const data = stockDataCache[s.code];
+                    if (data?.sector?.includes(currentCategory)) return true;
+                    if (data?.themes?.some(t => t.includes(currentCategory))) return true;
+                    // 如果没有缓存数据，默认显示
+                    return !data;
+                });
+            }
+            
+            renderStockList(filtered);
+        }
+
+        // 跳转到详情页
+        function goToDetail(stockName) {
+            window.location.href = `detail.html?name=${stockName}`;
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStockList();
+        });
+    </script>
+</body>
+</html>

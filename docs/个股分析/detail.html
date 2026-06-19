@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个股深度分析报告 - 投资研究中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup-v3.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+        
+        * { font-family: 'Noto Sans SC', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card-glass {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 15px 40px rgba(118, 75, 162, 0.35);
+            border-radius: 20px;
+        }
+        
+        /* Tab 导航 */
+        .section-tabs {
+            display: flex;
+            gap: 4px;
+            background: #f3f4f6;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+        
+        .section-tab {
+            flex: 1;
+            min-width: 80px;
+            padding: 10px 16px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        
+        .section-tab:hover {
+            color: #374151;
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .section-tab.active {
+            background: white;
+            color: #6366f1;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            font-weight: 600;
+        }
+        
+        .section-content {
+            display: none;
+        }
+        
+        .section-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 数据卡片 */
+        .stat-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 14px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+        
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        .stat-change {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        
+        .stat-change.up { color: #10b981; }
+        .stat-change.down { color: #ef4444; }
+        
+        /* 分析模块 */
+        .analysis-block {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .block-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .block-title .icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        /* 标签 */
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+        
+        .tag-primary {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        .tag-success {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        .tag-warning {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .tag-danger {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .tag-purple {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+        
+        .tag-pink {
+            background: #fce7f3;
+            color: #db2777;
+        }
+        
+        /* 引用块 */
+        .quote-box {
+            border-left: 4px solid #6366f1;
+            padding: 12px 16px;
+            background: #f5f3ff;
+            border-radius: 0 8px 8px 0;
+            margin: 12px 0;
+            font-size: 14px;
+            color: #4c1d95;
+            line-height: 1.6;
+        }
+        
+        /* 表格 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        .data-table th {
+            background: #f8fafc;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+        
+        .data-table tr:hover {
+            background: #f8fafc;
+        }
+        
+        /* 评级徽章 */
+        .rating-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .rating-buy {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+        }
+        
+        .rating-hold {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+        }
+        
+        .rating-sell {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+        }
+        
+        /* 催化卡片 */
+        .catalyst-card {
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+            border-left: 4px solid #f97316;
+            padding: 16px;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 12px;
+        }
+        
+        .catalyst-title {
+            font-weight: 700;
+            color: #c2410c;
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+        
+        .catalyst-content {
+            font-size: 13px;
+            color: #9a3412;
+            line-height: 1.6;
+        }
+        
+        /* 风险卡片 */
+        .risk-card {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-left: 4px solid #ef4444;
+            padding: 16px;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 12px;
+        }
+        
+        /* 移动端菜单 */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(102, 126, 234, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 10000;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            padding: 20px;
+        }
+        
+        .mobile-menu.show {
+            transform: translateX(0);
+        }
+        
+        .hamburger-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hamburger-btn { display: block; }
+        }
+        
+        /* 加载状态 */
+        .loading-container {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 图表容器 */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 16px 0;
+        }
+        
+        /* 股票头部信息 */
+        .stock-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            color: white;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stock-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        .stock-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+        }
+        
+        .stock-header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 指标网格 */
+        .metrics-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        
+        .metrics-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        
+        @media (max-width: 768px) {
+            .metrics-grid-4 { grid-template-columns: repeat(2, 1fr); }
+            .metrics-grid-3 { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3 flex-shrink-0">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">📊</span>
+                </div>
+                <span class="text-white font-bold text-lg whitespace-nowrap">投资研究中心</span>
+            </div>
+            <div class="nav-links flex items-center space-x-1 flex-wrap gap-1">
+                <a href="/daily-news-insight/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a>
+                <a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a>
+                <a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a>
+                <a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a>
+                <a href="/daily-news-insight/个股分析/" class="text-white bg-white/20 text-sm font-medium px-3 py-1.5 rounded-lg">个股分析</a>
+            </div>
+            <button class="hamburger-btn" onclick="toggleMobileMenu()">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- 移动端全屏菜单 -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button class="close-menu-btn" onclick="toggleMobileMenu()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 24px; cursor: pointer;">✕</button>
+        <div style="margin-top: 60px; display: flex; flex-direction: column; gap: 8px;">
+            <a href="/daily-news-insight/index.html" class="text-white/90 text-lg py-3 px-4 rounded-xl hover:bg-white/10 transition">🏠 首页</a>
+            <a href="/daily-news-insight/daily/latest.html" class="text-white/90 text-lg py-3 px-4 rounded-xl hover:bg-white/10 transition">📰 日报</a>
+            <a href="/daily-news-insight/industry_chain/latest.html" class="text-white/90 text-lg py-3 px-4 rounded-xl hover:bg-white/10 transition">🔗 产业链</a>
+            <a href="/daily-news-insight/weekly_review/latest.html" class="text-white/90 text-lg py-3 px-4 rounded-xl hover:bg-white/10 transition">📋 周复盘</a>
+            <a href="/daily-news-insight/个股分析/" class="text-white bg-white/20 text-lg py-3 px-4 rounded-xl font-medium">📈 个股分析</a>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="pt-20 pb-16 px-4">
+        <div class="max-w-5xl mx-auto">
+            
+            <!-- 股票头部卡片 -->
+            <div class="stock-header" id="stockHeader">
+                <div class="stock-header-content">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h1 class="text-3xl font-black mb-1" id="stockName">加载中...</h1>
+                            <span class="text-white/70 text-sm" id="stockCode">------</span>
+                        </div>
+                        <div class="rating-badge rating-hold" id="ratingBadge">
+                            <i class="fa fa-star"></i>
+                            <span id="ratingText">暂无评级</span>
+                        </div>
+                    </div>
+                    <div class="flex items-end gap-6 mb-6">
+                        <div>
+                            <div class="text-5xl font-black" id="currentPrice">--</div>
+                        </div>
+                        <div class="text-2xl font-bold mb-1" id="priceChange">--</div>
+                    </div>
+                    <div class="flex flex-wrap gap-2" id="themeTags">
+                        <!-- 题材标签动态插入 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 核心数据概览 -->
+            <div class="card-glass p-6 mb-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">📊 核心指标</h3>
+                <div class="metrics-grid-4" id="coreMetrics">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+
+            <!-- Tab 导航 -->
+            <div class="section-tabs" id="sectionTabs">
+                <div class="section-tab active" data-section="technical">
+                    <i class="fa fa-line-chart"></i> 技术面
+                </div>
+                <div class="section-tab" data-section="fundamental">
+                    <i class="fa fa-building"></i> 基本面
+                </div>
+                <div class="section-tab" data-section="news">
+                    <i class="fa fa-newspaper-o"></i> 消息面
+                </div>
+                <div class="section-tab" data-section="trader">
+                    <i class="fa fa-fire"></i> 游资视角
+                </div>
+                <div class="section-tab" data-section="industry">
+                    <i class="fa fa-sitemap"></i> 行业分析
+                </div>
+            </div>
+
+            <!-- 技术面 -->
+            <div class="section-content active" id="section-technical">
+                <div class="analysis-block">
+                    <div class="block-title">
+                        <span class="icon bg-blue-100 text-blue-600">📈</span>
+                        技术指标分析
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="technicalChart"></canvas>
+                    </div>
+                    <div class="metrics-grid-4 mt-4" id="technicalMetrics">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+
+                <div class="analysis-block">
+                    <div class="block-title">
+                        <span class="icon bg-green-100 text-green-600">🎯</span>
+                        支撑位与压力位
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="stat-card">
+                            <div class="stat-label">第一支撑位</div>
+                            <div class="stat-value text-green-600" id="support1">--</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">第一压力位</div>
+                            <div class="stat-value text-red-600" id="resistance1">--</div>
+                        </div>
+                    </div>
+                    <div class="quote-box mt-4" id="srAnalysis">
+                        暂无分析
+                    </div>
+                </div>
+
+                <div class="analysis-block">
+                    <div class="block-title">
+                        <span class="icon bg-purple-100 text-purple-600">📊</span>
+                        成交量分析
+                    </div>
+                    <div id="volumeAnalysis">
+                        <p class="text-gray-600">暂无成交量分析数据</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 基本面 -->
+            <div class="section-content" id="section-fundamental">
+                <div class="analysis-block">
+                    <div class="block-title">
+                        <span class="icon bg-indigo-100 text-indigo-600">🏢</span>
+                        公司概况
+                    </div>
+                    <p class="text-gray-600 leading-relaxed" id="companyProfile">
+                        加载中...
+                    </p>
+                </div>
+
+                <div class="analysis-block">
+                    <div class="block-title">
+                        <span class="icon bg-green-100 text-green-600">💰</span>
+                        财务指标
+                    </div>
+                    <div class="metrics-grid-4" id="financialMetrics">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+
+                <div class="analysis-block">
+                    <div class="block-title">
+                        <span class="icon bg-amber-100 text-amber-600">📋</span>
+                        主营业务构成
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 消息面 -->
+            <div class="section-content" id="section-news">
+                <div class="analysis-block">
+                    <div class="block-title">
+                        <span class="icon bg-blue-100 text-blue-600">📰</span>
+                        最新资讯
+                    </div>
+                    <div id="newsList">
+                        <p class="text-gray-500 text-center py-8">消息面数据收集中...</p>
+                    </div>
+                </div>
+
+                <div class="analysis-block">
+                    <div class="block-title">
+                        <span class="icon bg-amber-100 text-amber-600">⚖️</span>
+                        消息面综合判断
+                    </div>
+                    <div class="quote-box" id="newsSummary">
+                        暂无综合判断
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 mt-4">
+                        <div class="stat-card text-center">
+                            <div class="stat-label">利好消息</div>
+                            <div class="stat-value text-green-600" id="positiveCount">-</div>
+                        </div>
+                        <div class="stat-card text-center">
+                            <div class="stat-label">中性消息</div>
+                            <div class="stat-value text-gray-600" id="neutralCount">-</div>
+                        </div>
+                        <div class="stat-card text-center">
+                            <div class="stat-label">利空消息</div>
+                            <div class="stat-value text-red-600" id="negativeCount">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 游资视角 -->
+            <div class="section-content" id="section-trader">
+                <div class="analysis-block">
+                    <div class="block-title">
+                        <span class="icon bg-orange-100 text-orange-600">💥</span>
+                        核心催化因素
+                    </div>
+                    <div id="catalystContent">
+                        <p class="text-gray-500 text-center py-8">催化因素分析生成中...</p>
+                    </div>
+                </div>
+
+                <div class="analysis-block">
+                    <div class="block-title">
+                        <span class="icon bg-red-100 text-red-600">🎪</span>
+                        情绪周期分析
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                        <div class="stat-card text-center">
+                            <div class="stat-label">市场热度</div>
+                            <div class="stat-value text-orange-600" id="emotionHeat">-</div>
+                        </div>
+                        <div class="stat-card text-center">
+                            <div class="stat-label">板块效应</div>
+                            <div class="stat-value text-blue-600" id="plateEffect">-</div>
+                        </div>
+                        <div class="stat-card text-center">
+                            <div class="stat-label">资金承接</div>
+                            <div class="stat-value text-green-600" id="fundsBearing">-</div>
+                        </div>
+                        <div class="stat-card text-center">
+                            <div class="stat-label">风险等级</div>
+                            <div class="stat-value text-red-600" id="riskLevel">-</div>
+                        </div>
+                    </div>
+                    <div class="quote-box" id="emotionAnalysis">
+                        暂无情绪分析
+                    </div>
+                </div>
+
+                <div class="analysis-block">
+                    <div class="block-title">
+                        <span class="icon bg-green-100 text-green-600">💵</span>
+                        资金博弈
+                    </div>
+                    <div id="fundsGame">
+                        <p class="text-gray-500 text-center py-8">资金数据分析中...</p>
+                    </div>
+                </div>
+
+                <div class="analysis-block">
+                    <div class="block-title">
+                        <span class="icon bg-purple-100 text-purple-600">🎯</span>
+                        操作策略
+                    </div>
+                    <div id="strategyContent">
+                        <p class="text-gray-500 text-center py-8">操作策略生成中...</p>
+                    </div>
+                </div>
+
+                <div class="analysis-block">
+                    <div class="block-title">
+                        <span class="icon bg-red-100 text-red-600">⚠️</span>
+                        风险提示
+                    </div>
+                    <div class="risk-card">
+                        <div class="catalyst-content" id="riskContent">
+                            股市有风险，投资需谨慎。以上分析仅供参考，不构成投资建议。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 行业分析 -->
+            <div class="section-content" id="section-industry">
+                <div class="analysis-block">
+                    <div class="block-title">
+                        <span class="icon bg-cyan-100 text-cyan-600">🏭</span>
+                        所属行业
+                    </div>
+                    <p class="text-gray-600" id="industryInfo">加载中...</p>
+                </div>
+
+                <div class="analysis-block">
+                    <div class="block-title">
+                        <span class="icon bg-emerald-100 text-emerald-600">📊</span>
+                        行业地位
+                    </div>
+                    <div id="industryPosition">
+                        <p class="text-gray-500 text-center py-8">行业地位分析中...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 免责声明 -->
+            <div class="mt-8 p-4 bg-gray-50 rounded-xl text-xs text-gray-500 text-center">
+                <p>⚠️ 免责声明：本报告仅供参考，不构成任何投资建议。股市有风险，投资需谨慎。</p>
+                <p class="mt-1">数据来源：公开信息整理，分析结果由AI生成，不保证准确性。</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // 移动端菜单
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('show');
+        }
+
+        // Tab 切换
+        function initTabs() {
+            const tabs = document.querySelectorAll('.section-tab');
+            const contents = document.querySelectorAll('.section-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const section = tab.dataset.section;
+                    
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    contents.forEach(c => c.classList.remove('active'));
+                    document.getElementById('section-' + section).classList.add('active');
+                    
+                    // 滚动到顶部
+                    window.scrollTo({ top: 200, behavior: 'smooth' });
+                });
+            });
+        }
+
+        // 从URL获取股票名称
+        function getStockNameFromUrl() {
+            const path = window.location.pathname;
+            const filename = path.split('/').pop().replace('.html', '');
+            return decodeURIComponent(filename) || '英维克';
+        }
+
+        // 获取股票数据
+        async function loadStockData(stockName) {
+            // 先从stock_list.json找代码
+            let code = null;
+            try {
+                const listRes = await fetch('/daily-news-insight/data/stock_analysis/stock_list.json');
+                if (listRes.ok) {
+                    const listData = await listRes.json();
+                    code = listData.stocks[stockName];
+                }
+            } catch (e) {
+                console.log('获取股票列表失败');
+            }
+
+            if (!code) {
+                // 常见股票的映射
+                const defaultMap = {
+                    '英维克': '002837',
+                    '铜冠铜箔': '301217',
+                    '雅克科技': '002409',
+                    '*ST建艺': '002789',
+                };
+                code = defaultMap[stockName];
+            }
+
+            if (!code) {
+                document.body.innerHTML = '<div class="flex items-center justify-center h-screen text-white">未找到该股票分析数据</div>';
+                return null;
+            }
+
+            try {
+                const res = await fetch(`/daily-news-insight/data/stock_analysis/${code}.json?_=${Date.now()}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    return data;
+                }
+            } catch (e) {
+                console.log('加载股票数据失败', e);
+            }
+
+            return null;
+        }
+
+        // 渲染页面
+        function renderPage(data) {
+            if (!data) return;
+
+            // 页面标题
+            document.title = `${data.name}(${data.code}) - 个股深度分析报告`;
+
+            // 头部信息
+            document.getElementById('stockName').textContent = data.name;
+            document.getElementById('stockCode').textContent = data.code;
+            
+            const price = data.overall?.price || data.market?.current_price || data.technical?.ma?.ma5 || 0;
+            const change = data.overall?.change_pct || data.market?.change_pct || 0;
+            const changeSign = change >= 0 ? '+' : '';
+            const changeClass = change >= 0 ? 'text-green-300' : 'text-red-300';
+            
+            document.getElementById('currentPrice').textContent = price.toFixed(2);
+            document.getElementById('priceChange').textContent = `${changeSign}${change.toFixed(2)}%`;
+            document.getElementById('priceChange').className = `text-2xl font-bold mb-1 ${changeClass}`;
+
+            // 评级
+            const rating = data.overall?.rating || '中性';
+            const ratingBadge = document.getElementById('ratingBadge');
+            ratingBadge.className = `rating-badge rating-${rating === '买入' ? 'buy' : rating === '卖出' ? 'sell' : 'hold'}`;
+            document.getElementById('ratingText').textContent = rating;
+
+            // 题材标签
+            const themes = data.themes || [];
+            const tagsHtml = themes.slice(0, 6).map((t, i) => 
+                `<span class="tag tag-${i < 3 ? 'warning' : 'primary'}">${t}</span>`
+            ).join('');
+            document.getElementById('themeTags').innerHTML = tagsHtml;
+
+            // 核心指标
+            const coreMetrics = [
+                { label: '总市值', value: data.fundamental?.market_cap ? (data.fundamental.market_cap / 100000000).toFixed(2) + '亿' : '--' },
+                { label: '市盈率(PE)', value: data.fundamental?.pe_ratio?.toFixed(2) || '--' },
+                { label: '市净率(PB)', value: data.fundamental?.pb_ratio?.toFixed(2) || '--' },
+                { label: '换手率', value: (data.market?.turnover_rate || 0).toFixed(2) + '%' },
+            ];
+            document.getElementById('coreMetrics').innerHTML = coreMetrics.map(m => `
+                <div class="stat-card">
+                    <div class="stat-label">${m.label}</div>
+                    <div class="stat-value">${m.value}</div>
+                </div>
+            `).join('');
+
+            // 技术指标
+            const tech = data.technical || {};
+            const techMetrics = [
+                { label: 'MA5', value: tech.ma?.ma5?.toFixed(2) || '--' },
+                { label: 'MA20', value: tech.ma?.ma20?.toFixed(2) || '--' },
+                { label: 'MA60', value: tech.ma?.ma60?.toFixed(2) || '--' },
+                { label: 'RSI', value: tech.rsi?.rsi?.toFixed(1) || '--' },
+                { label: 'MACD', value: tech.macd?.dif?.toFixed(2) || '--' },
+                { label: 'KDJ-J', value: tech.kdj?.j?.toFixed(1) || '--' },
+                { label: '布林上轨', value: tech.boll?.upper?.toFixed(2) || '--' },
+                { label: '布林下轨', value: tech.boll?.lower?.toFixed(2) || '--' },
+            ];
+            document.getElementById('technicalMetrics').innerHTML = techMetrics.map(m => `
+                <div class="stat-card">
+                    <div class="stat-label">${m.label}</div>
+                    <div class="stat-value">${m.value}</div>
+                </div>
+            `).join('');
+
+            // 支撑压力位
+            document.getElementById('support1').textContent = tech.support_resistance?.support?.toFixed(2) || '--';
+            document.getElementById('resistance1').textContent = tech.support_resistance?.resistance?.toFixed(2) || '--';
+            if (tech.support_resistance?.analysis) {
+                document.getElementById('srAnalysis').textContent = tech.support_resistance.analysis;
+            }
+
+            // 成交量分析
+            if (tech.volume?.analysis) {
+                document.getElementById('volumeAnalysis').innerHTML = `<p class="text-gray-600 leading-relaxed">${tech.volume.analysis}</p>`;
+            }
+
+            // 技术图表
+            renderTechnicalChart(tech);
+
+            // 基本面
+            if (data.fundamental?.summary) {
+                document.getElementById('companyProfile').textContent = data.fundamental.summary;
+            }
+
+            // 财务指标
+            const fin = data.fundamental || {};
+            const finMetrics = [
+                { label: 'ROE', value: (fin.roe || 0).toFixed(2) + '%' },
+                { label: '每股收益', value: (fin.eps || 0).toFixed(2) + '元' },
+                { label: '每股净资产', value: (fin.bps || 0).toFixed(2) + '元' },
+                { label: '毛利率', value: (fin.gross_margin || 0).toFixed(2) + '%' },
+                { label: '净利率', value: (fin.net_margin || 0).toFixed(2) + '%' },
+                { label: '净利润', value: fin.net_profit ? (fin.net_profit / 100000000).toFixed(2) + '亿' : '--' },
+                { label: '营收', value: fin.revenue ? (fin.revenue / 100000000).toFixed(2) + '亿' : '--' },
+                { label: '资产负债率', value: fin.debt_ratio ? fin.debt_ratio.toFixed(2) + '%' : '--' },
+            ];
+            document.getElementById('financialMetrics').innerHTML = finMetrics.map(m => `
+                <div class="stat-card">
+                    <div class="stat-label">${m.label}</div>
+                    <div class="stat-value">${m.value}</div>
+                </div>
+            `).join('');
+
+            // 消息面
+            renderNewsSection(data.news);
+
+            // 游资视角
+            renderTraderSection(data.trader);
+
+            // 行业分析
+            if (data.sector || data.industry) {
+                document.getElementById('industryInfo').textContent = data.sector || data.industry || '未分类';
+            }
+
+            // 更新页面描述
+            document.querySelector('meta[name="description"]')?.setAttribute('content', 
+                `${data.name}(${data.code}) 深度分析报告 - 技术面、基本面、消息面、游资视角全方位分析`
+            );
+        }
+
+        // 渲染技术图表
+        function renderTechnicalChart(tech) {
+            const ctx = document.getElementById('technicalChart').getContext('2d');
+            
+            // 模拟一些数据（实际项目中应有真实K线数据）
+            const labels = ['1月', '2月', '3月', '4月', '5月', '6月'];
+            const prices = [30, 35, 32, 38, 42, tech.ma?.ma5 || 40];
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '股价走势',
+                        data: prices,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        pointHoverBackgroundColor: '#6366f1',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: { color: '#6b7280' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#6b7280' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 渲染消息面
+        function renderNewsSection(news) {
+            if (!news || !news.list || news.list.length === 0) {
+                document.getElementById('newsList').innerHTML = 
+                    '<p class="text-gray-500 text-center py-8">暂无消息面数据</p>';
+                return;
+            }
+
+            let positive = 0, neutral = 0, negative = 0;
+            
+            const newsHtml = news.list.slice(0, 10).map(item => {
+                if (item.sentiment === 'positive') positive++;
+                else if (item.sentiment === 'negative') negative++;
+                else neutral++;
+
+                const sentimentText = { 'positive': '利好', 'negative': '利空', 'neutral': '中性' }[item.sentiment || 'neutral'];
+                const sentimentColor = { 'positive': 'tag-success', 'negative': 'tag-danger', 'neutral': 'tag-primary' }[item.sentiment || 'neutral'];
+
+                return `
+                    <div class="border-b border-gray-100 py-4 last:border-0">
+                        <div class="flex items-start justify-between gap-3 mb-2">
+                            <h4 class="font-semibold text-gray-800 text-sm flex-1">${item.title || item.content}</h4>
+                            <span class="tag ${sentimentColor} flex-shrink-0">${sentimentText}</span>
+                        </div>
+                        ${item.summary ? `<p class="text-gray-500 text-sm mb-2">${item.summary}</p>` : ''}
+                        <div class="flex items-center gap-4 text-xs text-gray-400">
+                            <span>${item.source || '网络'}</span>
+                            <span>${item.time || ''}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('newsList').innerHTML = newsHtml;
+            document.getElementById('positiveCount').textContent = positive;
+            document.getElementById('neutralCount').textContent = neutral;
+            document.getElementById('negativeCount').textContent = negative;
+
+            if (news.overall_impact || news.summary) {
+                document.getElementById('newsSummary').textContent = news.overall_impact || news.summary;
+            }
+        }
+
+        // 渲染游资视角
+        function renderTraderSection(trader) {
+            if (!trader) {
+                document.getElementById('catalystContent').innerHTML = 
+                    '<p class="text-gray-500 text-center py-8">游资视角分析数据生成中...</p>';
+                return;
+            }
+
+            // 催化因素
+            if (trader.catalyst || trader.core_logic) {
+                document.getElementById('catalystContent').innerHTML = `
+                    <div class="catalyst-card">
+                        <div class="catalyst-title">🔥 核心催化因素</div>
+                        <div class="catalyst-content">${trader.catalyst || trader.core_logic}</div>
+                    </div>
+                    ${trader.secondary_catalyst ? `
+                    <div class="catalyst-card" style="border-left-color: #8b5cf6; background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);">
+                        <div class="catalyst-title" style="color: #7c3aed;">💫 次要催化</div>
+                        <div class="catalyst-content" style="color: #6d28d9;">${trader.secondary_catalyst}</div>
+                    </div>
+                    ` : ''}
+                `;
+            }
+
+            // 情绪周期
+            const emotion = trader.emotion || trader.sentiment || {};
+            document.getElementById('emotionHeat').textContent = emotion.heat ? emotion.heat + '%' : '--';
+            document.getElementById('plateEffect').textContent = emotion.plate_effect || '--';
+            document.getElementById('fundsBearing').textContent = emotion.funds_bearing || '--';
+            document.getElementById('riskLevel').textContent = emotion.risk_level || '--';
+            
+            if (emotion.analysis) {
+                document.getElementById('emotionAnalysis').textContent = emotion.analysis;
+            }
+
+            // 资金博弈
+            if (trader.funds || trader.capital_flow) {
+                const funds = trader.funds || trader.capital_flow;
+                let fundsHtml = '<div class="space-y-3">';
+                if (funds.main_net_inflow) {
+                    fundsHtml += `
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="text-gray-600 text-sm">主力资金净流入</span>
+                            <span class="font-bold ${funds.main_net_inflow.startsWith('-') ? 'text-red-500' : 'text-green-500'}">${funds.main_net_inflow}</span>
+                        </div>
+                    `;
+                }
+                if (funds.hot_money_inflow) {
+                    fundsHtml += `
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="text-gray-600 text-sm">游资动向</span>
+                            <span class="font-bold ${funds.hot_money_inflow.startsWith('-') ? 'text-red-500' : 'text-green-500'}">${funds.hot_money_inflow}</span>
+                        </div>
+                    `;
+                }
+                if (funds.north_bound_inflow !== undefined) {
+                    fundsHtml += `
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="text-gray-600 text-sm">北向资金</span>
+                            <span class="font-bold ${funds.north_bound_inflow >= 0 ? 'text-green-500' : 'text-red-500'}">${funds.north_bound_inflow >= 0 ? '+' : ''}${funds.north_bound_inflow}</span>
+                        </div>
+                    `;
+                }
+                if (funds.longhu) {
+                    fundsHtml += `
+                        <div class="mt-3 p-3 bg-amber-50 rounded-lg">
+                            <div class="text-amber-700 font-semibold text-sm mb-2">🐉 龙虎榜</div>
+                            <div class="text-amber-600 text-sm">${funds.longhu}</div>
+                        </div>
+                    `;
+                }
+                fundsHtml += '</div>';
+                document.getElementById('fundsGame').innerHTML = fundsHtml;
+            }
+
+            // 操作策略
+            if (trader.strategy || trader.operation_suggestion) {
+                const strategy = trader.strategy || trader.operation_suggestion;
+                let strategyHtml = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+                
+                if (strategy.buy_point) {
+                    strategyHtml += `
+                        <div class="p-4 bg-green-50 rounded-xl border border-green-100">
+                            <div class="text-green-700 font-semibold mb-2">✅ 买点</div>
+                            <div class="text-green-600 text-sm">${strategy.buy_point}</div>
+                        </div>
+                    `;
+                }
+                if (strategy.sell_point) {
+                    strategyHtml += `
+                        <div class="p-4 bg-red-50 rounded-xl border border-red-100">
+                            <div class="text-red-700 font-semibold mb-2">❌ 卖点</div>
+                            <div class="text-red-600 text-sm">${strategy.sell_point}</div>
+                        </div>
+                    `;
+                }
+                if (strategy.stop_loss) {
+                    strategyHtml += `
+                        <div class="p-4 bg-orange-50 rounded-xl border border-orange-100">
+                            <div class="text-orange-700 font-semibold mb-2">⚠️ 止损位</div>
+                            <div class="text-orange-600 text-sm">${strategy.stop_loss}</div>
+                        </div>
+                    `;
+                }
+                if (strategy.take_profit) {
+                    strategyHtml += `
+                        <div class="p-4 bg-purple-50 rounded-xl border border-purple-100">
+                            <div class="text-purple-700 font-semibold mb-2">💰 止盈位</div>
+                            <div class="text-purple-600 text-sm">${strategy.take_profit}</div>
+                        </div>
+                    `;
+                }
+                if (strategy.position) {
+                    strategyHtml += `
+                        <div class="p-4 bg-blue-50 rounded-xl border border-blue-100 md:col-span-2">
+                            <div class="text-blue-700 font-semibold mb-2">📊 仓位建议</div>
+                            <div class="text-blue-600 text-sm">${strategy.position}</div>
+                        </div>
+                    `;
+                }
+                
+                strategyHtml += '</div>';
+                document.getElementById('strategyContent').innerHTML = strategyHtml;
+            }
+
+            // 风险提示
+            if (trader.risk_tips || trader.risk_reminder) {
+                document.getElementById('riskContent').innerHTML = trader.risk_tips || trader.risk_reminder;
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', async () => {
+            initTabs();
+            
+            const stockName = getStockNameFromUrl();
+            const data = await loadStockData(stockName);
+            
+            if (data) {
+                renderPage(data);
+            } else {
+                // 显示加载失败
+                document.querySelector('.max-w-5xl').innerHTML = `
+                    <div class="card-glass p-10 text-center">
+                        <div class="text-6xl mb-4">📭</div>
+                        <h2 class="text-xl font-bold text-gray-800 mb-2">暂无分析数据</h2>
+                        <p class="text-gray-500 mb-6">${stockName} 的深度分析报告正在生成中，请稍后再来查看。</p>
+                        <a href="/daily-news-insight/个股分析/" class="inline-block px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition">
+                            ← 返回个股列表
+                        </a>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
