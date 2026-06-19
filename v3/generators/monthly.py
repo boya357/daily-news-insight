@@ -11,6 +11,7 @@ from core.report import Report
 from components.layout import Section, HighlightBox
 from components.data import DataCard, DataGrid, StockTags
 from components.special import RiskAlert
+from components.skill_analysis import render_three_d_heat, render_swot, render_scenarios
 
 
 class MonthlyReportGenerator:
@@ -99,6 +100,48 @@ class MonthlyReportGenerator:
         section = Section(title="🔮 下月市场展望", content=content, icon="compass", variant="highlight")
         self._components.append(section)
     
+    def add_monthly_skill_analysis(self, analysis_data: dict):
+        """添加月度Skill深度分析模块
+        
+        Args:
+            analysis_data: 分析数据字典，包含：
+                - title: 分析标题
+                - three_d_heat: 三维热度数据（可选）
+                - swot: SWOT分析数据（可选）
+                - scenarios: 情景推演数据（可选）
+        """
+        title = analysis_data.get('title', '月度深度分析')
+        parts = []
+        
+        if 'three_d_heat' in analysis_data:
+            parts.append(render_three_d_heat(analysis_data['three_d_heat']))
+        if 'swot' in analysis_data:
+            parts.append(render_swot(analysis_data['swot']))
+        if 'scenarios' in analysis_data:
+            parts.append(render_scenarios(analysis_data['scenarios']))
+        
+        if not parts:
+            return
+        
+        content = f'''
+        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-white flex items-center gap-2">
+                    <span>🧠</span> {title}
+                </h3>
+                <span class="text-xs bg-gradient-to-r from-purple-500/30 to-blue-500/30 text-purple-300 px-2 py-1 rounded-full border border-purple-500/30">
+                    Skill增强
+                </span>
+            </div>
+            <div class="grid md:grid-cols-2 gap-3">
+                {"".join(parts)}
+            </div>
+        </div>
+        '''
+        
+        section = Section(title="🧠 深度洞察", content=content, icon="brain", variant="highlight")
+        self._components.append(section)
+
     def add_risk_warning(self, risks: list):
         """添加风险提示"""
         risk_text = "；".join(risks) if isinstance(risks, list) else risks

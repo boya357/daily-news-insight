@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>龙虎榜追踪 - 投资研究中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+            
+            * { font-family: 'Noto Sans SC', sans-serif; }
+            
+            body {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding-top: 80px;
+            }
+            
+            .pro-container {
+                max-width: 64rem;
+                margin: 0 auto;
+                padding: 0 1.5rem;
+            }
+            
+            .card-glass {
+                background: rgba(139, 92, 246, 0.15);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+                border-radius: 20px;
+                color: white;
+            }
+            
+            .card-glass .text-gray-800,
+            .card-glass .text-gray-700,
+            .card-glass .text-gray-600,
+            .card-glass .text-gray-500,
+            .card-glass .text-gray-400 { color: rgba(255, 255, 255, 0.9) !important; }
+            .card-glass .text-gray-500 { color: rgba(255, 255, 255, 0.75) !important; }
+            .card-glass .text-gray-400 { color: rgba(255, 255, 255, 0.6) !important; }
+            
+            /* 修复浅色背景子卡片文字颜色 */
+            .card-glass .bg-white .text-gray-800 { color: #1f2937 !important; }
+            .card-glass .bg-white .text-gray-700 { color: #374151 !important; }
+            .card-glass .bg-white .text-gray-600 { color: #4b5563 !important; }
+            .card-glass .bg-white .text-gray-500 { color: #6b7280 !important; }
+            .card-glass .bg-white .text-gray-400 { color: #9ca3af !important; }
+            
+            .stock-card {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .stock-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 20px 60px rgba(102, 126, 234, 0.5);
+            }
+            
+            .risk-bar {
+                height: 8px;
+                border-radius: 4px;
+                background: rgba(255,255,255,0.2);
+                overflow: hidden;
+            }
+            .risk-bar-fill {
+                height: 100%;
+                border-radius: 4px;
+                transition: width 0.5s ease;
+            }
+            
+            .diagnosis-item {
+                text-align: center;
+                padding: 12px 8px;
+                background: rgba(255,255,255,0.1);
+                border-radius: 12px;
+            }
+            
+            .tag-badge {
+                display: inline-block;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+            
+            .section-title {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: white;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .lhb-card {
+                background: rgba(255,255,255,0.05);
+                border-radius: 12px;
+                padding: 1rem;
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .lhb-seat {
+                font-size: 0.75rem;
+                color: rgba(255,255,255,0.6);
+                margin-bottom: 0.25rem;
+            }
+            
+            .fund-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 0;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            .fund-row:last-child {
+                border-bottom: none;
+            }
+            
+            .fund-trend-up {
+                color: #10b981;
+                font-weight: 600;
+            }
+            .fund-trend-down {
+                color: #ef4444;
+                font-weight: 600;
+            }
+            
+            .alert-section {
+                border-left: 4px solid #ef4444;
+                padding-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .warning-section {
+                border-left: 4px solid #f59e0b;
+                padding-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .safe-section {
+                border-left: 4px solid #10b981;
+                padding-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            /* 导航栏样式 */
+            .glass-nav {
+                background: rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                transition: background 0.3s ease;
+            }
+            
+            .glass-nav.scrolled {
+                background: rgba(0, 0, 0, 0.7);
+            }
+            
+            /* 汉堡菜单按钮 */
+            .hamburger-btn {
+                display: none;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                width: 40px;
+                height: 40px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 18px;
+                transition: all 0.3s;
+            }
+            
+            .hamburger-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            /* 移动端菜单 */
+            .mobile-menu {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.95);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                z-index: 100;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+            }
+            
+            .mobile-menu.show {
+                display: flex;
+            }
+            
+            .mobile-menu-item {
+                color: white;
+                font-size: 18px;
+                font-weight: 600;
+                padding: 15px 30px;
+                text-decoration: none;
+                text-align: center;
+                width: 100%;
+                max-width: 300px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                transition: all 0.3s;
+            }
+            
+            .mobile-menu-item:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: #a78bfa;
+            }
+            
+            .close-menu-btn {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                width: 44px;
+                height: 44px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 20px;
+                transition: all 0.3s;
+            }
+            
+            .close-menu-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            /* 响应式断点 */
+            @media (max-width: 768px) {
+                .nav-links {
+                    display: none !important;
+                }
+                
+                .hamburger-btn {
+                    display: block !important;
+                }
+                
+                body {
+                    padding-top: 70px;
+                }
+            }
+        </style>
+    
+    <style>
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+    <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
+</head>
+<body>
+    
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">📊</span>
+                </div>
+                <span class="text-white font-bold text-lg">投资研究中心</span>
+            </div>
+            <div class="nav-links flex items-center space-x-1 flex-wrap gap-1">
+                <a href="/daily-news-insight/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a><a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a><a href="/daily-news-insight/intraday/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a><a href="/daily-news-insight/aftermarket/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a><a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a><a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a><a href="/daily-news-insight/weekly_outlook/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周三前瞻</a><a href="/daily-news-insight/周末速递/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a><a href="/daily-news-insight/明日催化剂/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a><a href="/daily-news-insight/s级催化扫描/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a><a href="/daily-news-insight/monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
+            </div>
+            <button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </nav>
+    
+    <!-- 移动端全屏菜单 -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
+        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a><a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a><a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中快报</a><a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后速递</a><a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链总览</a><a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a><a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a><a href="/daily-news-insight/周末速递/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a><a href="/daily-news-insight/明日催化剂/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化剂</a><a href="/daily-news-insight/s级催化扫描/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⭐ S级催化扫描</a><a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🗓️ 月度总结</a>
+    </div>
+        
+    
+    <div class="pro-container pt-20">
+        
+            <div class="text-center mb-8 pt-4">
+                <h1 class="text-3xl font-black text-white mb-2">🐉 龙虎榜</h1>
+                <p class="text-white/70">追踪主力资金动向，洞察机构行为</p>
+            </div>
+            
+            
+        <div class="card-glass p-6 mb-6 ">
+            
+            <h2 class="section-title"><span class="text-xl">🐉</span>🐉 龙虎榜数据</h2>
+            <div class="space-y-6">
+                
+        <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+            <!-- 头部 -->
+            <div class="p-6 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border-b border-white/10">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-white font-bold text-xl">雅克科技</h3>
+                        <p class="text-white/50 text-sm">002409 · 2026-06-10</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-black text-red-400">122.55</div>
+                        <div class="text-red-400 text-sm">+10.0%</div>
+                    </div>
+                </div>
+                <div class="mt-3 flex items-center gap-3 flex-wrap">
+                    <span class="px-3 py-1 bg-white/10 text-white/70 text-xs rounded-full">
+                        上榜原因: 日涨幅偏离值达7%的证券
+                    </span>
+                    <span class="px-3 py-1 bg-white/10 text-white/70 text-xs rounded-full">
+                        换手率: 10.5%
+                    </span>
+                    <span class="px-3 py-1 bg-white/10 text-white/70 text-xs rounded-full">
+                        成交额: 39.19亿
+                    </span>
+                </div>
+            </div>
+            
+            <!-- 资金概览 -->
+            <div class="p-6 grid grid-cols-2 md:grid-cols-4 gap-4 border-b border-white/10">
+                <div class="text-center">
+                    <div class="text-red-400 text-lg font-bold">5.09亿</div>
+                    <div class="text-xs text-white/50 mt-1">买入总额</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-green-400 text-lg font-bold">3.01亿</div>
+                    <div class="text-xs text-white/50 mt-1">卖出总额</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-red-400 text-lg font-bold">2.08亿</div>
+                    <div class="text-xs text-white/50 mt-1">净买入</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-blue-400 text-lg font-bold">-2482.88万</div>
+                    <div class="text-xs text-white/50 mt-1">机构净额</div>
+                </div>
+            </div>
+            
+            <!-- 买卖席位 -->
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="text-red-400 font-bold mb-3 flex items-center gap-2">
+                        <span>📈</span> 买入前五
+                    </h4>
+                    <div class="bg-white/5 rounded-xl p-3">
+                        
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">1</span>
+                        <span class="text-sm text-white/80 truncate">深股通专用</span>
+                        <span class="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">北向</span>
+                    </div>
+                    
+                </div>
+                
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">2</span>
+                        <span class="text-sm text-white/80 truncate">国盛证券杭州建设三路</span>
+                        <span class="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded">机构</span>
+                    </div>
+                    
+                </div>
+                
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">3</span>
+                        <span class="text-sm text-white/80 truncate">国泰海通上海长宁区江苏路</span>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">4</span>
+                        <span class="text-sm text-white/80 truncate">机构专用</span>
+                        <span class="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded">机构</span>
+                    </div>
+                    
+                </div>
+                
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">5</span>
+                        <span class="text-sm text-white/80 truncate">机构专用</span>
+                        <span class="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded">机构</span>
+                    </div>
+                    
+                </div>
+                
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-green-400 font-bold mb-3 flex items-center gap-2">
+                        <span>📉</span> 卖出前五
+                    </h4>
+                    <div class="bg-white/5 rounded-xl p-3">
+                        
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">1</span>
+                        <span class="text-sm text-white/80 truncate">深股通专用</span>
+                        <span class="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">北向</span>
+                    </div>
+                    
+                </div>
+                
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">2</span>
+                        <span class="text-sm text-white/80 truncate">机构专用</span>
+                        <span class="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded">机构</span>
+                    </div>
+                    
+                </div>
+                
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">3</span>
+                        <span class="text-sm text-white/80 truncate">中泰证券天津红旗路</span>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">4</span>
+                        <span class="text-sm text-white/80 truncate">国泰海通上海浦东新区陆家嘴东路</span>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">5</span>
+                        <span class="text-sm text-white/80 truncate">机构专用</span>
+                        <span class="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded">机构</span>
+                    </div>
+                    
+                </div>
+                
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 北向和营业部 -->
+            <div class="px-6 pb-6 grid grid-cols-2 gap-4">
+                <div class="bg-white/5 rounded-xl p-4 text-center">
+                    <div class="text-green-400 font-bold">+9358.25万</div>
+                    <div class="text-xs text-white/50 mt-1">北向资金净额</div>
+                </div>
+                <div class="bg-white/5 rounded-xl p-4 text-center">
+                    <div class="text-purple-400 font-bold">+1.39亿</div>
+                    <div class="text-xs text-white/50 mt-1">营业部净额</div>
+                </div>
+            </div>
+            
+            <!-- 分析 -->
+            
+            <div class="px-6 pb-6">
+                <div class="p-4 bg-gradient-to-r from-purple-500/10 to-transparent border-l-2 border-purple-400 rounded-r-lg">
+                    <div class="text-purple-400 text-sm font-medium mb-1">💡 综合分析</div>
+                    <p class="text-sm text-white/70">{'seal_strength': '弱封板', 'seal_count': '4次开板', 'seal_order_amount': '1.51亿', 'main_capital': '+7.76亿', 'retail_capital': '-3.58亿', 'hot_money_capital': '-4.18亿', 'key_conclusion': '主力强推但机构撤退，游资接力封板薄弱，明日需观察125元关键位能否突破', 'support_level': '110~115元', 'pressure_level': '125元', 'lifeline': '118元'}</p>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+            <!-- 头部 -->
+            <div class="p-6 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border-b border-white/10">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-white font-bold text-xl">英维克</h3>
+                        <p class="text-white/50 text-sm">002837 · 2026-06-09</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-black text-red-400">68.9</div>
+                        <div class="text-red-400 text-sm">+10.0%</div>
+                    </div>
+                </div>
+                <div class="mt-3 flex items-center gap-3 flex-wrap">
+                    <span class="px-3 py-1 bg-white/10 text-white/70 text-xs rounded-full">
+                        上榜原因: 日涨幅偏离值达7%的证券
+                    </span>
+                    <span class="px-3 py-1 bg-white/10 text-white/70 text-xs rounded-full">
+                        换手率: 6.0%
+                    </span>
+                    <span class="px-3 py-1 bg-white/10 text-white/70 text-xs rounded-full">
+                        成交额: 46.00亿
+                    </span>
+                </div>
+            </div>
+            
+            <!-- 资金概览 -->
+            <div class="p-6 grid grid-cols-2 md:grid-cols-4 gap-4 border-b border-white/10">
+                <div class="text-center">
+                    <div class="text-red-400 text-lg font-bold">11.73亿</div>
+                    <div class="text-xs text-white/50 mt-1">买入总额</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-green-400 text-lg font-bold">3.34亿</div>
+                    <div class="text-xs text-white/50 mt-1">卖出总额</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-red-400 text-lg font-bold">8.01亿</div>
+                    <div class="text-xs text-white/50 mt-1">净买入</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-blue-400 text-lg font-bold">+2.99亿</div>
+                    <div class="text-xs text-white/50 mt-1">机构净额</div>
+                </div>
+            </div>
+            
+            <!-- 买卖席位 -->
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="text-red-400 font-bold mb-3 flex items-center gap-2">
+                        <span>📈</span> 买入前五
+                    </h4>
+                    <div class="bg-white/5 rounded-xl p-3">
+                        
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">1</span>
+                        <span class="text-sm text-white/80 truncate">深股通专用</span>
+                        <span class="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">北向</span>
+                    </div>
+                    
+                </div>
+                
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">2</span>
+                        <span class="text-sm text-white/80 truncate">机构专用</span>
+                        <span class="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded">机构</span>
+                    </div>
+                    
+                </div>
+                
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">3</span>
+                        <span class="text-sm text-white/80 truncate">机构专用</span>
+                        <span class="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded">机构</span>
+                    </div>
+                    
+                </div>
+                
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">4</span>
+                        <span class="text-sm text-white/80 truncate">机构专用</span>
+                        <span class="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded">机构</span>
+                    </div>
+                    
+                </div>
+                
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">5</span>
+                        <span class="text-sm text-white/80 truncate">中信证券上海溧阳路</span>
+                        
+                    </div>
+                    
+                </div>
+                
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-green-400 font-bold mb-3 flex items-center gap-2">
+                        <span>📉</span> 卖出前五
+                    </h4>
+                    <div class="bg-white/5 rounded-xl p-3">
+                        
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">1</span>
+                        <span class="text-sm text-white/80 truncate">机构专用</span>
+                        <span class="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded">机构</span>
+                    </div>
+                    
+                </div>
+                
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">2</span>
+                        <span class="text-sm text-white/80 truncate">国泰君安深圳益田路</span>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">3</span>
+                        <span class="text-sm text-white/80 truncate">华泰证券深圳益田路</span>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">4</span>
+                        <span class="text-sm text-white/80 truncate">深股通专用</span>
+                        <span class="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">北向</span>
+                    </div>
+                    
+                </div>
+                
+                <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-white/40 text-xs w-5">5</span>
+                        <span class="text-sm text-white/80 truncate">机构专用</span>
+                        <span class="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded">机构</span>
+                    </div>
+                    
+                </div>
+                
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 北向和营业部 -->
+            <div class="px-6 pb-6 grid grid-cols-2 gap-4">
+                <div class="bg-white/5 rounded-xl p-4 text-center">
+                    <div class="text-green-400 font-bold">+3.73亿</div>
+                    <div class="text-xs text-white/50 mt-1">北向资金净额</div>
+                </div>
+                <div class="bg-white/5 rounded-xl p-4 text-center">
+                    <div class="text-purple-400 font-bold">+1.29亿</div>
+                    <div class="text-xs text-white/50 mt-1">营业部净额</div>
+                </div>
+            </div>
+            
+            <!-- 分析 -->
+            
+            <div class="px-6 pb-6">
+                <div class="p-4 bg-gradient-to-r from-purple-500/10 to-transparent border-l-2 border-purple-400 rounded-r-lg">
+                    <div class="text-purple-400 text-sm font-medium mb-1">💡 综合分析</div>
+                    <p class="text-sm text-white/70">{'seal_strength': '强封板', 'seal_count': '0次开板', 'seal_order_amount': '8.5亿', 'main_capital': '+12.3亿', 'retail_capital': '-2.1亿', 'hot_money_capital': '+1.5亿', 'key_conclusion': '机构与北向资金合力大举买入，液冷服务器逻辑得到市场认可，后续看高一线', 'support_level': '65元', 'pressure_level': '75元', 'lifeline': '68元'}</p>
+                </div>
+            </div>
+            
+        </div>
+        
+            </div>
+        
+        </div>
+        
+        
+        
+        
+        <div class="text-center text-white/40 text-sm py-10">
+            <p>龙虎榜追踪 · 洞察主力动向</p>
+            <p class="text-xs mt-2">数据更新时间：2026年06月12日 21:34</p>
+        </div>
+        
+    </div>
+    
+    
+    <script>
+        // 移动端菜单切换
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) {
+                menu.classList.toggle('show');
+                document.body.style.overflow = menu.classList.contains('show') ? 'hidden' : '';
+            }
+        }
+        
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('.glass-nav');
+            if (nav) {
+                if (window.scrollY > 10) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
+                }
+            }
+        });
+    </script>
+        
+
+<!-- 悬浮按钮组 -->
+<div id="floatingButtons" class="fixed right-6 bottom-6 flex flex-col gap-2 z-50">
+    <!-- 阅读进度条 -->
+    <div class="reading-progress-bar fixed top-0 left-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-600 z-50" id="readingProgress" style="width: 0%;"></div>
+    
+    <!-- 回到顶部按钮 -->
+    <button id="backToTop" class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center text-gray-600 hover:text-indigo-600 opacity-0 translate-y-4 pointer-events-none" onclick="scrollToTop()" title="回到顶部">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+        </svg>
+    </button>
+    
+    <!-- 打印按钮 -->
+    <button class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center text-gray-600 hover:text-indigo-600" onclick="window.print()" title="打印页面">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+        </svg>
+    </button>
+    
+    <!-- 分享按钮 -->
+    <button class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all flex items-center justify-center text-gray-600 hover:text-indigo-600" onclick="sharePage()" title="分享">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+        </svg>
+    </button>
+</div>
+
+<style>
+    .reading-progress-bar {
+        transition: width 0.1s ease-out;
+    }
+    
+    #backToTop.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+    
+    #floatingButtons button {
+        transition: all 0.3s ease;
+    }
+    
+    #floatingButtons button:hover {
+        transform: scale(1.1);
+    }
+    
+    @media print {
+        #floatingButtons, .reading-progress-bar {
+            display: none !important;
+        }
+    }
+</style>
+
+<script>
+    // 回到顶部
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // 分享页面
+    function sharePage() {
+        if (navigator.share) {
+            navigator.share({
+                title: document.title,
+                url: window.location.href
+            });
+        } else {
+            // 复制链接到剪贴板
+            navigator.clipboard.writeText(window.location.href).then(function() {
+                alert('链接已复制到剪贴板');
+            }).catch(function() {
+                prompt('复制链接：', window.location.href);
+            });
+        }
+    }
+    
+    // 滚动监听 - 更新进度条和回到顶部按钮
+    window.addEventListener('scroll', function() {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        
+        // 更新进度条
+        const progressBar = document.getElementById('readingProgress');
+        if (progressBar) {
+            progressBar.style.width = scrollPercent + '%';
+        }
+        
+        // 显示/隐藏回到顶部按钮
+        const backToTop = document.getElementById('backToTop');
+        if (backToTop) {
+            if (scrollTop > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        }
+    });
+</script>
+
+    <script src="../js/stock-hover-card.js" defer></script>
+</body>
+</html>

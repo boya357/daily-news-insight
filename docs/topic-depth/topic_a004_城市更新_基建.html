@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>城市更新/基建 - 题材深度分析 | 智能选题助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+        * { font-family: 'Noto Sans SC', sans-serif; }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .card-glass {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 15px 40px rgba(118, 75, 162, 0.3);
+            border-radius: 24px;
+        }
+        .section-title {
+            position: relative;
+            display: inline-block;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="pb-16">
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">📊</span>
+                </div>
+                <span class="text-white font-bold text-lg">投资研究中心</span>
+            </div>
+            <div class="nav-links flex items-center space-x-1 flex-wrap gap-1">
+                <a href="../index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a>
+                <a href="../daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a>
+                <a href="../intraday/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a>
+                <a href="../aftermarket/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a>
+                <a href="../industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a>
+                <a href="../weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a>
+                <a href="../weekly_outlook/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周三前瞻</a>
+                <a href="../周末速递/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a>
+                <a href="../明日催化剂/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a>
+                <a href="../s级催化扫描/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a>
+                <a href="../数据时光机/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">时光机</a>
+                <a href="../monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
+            </div>
+            <button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
+            </div>
+    </nav>
+    
+    <!-- 移动端全屏菜单 -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
+        <a href="../index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a>
+        <a href="../daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a>
+        <a href="../intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中快报</a>
+        <a href="../aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后速递</a>
+        <a href="../industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链总览</a>
+        <a href="../weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a>
+        <a href="../weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a>
+        <a href="../周末速递/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a>
+        <a href="../明日催化剂/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化剂</a>
+        <a href="../s级催化扫描/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⭐ S级催化扫描</a>
+        <a href="../数据时光机/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏳ 数据时光机</a>
+        <a href="../monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🗓️ 月度总结</a>
+    </div>
+    
+    <script>
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('show');
+            document.body.style.overflow = document.getElementById('mobileMenu').classList.contains('show') ? 'hidden' : '';
+        }
+    </script>
+
+    <!-- 主内容区 -->
+    <main class="max-w-7xl mx-auto px-4 pt-24 pb-12">
+        
+        <!-- 头部Banner -->
+        <div class="card-glass p-8 mb-8">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-full font-bold text-lg">A级</span>
+                        <span class="text-gray-500">题材深度分析报告</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-black text-gray-800 mb-4">城市更新/基建</h1>
+                    <p class="text-xl text-gray-600 leading-relaxed">城市更新成为新型城镇化重要抓手，城中村改造、老旧小区改造加速推进，基建投资稳增长预期强烈。</p>
+                    <div class="flex items-center gap-6 mt-6">
+                        <div class="text-sm text-gray-500">
+                            <i class="fa fa-clock-o mr-2"></i>更新时间：2026年06月12日
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <i class="fa fa-star mr-2"></i>综合评分：<span class="font-bold text-yellow-600 text-lg">77.0分</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-shrink-0">
+                    <div class="w-32 h-32 rounded-3xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-white text-6xl shadow-2xl">
+                        🏗️
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 六维评分 -->
+            <div class="mt-8 grid grid-cols-2 md:grid-cols-3 gap-4">
+                
+                        <div class="bg-white/60 backdrop-blur rounded-xl p-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-xl">📋</span>
+                                <span class="font-semibold text-gray-700">政策强度</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-yellow-500 to-orange-500" style="width: 80.5%"></div>
+                                </div>
+                                <span class="font-bold text-yellow-600">80.5分</span>
+                            </div>
+                        </div>
+            
+                        <div class="bg-white/60 backdrop-blur rounded-xl p-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-xl">🏭</span>
+                                <span class="font-semibold text-gray-700">产业逻辑</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-yellow-500 to-orange-500" style="width: 73.9%"></div>
+                                </div>
+                                <span class="font-bold text-yellow-600">73.9分</span>
+                            </div>
+                        </div>
+            
+                        <div class="bg-white/60 backdrop-blur rounded-xl p-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-xl">💰</span>
+                                <span class="font-semibold text-gray-700">资金关注</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-yellow-500 to-orange-500" style="width: 82.0%"></div>
+                                </div>
+                                <span class="font-bold text-yellow-600">82.0分</span>
+                            </div>
+                        </div>
+            
+                        <div class="bg-white/60 backdrop-blur rounded-xl p-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-xl">⚡</span>
+                                <span class="font-semibold text-gray-700">催化密度</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-yellow-500 to-orange-500" style="width: 96.1%"></div>
+                                </div>
+                                <span class="font-bold text-yellow-600">96.1分</span>
+                            </div>
+                        </div>
+            
+            </div>
+        </div>
+
+        <!-- 市场规模 -->
+        
+            <div class="bg-gradient-to-r from-yellow-500 to-orange-500 rounded-3xl p-8 text-white">
+                <h2 class="text-2xl font-bold mb-6">📊 市场规模与增长</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-white">约25万亿</div>
+                            <div class="text-sm text-white/80">总市场规模</div>
+                        </div>
+            
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-white">同比增长6%</div>
+                            <div class="text-sm text-white/80">同比增长</div>
+                        </div>
+            
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-white">建筑建材板块超万亿市值</div>
+                            <div class="text-sm text-white/80">市场价值</div>
+                        </div>
+            
+                </div>
+            </div>
+        
+
+        <!-- 产业链分析 -->
+        <section class="mt-12">
+            <h2 class="section-title text-3xl font-black text-white mb-8">🏭 产业链全景图</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <div class="bg-white/80 backdrop-blur rounded-2xl p-6 border border-yellow-200">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">上游 - 建材与原材料</h3>
+                    <p class="text-gray-600 mb-4">水泥、钢铁、玻璃、建材</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        
+                        <div class="flex items-center gap-2 p-2 bg-white/50 rounded-lg">
+                            <span class="text-lg">🏭</span>
+                            <div>
+                                <div class="font-semibold text-gray-800">海螺水泥</div>
+                                <div class="text-xs text-gray-500">水泥行业龙头</div>
+                            </div>
+                        </div>
+            
+                        <div class="flex items-center gap-2 p-2 bg-white/50 rounded-lg">
+                            <span class="text-lg">🏭</span>
+                            <div>
+                                <div class="font-semibold text-gray-800">中国建材</div>
+                                <div class="text-xs text-gray-500">综合性建材龙头</div>
+                            </div>
+                        </div>
+            
+                        <div class="flex items-center gap-2 p-2 bg-white/50 rounded-lg">
+                            <span class="text-lg">🏭</span>
+                            <div>
+                                <div class="font-semibold text-gray-800">宝钢股份</div>
+                                <div class="text-xs text-gray-500">钢铁龙头</div>
+                            </div>
+                        </div>
+            
+                        <div class="flex items-center gap-2 p-2 bg-white/50 rounded-lg">
+                            <span class="text-lg">🏭</span>
+                            <div>
+                                <div class="font-semibold text-gray-800">旗滨集团</div>
+                                <div class="text-xs text-gray-500">玻璃龙头</div>
+                            </div>
+                        </div>
+            
+                    </div>
+                </div>
+        
+                <div class="bg-white/80 backdrop-blur rounded-2xl p-6 border border-yellow-200">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">中游 - 建筑施工</h3>
+                    <p class="text-gray-600 mb-4">建筑央企、地方国企、装修装饰</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        
+                        <div class="flex items-center gap-2 p-2 bg-white/50 rounded-lg">
+                            <span class="text-lg">🏭</span>
+                            <div>
+                                <div class="font-semibold text-gray-800">中国建筑</div>
+                                <div class="text-xs text-gray-500">建筑行业绝对龙头</div>
+                            </div>
+                        </div>
+            
+                        <div class="flex items-center gap-2 p-2 bg-white/50 rounded-lg">
+                            <span class="text-lg">🏭</span>
+                            <div>
+                                <div class="font-semibold text-gray-800">中国铁建</div>
+                                <div class="text-xs text-gray-500">基建龙头，城轨优势</div>
+                            </div>
+                        </div>
+            
+                        <div class="flex items-center gap-2 p-2 bg-white/50 rounded-lg">
+                            <span class="text-lg">🏭</span>
+                            <div>
+                                <div class="font-semibold text-gray-800">中国中铁</div>
+                                <div class="text-xs text-gray-500">铁路建设龙头</div>
+                            </div>
+                        </div>
+            
+                        <div class="flex items-center gap-2 p-2 bg-white/50 rounded-lg">
+                            <span class="text-lg">🏭</span>
+                            <div>
+                                <div class="font-semibold text-gray-800">金螳螂</div>
+                                <div class="text-xs text-gray-500">装饰装修龙头</div>
+                            </div>
+                        </div>
+            
+                    </div>
+                </div>
+        
+                <div class="bg-white/80 backdrop-blur rounded-2xl p-6 border border-yellow-200">
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">下游 - 运营与服务</h3>
+                    <p class="text-gray-600 mb-4">物业管理、城市运营、商业地产</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        
+                        <div class="flex items-center gap-2 p-2 bg-white/50 rounded-lg">
+                            <span class="text-lg">🏭</span>
+                            <div>
+                                <div class="font-semibold text-gray-800">招商积余</div>
+                                <div class="text-xs text-gray-500">央企物业龙头</div>
+                            </div>
+                        </div>
+            
+                        <div class="flex items-center gap-2 p-2 bg-white/50 rounded-lg">
+                            <span class="text-lg">🏭</span>
+                            <div>
+                                <div class="font-semibold text-gray-800">保利发展</div>
+                                <div class="text-xs text-gray-500">地产龙头，城市更新参与者</div>
+                            </div>
+                        </div>
+            
+                    </div>
+                </div>
+        
+            </div>
+        </section>
+
+        <!-- 核心标的分析 -->
+        <section class="mt-12">
+            <h2 class="section-title text-3xl font-black text-white mb-8">🎯 核心标的分析</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <h4 class="text-xl font-bold text-gray-800">中国建筑</h4>
+                                <span class="px-3 py-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full">龙头</span>
+                            </div>
+                            <p class="text-gray-500 text-sm">建筑行业绝对龙头，城市更新主力</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold text-yellow-600">约2500亿</div>
+                            <div class="text-xs text-gray-400">市值</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div class="text-center p-3 bg-gray-50 rounded-xl">
+                            <div class="text-2xl font-bold text-yellow-600">50</div>
+                            <div class="text-xs text-gray-500">弹性评分</div>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-xl">
+                            <div class="text-lg font-bold text-green-600">低</div>
+                            <div class="text-xs text-gray-500">风险等级</div>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-xl">
+                            <div class="text-sm font-bold text-green-600">看涨10-20%空间</div>
+                            <div class="text-xs text-gray-500">目标空间</div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                        <div class="text-sm font-semibold text-purple-700 mb-1">💡 核心逻辑</div>
+                        <p class="text-sm text-gray-700">订单饱满，业绩稳健，估值极低（4倍PE），分红率高，安全边际足</p>
+                    </div>
+                </div>
+        
+                <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <h4 class="text-xl font-bold text-gray-800">中国铁建</h4>
+                                <span class="px-3 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold rounded-full">中军</span>
+                            </div>
+                            <p class="text-gray-500 text-sm">基建龙头，城市轨道建设优势</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold text-yellow-600">约1200亿</div>
+                            <div class="text-xs text-gray-400">市值</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div class="text-center p-3 bg-gray-50 rounded-xl">
+                            <div class="text-2xl font-bold text-yellow-600">60</div>
+                            <div class="text-xs text-gray-500">弹性评分</div>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-xl">
+                            <div class="text-lg font-bold text-green-600">低</div>
+                            <div class="text-xs text-gray-500">风险等级</div>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-xl">
+                            <div class="text-sm font-bold text-green-600">看涨15-25%空间</div>
+                            <div class="text-xs text-gray-500">目标空间</div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                        <div class="text-sm font-semibold text-purple-700 mb-1">💡 核心逻辑</div>
+                        <p class="text-sm text-gray-700">城轨、铁路建设龙头，城市更新项目储备丰富，估值低，订单增长快</p>
+                    </div>
+                </div>
+        
+                <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <h4 class="text-xl font-bold text-gray-800">海螺水泥</h4>
+                                <span class="px-3 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold rounded-full">中军</span>
+                            </div>
+                            <p class="text-gray-500 text-sm">水泥行业龙头，成本优势显著</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold text-yellow-600">约1500亿</div>
+                            <div class="text-xs text-gray-400">市值</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div class="text-center p-3 bg-gray-50 rounded-xl">
+                            <div class="text-2xl font-bold text-yellow-600">55</div>
+                            <div class="text-xs text-gray-500">弹性评分</div>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-xl">
+                            <div class="text-lg font-bold text-yellow-600">中</div>
+                            <div class="text-xs text-gray-500">风险等级</div>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-xl">
+                            <div class="text-sm font-bold text-green-600">看涨15-25%空间</div>
+                            <div class="text-xs text-gray-500">目标空间</div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                        <div class="text-sm font-semibold text-purple-700 mb-1">💡 核心逻辑</div>
+                        <p class="text-sm text-gray-700">水泥行业供需格局改善，城市更新带动需求，成本优势明显，分红率高</p>
+                    </div>
+                </div>
+        
+                <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <h4 class="text-xl font-bold text-gray-800">金螳螂</h4>
+                                <span class="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold rounded-full">弹性</span>
+                            </div>
+                            <p class="text-gray-500 text-sm">装饰装修龙头，受益城市更新</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold text-yellow-600">约150亿</div>
+                            <div class="text-xs text-gray-400">市值</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div class="text-center p-3 bg-gray-50 rounded-xl">
+                            <div class="text-2xl font-bold text-yellow-600">75</div>
+                            <div class="text-xs text-gray-500">弹性评分</div>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-xl">
+                            <div class="text-lg font-bold text-yellow-600">中</div>
+                            <div class="text-xs text-gray-500">风险等级</div>
+                        </div>
+                        <div class="text-center p-3 bg-gray-50 rounded-xl">
+                            <div class="text-sm font-bold text-green-600">看涨20-35%空间</div>
+                            <div class="text-xs text-gray-500">目标空间</div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                        <div class="text-sm font-semibold text-purple-700 mb-1">💡 核心逻辑</div>
+                        <p class="text-sm text-gray-700">公装龙头，城市更新老旧小区改造带来增量需求，业绩弹性大</p>
+                    </div>
+                </div>
+        
+            </div>
+        </section>
+
+        <!-- 催化剂时间线 -->
+        <section class="mt-12">
+            <h2 class="section-title text-3xl font-black text-white mb-8">⚡ 催化剂时间线</h2>
+            <div class="card-glass p-8">
+                <div class="max-w-2xl mx-auto">
+                    
+                    <div class="relative pl-8 pb-6 border-l-2 border-purple-200">
+                        <div class="absolute left-[-9px] top-0 w-5 h-5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full border-4 border-white shadow"></div>
+                        <div class="bg-white rounded-xl p-4 shadow-md border border-gray-100">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-bold text-gray-800">2026年Q2</span>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full border bg-red-100 text-red-700 border-red-300">强催化</span>
+                            </div>
+                            <p class="text-gray-700">稳增长政策加码，基建投资加速</p>
+                        </div>
+                    </div>
+        
+                    <div class="relative pl-8 pb-6 border-l-2 border-purple-200">
+                        <div class="absolute left-[-9px] top-0 w-5 h-5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full border-4 border-white shadow"></div>
+                        <div class="bg-white rounded-xl p-4 shadow-md border border-gray-100">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-bold text-gray-800">2026年Q3</span>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full border bg-yellow-100 text-yellow-700 border-yellow-300">中催化</span>
+                            </div>
+                            <p class="text-gray-700">城市更新专项债发行</p>
+                        </div>
+                    </div>
+        
+                    <div class="relative pl-8 pb-6 border-l-2 border-purple-200">
+                        <div class="absolute left-[-9px] top-0 w-5 h-5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full border-4 border-white shadow"></div>
+                        <div class="bg-white rounded-xl p-4 shadow-md border border-gray-100">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-bold text-gray-800">2026年底</span>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full border bg-red-100 text-red-700 border-red-300">强催化</span>
+                            </div>
+                            <p class="text-gray-700">城中村改造项目集中落地</p>
+                        </div>
+                    </div>
+        
+                    <div class="relative pl-8 pb-6 border-l-2 border-transparent">
+                        <div class="absolute left-[-9px] top-0 w-5 h-5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full border-4 border-white shadow"></div>
+                        <div class="bg-white rounded-xl p-4 shadow-md border border-gray-100">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-bold text-gray-800">2027年</span>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full border bg-yellow-100 text-yellow-700 border-yellow-300">中催化</span>
+                            </div>
+                            <p class="text-gray-700">十四五规划收官，基建投资冲刺</p>
+                        </div>
+                    </div>
+        
+                </div>
+            </div>
+        </section>
+
+        <!-- 投资策略 -->
+        <section class="mt-12">
+            <h2 class="section-title text-3xl font-black text-white mb-8">💰 投资策略建议</h2>
+            <div class="card-glass p-8">
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-xl p-4 text-center border border-gray-100">
+                        <div class="text-2xl mb-2">🎯</div>
+                        <div class="text-sm text-gray-500 mb-1">仓位建议</div>
+                        <div class="font-bold text-gray-800">防御配置，占仓位3-8%</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 text-center border border-gray-100">
+                        <div class="text-2xl mb-2">📈</div>
+                        <div class="text-sm text-gray-500 mb-1">入场时机</div>
+                        <div class="font-bold text-gray-800">估值底部区域，逢低布局</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 text-center border border-gray-100">
+                        <div class="text-2xl mb-2">🛑</div>
+                        <div class="text-sm text-gray-500 mb-1">止损设置</div>
+                        <div class="font-bold text-red-600">跌破15%止损</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 text-center border border-gray-100">
+                        <div class="text-2xl mb-2">⏰</div>
+                        <div class="text-sm text-gray-500 mb-1">投资周期</div>
+                        <div class="font-bold text-gray-800">6-12个月</div>
+                    </div>
+                </div>
+                <div class="mt-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-100">
+                    <div class="font-semibold text-green-700 mb-1">💰 止盈策略</div>
+                    <p class="text-green-600">波段操作为主，政策催化期持有</p>
+                </div>
+    
+            </div>
+        </section>
+
+        <!-- 风险提示 -->
+        <section class="mt-12">
+            <h2 class="section-title text-3xl font-black text-white mb-8">⚠️ 核心风险提示</h2>
+            <div class="card-glass p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <div class="flex items-start gap-3 p-3 bg-red-50 rounded-xl border border-red-100">
+                        <span class="text-lg">⚠️</span>
+                        <span class="text-gray-700">地方政府债务压力，基建资金不到位</span>
+                    </div>
+        
+                    <div class="flex items-start gap-3 p-3 bg-red-50 rounded-xl border border-red-100">
+                        <span class="text-lg">⚠️</span>
+                        <span class="text-gray-700">房地产下行，相关需求疲软</span>
+                    </div>
+        
+                    <div class="flex items-start gap-3 p-3 bg-red-50 rounded-xl border border-red-100">
+                        <span class="text-lg">⚠️</span>
+                        <span class="text-gray-700">项目回款慢，现金流压力大</span>
+                    </div>
+        
+                    <div class="flex items-start gap-3 p-3 bg-red-50 rounded-xl border border-red-100">
+                        <span class="text-lg">⚠️</span>
+                        <span class="text-gray-700">行业竞争激烈，利润率下滑</span>
+                    </div>
+        
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 返回顶部按钮 -->
+    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" 
+            class="fixed bottom-8 right-8 w-14 h-14 bg-white rounded-full shadow-2xl flex items-center justify-center text-purple-600 hover:bg-purple-50 transition-all hover:scale-110">
+        <i class="fa fa-arrow-up text-xl"></i>
+    </button>
+
+<script src="../js/stock-hover-card.js" defer></script>
+</body>
+</html>

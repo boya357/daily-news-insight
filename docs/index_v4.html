@@ -1,0 +1,3208 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💎 投资洞察系统</title>
+    <style>
+        
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap');
+            
+            * { 
+                font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                box-sizing: border-box;
+            }
+            
+            body {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding-top: 70px;
+                color: #1E293B;
+                line-height: 1.6;
+            }
+            
+            .v4-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 24px;
+            }
+            
+            .v4-container.narrow {
+                max-width: 800px;
+            }
+            
+            /* 卡片样式 - 紫色背景上的白色卡片 */
+            .v4-card {
+                background: #FFFFFF;
+                border: 1px solid rgba(255, 255, 255, 0.8);
+                border-radius: 16px;
+                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.25), 0 2px 8px rgba(0, 0, 0, 0.08);
+                color: #1E293B;
+                transition: box-shadow 0.3s ease, transform 0.3s ease;
+            }
+            
+            .v4-card:hover {
+                box-shadow: 0 20px 60px rgba(102, 126, 234, 0.35), 0 4px 16px rgba(0, 0, 0, 0.12);
+                transform: translateY(-2px);
+            }
+            
+            .v4-card-header {
+                padding: 20px 24px;
+                border-bottom: 1px solid #F1F5F9;
+                font-weight: 600;
+                font-size: 1.125rem;
+                color: #1E293B;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .v4-card-body {
+                padding: 24px;
+            }
+            
+            .v4-card-footer {
+                padding: 16px 24px;
+                border-top: 1px solid #F1F5F9;
+                background: #F8FAFC;
+                border-radius: 0 0 16px 16px;
+            }
+            
+            /* 文字颜色 */
+            .text-primary { color: #1E293B !important; }
+            .text-secondary { color: #64748B !important; }
+            .text-muted { color: #94A3B8 !important; }
+            .text-up { color: #DC2626 !important; }
+            .text-down { color: #16A34A !important; }
+            .text-flat { color: #64748B !important; }
+            .text-blue { color: #2563EB !important; }
+            .text-orange { color: #F59E0B !important; }
+            
+            /* 背景色 */
+            .bg-white { background: #FFFFFF !important; }
+            .bg-gray-50 { background: #F8FAFC !important; }
+            .bg-gray-100 { background: #F1F5F9 !important; }
+            .bg-blue-50 { background: rgba(37, 99, 235, 0.05) !important; }
+            .bg-green-50 { background: rgba(22, 163, 74, 0.05) !important; }
+            .bg-red-50 { background: rgba(220, 38, 38, 0.05) !important; }
+            
+            /* 标签徽章 */
+            .v4-tag {
+                display: inline-block;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 500;
+                line-height: 1.5;
+            }
+            
+            .v4-tag-blue {
+                background: rgba(102, 126, 234, 0.1);
+                color: #667eea;
+            }
+            
+            .v4-tag-green {
+                background: rgba(22, 163, 74, 0.1);
+                color: #16A34A;
+            }
+            
+            .v4-tag-red {
+                background: rgba(220, 38, 38, 0.1);
+                color: #DC2626;
+            }
+            
+            .v4-tag-orange {
+                background: rgba(245, 158, 11, 0.1);
+                color: #F59E0B;
+            }
+            
+            .v4-tag-gray {
+                background: rgba(100, 116, 139, 0.1);
+                color: #64748B;
+            }
+            
+            /* 章节标题 */
+            .v4-section-title {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: #1E293B;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            
+            .v4-section-title .icon {
+                font-size: 1.5rem;
+            }
+            
+            /* 数据网格 */
+            .v4-data-grid {
+                display: grid;
+                gap: 16px;
+            }
+            
+            .v4-data-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+            .v4-data-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+            .v4-data-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+            
+            @media (max-width: 768px) {
+                .v4-data-grid.cols-2,
+                .v4-data-grid.cols-3,
+                .v4-data-grid.cols-4 {
+                    grid-template-columns: 1fr;
+                }
+            }
+            
+            /* 数据项 */
+            .v4-data-item {
+                text-align: center;
+                padding: 20px;
+                background: #F8FAFC;
+                border-radius: 12px;
+            }
+            
+            .v4-data-item .label {
+                font-size: 0.875rem;
+                color: #64748B;
+                margin-bottom: 8px;
+            }
+            
+            .v4-data-item .value {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #1E293B;
+            }
+            
+            .v4-data-item .value.small {
+                font-size: 1.125rem;
+            }
+            
+            /* 分割线 */
+            .v4-divider {
+                height: 1px;
+                background: #E2E8F0;
+                margin: 16px 0;
+            }
+            
+            /* 进度条 */
+            .v4-progress-bar {
+                height: 8px;
+                border-radius: 4px;
+                background: #F1F5F9;
+                overflow: hidden;
+            }
+            
+            .v4-progress-fill {
+                height: 100%;
+                border-radius: 4px;
+                transition: width 0.5s ease;
+            }
+            
+            .v4-progress-fill.blue { background: linear-gradient(90deg, #667eea, #818cf8); }
+            .v4-progress-fill.green { background: linear-gradient(90deg, #10B981, #34D399); }
+            .v4-progress-fill.red { background: linear-gradient(90deg, #EF4444, #F87171); }
+            .v4-progress-fill.orange { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+            
+            /* 股票卡片 */
+            .v4-stock-card {
+                background: #FFFFFF;
+                border: 1px solid #E2E8F0;
+                border-radius: 12px;
+                padding: 20px;
+                transition: all 0.3s ease;
+            }
+            
+            .v4-stock-card:hover {
+                box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+                border-color: rgba(102, 126, 234, 0.3);
+                transform: translateY(-2px);
+            }
+            
+            .v4-stock-card .stock-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+            }
+            
+            .v4-stock-card .stock-name {
+                font-size: 1.125rem;
+                font-weight: 600;
+                color: #1E293B;
+            }
+            
+            .v4-stock-card .stock-code {
+                font-size: 0.875rem;
+                color: #94A3B8;
+            }
+            
+            .v4-stock-card .stock-price {
+                font-size: 1.75rem;
+                font-weight: 700;
+                margin: 8px 0;
+            }
+            
+            .v4-stock-card .stock-change {
+                font-size: 0.875rem;
+                font-weight: 500;
+            }
+            
+            /* 诊断指标 - 简化版 */
+            .v4-diagnosis-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+                margin-top: 16px;
+            }
+            
+            .v4-diagnosis-item {
+                text-align: center;
+                padding: 10px 8px;
+                background: #F8FAFC;
+                border-radius: 8px;
+            }
+            
+            .v4-diagnosis-item .dim-name {
+                font-size: 0.75rem;
+                color: #94A3B8;
+                margin-bottom: 4px;
+            }
+            
+            .v4-diagnosis-item .dim-value {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #1E293B;
+            }
+            
+            .v4-diagnosis-item.good .dim-value { color: #16A34A; }
+            .v4-diagnosis-item.bad .dim-value { color: #DC2626; }
+            .v4-diagnosis-item.neutral .dim-value { color: #F59E0B; }
+            
+            /* 详细诊断面板 - 1x4横向网格 */
+            .stock-diagnosis-detail {
+                margin-top: 16px;
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+            
+            .diagnosis-dimension {
+                background: #F8FAFC;
+                border-radius: 10px;
+                padding: 12px 14px;
+                transition: all 0.2s ease;
+            }
+            
+            .diagnosis-dimension:hover {
+                background: #F1F5F9;
+                transform: translateY(-1px);
+            }
+            
+            .dim-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+            
+            .dim-icon {
+                font-size: 1rem;
+            }
+            
+            .dim-name {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #1E293B;
+                flex: 1;
+            }
+            
+            .dim-status {
+                font-size: 0.7rem;
+                font-weight: 600;
+                padding: 2px 8px;
+                border-radius: 12px;
+                white-space: nowrap;
+            }
+            
+            .dim-status.status-good {
+                background: rgba(22, 163, 74, 0.1);
+                color: #16A34A;
+            }
+            
+            .dim-status.status-bad {
+                background: rgba(220, 38, 38, 0.1);
+                color: #DC2626;
+            }
+            
+            .dim-status.status-neutral {
+                background: rgba(245, 158, 11, 0.1);
+                color: #F59E0B;
+            }
+            
+            .dim-items {
+                display: grid;
+                gap: 5px;
+            }
+            
+            .diagnosis-item {
+                display: flex;
+                align-items: flex-start;
+                gap: 6px;
+                font-size: 0.75rem;
+                color: #475569;
+                line-height: 1.3;
+            }
+            
+            .diagnosis-icon {
+                font-size: 0.75rem;
+                font-weight: 700;
+                flex-shrink: 0;
+                margin-top: 1px;
+            }
+            
+            .diagnosis-text {
+                flex: 1;
+            }
+            
+            /* 移动端诊断面板改为单列 */
+            @media (max-width: 640px) {
+                .stock-diagnosis-detail {
+                    grid-template-columns: 1fr;
+                }
+            }
+            
+            /* 导航栏 - 深色玻璃态（与V3一致） */
+            .v4-nav {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 60px;
+                background: rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                padding: 0 24px;
+                transition: background 0.3s ease;
+            }
+            
+            .v4-nav.scrolled {
+                background: rgba(0, 0, 0, 0.7);
+            }
+            
+            .v4-nav-logo {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: white;
+                margin-right: 32px;
+            }
+            
+            .v4-nav-menu {
+                display: flex;
+                gap: 4px;
+                flex: 1;
+            }
+            
+            .v4-nav-item {
+                padding: 8px 16px;
+                border-radius: 8px;
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: rgba(255, 255, 255, 0.8);
+                cursor: pointer;
+                transition: all 0.2s ease;
+                text-decoration: none;
+                position: relative;
+            }
+            
+            .v4-nav-item:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.1);
+            }
+            
+            .v4-nav-item.active {
+                color: white;
+                background: rgba(255, 255, 255, 0.15);
+            }
+            
+            .v4-nav-item::after {
+                content: '';
+                position: absolute;
+                bottom: -2px;
+                left: 50%;
+                width: 0;
+                height: 2px;
+                background: linear-gradient(90deg, #667eea, #764ba2);
+                transition: all 0.3s ease;
+                transform: translateX(-50%);
+                border-radius: 1px;
+            }
+            
+            .v4-nav-item:hover::after,
+            .v4-nav-item.active::after {
+                width: 60%;
+            }
+            
+            /* 页面标题区 - 紫色背景上的浅色文字 */
+            .v4-page-header {
+                text-align: center;
+                padding: 40px 0 32px;
+            }
+            
+            .v4-page-header h1 {
+                font-size: 2rem;
+                font-weight: 800;
+                color: #FFFFFF;
+                margin: 0 0 8px 0;
+                text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            .v4-page-header .subtitle {
+                font-size: 1rem;
+                color: rgba(255, 255, 255, 0.85);
+                margin-bottom: 8px;
+            }
+            
+            .v4-page-header .update-time {
+                font-size: 0.875rem;
+                color: rgba(255, 255, 255, 0.6);
+            }
+            
+            /* 列表项 */
+            .v4-list-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px 0;
+                border-bottom: 1px solid #F1F5F9;
+            }
+            
+            .v4-list-item:last-child {
+                border-bottom: none;
+            }
+            
+            .v4-list-item .item-label {
+                color: #64748B;
+                font-size: 0.875rem;
+            }
+            
+            .v4-list-item .item-value {
+                color: #1E293B;
+                font-weight: 500;
+            }
+            
+            /* 风险警示条 */
+            .v4-alert {
+                padding: 16px 20px;
+                border-radius: 12px;
+                border-left: 4px solid;
+                margin-bottom: 16px;
+            }
+            
+            .v4-alert.warning {
+                background: rgba(245, 158, 11, 0.05);
+                border-left-color: #F59E0B;
+                color: #92400E;
+            }
+            
+            .v4-alert.danger {
+                background: rgba(220, 38, 38, 0.05);
+                border-left-color: #DC2626;
+                color: #991B1B;
+            }
+            
+            .v4-alert.info {
+                background: rgba(102, 126, 234, 0.08);
+                border-left-color: #667eea;
+                color: #4f46e5;
+            }
+            
+            .v4-alert.success {
+                background: rgba(22, 163, 74, 0.05);
+                border-left-color: #16A34A;
+                color: #166534;
+            }
+            
+            /* 回到顶部按钮 */
+            #backToTop {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                width: 50px;
+                height: 50px;
+                background: linear-gradient(135deg, #6366f1, #a855f7);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                z-index: 9998;
+                opacity: 0;
+                transform: translateY(20px);
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+                border: none;
+                font-size: 18px;
+            }
+            
+            #backToTop:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            }
+            
+            #backToTop.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            /* 操作按钮组 - 左下角 */
+            .action-buttons {
+                position: fixed;
+                bottom: 30px;
+                left: 30px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                z-index: 9998;
+            }
+            
+            .action-btn {
+                width: 50px;
+                height: 50px;
+                background: rgba(30, 30, 50, 0.8);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                font-size: 18px;
+            }
+            
+            .action-btn:hover {
+                background: rgba(99, 102, 241, 0.8);
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            }
+            
+            /* 阅读进度条 */
+            #progressBar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+                z-index: 1001;
+                width: 0%;
+                transition: width 0.1s ease;
+            }
+            
+            /* ===== 悬浮目录导航 ===== */
+            .toc-wrapper {
+                position: fixed;
+                top: 120px;
+                width: 220px;
+                max-height: calc(100vh - 160px);
+                background: rgba(139, 92, 246, 0.15);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 16px;
+                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+                z-index: 90;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .toc-right {
+                right: 20px;
+            }
+            
+            .toc-left {
+                left: 20px;
+            }
+            
+            .toc-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                cursor: pointer;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                user-select: none;
+            }
+            
+            .toc-title {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: white;
+            }
+            
+            .toc-header svg {
+                color: rgba(255, 255, 255, 0.7);
+                transition: transform 0.3s ease;
+            }
+            
+            .toc-wrapper.collapsed .toc-header svg {
+                transform: rotate(-90deg);
+            }
+            
+            .toc-content {
+                max-height: calc(100vh - 220px);
+                overflow-y: auto;
+                padding: 8px 0;
+                transition: max-height 0.3s ease;
+            }
+            
+            .toc-wrapper.collapsed .toc-content {
+                max-height: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            
+            .toc-item {
+                display: block;
+                padding: 8px 16px;
+                font-size: 0.8125rem;
+                color: rgba(255, 255, 255, 0.7);
+                text-decoration: none;
+                border-left: 3px solid transparent;
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+            
+            .toc-item:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.08);
+                border-left-color: rgba(255, 255, 255, 0.3);
+            }
+            
+            .toc-item.active {
+                color: white;
+                font-weight: 500;
+                background: rgba(102, 126, 234, 0.3);
+                border-left-color: #667eea;
+            }
+            
+            .toc-item.pl-4 {
+                padding-left: 32px;
+                font-size: 0.75rem;
+            }
+            
+            /* TOC滚动条样式 */
+            .toc-content::-webkit-scrollbar {
+                width: 4px;
+            }
+            
+            .toc-content::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            
+            .toc-content::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 2px;
+            }
+            
+            .toc-content::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.4);
+            }
+            
+            /* 大屏显示优化 */
+            @media (min-width: 1400px) {
+                .toc-wrapper {
+                    width: 260px;
+                }
+                .toc-right {
+                    right: calc((100vw - 64rem) / 2 - 300px);
+                }
+                .toc-left {
+                    left: calc((100vw - 64rem) / 2 - 300px);
+                }
+            }
+            
+            /* 平板端优化 - 折叠为悬浮按钮 */
+            @media (max-width: 1200px) {
+                .toc-wrapper {
+                    top: auto;
+                    bottom: 80px;
+                    right: 16px;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 240px;
+                    height: auto;
+                    max-height: 60vh;
+                    border-radius: 16px;
+                    top: auto;
+                    bottom: 80px;
+                }
+            }
+            
+            /* 响应式 */
+            @media (max-width: 768px) {
+                body {
+                    padding-top: 60px;
+                }
+                
+                .v4-container {
+                    padding: 0 16px;
+                }
+                
+                .v4-page-header h1 {
+                    font-size: 1.5rem;
+                }
+                
+                .v4-card-body {
+                    padding: 16px;
+                }
+                
+                .v4-diagnosis-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                
+                .v4-nav {
+                    padding: 0 16px;
+                }
+                
+                .v4-nav-menu {
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                }
+            }
+        </style>
+    
+        
+        .v4-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 24px;
+            margin-bottom: 16px;
+            border: 1px solid #E5E7EB;
+            transition: all 0.3s ease;
+        }
+        .v4-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+
+        .v4-tag {
+            display: inline-block;
+            font-weight: 500;
+            border-radius: 20px;
+            line-height: 1.4;
+            transition: all 0.2s ease;
+        }
+        
+
+        .v4-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        .v4-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+
+
+        .v4-progress-bar {
+            margin-bottom: 12px;
+        }
+        .v4-progress-bar-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        .v4-progress-bar-label {
+            color: #6B7280;
+            font-weight: 500;
+        }
+        .v4-progress-bar-value {
+            color: #1F2937;
+            font-weight: 600;
+        }
+        .v4-progress-bar-track {
+            height: 8px;
+            background: #F3F4F6;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .v4-progress-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+        
+
+        .v4-data-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .v4-data-grid-item {
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #E5E7EB;
+            text-align: center;
+        }
+        .v4-data-grid-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 4px;
+        }
+        .v4-data-grid-label {
+            font-size: 13px;
+            color: #6B7280;
+        }
+        @media (max-width: 640px) {
+            .v4-data-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+
+        .v4-hbar-chart {
+            margin-bottom: 16px;
+        }
+        .v4-hbar-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 12px;
+        }
+        .v4-hbar-label {
+            width: 80px;
+            font-size: 13px;
+            color: #6B7280;
+            flex-shrink: 0;
+            text-align: right;
+        }
+        .v4-hbar-track {
+            flex: 1;
+            height: 24px;
+            background: #F3F4F6;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .v4-hbar-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.6s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+        }
+        .v4-hbar-value {
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+        
+
+        .v4-tabs {
+            margin-bottom: 20px;
+        }
+        .v4-tabs-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .v4-tab-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            background: transparent;
+            color: #6B7280;
+        }
+        /* Card style */
+        .v4-tabs-card .v4-tab-item {
+            background: #F3F4F6;
+            border-radius: 12px;
+        }
+        .v4-tabs-card .v4-tab-item.active {
+            background: #8B5CF6;
+            color: white;
+        }
+        /* Line style */
+        .v4-tabs-line .v4-tab-item {
+            border-bottom: 2px solid transparent;
+            border-radius: 0;
+        }
+        .v4-tabs-line .v4-tab-item.active {
+            color: #8B5CF6;
+            border-bottom-color: #8B5CF6;
+        }
+        /* Pill style */
+        .v4-tabs-pill .v4-tab-item {
+            border-radius: 20px;
+            background: #F3F4F6;
+        }
+        .v4-tabs-pill .v4-tab-item.active {
+            background: linear-gradient(135deg, #8B5CF6, #6366F1);
+            color: white;
+        }
+        .v4-tab-content {
+            display: none;
+        }
+        .v4-tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+
+        .v4-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 16px;
+        }
+        .v4-breadcrumb a {
+            color: #6B7280;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .v4-breadcrumb a:hover {
+            color: #8B5CF6;
+        }
+        .v4-breadcrumb-separator {
+            color: #9CA3AF;
+        }
+        .v4-breadcrumb-current {
+            color: #1F2937;
+            font-weight: 500;
+        }
+        
+
+        .v4-stock-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #E5E7EB;
+            transition: all 0.3s ease;
+        }
+        .v4-stock-card:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transform: translateY(-2px);
+        }
+        .v4-stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .v4-stock-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1F2937;
+        }
+        .v4-stock-code {
+            font-size: 13px;
+            color: #9CA3AF;
+            margin-top: 2px;
+        }
+        .v4-stock-price {
+            text-align: right;
+        }
+        .v4-stock-price-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .v4-stock-price-change {
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+        .v4-stock-body {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #E5E7EB;
+        }
+        .v4-stock-metric {
+            text-align: center;
+        }
+        .v4-stock-metric-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+        .v4-stock-metric-label {
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 2px;
+        }
+        .stock-up { color: #EF4444; }
+        .stock-down { color: #10B981; }
+        
+        /* 完整版特有样式 */
+        .v4-stock-tags {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .v4-stock-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding-top: 16px;
+            border-top: 1px solid #E5E7EB;
+        }
+        .v4-stock-detail-item {
+            text-align: center;
+        }
+        .v4-stock-detail-label {
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 4px;
+        }
+        .v4-stock-detail-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+        .v4-stock-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            margin-top: 16px;
+            border-top: 1px solid #E5E7EB;
+        }
+        .v4-stock-risk-bar {
+            height: 6px;
+            background: #E5E7EB;
+            border-radius: 3px;
+            overflow: hidden;
+            flex: 1;
+            margin: 0 12px;
+        }
+        .v4-stock-risk-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        .v4-stock-advice {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .v4-stock-advice.buy {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }
+        .v4-stock-advice.sell {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+        }
+        .v4-stock-advice.hold {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+        }
+        
+
+        .v4-topic-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #E5E7EB;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .v4-topic-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-4px);
+        }
+        .v4-topic-level-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            border-bottom-left-radius: 16px;
+        }
+        .v4-topic-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .v4-topic-icon {
+            font-size: 32px;
+        }
+        .v4-topic-info {
+            flex: 1;
+        }
+        .v4-topic-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 4px;
+        }
+        .v4-topic-score {
+            font-size: 14px;
+            color: #6B7280;
+        }
+        .v4-topic-score-value {
+            font-weight: 700;
+            color: #8B5CF6;
+            font-size: 16px;
+        }
+        .v4-topic-description {
+            color: #6B7280;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .v4-topic-stocks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .v4-topic-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid #E5E7EB;
+        }
+        .v4-topic-catalyst {
+            font-size: 13px;
+            color: #6B7280;
+            flex: 1;
+        }
+        .v4-topic-action {
+            flex-shrink: 0;
+        }
+        
+
+        .v4-section {
+            margin-bottom: 24px;
+            scroll-margin-top: 80px;
+        }
+        .v4-section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E7EB;
+        }
+        .v4-section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1F2937;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .v4-section-icon {
+            font-size: 24px;
+        }
+        .v4-section-body {
+            padding: 0;
+        }
+        
+
+        .v4-page-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 32px 24px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.05));
+            border-radius: 20px;
+        }
+        .v4-page-header-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1F2937;
+            margin: 0 0 8px 0;
+            background: linear-gradient(135deg, #8B5CF6, #6366F1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .v4-page-header-subtitle {
+            font-size: 16px;
+            color: #6B7280;
+            margin: 0;
+        }
+        @media (max-width: 640px) {
+            .v4-page-header-title {
+                font-size: 24px;
+            }
+            .v4-page-header-subtitle {
+                font-size: 14px;
+            }
+        }
+        
+        
+        .v4-page-header {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+        .v4-page-title h1 {
+            font-size: 36px;
+            font-weight: 800;
+            color: #1E293B;
+            margin: 0 0 8px 0;
+        }
+        .v4-page-subtitle {
+            font-size: 16px;
+            color: #64748B;
+            margin: 0;
+        }
+        .v4-header-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 600px;
+            margin: 30px auto 0;
+        }
+        .v4-stat-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            text-align: center;
+        }
+        .v4-stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1E293B;
+            line-height: 1.2;
+        }
+        .v4-stat-label {
+            font-size: 13px;
+            color: #64748B;
+            margin-top: 4px;
+        }
+        .v4-market-overview {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+        .v4-bar-chart-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 120px;
+            padding: 20px 0;
+        }
+        .v4-bar-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+        .v4-bar-value {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .v4-bar-chart {
+            width: 30px;
+            height: 80px;
+            background: #F1F5F9;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .v4-bar {
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            transition: height 0.3s ease;
+        }
+        .v4-bar-label {
+            font-size: 12px;
+            color: #64748B;
+            margin-top: 8px;
+        }
+        .v4-market-stats {
+            background: #F1F5F9;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .v4-sentiment-score {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .v4-sentiment-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .v4-sentiment-desc {
+            font-size: 12px;
+            color: #64748B;
+            margin-top: 4px;
+        }
+        .v4-market-counts {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 16px;
+        }
+        .v4-count-item {
+            text-align: center;
+        }
+        .v4-count-value {
+            display: block;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .v4-count-label {
+            font-size: 12px;
+            color: #64748B;
+        }
+        .v4-portfolio-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .v4-stock-card {
+            padding: 24px;
+        }
+        .v4-stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .v4-stock-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .v4-stock-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1E293B;
+            margin: 0;
+        }
+        .v4-stock-code {
+            font-size: 13px;
+            color: #94A3B8;
+        }
+        .v4-stock-prices {
+            text-align: right;
+        }
+        .v4-price-current {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1E293B;
+        }
+        .v4-price-change {
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .v4-stock-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 16px 0;
+            border-top: 1px solid #F1F5F9;
+            border-bottom: 1px solid #F1F5F9;
+            margin-bottom: 16px;
+        }
+        .v4-metric {
+            text-align: center;
+        }
+        .v4-metric-label {
+            display: block;
+            font-size: 12px;
+            color: #64748B;
+            margin-bottom: 4px;
+        }
+        .v4-metric-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1E293B;
+        }
+        .v4-diagnosis-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .v4-diagnosis-card {
+            background: #F1F5F9;
+            border-radius: 10px;
+            padding: 12px;
+        }
+        .v4-diagnosis-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .v4-diagnosis-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1E293B;
+        }
+        .v4-diagnosis-status {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            background: currentColor;
+            opacity: 0.15;
+            border-radius: 4px;
+            margin-left: auto;
+        }
+        .v4-diagnosis-items {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .v4-diagnosis-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            font-size: 11px;
+            color: #64748B;
+            line-height: 1.4;
+        }
+        .v4-diagnosis-icon {
+            flex-shrink: 0;
+            font-size: 10px;
+        }
+        .v4-stock-advice {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #F1F5F9;
+        }
+        .v4-advice-text {
+            font-size: 13px;
+            color: #64748B;
+            line-height: 1.6;
+        }
+        .v4-strategy-overview {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #F1F5F9;
+        }
+        .v4-strategy-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #1E293B;
+            margin: 0;
+        }
+        .v4-point-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .v4-point-list li {
+            font-size: 14px;
+            color: #64748B;
+            line-height: 1.6;
+        }
+        .v4-risk-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 16px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .v4-risk-item {
+            font-size: 14px;
+            color: #64748B;
+            line-height: 1.6;
+        }
+        .v4-risk-disclaimer {
+            font-size: 12px;
+            color: #94A3B8;
+            margin: 0;
+            padding-top: 12px;
+            border-top: 1px solid #F1F5F9;
+        }
+        .v4-card-subtitle {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1E293B;
+            margin: 0 0 12px 0;
+        }
+        .v4-hot-sectors {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .v4-sector-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #F1F5F9;
+        }
+        .v4-sector-item:last-child {
+            border-bottom: none;
+        }
+        .v4-sector-rank {
+            font-size: 16px;
+            font-weight: 700;
+            width: 24px;
+            text-align: center;
+        }
+        .v4-sector-name {
+            font-size: 14px;
+            color: #1E293B;
+            width: 120px;
+            flex-shrink: 0;
+        }
+        .v4-sector-bar {
+            flex: 1;
+            height: 8px;
+            background: #F1F5F9;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .v4-sector-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .v4-sector-change {
+            font-size: 13px;
+            font-weight: 600;
+            width: 70px;
+            text-align: right;
+        }
+        
+        /* 新闻模块样式 */
+        .v4-news-summary {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+        .v4-news-sentiment {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .v4-sentiment-gauge {
+            text-align: center;
+            padding: 20px;
+            background: #F1F5F9;
+            border-radius: 16px;
+        }
+        .v4-sentiment-icon {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .v4-sentiment-label {
+            font-size: 13px;
+            color: #64748B;
+            margin-bottom: 4px;
+        }
+        .v4-sentiment-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .v4-sentiment-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .v4-sentiment-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .v4-sentiment-bar-label {
+            width: 40px;
+            font-size: 12px;
+            color: #64748B;
+        }
+        .v4-sentiment-bar-track {
+            flex: 1;
+            height: 8px;
+            background: #F1F5F9;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .v4-sentiment-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .v4-bar-positive {
+            background: #DC2626;
+        }
+        .v4-bar-negative {
+            background: #16A34A;
+        }
+        .v4-sentiment-bar-value {
+            width: 40px;
+            text-align: right;
+            font-size: 12px;
+            font-weight: 600;
+            color: #1E293B;
+        }
+        .v4-news-themes {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .v4-theme-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .v4-theme-tag {
+            padding: 4px 12px;
+            background: rgba(139, 92, 246, 0.1);
+            color: #7C3AED;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .v4-news-summary-text {
+            font-size: 13px;
+            color: #64748B;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        /* 新闻列表样式 */
+        .v4-news-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .v4-news-item {
+            padding: 16px;
+            background: #F1F5F9;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+        .v4-news-item:hover {
+            background: #F1F5F9;
+        }
+        .v4-news-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .v4-news-category {
+            font-size: 12px;
+            color: #64748B;
+        }
+        .v4-news-source {
+            font-size: 12px;
+            color: #94A3B8;
+        }
+        .v4-news-time {
+            font-size: 12px;
+            color: #94A3B8;
+        }
+        .v4-news-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1E293B;
+            margin: 0 0 8px 0;
+            line-height: 1.5;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+        .v4-news-sentiment-icon {
+            font-size: 16px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+        .v4-news-desc {
+            font-size: 13px;
+            color: #64748B;
+            line-height: 1.6;
+            margin: 0 0 10px 0;
+        }
+        .v4-news-footer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .v4-sector-mini-tag {
+            padding: 2px 8px;
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .v4-news-catalytic {
+            font-size: 12px;
+            color: #F59E0B;
+            margin-left: auto;
+        }
+        
+        /* Tab切换样式 */
+        .v4-tabs {
+            display: flex;
+            gap: 4px;
+            border-bottom: 2px solid #F1F5F9;
+            margin-bottom: 16px;
+            overflow-x: auto;
+        }
+        .v4-tab-btn {
+            padding: 10px 16px;
+            background: none;
+            border: none;
+            font-size: 13px;
+            font-weight: 500;
+            color: #64748B;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        .v4-tab-btn:hover {
+            color: #1E293B;
+        }
+        .v4-tab-btn.active {
+            color: #7C3AED;
+            border-bottom-color: #7C3AED;
+            font-weight: 600;
+        }
+        .v4-tab-panels {
+            min-height: 200px;
+        }
+        .v4-tab-content {
+            display: none;
+        }
+        .v4-tab-content.active {
+            display: block;
+        }
+        .v4-news-item-simple {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #F1F5F9;
+        }
+        .v4-news-item-simple:last-child {
+            border-bottom: none;
+        }
+        .v4-news-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .v4-news-title-simple {
+            flex: 1;
+            font-size: 13px;
+            color: #1E293B;
+            line-height: 1.4;
+        }
+        .v4-news-time-simple {
+            font-size: 12px;
+            color: #94A3B8;
+            flex-shrink: 0;
+        }
+        
+        /* 板块影响追踪 */
+        .v4-sector-impact-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .v4-sector-impact-item {
+            padding: 12px 16px;
+            background: #F1F5F9;
+            border-radius: 10px;
+        }
+        .v4-sector-impact-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .v4-sector-impact-header .v4-sector-rank {
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            background: #EEF2FF;
+            color: #4F46E5;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .v4-sector-impact-header .v4-sector-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1E293B;
+            width: auto;
+        }
+        .v4-sector-news-count {
+            font-size: 12px;
+            color: #64748B;
+        }
+        .v4-sector-sentiment {
+            margin-left: auto;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .v4-sector-impact-news {
+            font-size: 12px;
+            color: #64748B;
+            line-height: 1.5;
+            padding-left: 34px;
+        }
+        
+        @media (max-width: 768px) {
+            .v4-header-stats { grid-template-columns: 1fr; gap: 12px; }
+            .v4-market-overview { grid-template-columns: 1fr; }
+            .v4-stock-metrics { grid-template-columns: repeat(2, 1fr); }
+            .v4-diagnosis-grid { grid-template-columns: repeat(2, 1fr); }
+            .v4-page-title h1 { font-size: 28px; }
+            .v4-sector-name { width: 100px; font-size: 13px; }
+        }
+        
+        
+        /* Hero区域 */
+        .v4-hero-section {
+            position: relative;
+            text-align: center;
+            padding: 80px 24px 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 24px;
+            color: white;
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+        .v4-hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        .v4-hero-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .v4-hero-title {
+            font-size: 42px;
+            font-weight: 800;
+            margin: 0 0 16px 0;
+            letter-spacing: -0.5px;
+        }
+        .v4-hero-subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            margin: 0 0 40px 0;
+            font-weight: 400;
+        }
+        .v4-hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            flex-wrap: wrap;
+        }
+        .v4-hero-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .v4-hero-stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .v4-hero-stat-label {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+        .v4-hero-decoration {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .hero-blob {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            filter: blur(40px);
+        }
+        .blob-1 {
+            width: 200px;
+            height: 200px;
+            top: -50px;
+            left: 10%;
+        }
+        .blob-2 {
+            width: 300px;
+            height: 300px;
+            bottom: -100px;
+            right: 5%;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .blob-3 {
+            width: 150px;
+            height: 150px;
+            top: 30%;
+            right: 20%;
+            background: rgba(255, 255, 255, 0.12);
+        }
+        
+        /* 快速入口网格 */
+        .v4-quick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+        }
+        .v4-quick-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: white;
+            border-radius: 16px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .v4-quick-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(102, 126, 234, 0.2);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+        .quick-card-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .quick-card-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .quick-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 2px;
+        }
+        .quick-card-desc {
+            font-size: 12px;
+            color: #64748B;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .quick-card-arrow {
+            font-size: 20px;
+            font-weight: 300;
+            flex-shrink: 0;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .v4-quick-card:hover .quick-card-arrow {
+            opacity: 1;
+        }
+        
+        /* 热门题材网格 */
+        .v4-topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+        }
+        
+        /* 标签样式 */
+        .v4-tag-blue {
+            background: rgba(37, 99, 235, 0.1);
+            color: #2563EB;
+        }
+        .v4-tag-red {
+            background: rgba(220, 38, 38, 0.1);
+            color: #DC2626;
+        }
+        .v4-tag-purple {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8B5CF6;
+        }
+        
+        /* 系统工具箱网格 */
+        .v4-tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+        }
+        .v4-tool-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 20px 12px;
+            background: white;
+            border-radius: 16px;
+            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .v4-tool-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+        .v4-tool-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        .v4-tool-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: #1E293B;
+            text-align: center;
+        }
+        
+        /* 报告中心网格 */
+        .v4-report-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .v4-report-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px;
+            background: white;
+            border-radius: 16px;
+            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .v4-report-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+        .v4-report-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+            flex-shrink: 0;
+        }
+        .v4-report-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .v4-report-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 4px;
+        }
+        .v4-report-desc {
+            font-size: 12px;
+            color: #64748B;
+        }
+        
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .v4-hero-section {
+                padding: 50px 20px 40px;
+            }
+            .v4-hero-title {
+                font-size: 28px;
+            }
+            .v4-hero-subtitle {
+                font-size: 14px;
+            }
+            .v4-hero-stats {
+                gap: 30px;
+            }
+            .v4-hero-stat-value {
+                font-size: 24px;
+            }
+            .v4-quick-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .v4-topics-grid {
+                grid-template-columns: 1fr;
+            }
+            .v4-tool-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .v4-report-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .v4-quick-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+    </style>
+</head>
+<body class="v4-body">
+    
+        <nav class="v4-nav" id="topNav">
+            <div class="v4-nav-logo">📊 投资研究中心</div>
+            <div class="v4-nav-menu">
+                <a class="v4-nav-item active" href="index_v4.html">🏠 首页</a><a class="v4-nav-item " href="list_daily_v4.html">📰 日报</a><a class="v4-nav-item " href="list_intraday_v4.html">⚡ 盘中</a><a class="v4-nav-item " href="list_aftermarket_v4.html">📊 盘后</a><a class="v4-nav-item " href="list_s_catalyst_v4.html">🚀 S级催化</a><a class="v4-nav-item " href="list_sector_heatmap_v4.html">🔥 板块热度</a><a class="v4-nav-item " href="list_tomorrow_catalyst_v4.html">⏰ 明日催化</a><a class="v4-nav-item " href="list_weekend_express_v4.html">📦 周末速递</a><a class="v4-nav-item " href="list_weekly_outlook_v4.html">👁️ 周三前瞻</a><a class="v4-nav-item " href="list_weekly_review_v4.html">📋 周复盘</a><a class="v4-nav-item " href="list_longhubang_v4.html">🏆 龙虎榜</a><a class="v4-nav-item " href="list_portfolio_dashboard_v4.html">📊 持仓</a><a class="v4-nav-item " href="list_prediction_center_v4.html">🔮 预测</a><a class="v4-nav-item " href="list_alert_system_v4.html">🚨 预警</a>
+            </div>
+        </nav>
+        
+    <main class="v4-main">
+        <div class="v4-container">
+            
+        
+        <section class="v4-hero-section">
+            <div class="v4-hero-content">
+                <div class="v4-hero-badge">✨ AI智能投资平台</div>
+                <h1 class="v4-hero-title">💎 投资洞察系统</h1>
+                <p class="v4-hero-subtitle">AI驱动的智能投资决策助手 · 让投资更简单</p>
+                <div class="v4-hero-stats">
+                    <div class="v4-hero-stat">
+                        <span class="v4-hero-stat-value">12+</span>
+                        <span class="v4-hero-stat-label">功能模块</span>
+                    </div>
+                    <div class="v4-hero-stat">
+                        <span class="v4-hero-stat-value">实时</span>
+                        <span class="v4-hero-stat-label">数据更新</span>
+                    </div>
+                    <div class="v4-hero-stat">
+                        <span class="v4-hero-stat-value">AI</span>
+                        <span class="v4-hero-stat-label">智能分析</span>
+                    </div>
+                    <div class="v4-hero-stat">
+                        <span class="v4-hero-stat-value">7×24</span>
+                        <span class="v4-hero-stat-label">持续运行</span>
+                    </div>
+                </div>
+            </div>
+            <div class="v4-hero-decoration">
+                <div class="hero-blob blob-1"></div>
+                <div class="hero-blob blob-2"></div>
+                <div class="hero-blob blob-3"></div>
+            </div>
+        </section>
+        
+        
+        <section class="v4-section" id="section-quick">
+            
+        <div class="v4-section-header">
+            <h2 class="v4-section-title">🎯 功能导航</h2>
+            <span class="v4-section-tag v4-tag-blue">快速入口</span>
+        </div>
+        
+            <div class="v4-quick-grid">
+                
+            <a href="list_daily_v4.html" class="v4-quick-card">
+                <div class="quick-card-icon" style="background: #3B82F615; color: #3B82F6;">
+                    📈
+                </div>
+                <div class="quick-card-content">
+                    <div class="quick-card-title">每日日报</div>
+                    <div class="quick-card-desc">全景市场复盘</div>
+                </div>
+                <div class="quick-card-arrow" style="color: #3B82F6;">→</div>
+            </a>
+            
+            <a href="list_intraday_v4.html" class="v4-quick-card">
+                <div class="quick-card-icon" style="background: #F59E0B15; color: #F59E0B;">
+                    ⚡
+                </div>
+                <div class="quick-card-content">
+                    <div class="quick-card-title">盘中快报</div>
+                    <div class="quick-card-desc">实时行情追踪</div>
+                </div>
+                <div class="quick-card-arrow" style="color: #F59E0B;">→</div>
+            </a>
+            
+            <a href="list_portfolio_dashboard_v4.html" class="v4-quick-card">
+                <div class="quick-card-icon" style="background: #10B98115; color: #10B981;">
+                    📊
+                </div>
+                <div class="quick-card-content">
+                    <div class="quick-card-title">持仓仪表盘</div>
+                    <div class="quick-card-desc">多维持仓诊断</div>
+                </div>
+                <div class="quick-card-arrow" style="color: #10B981;">→</div>
+            </a>
+            
+            <a href="list_s_catalyst_v4.html" class="v4-quick-card">
+                <div class="quick-card-icon" style="background: #EF444415; color: #EF4444;">
+                    🚀
+                </div>
+                <div class="quick-card-content">
+                    <div class="quick-card-title">S级催化</div>
+                    <div class="quick-card-desc">顶级题材挖掘</div>
+                </div>
+                <div class="quick-card-arrow" style="color: #EF4444;">→</div>
+            </a>
+            
+            <a href="list_longhubang_v4.html" class="v4-quick-card">
+                <div class="quick-card-icon" style="background: #8B5CF615; color: #8B5CF6;">
+                    🏆
+                </div>
+                <div class="quick-card-content">
+                    <div class="quick-card-title">龙虎榜</div>
+                    <div class="quick-card-desc">游资动向追踪</div>
+                </div>
+                <div class="quick-card-arrow" style="color: #8B5CF6;">→</div>
+            </a>
+            
+            <a href="list_sector_heatmap_v4.html" class="v4-quick-card">
+                <div class="quick-card-icon" style="background: #EC489915; color: #EC4899;">
+                    🔥
+                </div>
+                <div class="quick-card-content">
+                    <div class="quick-card-title">板块热度</div>
+                    <div class="quick-card-desc">行业轮动把握</div>
+                </div>
+                <div class="quick-card-arrow" style="color: #EC4899;">→</div>
+            </a>
+            
+            <a href="list_prediction_center_v4.html" class="v4-quick-card">
+                <div class="quick-card-icon" style="background: #06B6D415; color: #06B6D4;">
+                    🔮
+                </div>
+                <div class="quick-card-content">
+                    <div class="quick-card-title">预测中心</div>
+                    <div class="quick-card-desc">AI智能预测</div>
+                </div>
+                <div class="quick-card-arrow" style="color: #06B6D4;">→</div>
+            </a>
+            
+            <a href="list_alert_system_v4.html" class="v4-quick-card">
+                <div class="quick-card-icon" style="background: #F9731615; color: #F97316;">
+                    🚨
+                </div>
+                <div class="quick-card-content">
+                    <div class="quick-card-title">预警系统</div>
+                    <div class="quick-card-desc">智能风险监控</div>
+                </div>
+                <div class="quick-card-arrow" style="color: #F97316;">→</div>
+            </a>
+            
+            <a href="list_weekend_express_v4.html" class="v4-quick-card">
+                <div class="quick-card-icon" style="background: #84CC1615; color: #84CC16;">
+                    📅
+                </div>
+                <div class="quick-card-content">
+                    <div class="quick-card-title">周末速递</div>
+                    <div class="quick-card-desc">周度投资策略</div>
+                </div>
+                <div class="quick-card-arrow" style="color: #84CC16;">→</div>
+            </a>
+            
+            <a href="list_weekly_outlook_v4.html" class="v4-quick-card">
+                <div class="quick-card-icon" style="background: #14B8A615; color: #14B8A6;">
+                    👁️
+                </div>
+                <div class="quick-card-content">
+                    <div class="quick-card-title">周三前瞻</div>
+                    <div class="quick-card-desc">周中行情展望</div>
+                </div>
+                <div class="quick-card-arrow" style="color: #14B8A6;">→</div>
+            </a>
+            
+            <a href="list_weekly_review_v4.html" class="v4-quick-card">
+                <div class="quick-card-icon" style="background: #6366F115; color: #6366F1;">
+                    📚
+                </div>
+                <div class="quick-card-content">
+                    <div class="quick-card-title">周度复盘</div>
+                    <div class="quick-card-desc">深度经验总结</div>
+                </div>
+                <div class="quick-card-arrow" style="color: #6366F1;">→</div>
+            </a>
+            
+            <a href="list_tomorrow_catalyst_v4.html" class="v4-quick-card">
+                <div class="quick-card-icon" style="background: #F43F5E15; color: #F43F5E;">
+                    ⏰
+                </div>
+                <div class="quick-card-content">
+                    <div class="quick-card-title">明日催化</div>
+                    <div class="quick-card-desc">事件驱动机会</div>
+                </div>
+                <div class="quick-card-arrow" style="color: #F43F5E;">→</div>
+            </a>
+            
+            </div>
+        </section>
+        
+        
+        <section class="v4-section" id="section-overview">
+            
+        <div class="v4-section-header">
+            <h2 class="v4-section-title">📊 市场概览</h2>
+            <span class="v4-section-tag v4-tag-blue">实时行情</span>
+        </div>
+        
+            <div class="v4-card">
+                <div class="v4-card-body">
+                    <div class="market-overview-v3">
+                        <!-- 指数卡片 -->
+                        <div class="market-index-cards">
+                            
+            <div class="market-index-card">
+                <div class="index-name">上证指数</div>
+                <div class="index-value">4,090.48</div>
+                <div class="index-change down">-0.43%</div>
+            </div>
+            
+            <div class="market-index-card">
+                <div class="index-name">深证成指</div>
+                <div class="index-value">16,030.70</div>
+                <div class="index-change up">+0.94%</div>
+            </div>
+            
+            <div class="market-index-card">
+                <div class="index-name">创业板指</div>
+                <div class="index-value">4,252.39</div>
+                <div class="index-change up">+2.05%</div>
+            </div>
+            
+            <div class="market-index-card">
+                <div class="index-name">科创50</div>
+                <div class="index-value">1,911.51</div>
+                <div class="index-change up">+3.84%</div>
+            </div>
+            
+                        </div>
+                        
+                        <!-- 分割线 -->
+                        <div class="v4-divider"></div>
+                        
+                        <!-- 指数涨跌幅柱状图 -->
+                        <div class="horizontal-bar-chart">
+                            <div class="chart-title">📈 指数涨跌幅</div>
+                            
+            <div class="bar-chart-row">
+                <div class="bar-label">上证指数</div>
+                <div class="bar-track">
+                    <div class="bar-fill down" style="width: 15%;">
+                        <span class="bar-value">-0.43%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bar-chart-row">
+                <div class="bar-label">深证成指</div>
+                <div class="bar-track">
+                    <div class="bar-fill up" style="width: 24.479166666666668%;">
+                        <span class="bar-value">+0.94%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bar-chart-row">
+                <div class="bar-label">创业板指</div>
+                <div class="bar-track">
+                    <div class="bar-fill up" style="width: 53.38541666666667%;">
+                        <span class="bar-value">+2.05%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bar-chart-row">
+                <div class="bar-label">科创50</div>
+                <div class="bar-track">
+                    <div class="bar-fill up" style="width: 100.0%;">
+                        <span class="bar-value">+3.84%</span>
+                    </div>
+                </div>
+            </div>
+            
+                        </div>
+                        
+                        <!-- 分割线 -->
+                        <div class="v4-divider"></div>
+                        
+                        <!-- 市场数据网格 -->
+                        <div class="market-data-grid">
+                            <div class="market-data-item">
+                                <div class="data-label">上涨家数</div>
+                                <div class="data-value up">3630</div>
+                            </div>
+                            <div class="market-data-item">
+                                <div class="data-label">下跌家数</div>
+                                <div class="data-value down">1870</div>
+                            </div>
+                            <div class="market-data-item">
+                                <div class="data-label">涨停</div>
+                                <div class="data-value up">0</div>
+                            </div>
+                            <div class="market-data-item">
+                                <div class="data-label">跌停</div>
+                                <div class="data-value down">0</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 分割线 -->
+                        <div class="v4-divider"></div>
+                        
+                        <!-- 市场情绪栏 -->
+                        <div class="market-sentiment-bar">
+                            <div class="sentiment-tags">
+                                <span class="text-secondary">市场情绪：</span>
+                                <span class="v4-tag v4-tag-red">偏多</span>
+                                <span class="v4-tag v4-tag-blue">赚钱效应：好</span>
+                            </div>
+                            <div class="trend-judgment">
+                                趋势判断：<strong>震荡整理</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        
+        <section class="v4-section" id="section-topics">
+            
+        <div class="v4-section-header">
+            <h2 class="v4-section-title">🔥 热门题材</h2>
+            <span class="v4-section-tag v4-tag-red">重点关注</span>
+        </div>
+        
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+                
+        <div class="v4-topic-card">
+            
+        <div class="v4-topic-level-badge" style="background: #EF4444;">
+            S级 · 最强主线
+        </div>
+        
+            <div class="v4-topic-header">
+                <div class="v4-topic-icon">🤖</div>
+                <div class="v4-topic-info">
+                    <div class="v4-topic-name">AI算力</div>
+                    <div class="v4-topic-score">综合评分: <span class="v4-topic-score-value">94.5</span> 分</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin: 12px 0;"><div class="v4-radar-chart">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+            <polygon points="70.0,16.8 116.1,43.4 116.1,96.6 70.0,123.2 23.9,96.6 23.9,43.4" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.30000000000000004"/><polygon points="70.0,27.4 106.9,48.7 106.9,91.3 70.0,112.6 33.1,91.3 33.1,48.7" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.25"/><polygon points="70.0,38.1 97.6,54.0 97.6,86.0 70.0,101.9 42.4,86.0 42.4,54.0" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.2"/><polygon points="70.0,48.7 88.4,59.4 88.4,80.6 70.0,91.3 51.6,80.6 51.6,59.4" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.15000000000000002"/><polygon points="70.0,59.4 79.2,64.7 79.2,75.3 70.0,80.6 60.8,75.3 60.8,64.7" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.1"/>
+            <line x1="70.0" y1="70.0" x2="70.0" y2="16.8" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="116.1" y2="43.4" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="116.1" y2="96.6" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="70.0" y2="123.2" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="23.9" y2="96.6" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="23.9" y2="43.4" stroke="#E5E7EB" stroke-width="1"/>
+            <polygon points="70.0,22.1 113.8,44.7 112.4,94.5 70.0,116.8 32.2,91.8 25.8,44.5" fill="#EF4444" 
+                     fill-opacity="0.2" stroke="#EF4444" stroke-width="2"/>
+            <circle cx="70.0" cy="22.1" r="4" fill="#EF4444" stroke="white" stroke-width="2"/><circle cx="113.8" cy="44.7" r="4" fill="#EF4444" stroke="white" stroke-width="2"/><circle cx="112.4" cy="94.5" r="4" fill="#EF4444" stroke="white" stroke-width="2"/><circle cx="70.0" cy="116.8" r="4" fill="#EF4444" stroke="white" stroke-width="2"/><circle cx="32.2" cy="91.8" r="4" fill="#EF4444" stroke="white" stroke-width="2"/><circle cx="25.8" cy="44.5" r="4" fill="#EF4444" stroke="white" stroke-width="2"/>
+            <text x="70.0" y="3.5" text-anchor="middle" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">政策</text><text x="127.6" y="36.8" text-anchor="start" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">产业</text><text x="127.6" y="103.2" text-anchor="start" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">资金</text><text x="70.0" y="136.5" text-anchor="middle" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">情绪</text><text x="12.4" y="103.3" text-anchor="end" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">估值</text><text x="12.4" y="36.7" text-anchor="end" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">催化</text>
+        </svg>
+        </div></div>
+            <div class="v4-topic-description">人工智能算力需求爆发，AI芯片供不应求</div>
+            <div class="v4-topic-stocks"><span class="v4-tag" style="font-size: 12px; padding: 2px 8px; background: rgba(139, 92, 246, 0.1); color: #8B5CF6; border-radius: 12px;">英伟达</span><span class="v4-tag" style="font-size: 12px; padding: 2px 8px; background: rgba(139, 92, 246, 0.1); color: #8B5CF6; border-radius: 12px;">寒武纪</span><span class="v4-tag" style="font-size: 12px; padding: 2px 8px; background: rgba(139, 92, 246, 0.1); color: #8B5CF6; border-radius: 12px;">海光信息</span><span class="v4-tag" style="font-size: 12px; padding: 2px 8px; background: rgba(139, 92, 246, 0.1); color: #8B5CF6; border-radius: 12px;">龙芯中科</span></div>
+            <div class="v4-topic-footer">
+                <div class="v4-topic-catalyst">💡 </div>
+                <div class="v4-topic-action"></div>
+            </div>
+        </div>
+        
+        <div class="v4-topic-card">
+            
+        <div class="v4-topic-level-badge" style="background: #F59E0B;">
+            A级 · 重要支线
+        </div>
+        
+            <div class="v4-topic-header">
+                <div class="v4-topic-icon">💃</div>
+                <div class="v4-topic-info">
+                    <div class="v4-topic-name">人形机器人</div>
+                    <div class="v4-topic-score">综合评分: <span class="v4-topic-score-value">88.0</span> 分</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin: 12px 0;"><div class="v4-radar-chart">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+            <polygon points="70.0,16.8 116.1,43.4 116.1,96.6 70.0,123.2 23.9,96.6 23.9,43.4" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.30000000000000004"/><polygon points="70.0,27.4 106.9,48.7 106.9,91.3 70.0,112.6 33.1,91.3 33.1,48.7" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.25"/><polygon points="70.0,38.1 97.6,54.0 97.6,86.0 70.0,101.9 42.4,86.0 42.4,54.0" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.2"/><polygon points="70.0,48.7 88.4,59.4 88.4,80.6 70.0,91.3 51.6,80.6 51.6,59.4" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.15000000000000002"/><polygon points="70.0,59.4 79.2,64.7 79.2,75.3 70.0,80.6 60.8,75.3 60.8,64.7" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.1"/>
+            <line x1="70.0" y1="70.0" x2="70.0" y2="16.8" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="116.1" y2="43.4" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="116.1" y2="96.6" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="70.0" y2="123.2" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="23.9" y2="96.6" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="23.9" y2="43.4" stroke="#E5E7EB" stroke-width="1"/>
+            <polygon points="70.0,24.8 111.5,46.1 110.5,93.4 70.0,115.8 36.8,89.2 27.6,45.5" fill="#F59E0B" 
+                     fill-opacity="0.2" stroke="#F59E0B" stroke-width="2"/>
+            <circle cx="70.0" cy="24.8" r="4" fill="#F59E0B" stroke="white" stroke-width="2"/><circle cx="111.5" cy="46.1" r="4" fill="#F59E0B" stroke="white" stroke-width="2"/><circle cx="110.5" cy="93.4" r="4" fill="#F59E0B" stroke="white" stroke-width="2"/><circle cx="70.0" cy="115.8" r="4" fill="#F59E0B" stroke="white" stroke-width="2"/><circle cx="36.8" cy="89.2" r="4" fill="#F59E0B" stroke="white" stroke-width="2"/><circle cx="27.6" cy="45.5" r="4" fill="#F59E0B" stroke="white" stroke-width="2"/>
+            <text x="70.0" y="3.5" text-anchor="middle" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">政策</text><text x="127.6" y="36.8" text-anchor="start" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">产业</text><text x="127.6" y="103.2" text-anchor="start" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">资金</text><text x="70.0" y="136.5" text-anchor="middle" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">情绪</text><text x="12.4" y="103.3" text-anchor="end" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">估值</text><text x="12.4" y="36.7" text-anchor="end" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">催化</text>
+        </svg>
+        </div></div>
+            <div class="v4-topic-description">具身智能时代开启，产业加速落地</div>
+            <div class="v4-topic-stocks"><span class="v4-tag" style="font-size: 12px; padding: 2px 8px; background: rgba(139, 92, 246, 0.1); color: #8B5CF6; border-radius: 12px;">特斯拉</span><span class="v4-tag" style="font-size: 12px; padding: 2px 8px; background: rgba(139, 92, 246, 0.1); color: #8B5CF6; border-radius: 12px;">新松机器人</span><span class="v4-tag" style="font-size: 12px; padding: 2px 8px; background: rgba(139, 92, 246, 0.1); color: #8B5CF6; border-radius: 12px;">埃斯顿</span><span class="v4-tag" style="font-size: 12px; padding: 2px 8px; background: rgba(139, 92, 246, 0.1); color: #8B5CF6; border-radius: 12px;">绿的谐波</span></div>
+            <div class="v4-topic-footer">
+                <div class="v4-topic-catalyst">💡 </div>
+                <div class="v4-topic-action">
+            <a href="report_topic_s003_人形机器人.html" class="v4-btn" 
+               style="padding: 8px 16px; font-size: 13px; background: linear-gradient(135deg, #8B5CF6, #6366F1); color: white; border-radius: 8px; text-decoration: none;">
+                深度分析 →
+            </a>
+            </div>
+            </div>
+        </div>
+        
+        <div class="v4-topic-card">
+            
+        <div class="v4-topic-level-badge" style="background: #F59E0B;">
+            A级 · 重要支线
+        </div>
+        
+            <div class="v4-topic-header">
+                <div class="v4-topic-icon">💾</div>
+                <div class="v4-topic-info">
+                    <div class="v4-topic-name">存储芯片</div>
+                    <div class="v4-topic-score">综合评分: <span class="v4-topic-score-value">86.5</span> 分</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin: 12px 0;"><div class="v4-radar-chart">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+            <polygon points="70.0,16.8 116.1,43.4 116.1,96.6 70.0,123.2 23.9,96.6 23.9,43.4" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.30000000000000004"/><polygon points="70.0,27.4 106.9,48.7 106.9,91.3 70.0,112.6 33.1,91.3 33.1,48.7" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.25"/><polygon points="70.0,38.1 97.6,54.0 97.6,86.0 70.0,101.9 42.4,86.0 42.4,54.0" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.2"/><polygon points="70.0,48.7 88.4,59.4 88.4,80.6 70.0,91.3 51.6,80.6 51.6,59.4" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.15000000000000002"/><polygon points="70.0,59.4 79.2,64.7 79.2,75.3 70.0,80.6 60.8,75.3 60.8,64.7" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.1"/>
+            <line x1="70.0" y1="70.0" x2="70.0" y2="16.8" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="116.1" y2="43.4" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="116.1" y2="96.6" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="70.0" y2="123.2" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="23.9" y2="96.6" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="23.9" y2="43.4" stroke="#E5E7EB" stroke-width="1"/>
+            <polygon points="70.0,26.4 112.4,45.5 109.2,92.6 70.0,114.7 34.1,90.7 28.5,46.1" fill="#F59E0B" 
+                     fill-opacity="0.2" stroke="#F59E0B" stroke-width="2"/>
+            <circle cx="70.0" cy="26.4" r="4" fill="#F59E0B" stroke="white" stroke-width="2"/><circle cx="112.4" cy="45.5" r="4" fill="#F59E0B" stroke="white" stroke-width="2"/><circle cx="109.2" cy="92.6" r="4" fill="#F59E0B" stroke="white" stroke-width="2"/><circle cx="70.0" cy="114.7" r="4" fill="#F59E0B" stroke="white" stroke-width="2"/><circle cx="34.1" cy="90.7" r="4" fill="#F59E0B" stroke="white" stroke-width="2"/><circle cx="28.5" cy="46.1" r="4" fill="#F59E0B" stroke="white" stroke-width="2"/>
+            <text x="70.0" y="3.5" text-anchor="middle" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">政策</text><text x="127.6" y="36.8" text-anchor="start" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">产业</text><text x="127.6" y="103.2" text-anchor="start" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">资金</text><text x="70.0" y="136.5" text-anchor="middle" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">情绪</text><text x="12.4" y="103.3" text-anchor="end" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">估值</text><text x="12.4" y="36.7" text-anchor="end" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">催化</text>
+        </svg>
+        </div></div>
+            <div class="v4-topic-description">存储周期反转，HBM需求爆发</div>
+            <div class="v4-topic-stocks"><span class="v4-tag" style="font-size: 12px; padding: 2px 8px; background: rgba(139, 92, 246, 0.1); color: #8B5CF6; border-radius: 12px;">三星电子</span><span class="v4-tag" style="font-size: 12px; padding: 2px 8px; background: rgba(139, 92, 246, 0.1); color: #8B5CF6; border-radius: 12px;">SK海力士</span><span class="v4-tag" style="font-size: 12px; padding: 2px 8px; background: rgba(139, 92, 246, 0.1); color: #8B5CF6; border-radius: 12px;">兆易创新</span><span class="v4-tag" style="font-size: 12px; padding: 2px 8px; background: rgba(139, 92, 246, 0.1); color: #8B5CF6; border-radius: 12px;">长江存储</span></div>
+            <div class="v4-topic-footer">
+                <div class="v4-topic-catalyst">💡 </div>
+                <div class="v4-topic-action"></div>
+            </div>
+        </div>
+        
+        <div class="v4-topic-card">
+            
+        <div class="v4-topic-level-badge" style="background: #3B82F6;">
+            B级 · 潜力题材
+        </div>
+        
+            <div class="v4-topic-header">
+                <div class="v4-topic-icon">🔌</div>
+                <div class="v4-topic-info">
+                    <div class="v4-topic-name">先进封装</div>
+                    <div class="v4-topic-score">综合评分: <span class="v4-topic-score-value">82.0</span> 分</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin: 12px 0;"><div class="v4-radar-chart">
+        <svg width="140" height="140" viewBox="0 0 140 140">
+            <polygon points="70.0,16.8 116.1,43.4 116.1,96.6 70.0,123.2 23.9,96.6 23.9,43.4" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.30000000000000004"/><polygon points="70.0,27.4 106.9,48.7 106.9,91.3 70.0,112.6 33.1,91.3 33.1,48.7" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.25"/><polygon points="70.0,38.1 97.6,54.0 97.6,86.0 70.0,101.9 42.4,86.0 42.4,54.0" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.2"/><polygon points="70.0,48.7 88.4,59.4 88.4,80.6 70.0,91.3 51.6,80.6 51.6,59.4" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.15000000000000002"/><polygon points="70.0,59.4 79.2,64.7 79.2,75.3 70.0,80.6 60.8,75.3 60.8,64.7" fill="none" stroke="#E5E7EB" stroke-width="1" opacity="0.1"/>
+            <line x1="70.0" y1="70.0" x2="70.0" y2="16.8" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="116.1" y2="43.4" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="116.1" y2="96.6" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="70.0" y2="123.2" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="23.9" y2="96.6" stroke="#E5E7EB" stroke-width="1"/><line x1="70.0" y1="70.0" x2="23.9" y2="43.4" stroke="#E5E7EB" stroke-width="1"/>
+            <polygon points="70.0,23.2 108.7,47.7 106.9,91.3 70.0,111.5 35.4,90.0 30.8,47.4" fill="#3B82F6" 
+                     fill-opacity="0.2" stroke="#3B82F6" stroke-width="2"/>
+            <circle cx="70.0" cy="23.2" r="4" fill="#3B82F6" stroke="white" stroke-width="2"/><circle cx="108.7" cy="47.7" r="4" fill="#3B82F6" stroke="white" stroke-width="2"/><circle cx="106.9" cy="91.3" r="4" fill="#3B82F6" stroke="white" stroke-width="2"/><circle cx="70.0" cy="111.5" r="4" fill="#3B82F6" stroke="white" stroke-width="2"/><circle cx="35.4" cy="90.0" r="4" fill="#3B82F6" stroke="white" stroke-width="2"/><circle cx="30.8" cy="47.4" r="4" fill="#3B82F6" stroke="white" stroke-width="2"/>
+            <text x="70.0" y="3.5" text-anchor="middle" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">政策</text><text x="127.6" y="36.8" text-anchor="start" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">产业</text><text x="127.6" y="103.2" text-anchor="start" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">资金</text><text x="70.0" y="136.5" text-anchor="middle" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">情绪</text><text x="12.4" y="103.3" text-anchor="end" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">估值</text><text x="12.4" y="36.7" text-anchor="end" dominant-baseline="middle" fill="#6B7280" font-size="12px" font-weight="500">催化</text>
+        </svg>
+        </div></div>
+            <div class="v4-topic-description">Chiplet大势所趋，先进封装需求增长</div>
+            <div class="v4-topic-stocks"><span class="v4-tag" style="font-size: 12px; padding: 2px 8px; background: rgba(139, 92, 246, 0.1); color: #8B5CF6; border-radius: 12px;">台积电</span><span class="v4-tag" style="font-size: 12px; padding: 2px 8px; background: rgba(139, 92, 246, 0.1); color: #8B5CF6; border-radius: 12px;">长电科技</span><span class="v4-tag" style="font-size: 12px; padding: 2px 8px; background: rgba(139, 92, 246, 0.1); color: #8B5CF6; border-radius: 12px;">通富微电</span><span class="v4-tag" style="font-size: 12px; padding: 2px 8px; background: rgba(139, 92, 246, 0.1); color: #8B5CF6; border-radius: 12px;">华天科技</span></div>
+            <div class="v4-topic-footer">
+                <div class="v4-topic-catalyst">💡 </div>
+                <div class="v4-topic-action"></div>
+            </div>
+        </div>
+        
+            </div>
+        </section>
+        
+        
+        <section class="v4-section" id="section-tools">
+            
+        <div class="v4-section-header">
+            <h2 class="v4-section-title">🛠️ 系统工具箱</h2>
+            <span class="v4-section-tag v4-tag-purple">实用工具</span>
+        </div>
+        
+            <div class="v4-tool-grid">
+                
+            <a href="list_alert_system_v4.html" class="v4-tool-card">
+                <div class="v4-tool-icon" style="background: #EF444415; color: #EF4444;">
+                    ⚠️
+                </div>
+                <div class="v4-tool-name">智能预警</div>
+            </a>
+            
+            <a href="list_portfolio_dashboard_v4.html" class="v4-tool-card">
+                <div class="v4-tool-icon" style="background: #8B5CF615; color: #8B5CF6;">
+                    📊
+                </div>
+                <div class="v4-tool-name">持仓仪表盘</div>
+            </a>
+            
+            <a href="#" class="v4-tool-card">
+                <div class="v4-tool-icon" style="background: #10B98115; color: #10B981;">
+                    🎯
+                </div>
+                <div class="v4-tool-name">智能选股</div>
+            </a>
+            
+            <a href="list_prediction_center_v4.html" class="v4-tool-card">
+                <div class="v4-tool-icon" style="background: #F59E0B15; color: #F59E0B;">
+                    🔮
+                </div>
+                <div class="v4-tool-name">预判验证</div>
+            </a>
+            
+            <a href="list_sector_heatmap_v4.html" class="v4-tool-card">
+                <div class="v4-tool-icon" style="background: #F9731615; color: #F97316;">
+                    🔥
+                </div>
+                <div class="v4-tool-name">板块热力图</div>
+            </a>
+            
+            <a href="list_longhubang_v4.html" class="v4-tool-card">
+                <div class="v4-tool-icon" style="background: #DC262615; color: #DC2626;">
+                    🐯
+                </div>
+                <div class="v4-tool-name">龙虎榜透视</div>
+            </a>
+            
+            <a href="#" class="v4-tool-card">
+                <div class="v4-tool-icon" style="background: #14B8A615; color: #14B8A6;">
+                    💚
+                </div>
+                <div class="v4-tool-name">题材健康度</div>
+            </a>
+            
+            <a href="#" class="v4-tool-card">
+                <div class="v4-tool-icon" style="background: #06B6D415; color: #06B6D4;">
+                    ⏰
+                </div>
+                <div class="v4-tool-name">数据时光机</div>
+            </a>
+            
+            <a href="#" class="v4-tool-card">
+                <div class="v4-tool-icon" style="background: #84CC1615; color: #84CC16;">
+                    📈
+                </div>
+                <div class="v4-tool-name">周度进化</div>
+            </a>
+            
+            <a href="#" class="v4-tool-card">
+                <div class="v4-tool-icon" style="background: #3B82F615; color: #3B82F6;">
+                    🔗
+                </div>
+                <div class="v4-tool-name">产业链分析</div>
+            </a>
+            
+            <a href="#" class="v4-tool-card">
+                <div class="v4-tool-icon" style="background: #6B728015; color: #6B7280;">
+                    ⚙️
+                </div>
+                <div class="v4-tool-name">工作流监控</div>
+            </a>
+            
+            <a href="#" class="v4-tool-card">
+                <div class="v4-tool-icon" style="background: #6366F115; color: #6366F1;">
+                    📝
+                </div>
+                <div class="v4-tool-name">更新日志</div>
+            </a>
+            
+            </div>
+        </section>
+        
+        
+        <section class="v4-section" id="section-reports">
+            
+        <div class="v4-section-header">
+            <h2 class="v4-section-title">📁 报告中心</h2>
+            <span class="v4-section-tag v4-tag-blue">全部报告</span>
+        </div>
+        
+            <div class="v4-report-grid">
+                
+            <a href="list_daily_v4.html" class="v4-report-card">
+                <div class="v4-report-icon">📰</div>
+                <div class="v4-report-info">
+                    <div class="v4-report-name">每日日报</div>
+                    <div class="v4-report-desc">全景市场复盘</div>
+                </div>
+            </a>
+            
+            <a href="list_intraday_v4.html" class="v4-report-card">
+                <div class="v4-report-icon">⚡</div>
+                <div class="v4-report-info">
+                    <div class="v4-report-name">盘中快报</div>
+                    <div class="v4-report-desc">实时行情追踪</div>
+                </div>
+            </a>
+            
+            <a href="list_aftermarket_v4.html" class="v4-report-card">
+                <div class="v4-report-icon">📉</div>
+                <div class="v4-report-info">
+                    <div class="v4-report-name">盘后速递</div>
+                    <div class="v4-report-desc">收盘数据总结</div>
+                </div>
+            </a>
+            
+            <a href="list_weekly_review_v4.html" class="v4-report-card">
+                <div class="v4-report-icon">📋</div>
+                <div class="v4-report-info">
+                    <div class="v4-report-name">周度复盘</div>
+                    <div class="v4-report-desc">深度经验总结</div>
+                </div>
+            </a>
+            
+            <a href="list_weekly_outlook_v4.html" class="v4-report-card">
+                <div class="v4-report-icon">🔭</div>
+                <div class="v4-report-info">
+                    <div class="v4-report-name">周三前瞻</div>
+                    <div class="v4-report-desc">周中行情展望</div>
+                </div>
+            </a>
+            
+            <a href="list_weekend_express_v4.html" class="v4-report-card">
+                <div class="v4-report-icon">📦</div>
+                <div class="v4-report-info">
+                    <div class="v4-report-name">周末速递</div>
+                    <div class="v4-report-desc">周度投资策略</div>
+                </div>
+            </a>
+            
+            <a href="list_s_catalyst_v4.html" class="v4-report-card">
+                <div class="v4-report-icon">💎</div>
+                <div class="v4-report-info">
+                    <div class="v4-report-name">S级催化</div>
+                    <div class="v4-report-desc">顶级题材挖掘</div>
+                </div>
+            </a>
+            
+            <a href="list_tomorrow_catalyst_v4.html" class="v4-report-card">
+                <div class="v4-report-icon">⏰</div>
+                <div class="v4-report-info">
+                    <div class="v4-report-name">明日催化</div>
+                    <div class="v4-report-desc">事件驱动机会</div>
+                </div>
+            </a>
+            
+            <a href="list_sector_heatmap_v4.html" class="v4-report-card">
+                <div class="v4-report-icon">🔥</div>
+                <div class="v4-report-info">
+                    <div class="v4-report-name">板块热度</div>
+                    <div class="v4-report-desc">行业轮动分析</div>
+                </div>
+            </a>
+            
+            <a href="list_longhubang_v4.html" class="v4-report-card">
+                <div class="v4-report-icon">🏆</div>
+                <div class="v4-report-info">
+                    <div class="v4-report-name">龙虎榜</div>
+                    <div class="v4-report-desc">游资动向追踪</div>
+                </div>
+            </a>
+            
+            </div>
+        </section>
+        
+        
+        <section class="v4-section" id="section-portfolio">
+            
+        <div class="v4-section-header">
+            <h2 class="v4-section-title">📋 持仓股诊断</h2>
+            <span class="v4-section-tag v4-tag-orange">4 只标的</span>
+        </div>
+        
+            <div class="v4-portfolio-list">
+                
+            <div class="v4-card v4-stock-card">
+                <div class="v4-stock-header">
+                    <div class="v4-stock-info">
+                        <h3 class="v4-stock-name">英维克</h3>
+                        <span class="v4-stock-code">002837</span>
+                        <span class="v4-tag v4-tag-red">卖出</span>
+                    </div>
+                    <div class="v4-stock-prices">
+                        <div class="v4-price-current">¥74.37</div>
+                        <div class="v4-price-change" style="color: #16A34A;">
+                            -0.34% 今日
+                        </div>
+                    </div>
+                </div>
+                <div class="v4-stock-metrics">
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">成本价</span>
+                        <span class="v4-metric-value">¥104.23</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">盈亏比例</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">-28.65%</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">止损位</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">¥98.00</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">距止损</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">-0.3%</span>
+                    </div>
+                </div>
+                
+                <div class="v4-stock-advice">
+                    <div class="v4-advice-text">💡 英维克今日上涨3.77%，AI液冷散热概念短期调整幅度较大，已跌破止损位，建议反弹减仓或止损</div>
+                </div>
+            </div>
+            
+            <div class="v4-card v4-stock-card">
+                <div class="v4-stock-header">
+                    <div class="v4-stock-info">
+                        <h3 class="v4-stock-name">铜冠铜箔</h3>
+                        <span class="v4-stock-code">301217</span>
+                        <span class="v4-tag v4-tag-blue">持有</span>
+                    </div>
+                    <div class="v4-stock-prices">
+                        <div class="v4-price-current">¥200.00</div>
+                        <div class="v4-price-change" style="color: #DC2626;">
+                            +10.08% 今日
+                        </div>
+                    </div>
+                </div>
+                <div class="v4-stock-metrics">
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">成本价</span>
+                        <span class="v4-metric-value">¥87.16</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">盈亏比例</span>
+                        <span class="v4-metric-value" style="color: #DC2626;">+129.46%</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">止损位</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">¥78.44</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">距止损</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">1.3%</span>
+                    </div>
+                </div>
+                
+                <div class="v4-stock-advice">
+                    <div class="v4-advice-text">💡 铜冠铜箔今日上涨4.71%，继续创历史新高，HVLP铜箔国产替代+存储芯片封装需求爆发，建议继续持有，逢高分批减仓止盈</div>
+                </div>
+            </div>
+            
+            <div class="v4-card v4-stock-card">
+                <div class="v4-stock-header">
+                    <div class="v4-stock-info">
+                        <h3 class="v4-stock-name">雅克科技</h3>
+                        <span class="v4-stock-code">002409</span>
+                        <span class="v4-tag v4-tag-blue">持有</span>
+                    </div>
+                    <div class="v4-stock-prices">
+                        <div class="v4-price-current">¥150.16</div>
+                        <div class="v4-price-change" style="color: #DC2626;">
+                            +1.51% 今日
+                        </div>
+                    </div>
+                </div>
+                <div class="v4-stock-metrics">
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">成本价</span>
+                        <span class="v4-metric-value">¥108.80</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">盈亏比例</span>
+                        <span class="v4-metric-value" style="color: #DC2626;">+38.01%</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">止损位</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">¥87.04</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">距止损</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">0.6%</span>
+                    </div>
+                </div>
+                
+                <div class="v4-stock-advice">
+                    <div class="v4-advice-text">💡 雅克科技今日上涨4.39%，HBM前驱体龙头地位稳固，AI算力需求爆发带动业绩增长，建议继续持有，逢低可加仓</div>
+                </div>
+            </div>
+            
+            <div class="v4-card v4-stock-card">
+                <div class="v4-stock-header">
+                    <div class="v4-stock-info">
+                        <h3 class="v4-stock-name">*ST建艺</h3>
+                        <span class="v4-stock-code">002789</span>
+                        <span class="v4-tag v4-tag-blue">持有</span>
+                    </div>
+                    <div class="v4-stock-prices">
+                        <div class="v4-price-current">¥14.87</div>
+                        <div class="v4-price-change" style="color: #DC2626;">
+                            +5.01% 今日
+                        </div>
+                    </div>
+                </div>
+                <div class="v4-stock-metrics">
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">成本价</span>
+                        <span class="v4-metric-value">¥13.45</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">盈亏比例</span>
+                        <span class="v4-metric-value" style="color: #DC2626;">+10.56%</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">止损位</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">¥12.50</span>
+                    </div>
+                    <div class="v4-metric">
+                        <span class="v4-metric-label">距止损</span>
+                        <span class="v4-metric-value" style="color: #16A34A;">0.1%</span>
+                    </div>
+                </div>
+                
+                <div class="v4-stock-advice">
+                    <div class="v4-advice-text">💡 *ST建艺今日上涨2.98%，摘帽预期持续发酵，股价重回成本线上方，建议继续持有观察摘帽进展</div>
+                </div>
+            </div>
+            
+            </div>
+        </section>
+        
+        
+            
+        <footer class="v4-footer">
+            <p>数据更新时间：2026-06-19 08:51:47</p>
+            <p>📌 投资有风险，入市需谨慎 | 本报告仅供参考，不构成投资建议</p>
+        </footer>
+        
+        </div>
+    </main>
+    
+        <div class="v4-toc" id="toc">
+            <div class="v4-toc-header">
+                <span>📑 目录导航</span>
+                <button class="v4-toc-toggle" onclick="toggleToc()">−</button>
+            </div>
+            <div class="v4-toc-items" id="tocItems">
+                <a href="#section-quick" class="v4-toc-item" data-section="section-quick">功能导航</a><a href="#section-overview" class="v4-toc-item" data-section="section-overview">市场概览</a><a href="#section-topics" class="v4-toc-item" data-section="section-topics">热门题材</a><a href="#section-tools" class="v4-toc-item" data-section="section-tools">系统工具箱</a><a href="#section-reports" class="v4-toc-item" data-section="section-reports">报告中心</a><a href="#section-portfolio" class="v4-toc-item" data-section="section-portfolio">持仓跟踪</a>
+            </div>
+        </div>
+        
+    
+        <div class="v4-action-buttons">
+            <button class="v4-action-btn" onclick="refreshPage()" title="刷新">🔄</button>
+            <button class="v4-action-btn" onclick="toggleTheme()" title="主题切换">🌓</button>
+            <button class="v4-action-btn" onclick="sharePage()" title="分享">📤</button>
+            <button class="v4-action-btn" onclick="scrollToTop()" title="回到顶部">⬆️</button>
+        </div>
+        
+    
+        <script>
+            // 导航栏滚动效果
+            window.addEventListener('scroll', function() {
+                const nav = document.getElementById('topNav');
+                nav.classList.toggle('scrolled', window.scrollY > 50);
+            });
+            
+            // TOC目录高亮
+            window.addEventListener('scroll', function() {
+                const sections = document.querySelectorAll('.v4-section');
+                const tocItems = document.querySelectorAll('.v4-toc-item');
+                let currentSection = '';
+                sections.forEach(section => {
+                    if (window.scrollY >= section.offsetTop - 100) {
+                        currentSection = section.getAttribute('id');
+                    }
+                });
+                tocItems.forEach(item => {
+                    item.classList.toggle('active', item.getAttribute('data-section') === currentSection);
+                });
+            });
+            
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            });
+            
+            // TOC展开收起
+            function toggleToc() {
+                const tocItems = document.getElementById('tocItems');
+                const toggleBtn = document.querySelector('.v4-toc-toggle');
+                if (tocItems.style.display === 'none') {
+                    tocItems.style.display = 'block';
+                    toggleBtn.textContent = '−';
+                } else {
+                    tocItems.style.display = 'none';
+                    toggleBtn.textContent = '+';
+                }
+            }
+            
+            // 回到顶部
+            function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+            
+            // 刷新页面
+            function refreshPage() { window.location.reload(); }
+            
+            // 主题切换（占位）
+            function toggleTheme() { alert('主题切换功能开发中...'); }
+            
+            // 分享
+            function sharePage() {
+                if (navigator.share) {
+                    navigator.share({ title: document.title, url: window.location.href });
+                } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert('链接已复制到剪贴板');
+                }
+            }
+            
+            // Tab切换功能
+            function switchNewsTab(tabId) {
+                // 隐藏所有tab内容
+                document.querySelectorAll('.v4-tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                // 取消所有tab按钮激活状态
+                document.querySelectorAll('.v4-tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                // 显示选中的tab内容
+                const targetContent = document.getElementById(tabId);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+                // 激活对应的tab按钮
+                const targetBtn = document.querySelector(`[data-tab="${tabId}"]`);
+                if (targetBtn) {
+                    targetBtn.classList.add('active');
+                }
+            }
+            
+            // 通用Tab切换（支持多组Tab）
+            function switchTab(tabGroup, tabId) {
+                const group = document.getElementById(tabGroup);
+                if (!group) return;
+                
+                // 隐藏该组所有tab内容
+                group.querySelectorAll('.v4-tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                // 取消该组所有tab按钮激活状态
+                group.querySelectorAll('.v4-tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                // 显示选中的tab内容
+                const targetContent = document.getElementById(tabId);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+                // 激活对应的tab按钮
+                const targetBtn = group.querySelector(`[data-tab="${tabId}"]`);
+                if (targetBtn) {
+                    targetBtn.classList.add('active');
+                }
+            }
+            
+            // 卡片式Tab切换
+            function switchCardTab(tabGroup, tabId) {
+                const group = document.getElementById(tabGroup);
+                if (!group) return;
+                
+                // 隐藏该组所有tab内容
+                group.querySelectorAll('.card-tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                // 取消该组所有tab按钮激活状态
+                group.querySelectorAll('.card-tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                // 显示选中的tab内容
+                const targetContent = document.getElementById(tabId);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+                // 激活对应的tab按钮
+                const targetBtn = group.querySelector(`[data-tab="${tabId}"]`);
+                if (targetBtn) {
+                    targetBtn.classList.add('active');
+                }
+            }
+        </script>
+        
+<script src="js/stock-hover-card.js" defer></script>
+</body>
+</html>
+        

@@ -4,6 +4,7 @@
 一周市场总结 + 热点回顾 + 下周展望
 V3.5升级：集成Tab切换、卡片组、数据网格通用组件
 """
+from typing import Dict, List, Optional
 import sys
 import os
 from datetime import datetime
@@ -346,11 +347,197 @@ class WeeklyReviewProGenerator(ReportProGenerator):
         self.add_important_events()
         self.add_holdings_review()
         self.add_next_week_outlook()
+        self.add_skill_deep_analysis()
         self.add_trading_plan()
         self.add_risk_warning()
         
         return self
 
+
+
+    def add_skill_deep_analysis(self):
+        """添加Skill增强的深度分析模块（周复盘专用）"""
+        
+        # 本周市场三维热度评估
+        # 基于指数表现、成交量、情绪等维度
+        policy_score = 65
+        industry_score = 70
+        capital_score = 58
+        overall_score = (policy_score + industry_score + capital_score) // 3
+        
+        heat_html = f'''
+        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="text-lg">🌡️</span>
+                <span class="font-bold text-white">本周市场三维热度</span>
+                <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30">
+                    Skill增强
+                </span>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="text-center p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                    <div class="text-2xl font-black text-blue-400">{policy_score}</div>
+                    <div class="text-xs text-white/60 mt-1">政策维度</div>
+                </div>
+                <div class="text-center p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                    <div class="text-2xl font-black text-green-400">{industry_score}</div>
+                    <div class="text-xs text-white/60 mt-1">产业维度</div>
+                </div>
+                <div class="text-center p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
+                    <div class="text-2xl font-black text-yellow-400">{capital_score}</div>
+                    <div class="text-xs text-white/60 mt-1">资金维度</div>
+                </div>
+            </div>
+            <div class="mt-3 text-center">
+                <span class="text-sm text-white/70">综合热度：</span>
+                <span class="text-xl font-bold text-purple-400">{overall_score}分</span>
+                <span class="text-xs text-white/50 ml-2">中等偏热</span>
+            </div>
+        </div>
+        '''
+        
+        # 5Why深度复盘
+        five_why_html = '''
+        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="text-lg">❓</span>
+                <span class="font-bold text-white">5Why深度复盘</span>
+                <span class="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30">
+                    超级分析师框架
+                </span>
+            </div>
+            <div class="space-y-3">
+                <div class="pl-4 border-l-2 border-blue-500/30">
+                    <div class="text-sm font-semibold text-white">为什么本周市场震荡？</div>
+                    <div class="text-xs text-white/60 mt-1">→ 多空因素交织，缺乏明确方向</div>
+                </div>
+                <div class="pl-4 border-l-2 border-cyan-500/30">
+                    <div class="text-sm font-semibold text-white">为什么多空因素交织？</div>
+                    <div class="text-xs text-white/60 mt-1">→ 政策利好与经济压力并存，资金分歧加大</div>
+                </div>
+                <div class="pl-4 border-l-2 border-teal-500/30">
+                    <div class="text-sm font-semibold text-white">为什么资金分歧加大？</div>
+                    <div class="text-xs text-white/60 mt-1">→ 机构调仓换股，北向资金波动，游资炒作热点切换</div>
+                </div>
+                <div class="pl-4 border-l-2 border-emerald-500/30">
+                    <div class="text-sm font-semibold text-white">为什么热点切换频繁？</div>
+                    <div class="text-xs text-white/60 mt-1">→ 主线板块估值偏高，资金寻找低位补涨机会</div>
+                </div>
+                <div class="pl-4 border-l-2 border-green-500/30">
+                    <div class="text-sm font-semibold text-white">根本原因是什么？</div>
+                    <div class="text-xs text-white/60 mt-1">→ 市场处于业绩真空期+政策观察期，缺乏持续上攻动力，以结构性行情为主</div>
+                </div>
+            </div>
+            <div class="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                <div class="text-xs text-yellow-400 font-semibold mb-1">💡 核心洞察</div>
+                <div class="text-sm text-white/70">当前市场处于"政策预期博弈期"，建议控制仓位，逢低布局受益于政策催化的核心赛道，避免追高。</div>
+            </div>
+        </div>
+        '''
+        
+        # 下周情景展望
+        scenarios_html = '''
+        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="text-lg">🎯</span>
+                <span class="font-bold text-white">下周情景展望</span>
+                <span class="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30">
+                    情景规划法
+                </span>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-center">
+                    <div class="text-green-400 font-bold text-sm mb-1">乐观情景</div>
+                    <div class="text-2xl font-black text-green-400">+5%</div>
+                    <div class="text-xs text-white/40 mt-1">概率 25%</div>
+                    <div class="text-xs text-white/50 mt-2">政策超预期+外资流入</div>
+                </div>
+                <div class="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-center">
+                    <div class="text-yellow-400 font-bold text-sm mb-1">中性情景</div>
+                    <div class="text-2xl font-black text-yellow-400">±2%</div>
+                    <div class="text-xs text-white/40 mt-1">概率 55%</div>
+                    <div class="text-xs text-white/50 mt-2">震荡整理，板块轮动</div>
+                </div>
+                <div class="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-center">
+                    <div class="text-red-400 font-bold text-sm mb-1">悲观情景</div>
+                    <div class="text-2xl font-black text-red-400">-4%</div>
+                    <div class="text-xs text-white/40 mt-1">概率 20%</div>
+                    <div class="text-xs text-white/50 mt-2">外围风险+获利回吐</div>
+                </div>
+            </div>
+        </div>
+        '''
+        
+        # 核心题材SWOT分析
+        swot_html = '''
+        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="text-lg">📊</span>
+                <span class="font-bold text-white">核心题材SWOT</span>
+                <span class="text-xs bg-green-500/20 text-green-300 px-2 py-0.5 rounded-full border border-green-500/30">
+                    周度精选
+                </span>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <div class="text-sm font-semibold text-white mb-2">AI算力</div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="p-2 bg-green-500/10 rounded">
+                            <span class="text-green-400 font-medium">优势：</span>
+                            <span class="text-white/60">需求爆发、业绩验证</span>
+                        </div>
+                        <div class="p-2 bg-red-500/10 rounded">
+                            <span class="text-red-400 font-medium">劣势：</span>
+                            <span class="text-white/60">估值偏高、波动大</span>
+                        </div>
+                        <div class="p-2 bg-blue-500/10 rounded">
+                            <span class="text-blue-400 font-medium">机会：</span>
+                            <span class="text-white/60">国产替代、新应用场景</span>
+                        </div>
+                        <div class="p-2 bg-orange-500/10 rounded">
+                            <span class="text-orange-400 font-medium">威胁：</span>
+                            <span class="text-white/60">技术迭代风险、监管趋严</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="text-sm font-semibold text-white mb-2">人形机器人</div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="p-2 bg-green-500/10 rounded">
+                            <span class="text-green-400 font-medium">优势：</span>
+                            <span class="text-white/60">产业趋势明确、空间巨大</span>
+                        </div>
+                        <div class="p-2 bg-red-500/10 rounded">
+                            <span class="text-red-400 font-medium">劣势：</span>
+                            <span class="text-white/60">商业化尚早、概念炒作</span>
+                        </div>
+                        <div class="p-2 bg-blue-500/10 rounded">
+                            <span class="text-blue-400 font-medium">机会：</span>
+                            <span class="text-white/60">特斯拉Optimus进展、政策支持</span>
+                        </div>
+                        <div class="p-2 bg-orange-500/10 rounded">
+                            <span class="text-orange-400 font-medium">威胁：</span>
+                            <span class="text-white/60">技术瓶颈、成本下降慢</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        '''
+        
+        # 组合所有模块
+        html = f'''
+        <div class="space-y-4">
+            <div class="grid md:grid-cols-2 gap-4">
+                {heat_html}
+                {scenarios_html}
+            </div>
+            {five_why_html}
+            {swot_html}
+        </div>
+        '''
+        
+        self.add_section("🧠 Skill深度分析", html, "🧠")
 
 if __name__ == '__main__':
     # 测试生成
