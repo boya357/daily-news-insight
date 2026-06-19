@@ -729,12 +729,19 @@ class V4Breadcrumb(V4Component):
 # ============================================================================
 
 class V4StockCard(V4Component):
-    """股票卡片组件"""
+    """股票卡片组件
+    
+    支持精简版和完整版两种模式：
+    - 精简版：股票名称、代码、价格、涨跌幅 + 3个指标
+    - 完整版：包含成本价、止损价、盈亏、风险等级、操作建议等完整持仓信息
+    """
     
     def __init__(self, stock_data: Dict[str, Any], 
+                 variant: str = "compact",  # compact, full
                  class_name: str = ""):
         super().__init__(class_name)
         self.stock = stock_data
+        self.variant = variant
         
         self.add_style(f'''
         .v4-stock-card {{
@@ -798,9 +805,77 @@ class V4StockCard(V4Component):
         }}
         .stock-up {{ color: {V4_COLORS['danger']}; }}
         .stock-down {{ color: {V4_COLORS['success']}; }}
+        
+        /* 完整版特有样式 */
+        .v4-stock-tags {{
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }}
+        .v4-stock-detail-grid {{
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding-top: 16px;
+            border-top: 1px solid {V4_COLORS['border']};
+        }}
+        .v4-stock-detail-item {{
+            text-align: center;
+        }}
+        .v4-stock-detail-label {{
+            font-size: 12px;
+            color: {V4_COLORS['text_secondary']};
+            margin-bottom: 4px;
+        }}
+        .v4-stock-detail-value {{
+            font-size: 15px;
+            font-weight: 600;
+            color: {V4_COLORS['text_primary']};
+        }}
+        .v4-stock-footer {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            margin-top: 16px;
+            border-top: 1px solid {V4_COLORS['border']};
+        }}
+        .v4-stock-risk-bar {{
+            height: 6px;
+            background: #E5E7EB;
+            border-radius: 3px;
+            overflow: hidden;
+            flex: 1;
+            margin: 0 12px;
+        }}
+        .v4-stock-risk-fill {{
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }}
+        .v4-stock-advice {{
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }}
+        .v4-stock-advice.buy {{
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }}
+        .v4-stock-advice.sell {{
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+        }}
+        .v4-stock-advice.hold {{
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+        }}
         ''')
     
-    def render(self) -> str:
+    def _render_compact(self) -> str:
+        """渲染精简版股票卡片"""
         name = self.stock.get('name', '')
         code = self.stock.get('code', '')
         price = self.stock.get('price', 0)
@@ -815,9 +890,10 @@ class V4StockCard(V4Component):
         metrics = self.stock.get('metrics', [])
         metrics_html = ''
         for metric in metrics[:3]:
+            metric_color = metric.get('color', V4_COLORS['text_primary'])
             metrics_html += f'''
             <div class="v4-stock-metric">
-                <div class="v4-stock-metric-value">{metric.get('value', '')}</div>
+                <div class="v4-stock-metric-value" style="color: {metric_color};">{metric.get('value', '')}</div>
                 <div class="v4-stock-metric-label">{metric.get('label', '')}</div>
             </div>
             '''
@@ -840,6 +916,117 @@ class V4StockCard(V4Component):
             </div>
         </div>
         '''
+    
+    def _render_full(self) -> str:
+        """渲染完整版股票卡片（持仓详情）"""
+        stock = self.stock
+        
+        name = stock.get('name', '')
+        code = stock.get('code', '')
+        current_price = stock.get('current_price', stock.get('price', 0))
+        change_pct = stock.get('today_change_pct', stock.get('change_pct', 0))
+        change = stock.get('today_change', stock.get('change', 0))
+        cost_price = stock.get('cost_price', 0)
+        profit_loss_pct = stock.get('profit_loss_pct', 0)
+        stop_loss_price = stock.get('stop_loss_price', 0)
+        distance_to_sl = stock.get('distance_to_stop_loss', 0)
+        risk_level = stock.get('risk_level', '中')
+        advice_type = stock.get('advice_type', 'hold')
+        advice_text = stock.get('advice_text', '')
+        
+        is_up = change_pct >= 0
+        price_class = 'stock-up' if is_up else 'stock-down'
+        sign = '+' if is_up else ''
+        
+        is_profit = profit_loss_pct >= 0
+        profit_class = 'stock-up' if is_profit else 'stock-down'
+        profit_sign = '+' if is_profit else ''
+        
+        # 风险等级颜色
+        risk_colors = {
+            '高': '#EF4444',
+            '中': '#F59E0B',
+            '低': '#10B981',
+        }
+        risk_color = risk_colors.get(risk_level, '#6B7280')
+        
+        # 风险百分比（用于进度条）
+        risk_pct = min(distance_to_sl, 100) if distance_to_sl > 0 else 0
+        
+        # 建议标签
+        advice_map = {
+            'buy': ('加仓', 'buy'),
+            'sell': ('减仓', 'sell'),
+            'hold': ('持有', 'hold'),
+            'watch': ('观察', 'hold'),
+        }
+        advice_label, advice_class = advice_map.get(advice_type, ('观察', 'hold'))
+        
+        # 详细指标
+        detail_items = [
+            ('成本价', f'{cost_price:.2f}', V4_COLORS['text_primary']),
+            ('止损价', f'{stop_loss_price:.2f}', '#EF4444'),
+            ('累计盈亏', f'{profit_sign}{profit_loss_pct:.2f}%', V4_COLORS['danger'] if is_profit else V4_COLORS['success']),
+            ('距止损', f'{distance_to_sl:.1f}%', risk_color),
+        ]
+        
+        detail_html = ''
+        for label, value, color in detail_items:
+            detail_html += f'''
+            <div class="v4-stock-detail-item">
+                <div class="v4-stock-detail-label">{label}</div>
+                <div class="v4-stock-detail-value" style="color: {color};">{value}</div>
+            </div>
+            '''
+        
+        # 标签
+        tags_html = ''
+        if risk_level:
+            tags_html += f'<span class="v4-tag" style="background: rgba(239, 68, 68, 0.1); color: #EF4444; font-size: 12px; padding: 2px 8px;">{risk_level}风险</span>'
+        
+        # 行业标签
+        industry = stock.get('industry', '')
+        if industry:
+            tags_html += f'<span class="v4-tag" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6; font-size: 12px; padding: 2px 8px;">{industry}</span>'
+        
+        base_class = f"v4-stock-card {self.class_name}".strip()
+        return f'''
+        <div class="{base_class}">
+            <div class="v4-stock-header">
+                <div>
+                    <div class="v4-stock-name">{name}</div>
+                    <div class="v4-stock-code">{code}</div>
+                </div>
+                <div class="v4-stock-price">
+                    <div class="v4-stock-price-value {price_class}">{current_price:.2f}</div>
+                    <div class="v4-stock-price-change {price_class}">{sign}{change_pct:.2f}% ({sign}{change:.2f})</div>
+                </div>
+            </div>
+            
+            <div class="v4-stock-tags">
+                {tags_html}
+            </div>
+            
+            <div class="v4-stock-detail-grid">
+                {detail_html}
+            </div>
+            
+            <div class="v4-stock-footer">
+                <span style="font-size: 13px; color: #6B7280;">风险度</span>
+                <div class="v4-stock-risk-bar">
+                    <div class="v4-stock-risk-fill" style="width: {risk_pct}%; background: {risk_color};"></div>
+                </div>
+                <span class="v4-stock-advice {advice_class}">{advice_label}</span>
+            </div>
+        </div>
+        '''
+    
+    def render(self) -> str:
+        """渲染股票卡片"""
+        if self.variant == 'full':
+            return self._render_full()
+        else:
+            return self._render_compact()
 
 
 class V4TopicCard(V4Component):
