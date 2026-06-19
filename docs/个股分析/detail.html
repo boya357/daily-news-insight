@@ -740,9 +740,19 @@
 
         // 从URL获取股票名称
         function getStockNameFromUrl() {
+            // 优先从查询参数 name 获取
+            const urlParams = new URLSearchParams(window.location.search);
+            const nameFromParam = urlParams.get('name');
+            if (nameFromParam) {
+                return decodeURIComponent(nameFromParam);
+            }
+            // 备用：从路径名中获取（兼容旧格式）
             const path = window.location.pathname;
             const filename = path.split('/').pop().replace('.html', '');
-            return decodeURIComponent(filename) || '英维克';
+            if (filename && filename !== 'detail') {
+                return decodeURIComponent(filename);
+            }
+            return '英维克';
         }
 
         // 获取股票数据
