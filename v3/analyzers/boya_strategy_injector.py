@@ -80,21 +80,23 @@ class BoyaStrategyInjector:
         
         # 中等深度 - 中等策略
         'sector_heatmap': 'medium',
+        'gold_report': 'medium',         # 黄金投资报告
+        'deep_analysis': 'medium',       # 超级分析师深度分析
         'portfolio_dashboard': 'medium',
         'weekly_outlook': 'medium',
         'weekly_review': 'medium',
         
         # 资讯简报类 - 轻量策略
-        'daily_report': 'light',
+        'daily_report': 'medium',        # 每日新闻报告
         'intraday_report': 'light',
         'aftermarket_report': 'light',
         'weekend_express': 'light',
         'tomorrow_catalyst': 'light',
-        'topic_tracking': 'light',
+        'topic_tracking': 'medium',      # 话题追踪
         
         # 工具类 - 无策略
         'data_tool': 'none',
-        'company_research': 'none',
+        'company_research': 'medium',    # 公司竞品调研
         'content_tool': 'none',
         'prediction_center': 'none',
         'time_machine': 'none',
@@ -180,18 +182,46 @@ class BoyaStrategyInjector:
 
 
 # Skill与页面类型映射
+# 三层Skill架构：核心投资层 / 信息资讯层 / 工具辅助层
 SKILL_PAGE_TYPE_MAP = {
-    'a-stock-risk-report': 'risk_report',
-    'stock-analysis': 'stock_detail',
-    'multi-agent-dialogue-system': 'topic_deep_dive',
-    'industry-trend-research': 'industry_report',
-    'sector-hotness-analysis': 'sector_heatmap',
-    'daily-news-report': 'daily_report',
-    'topic_tracking': 'topic_tracking',
-    'stock-data-skill': 'data_tool',
-    'gold-market-analyzer': 'gold_report',  # 中等策略
-    'company-competitor-research': 'company_research',
-    'toutiao-hot-article': 'content_tool',
+    # === 核心投资层（full级boya策略）===
+    'a-stock-risk-report': 'risk_report',           # 每日持仓风险报告 - full
+    'stock-analysis': 'stock_detail',               # 股票个股分析 - full（新升级）
+    'multi-agent-dialogue-system': 'topic_deep_dive',  # 竹石个股Agent - full
+    'sector-hotness-analysis': 'sector_heatmap',    # 板块热度分析 - full
+    'gold-market-analyzer': 'gold_report',          # 黄金投资分析 - full
+    
+    # === 信息资讯层（medium级boya策略）===
+    'industry-trend-research': 'industry_report',   # 行业趋势深度调研 - full
+    'company-competitor-research': 'company_research',  # 公司竞品调研 - medium
+    'daily-news-report': 'daily_report',            # 全球热点新闻日报 - medium
+    'topic_tracking': 'topic_tracking',             # 话题追踪 - medium
+    'super-analyst': 'deep_analysis',               # 超级分析师 - medium（深度分析工具）
+    
+    # === 工具辅助层（light/none级）===
+    'stock-data-skill': 'data_tool',                # 实时行情数据 - light
+    'toutiao-hot-article': 'content_tool',          # 今日头条爆文 - none
+}
+
+# Skill能力等级定义（用于分层注入决策）
+SKILL_CAPABILITY_LEVELS = {
+    # 核心投资层 - 直接产生投资决策
+    'a-stock-risk-report': {'tier': 'core', 'strategy_level': 'full', 'has_technical': True, 'has_sentiment': True},
+    'stock-analysis': {'tier': 'core', 'strategy_level': 'full', 'has_technical': True, 'has_sentiment': True, 'has_gaps': True},
+    'multi-agent-dialogue-system': {'tier': 'core', 'strategy_level': 'full', 'has_technical': True, 'has_sentiment': True},
+    'sector-hotness-analysis': {'tier': 'core', 'strategy_level': 'full', 'has_sector': True},
+    'gold-market-analyzer': {'tier': 'core', 'strategy_level': 'full', 'has_macro': True},
+    
+    # 信息资讯层 - 提供分析框架与资讯
+    'industry-trend-research': {'tier': 'info', 'strategy_level': 'full', 'has_framework': True},
+    'company-competitor-research': {'tier': 'info', 'strategy_level': 'medium', 'has_framework': True},
+    'daily-news-report': {'tier': 'info', 'strategy_level': 'medium', 'has_news': True},
+    'topic_tracking': {'tier': 'info', 'strategy_level': 'medium', 'has_tracking': True},
+    'super-analyst': {'tier': 'info', 'strategy_level': 'medium', 'has_framework': True, 'frameworks': 12},
+    
+    # 工具辅助层 - 数据与内容工具
+    'stock-data-skill': {'tier': 'tool', 'strategy_level': 'light', 'has_realtime': True},
+    'toutiao-hot-article': {'tier': 'tool', 'strategy_level': 'none', 'has_content': True},
 }
 
 
