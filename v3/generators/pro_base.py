@@ -31,14 +31,16 @@ class ProGenerator(ProPage):
                  footer_text: str = "",
                  data_dir: str = "data",
                  show_toc: bool = False,
-                 toc_position: str = "right"):
+                 toc_position: str = "right",
+                 theme: str = "dark"):
         super().__init__(
             title=title,
             active_page=active_page,
             footer_text=footer_text,
             update_time="",
             show_toc=show_toc,
-            toc_position=toc_position
+            toc_position=toc_position,
+            theme=theme
         )
         self.data_loader: DataLoader = get_data_loader(data_dir)
         self._data_loaded = False
@@ -196,3 +198,17 @@ class ProGenerator(ProPage):
 def create_generator(generator_class, **kwargs) -> ProGenerator:
     """创建生成器实例"""
     return generator_class(**kwargs)
+
+
+class V4Generator(ProGenerator):
+    """V4风格生成器基类 - 默认使用light主题
+    
+    所有V3.5生成器都可以通过设置theme='light'切换到V4风格
+    继承此类可以省去手动设置theme参数
+    """
+    
+    def __init__(self, **kwargs):
+        # 默认使用light主题（V4白底深字）
+        if 'theme' not in kwargs:
+            kwargs['theme'] = 'light'
+        super().__init__(**kwargs)

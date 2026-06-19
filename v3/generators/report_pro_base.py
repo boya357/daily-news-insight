@@ -21,13 +21,15 @@ class ReportProGenerator(ProGenerator):
                  report_type: str = "daily",
                  subtitle: str = "",
                  date_str: str = None,
-                 data_dir: str = "data"):
+                 data_dir: str = "data",
+                 theme: str = "dark"):
         super().__init__(
             title=title,
             active_page="首页",
             footer_text=f"{title} · 投资研究中心",
             data_dir=data_dir,
             show_toc=True,
+            theme=theme,
         )
         self.report_type = report_type
         self.subtitle = subtitle
