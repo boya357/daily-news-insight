@@ -18,6 +18,9 @@ sys.path.insert(0, str(_current_dir))
 from utils.market_data_manager import get_market_manager
 from utils.data_quality_checker import DataQualityChecker
 
+from utils.unified_stock_manager import get_stock_manager
+from utils.stock_discovery_manager import get_stock_discovery_manager
+
 
 class ReportGenerator:
     """报告生成调度器
@@ -35,6 +38,9 @@ class ReportGenerator:
         
         self.market_manager = get_market_manager(str(self.data_dir))
         self.quality_checker = DataQualityChecker(str(self.data_dir))
+
+        self.stock_manager = get_stock_manager(str(self.docs_dir))
+        self.discovery_manager = get_stock_discovery_manager(str(self.docs_dir))
     
     def _ensure_data_updated(self, force: bool = False) -> bool:
         """确保数据已更新
@@ -134,6 +140,12 @@ class ReportGenerator:
             f.write(html)
         
         print(f"✅ 盘中快报已保存: {output_file}")
+
+        # 6. 发现并处理报告中的股票
+        try:
+            self._discover_and_process_stocks(html, 'intraday')
+        except Exception as e:
+            print(f"⚠️  股票发现失败: {e}")
         
         # 5. 更新列表页
         try:
@@ -186,6 +198,12 @@ class ReportGenerator:
             f.write(html)
         
         print(f"✅ S级催化扫描报告已保存: {output_file}")
+
+        # 5. 发现并处理报告中的股票
+        try:
+            self._discover_and_process_stocks(html, 's_level')
+        except Exception as e:
+            print(f"⚠️  股票发现失败: {e}")
         
         return html
     
@@ -228,6 +246,12 @@ class ReportGenerator:
             f.write(html)
         
         print(f"✅ 每日投资日报已保存: {output_file}")
+
+        # 5. 发现并处理报告中的股票
+        try:
+            self._discover_and_process_stocks(html, 'daily')
+        except Exception as e:
+            print(f"⚠️  股票发现失败: {e}")
         
         return html
     
@@ -248,6 +272,80 @@ class ReportGenerator:
             import traceback
             traceback.print_exc()
     
+    def _discover_and_process_stocks(self, html_content: str, report_type: str = '') -> dict:
+        """从报告中发现股票并处理
+
+        Args:
+            html_content: HTML报告内容
+            report_type: 报告类型
+
+        Returns:
+            dict: 处理结果统计
+        """
+        try:
+            # 1. 从HTML中提取股票
+            stocks = self.discovery_manager.extract_stocks_from_text(html_content)
+
+            if not stocks:
+                return {'found': 0, 'new': 0, 'with_data': 0, 'with_page': 0}
+
+            stock_names = [s[0] for s in stocks]
+            stock_codes = {s[0]: s[1] for s in stocks if s[1]}
+
+            print(f"🔍 报告中发现 {len(stocks)} 只股票: {', '.join(stock_names[:5])}{'...' if len(stocks) > 5 else ''}")
+
+            # 2. 批量注册新股票
+            new_count = 0
+            for name, code in stocks:
+                if not self.stock_manager.has_stock(name):
+                    self.stock_manager.discover_stocks([name], {name: code} if code else None)
+                    new_count += 1
+
+            if new_count > 0:
+                print(f"✨ 新增 {new_count} 只股票到股票池")
+
+            # 3. 为新股票生成分析数据和页面（尝试性，失败不影响主流程）
+            data_count = 0
+            page_count = 0
+            for name, code in stocks:
+                if not code:
+                    continue
+                try:
+                    if not self.stock_manager.has_analysis_data(code):
+                        self.stock_manager.generate_analysis_data(code, name)
+                        data_count += 1
+                    if not self.stock_manager.has_detail_page(name):
+                        self.stock_manager.generate_detail_page(code, name)
+                        page_count += 1
+                except Exception as e:
+                    print(f"  ⚠️  处理 {name} 时出错: {e}")
+
+            return {
+                'found': len(stocks),
+                'new': new_count,
+                'with_data': data_count,
+                'with_page': page_count
+            }
+
+        except Exception as e:
+            print(f"⚠️  股票发现处理失败: {e}")
+            return {'found': 0, 'new': 0, 'with_data': 0, 'with_page': 0}
+
+    def _update_stock_list_page(self):
+        """更新个股分析列表页"""
+        try:
+            from generators.list_page_pro import ListPageProGenerator
+
+            list_gen = ListPageProGenerator(
+                channel_key='stock_analysis',
+                docs_dir=str(self.docs_dir),
+                data_dir=str(self.data_dir),
+            )
+            list_gen.publish()
+            print("✅ 个股分析列表页已更新")
+        except Exception as e:
+            print(f"⚠️  更新个股分析列表页失败: {e}")
+
     def update_all_list_pages(self):
         """更新所有列表页"""
         # TODO: 实现所有类型报告的列表页更新
