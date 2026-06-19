@@ -7,6 +7,7 @@ Pro深色玻璃态组件库
       后续可逐步迁移到统一的pro-*命名规范。
 """
 from .base import Component
+from typing import List, Dict, Optional
 
 
 class ProTheme:
@@ -2238,4 +2239,1105 @@ class ProBarChart(ProBaseChart):
             new Chart(ctx, {json.dumps(config, ensure_ascii=False)});
         }})();
         </script>
+        '''
+
+
+# ============================================================
+# Boya Strategy Components - boya投资体系专属UI组件
+# ============================================================
+
+class BoyaPerspectiveBox(Component):
+    """boya视角批注框 - 沉浸式融入每个章节"""
+    
+    def __init__(self, perspective: str, avatar: str = "🎯"):
+        self.perspective = perspective
+        self.avatar = avatar
+    
+    def render(self) -> str:
+        return f'''
+        <div class="boya-perspective-box">
+            <div class="boya-perspective-header">
+                <span class="boya-avatar">{self.avatar}</span>
+                <span class="boya-perspective-label">boya视角</span>
+            </div>
+            <div class="boya-perspective-content">
+                {self.perspective}
+            </div>
+        </div>
+        <style>
+            .boya-perspective-box {{
+                background: linear-gradient(135deg, rgba(251, 146, 60, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%);
+                border-left: 3px solid #fb923c;
+                border-radius: 12px;
+                padding: 16px 20px;
+                margin: 16px 0;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(251, 146, 60, 0.3);
+            }}
+            .boya-perspective-header {{
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 8px;
+            }}
+            .boya-avatar {{
+                font-size: 20px;
+            }}
+            .boya-perspective-label {{
+                color: #fb923c;
+                font-weight: 600;
+                font-size: 14px;
+            }}
+            .boya-perspective-content {{
+                color: rgba(255, 255, 255, 0.9);
+                font-size: 14px;
+                line-height: 1.7;
+                padding-left: 30px;
+            }}
+        </style>
+        '''
+
+
+class BoyaThemeRatingCard(Component):
+    """主线评级卡片"""
+    
+    def __init__(self, level: str, score: float, dimensions: Dict[str, float], summary: str):
+        self.level = level
+        self.score = score
+        self.dimensions = dimensions
+        self.summary = summary
+    
+    def _get_level_color(self) -> str:
+        colors = {
+            'S': '#fbbf24',  # 金色
+            'A': '#f87171',  # 红色
+            'B': '#60a5fa',  # 蓝色
+            'C': '#34d399',  # 绿色
+            'D': '#9ca3af',  # 灰色
+        }
+        return colors.get(self.level, '#9ca3af')
+    
+    def render(self) -> str:
+        color = self._get_level_color()
+        
+        # 维度条
+        dim_bars = ''
+        dim_names = {
+            'catalyst_density': '催化密度',
+            'capital_focus': '资金关注度',
+            'performance_realization': '业绩兑现度',
+            'policy_friendliness': '政策友好度',
+            'story_telling': '故事想象空间',
+        }
+        for dim_key, dim_score in self.dimensions.items():
+            dim_name = dim_names.get(dim_key, dim_key)
+            dim_bars += f'''
+            <div class="dim-item">
+                <div class="dim-label">{dim_name}</div>
+                <div class="dim-bar-bg">
+                    <div class="dim-bar-fill" style="width: {dim_score}%; background: {color};"></div>
+                </div>
+                <div class="dim-score">{dim_score:.0f}</div>
+            </div>
+            '''
+        
+        return f'''
+        <div class="boya-rating-card">
+            <div class="rating-header">
+                <div class="rating-badge" style="background: {color};">
+                    <span class="rating-level">{self.level}</span>
+                    <span class="rating-label">级主线</span>
+                </div>
+                <div class="rating-score-box">
+                    <span class="rating-score">{self.score}</span>
+                    <span class="rating-score-label">综合评分</span>
+                </div>
+            </div>
+            <div class="rating-summary">{self.summary}</div>
+            <div class="rating-dimensions">
+                {dim_bars}
+            </div>
+        </div>
+        <style>
+            .boya-rating-card {{
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                padding: 24px;
+                color: white;
+            }}
+            .rating-header {{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 16px;
+            }}
+            .rating-badge {{
+                display: flex;
+                align-items: baseline;
+                gap: 6px;
+                padding: 8px 20px;
+                border-radius: 30px;
+            }}
+            .rating-level {{
+                font-size: 32px;
+                font-weight: 900;
+                color: white;
+                line-height: 1;
+            }}
+            .rating-label {{
+                font-size: 14px;
+                color: rgba(255, 255, 255, 0.9);
+                font-weight: 500;
+            }}
+            .rating-score-box {{
+                text-align: right;
+            }}
+            .rating-score {{
+                font-size: 36px;
+                font-weight: 700;
+                color: white;
+                line-height: 1;
+            }}
+            .rating-score-label {{
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.6);
+            }}
+            .rating-summary {{
+                color: rgba(255, 255, 255, 0.85);
+                font-size: 14px;
+                line-height: 1.6;
+                margin-bottom: 20px;
+                padding-bottom: 16px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }}
+            .rating-dimensions {{
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }}
+            .dim-item {{
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }}
+            .dim-label {{
+                width: 100px;
+                font-size: 13px;
+                color: rgba(255, 255, 255, 0.7);
+                flex-shrink: 0;
+            }}
+            .dim-bar-bg {{
+                flex: 1;
+                height: 8px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 4px;
+                overflow: hidden;
+            }}
+            .dim-bar-fill {{
+                height: 100%;
+                border-radius: 4px;
+                transition: width 0.5s ease;
+            }}
+            .dim-score {{
+                width: 30px;
+                text-align: right;
+                font-size: 13px;
+                color: rgba(255, 255, 255, 0.8);
+                font-weight: 600;
+                flex-shrink: 0;
+            }}
+        </style>
+        '''
+
+
+class BoyaDragonTroupeCard(Component):
+    """龙头梯队卡片"""
+    
+    def __init__(self, dragon_one: Dict, dragon_two: Dict, dragon_three: Dict, rationale: str):
+        self.dragon_one = dragon_one
+        self.dragon_two = dragon_two
+        self.dragon_three = dragon_three
+        self.rationale = rationale
+    
+    def _render_dragon_slot(self, dragon: Dict, rank: int) -> str:
+        if not dragon or not dragon.get('name'):
+            return ''
+        
+        rank_colors = {1: '#fbbf24', 2: '#d1d5db', 3: '#cd7f32'}
+        rank_labels = {1: '龙一', 2: '龙二', 3: '龙三'}
+        color = rank_colors.get(rank, '#9ca3af')
+        label = rank_labels.get(rank, f'龙{rank}')
+        
+        name = dragon.get('name', '')
+        gain = dragon.get('gain', 0)
+        theme_purity = dragon.get('theme_purity', 0) * 100
+        reason = dragon.get('core_reason', '')
+        
+        return f'''
+        <div class="dragon-slot" style="border-color: {color};">
+            <div class="dragon-rank" style="background: {color};">{label}</div>
+            <div class="dragon-info">
+                <div class="dragon-name">{name}</div>
+                <div class="dragon-stats">
+                    <span class="dragon-gain">累计涨幅 +{gain:.1f}%</span>
+                    <span class="dragon-purity">题材正宗度 {theme_purity:.0f}%</span>
+                </div>
+                {f'<div class="dragon-reason">{reason}</div>' if reason else ''}
+            </div>
+        </div>
+        '''
+    
+    def render(self) -> str:
+        return f'''
+        <div class="boya-dragon-card">
+            <div class="dragon-title">
+                <span class="dragon-icon">🐉</span>
+                <span>龙头梯队</span>
+            </div>
+            <div class="dragon-troupe">
+                {self._render_dragon_slot(self.dragon_one, 1)}
+                {self._render_dragon_slot(self.dragon_two, 2)}
+                {self._render_dragon_slot(self.dragon_three, 3)}
+            </div>
+            <div class="dragon-rationale">
+                <span class="rationale-label">梯队逻辑：</span>
+                {self.rationale}
+            </div>
+            <div class="dragon-strategy-note">
+                💡 龙空龙策略：只做龙头，不碰杂毛。龙头有溢价，杂毛有风险。
+            </div>
+        </div>
+        <style>
+            .boya-dragon-card {{
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                padding: 24px;
+                color: white;
+            }}
+            .dragon-title {{
+                font-size: 18px;
+                font-weight: 700;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }}
+            .dragon-icon {{
+                font-size: 24px;
+            }}
+            .dragon-troupe {{
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                margin-bottom: 20px;
+            }}
+            .dragon-slot {{
+                display: flex;
+                align-items: stretch;
+                gap: 0;
+                border: 1px solid;
+                border-radius: 12px;
+                overflow: hidden;
+            }}
+            .dragon-rank {{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 60px;
+                color: white;
+                font-weight: 700;
+                font-size: 14px;
+                flex-shrink: 0;
+            }}
+            .dragon-info {{
+                flex: 1;
+                padding: 12px 16px;
+                background: rgba(255, 255, 255, 0.03);
+            }}
+            .dragon-name {{
+                font-size: 16px;
+                font-weight: 600;
+                color: white;
+                margin-bottom: 4px;
+            }}
+            .dragon-stats {{
+                display: flex;
+                gap: 16px;
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.6);
+            }}
+            .dragon-gain {{
+                color: #34d399;
+                font-weight: 600;
+            }}
+            .dragon-reason {{
+                margin-top: 6px;
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.5);
+            }}
+            .dragon-rationale {{
+                font-size: 13px;
+                color: rgba(255, 255, 255, 0.8);
+                line-height: 1.6;
+                padding-top: 16px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }}
+            .rationale-label {{
+                font-weight: 600;
+                color: rgba(255, 255, 255, 0.9);
+            }}
+            .dragon-strategy-note {{
+                margin-top: 12px;
+                padding: 10px 14px;
+                background: rgba(251, 191, 36, 0.1);
+                border-radius: 8px;
+                font-size: 12px;
+                color: #fbbf24;
+                line-height: 1.5;
+            }}
+        </style>
+        '''
+
+
+class BoyaBuyPointCard(Component):
+    """买点评级卡片"""
+    
+    def __init__(self, score: float, level: str, suggest_price: float = None, 
+                 support_level: float = None, rationale: str = ''):
+        self.score = score
+        self.level = level
+        self.suggest_price = suggest_price
+        self.support_level = support_level
+        self.rationale = rationale
+    
+    def _get_level_style(self) -> Dict:
+        styles = {
+            '强烈推荐': {'color': '#34d399', 'bg': 'rgba(52, 211, 153, 0.15)'},
+            '谨慎追高': {'color': '#fbbf24', 'bg': 'rgba(251, 191, 36, 0.15)'},
+            '观望为主': {'color': '#60a5fa', 'bg': 'rgba(96, 165, 250, 0.15)'},
+            '建议回避': {'color': '#f87171', 'bg': 'rgba(248, 113, 113, 0.15)'},
+            '坚决不碰': {'color': '#ef4444', 'bg': 'rgba(239, 68, 68, 0.15)'},
+        }
+        return styles.get(self.level, {'color': '#9ca3af', 'bg': 'rgba(156, 163, 175, 0.15)'})
+    
+    def render(self) -> str:
+        style = self._get_level_style()
+        
+        # 环形进度计算
+        circumference = 2 * 3.14159 * 45
+        offset = circumference - (self.score / 100) * circumference
+        
+        return f'''
+        <div class="boya-buy-point-card">
+            <div class="buy-point-header">
+                <span class="buy-point-icon">🎯</span>
+                <span>买点评级</span>
+            </div>
+            <div class="buy-point-body">
+                <div class="score-ring">
+                    <svg width="120" height="120" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="45" fill="none" 
+                                stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
+                        <circle cx="60" cy="60" r="45" fill="none" 
+                                stroke="{style['color']}" stroke-width="8"
+                                stroke-dasharray="{circumference}"
+                                stroke-dashoffset="{offset}"
+                                stroke-linecap="round"
+                                transform="rotate(-90 60 60)"/>
+                    </svg>
+                    <div class="score-ring-center">
+                        <span class="score-value">{self.score:.0f}</span>
+                        <span class="score-unit">分</span>
+                    </div>
+                </div>
+                <div class="buy-point-info">
+                    <div class="buy-level" style="color: {style['color']}; background: {style['bg']};">
+                        {self.level}
+                    </div>
+                    <div class="buy-details">
+                        {f'<div class="buy-detail"><span class="detail-label">建议买入价</span><span class="detail-value">{self.suggest_price:.2f} 元</span></div>' if self.suggest_price else ''}
+                        {f'<div class="buy-detail"><span class="detail-label">支撑位</span><span class="detail-value">{self.support_level:.2f} 元</span></div>' if self.support_level else ''}
+                    </div>
+                </div>
+            </div>
+            <div class="buy-point-rationale">
+                {self.rationale}
+            </div>
+        </div>
+        <style>
+            .boya-buy-point-card {{
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                padding: 24px;
+                color: white;
+            }}
+            .buy-point-header {{
+                font-size: 18px;
+                font-weight: 700;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }}
+            .buy-point-icon {{
+                font-size: 24px;
+            }}
+            .buy-point-body {{
+                display: flex;
+                align-items: center;
+                gap: 24px;
+                margin-bottom: 16px;
+            }}
+            .score-ring {{
+                position: relative;
+                width: 120px;
+                height: 120px;
+                flex-shrink: 0;
+            }}
+            .score-ring-center {{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+            }}
+            .score-value {{
+                display: block;
+                font-size: 32px;
+                font-weight: 800;
+                color: white;
+                line-height: 1;
+            }}
+            .score-unit {{
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.6);
+            }}
+            .buy-point-info {{
+                flex: 1;
+            }}
+            .buy-level {{
+                display: inline-block;
+                padding: 6px 16px;
+                border-radius: 20px;
+                font-weight: 600;
+                font-size: 16px;
+                margin-bottom: 16px;
+            }}
+            .buy-details {{
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }}
+            .buy-detail {{
+                display: flex;
+                justify-content: space-between;
+                font-size: 13px;
+            }}
+            .detail-label {{
+                color: rgba(255, 255, 255, 0.6);
+            }}
+            .detail-value {{
+                color: rgba(255, 255, 255, 0.9);
+                font-weight: 600;
+            }}
+            .buy-point-rationale {{
+                font-size: 13px;
+                color: rgba(255, 255, 255, 0.8);
+                line-height: 1.6;
+                padding-top: 16px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }}
+        </style>
+        '''
+
+
+class BoyaStopLossCard(Component):
+    """止损纪律卡片"""
+    
+    def __init__(self, fixed_stop_pct: float, ma_stop: int, position_limit_pct: int, rationale: str):
+        self.fixed_stop_pct = fixed_stop_pct
+        self.ma_stop = ma_stop
+        self.position_limit_pct = position_limit_pct
+        self.rationale = rationale
+    
+    def render(self) -> str:
+        return f'''
+        <div class="boya-stoploss-card">
+            <div class="stoploss-header">
+                <span class="stoploss-icon">🛡️</span>
+                <span>止损纪律</span>
+                <span class="stoploss-warning">铁律！</span>
+            </div>
+            <div class="stoploss-rules">
+                <div class="stoploss-rule">
+                    <div class="rule-icon">📉</div>
+                    <div class="rule-content">
+                        <div class="rule-title">固定止损</div>
+                        <div class="rule-value">{self.fixed_stop_pct}%</div>
+                        <div class="rule-desc">亏损达到上限必须无条件止损</div>
+                    </div>
+                </div>
+                <div class="stoploss-rule">
+                    <div class="rule-icon">📊</div>
+                    <div class="rule-content">
+                        <div class="rule-title">均线止损</div>
+                        <div class="rule-value">{self.ma_stop}日线</div>
+                        <div class="rule-desc">有效跌破趋势线立即离场</div>
+                    </div>
+                </div>
+                <div class="stoploss-rule">
+                    <div class="rule-icon">💰</div>
+                    <div class="rule-content">
+                        <div class="rule-title">仓位上限</div>
+                        <div class="rule-value">{self.position_limit_pct}%</div>
+                        <div class="rule-desc">单票仓位绝不超过此比例</div>
+                    </div>
+                </div>
+            </div>
+            <div class="stoploss-footer">
+                ⚠️ {self.rationale}
+            </div>
+        </div>
+        <style>
+            .boya-stoploss-card {{
+                background: rgba(239, 68, 68, 0.08);
+                border: 1px solid rgba(239, 68, 68, 0.3);
+                border-radius: 16px;
+                padding: 24px;
+                color: white;
+            }}
+            .stoploss-header {{
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 20px;
+            }}
+            .stoploss-icon {{
+                font-size: 24px;
+            }}
+            .stoploss-header span:nth-child(2) {{
+                font-size: 18px;
+                font-weight: 700;
+                flex: 1;
+            }}
+            .stoploss-warning {{
+                background: #ef4444;
+                color: white;
+                padding: 4px 12px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 600;
+            }}
+            .stoploss-rules {{
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+                margin-bottom: 16px;
+            }}
+            .stoploss-rule {{
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+                padding: 16px;
+                text-align: center;
+            }}
+            .rule-icon {{
+                font-size: 28px;
+                margin-bottom: 8px;
+            }}
+            .rule-title {{
+                font-size: 13px;
+                color: rgba(255, 255, 255, 0.6);
+                margin-bottom: 4px;
+            }}
+            .rule-value {{
+                font-size: 24px;
+                font-weight: 800;
+                color: #f87171;
+                margin-bottom: 4px;
+            }}
+            .rule-desc {{
+                font-size: 11px;
+                color: rgba(255, 255, 255, 0.5);
+                line-height: 1.4;
+            }}
+            .stoploss-footer {{
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.7);
+                line-height: 1.6;
+                padding-top: 16px;
+                border-top: 1px solid rgba(239, 68, 68, 0.2);
+            }}
+        </style>
+        '''
+
+
+class BoyaFlexibilityCard(Component):
+    """弹性测算卡片"""
+    
+    def __init__(self, short_term_upside: float, mid_term_upside: float,
+                 drawdown_risk: float, risk_reward_ratio: float, rationale: str):
+        self.short_term_upside = short_term_upside
+        self.mid_term_upside = mid_term_upside
+        self.drawdown_risk = drawdown_risk
+        self.risk_reward_ratio = risk_reward_ratio
+        self.rationale = rationale
+    
+    def render(self) -> str:
+        # 盈亏比评价
+        if self.risk_reward_ratio >= 3:
+            rr_level = '优秀'
+            rr_color = '#34d399'
+        elif self.risk_reward_ratio >= 2:
+            rr_level = '良好'
+            rr_color = '#fbbf24'
+        else:
+            rr_level = '一般'
+            rr_color = '#f87171'
+        
+        return f'''
+        <div class="boya-flex-card">
+            <div class="flex-header">
+                <span class="flex-icon">📈</span>
+                <span>弹性测算</span>
+            </div>
+            <div class="flex-metrics">
+                <div class="flex-metric">
+                    <div class="metric-label">短期上涨空间</div>
+                    <div class="metric-value up">+{self.short_term_upside}%</div>
+                </div>
+                <div class="flex-metric">
+                    <div class="metric-label">中期上涨空间</div>
+                    <div class="metric-value up">+{self.mid_term_upside}%</div>
+                </div>
+                <div class="flex-metric">
+                    <div class="metric-label">回调风险</div>
+                    <div class="metric-value down">-{self.drawdown_risk}%</div>
+                </div>
+                <div class="flex-metric highlight">
+                    <div class="metric-label">盈亏比</div>
+                    <div class="metric-value rr" style="color: {rr_color};">{self.risk_reward_ratio}:1</div>
+                    <div class="metric-level" style="color: {rr_color};">{rr_level}</div>
+                </div>
+            </div>
+            <div class="flex-rationale">
+                💡 {self.rationale}
+            </div>
+        </div>
+        <style>
+            .boya-flex-card {{
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                padding: 24px;
+                color: white;
+            }}
+            .flex-header {{
+                font-size: 18px;
+                font-weight: 700;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }}
+            .flex-icon {{
+                font-size: 24px;
+            }}
+            .flex-metrics {{
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+                margin-bottom: 16px;
+            }}
+            .flex-metric {{
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+                padding: 16px 12px;
+                text-align: center;
+            }}
+            .flex-metric.highlight {{
+                background: rgba(251, 191, 36, 0.1);
+                border: 1px solid rgba(251, 191, 36, 0.3);
+            }}
+            .metric-label {{
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.6);
+                margin-bottom: 8px;
+            }}
+            .metric-value {{
+                font-size: 22px;
+                font-weight: 800;
+            }}
+            .metric-value.up {{
+                color: #34d399;
+            }}
+            .metric-value.down {{
+                color: #f87171;
+            }}
+            .metric-level {{
+                font-size: 12px;
+                font-weight: 600;
+                margin-top: 2px;
+            }}
+            .flex-rationale {{
+                font-size: 13px;
+                color: rgba(255, 255, 255, 0.8);
+                line-height: 1.6;
+                padding-top: 16px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }}
+        </style>
+        '''
+
+
+class BoyaPortfolioImpactCard(Component):
+    """组合影响分析卡片"""
+    
+    def __init__(self, concentration_risk: str, correlation_risk: str, suggestion: str):
+        self.concentration_risk = concentration_risk
+        self.correlation_risk = correlation_risk
+        self.suggestion = suggestion
+    
+    def render(self) -> str:
+        return f'''
+        <div class="boya-portfolio-card">
+            <div class="portfolio-header">
+                <span class="portfolio-icon">💼</span>
+                <span>组合影响分析</span>
+            </div>
+            <div class="portfolio-impacts">
+                <div class="impact-item">
+                    <div class="impact-label">集中度风险</div>
+                    <div class="impact-value">{self.concentration_risk}</div>
+                </div>
+                <div class="impact-item">
+                    <div class="impact-label">相关性风险</div>
+                    <div class="impact-value">{self.correlation_risk}</div>
+                </div>
+            </div>
+            <div class="portfolio-suggestion">
+                <div class="suggestion-label">操作建议</div>
+                <div class="suggestion-content">{self.suggestion}</div>
+            </div>
+        </div>
+        <style>
+            .boya-portfolio-card {{
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                padding: 24px;
+                color: white;
+            }}
+            .portfolio-header {{
+                font-size: 18px;
+                font-weight: 700;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }}
+            .portfolio-icon {{
+                font-size: 24px;
+            }}
+            .portfolio-impacts {{
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+                margin-bottom: 20px;
+            }}
+            .impact-item {{
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+                padding: 16px;
+            }}
+            .impact-label {{
+                font-size: 13px;
+                color: rgba(255, 255, 255, 0.6);
+                margin-bottom: 8px;
+            }}
+            .impact-value {{
+                font-size: 14px;
+                font-weight: 600;
+                color: rgba(255, 255, 255, 0.9);
+                line-height: 1.5;
+            }}
+            .portfolio-suggestion {{
+                background: rgba(96, 165, 250, 0.1);
+                border-radius: 12px;
+                padding: 16px;
+                border-left: 3px solid #60a5fa;
+            }}
+            .suggestion-label {{
+                font-size: 13px;
+                font-weight: 600;
+                color: #60a5fa;
+                margin-bottom: 6px;
+            }}
+            .suggestion-content {{
+                font-size: 13px;
+                color: rgba(255, 255, 255, 0.85);
+                line-height: 1.6;
+            }}
+        </style>
+        '''
+
+
+class BoyaPredictionList(Component):
+    """预判记录列表"""
+    
+    def __init__(self, predictions: List[Dict]):
+        self.predictions = predictions
+    
+    def _render_prediction(self, pred: Dict, index: int) -> str:
+        content = pred.get('content', '')
+        confidence = pred.get('confidence', 0) * 100
+        verify_date = pred.get('verify_date', '')
+        category = pred.get('category', '')
+        status = pred.get('status', 'pending')
+        
+        status_config = {
+            'pending': {'icon': '⏳', 'text': '待验证', 'color': '#fbbf24'},
+            'right': {'icon': '✅', 'text': '正确', 'color': '#34d399'},
+            'wrong': {'icon': '❌', 'text': '错误', 'color': '#f87171'},
+            'partial': {'icon': '🔶', 'text': '部分正确', 'color': '#fb923c'},
+        }
+        sc = status_config.get(status, status_config['pending'])
+        
+        return f'''
+        <div class="prediction-item">
+            <div class="prediction-index">{index}</div>
+            <div class="prediction-content">
+                <div class="prediction-text">{content}</div>
+                <div class="prediction-meta">
+                    <span class="prediction-category">{category}</span>
+                    <span class="prediction-confidence">置信度 {confidence:.0f}%</span>
+                    <span class="prediction-date">验证日: {verify_date}</span>
+                </div>
+            </div>
+            <div class="prediction-status" style="color: {sc['color']};">
+                <span>{sc['icon']}</span>
+                <span>{sc['text']}</span>
+            </div>
+        </div>
+        '''
+    
+    def render(self) -> str:
+        items_html = ''
+        for i, pred in enumerate(self.predictions, 1):
+            items_html += self._render_prediction(pred, i)
+        
+        return f'''
+        <div class="boya-prediction-card">
+            <div class="prediction-header">
+                <span class="prediction-icon">🔮</span>
+                <span>预判记录</span>
+                <span class="prediction-badge">纳入验证闭环</span>
+            </div>
+            <div class="prediction-list">
+                {items_html}
+            </div>
+        </div>
+        <style>
+            .boya-prediction-card {{
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                padding: 24px;
+                color: white;
+            }}
+            .prediction-header {{
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 20px;
+            }}
+            .prediction-icon {{
+                font-size: 24px;
+            }}
+            .prediction-header span:nth-child(2) {{
+                font-size: 18px;
+                font-weight: 700;
+                flex: 1;
+            }}
+            .prediction-badge {{
+                background: rgba(168, 85, 247, 0.2);
+                color: #c084fc;
+                padding: 4px 12px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 500;
+            }}
+            .prediction-list {{
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }}
+            .prediction-item {{
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+                background: rgba(255, 255, 255, 0.03);
+                border-radius: 10px;
+                padding: 14px 16px;
+            }}
+            .prediction-index {{
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                background: rgba(168, 85, 247, 0.3);
+                color: #c084fc;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                font-size: 14px;
+                flex-shrink: 0;
+            }}
+            .prediction-content {{
+                flex: 1;
+            }}
+            .prediction-text {{
+                font-size: 14px;
+                color: rgba(255, 255, 255, 0.9);
+                line-height: 1.6;
+                margin-bottom: 6px;
+            }}
+            .prediction-meta {{
+                display: flex;
+                gap: 12px;
+                font-size: 11px;
+                color: rgba(255, 255, 255, 0.5);
+            }}
+            .prediction-category {{
+                background: rgba(255, 255, 255, 0.1);
+                padding: 2px 8px;
+                border-radius: 8px;
+            }}
+            .prediction-status {{
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+                font-size: 12px;
+                font-weight: 600;
+                flex-shrink: 0;
+            }}
+        </style>
+        '''
+
+
+class BoyaStrategySummaryCard(Component):
+    """boya策略总纲卡片 - 第10章总结用"""
+    
+    def __init__(self, level: str, dragon_name: str, buy_suggestion: str,
+                 stop_loss: str, risk_reward: str, overall_rating: str):
+        self.level = level
+        self.dragon_name = dragon_name
+        self.buy_suggestion = buy_suggestion
+        self.stop_loss = stop_loss
+        self.risk_reward = risk_reward
+        self.overall_rating = overall_rating
+    
+    def render(self) -> str:
+        return f'''
+        <div class="boya-strategy-summary">
+            <div class="summary-title">
+                <span class="summary-icon">⚡</span>
+                <span>boya投资策略 · 总纲</span>
+            </div>
+            <div class="summary-grid">
+                <div class="summary-item main">
+                    <div class="summary-label">主线评级</div>
+                    <div class="summary-value level">{self.level}级</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">核心标的</div>
+                    <div class="summary-value">{self.dragon_name}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">操作建议</div>
+                    <div class="summary-value">{self.buy_suggestion}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">止损策略</div>
+                    <div class="summary-value">{self.stop_loss}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">盈亏比</div>
+                    <div class="summary-value">{self.risk_reward}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">综合评级</div>
+                    <div class="summary-value rating">{self.overall_rating}</div>
+                </div>
+            </div>
+            <div class="summary-footer">
+                以上分析仅供参考，不构成投资建议。投资有风险，入市需谨慎。
+            </div>
+        </div>
+        <style>
+            .boya-strategy-summary {{
+                background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(251, 146, 60, 0.2) 100%);
+                border: 2px solid rgba(251, 146, 60, 0.4);
+                border-radius: 20px;
+                padding: 28px;
+                color: white;
+                margin-top: 20px;
+            }}
+            .summary-title {{
+                text-align: center;
+                font-size: 22px;
+                font-weight: 800;
+                margin-bottom: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }}
+            .summary-icon {{
+                font-size: 28px;
+            }}
+            .summary-grid {{
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+                margin-bottom: 20px;
+            }}
+            .summary-item {{
+                background: rgba(255, 255, 255, 0.08);
+                border-radius: 12px;
+                padding: 16px;
+                text-align: center;
+            }}
+            .summary-item.main {{
+                background: rgba(251, 191, 36, 0.15);
+                border: 1px solid rgba(251, 191, 36, 0.4);
+            }}
+            .summary-label {{
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.6);
+                margin-bottom: 6px;
+            }}
+            .summary-value {{
+                font-size: 18px;
+                font-weight: 700;
+                color: white;
+            }}
+            .summary-value.level {{
+                color: #fbbf24;
+                font-size: 24px;
+            }}
+            .summary-value.rating {{
+                color: #34d399;
+            }}
+            .summary-footer {{
+                text-align: center;
+                font-size: 11px;
+                color: rgba(255, 255, 255, 0.4);
+                padding-top: 16px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }}
+        </style>
         '''
