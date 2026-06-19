@@ -3,6 +3,7 @@
 基于ReportProGenerator基类重构，深色玻璃态风格
 核心定位：早盘前的深度市场分析，为交易决策提供支撑
 """
+from typing import Dict, List, Optional
 import sys
 import os
 import json
@@ -1224,6 +1225,7 @@ class DailyReportProGenerator(ReportProGenerator):
         self.add_today_catalysts()
         self.add_topic_dynamics()
         self.add_topic_deep_dive()
+        self.add_skill_enhanced_section()
         self.add_jiuyan_hot_topics()
         self.add_holdings_tracking()
         self.add_tomorrow_prediction()
@@ -1231,6 +1233,347 @@ class DailyReportProGenerator(ReportProGenerator):
         self.add_daily_summary()
         return self
 
+
+
+    def _generate_skill_enhanced_analysis(self, topic: Dict) -> Dict:
+        """生成Skill增强的题材分析数据
+        整合三维热度、SWOT、情景推演等分析框架
+        """
+        name = topic.get('name', '')
+        dim_scores = topic.get('dimension_scores', {})
+        catalysts = topic.get('catalyst_events', [])
+        core_logic = topic.get('core_logic', '')
+        
+        # 1. 三维热度分析（基于现有维度数据）
+        policy_score = dim_scores.get('policy', 50)
+        industry_score = dim_scores.get('industry', 50)
+        capital_score = dim_scores.get('capital', 50)
+        
+        # 计算综合热度
+        three_d_overall = (policy_score * 0.35 + industry_score * 0.35 + capital_score * 0.3)
+        
+        # 热度结论
+        if three_d_overall >= 80:
+            heat_conclusion = "三维共振，持续高热度"
+        elif three_d_overall >= 60:
+            heat_conclusion = "两维驱动，热度较高"
+        elif three_d_overall >= 40:
+            heat_conclusion = "单维支撑，热度中等"
+        else:
+            heat_conclusion = "缺乏支撑，热度较低"
+        
+        three_d_heat = {
+            'policy_score': policy_score,
+            'industry_score': industry_score,
+            'capital_score': capital_score,
+            'overall_score': three_d_overall,
+            'conclusion': heat_conclusion,
+        }
+        
+        # 2. SWOT分析（基于题材特征智能生成）
+        strengths = []
+        weaknesses = []
+        opportunities = []
+        threats = []
+        
+        # 政策维度
+        if policy_score >= 70:
+            strengths.append("政策支持力度大，顶层设计明确")
+        elif policy_score >= 50:
+            opportunities.append("政策存在改善空间")
+        else:
+            weaknesses.append("政策支持力度不足")
+        
+        # 产业维度
+        if industry_score >= 70:
+            strengths.append("产业趋势明确，景气度持续上行")
+        elif industry_score >= 50:
+            opportunities.append("产业格局正在优化")
+        else:
+            weaknesses.append("产业基本面偏弱")
+        
+        # 资金维度
+        if capital_score >= 70:
+            strengths.append("资金关注度高，流入趋势明显")
+        elif capital_score >= 50:
+            opportunities.append("资金关注度有望提升")
+        else:
+            threats.append("资金关注度不足，缺乏增量资金")
+        
+        # 情绪维度
+        sentiment_score = dim_scores.get('sentiment', 50)
+        if sentiment_score >= 70:
+            strengths.append("市场情绪高涨，赚钱效应强")
+            threats.append("情绪过热可能引发回调")
+        elif sentiment_score <= 30:
+            opportunities.append("情绪冰点后存在修复机会")
+        
+        # 估值维度
+        valuation_score = dim_scores.get('valuation', 50)
+        if valuation_score >= 70:
+            threats.append("估值偏高，存在回调风险")
+        elif valuation_score <= 30:
+            strengths.append("估值处于低位，安全边际高")
+        
+        # 催化维度
+        catalyst_score = dim_scores.get('catalyst', 50)
+        if catalyst_score >= 70:
+            opportunities.append("催化剂密集，事件驱动性强")
+        
+        # 补充通用分析
+        if catalysts:
+            opportunities.append(f"近期有 {len(catalysts)} 个催化事件")
+        else:
+            weaknesses.append("缺乏明确催化事件")
+        
+        # 确保每个维度至少有1-2条
+        if not strengths:
+            strengths.append("题材具有一定的市场关注度")
+        if not weaknesses:
+            weaknesses.append("短期涨幅较大，存在获利回吐压力")
+        if not opportunities:
+            opportunities.append("行业长期发展空间广阔")
+        if not threats:
+            threats.append("宏观经济不确定性可能影响板块表现")
+        
+        swot = {
+            'strengths': strengths[:3],
+            'weaknesses': weaknesses[:3],
+            'opportunities': opportunities[:3],
+            'threats': threats[:3],
+        }
+        
+        # 3. 情景推演
+        base_return = 0.0
+        
+        # 根据综合评分计算预期
+        total_score = topic.get('total_score', 50)
+        if total_score >= 80:
+            base_return = 0.15  # 15%
+        elif total_score >= 60:
+            base_return = 0.08  # 8%
+        elif total_score >= 40:
+            base_return = 0.02  # 2%
+        else:
+            base_return = -0.05  # -5%
+        
+        scenarios = [
+            {
+                'scenario_name': '乐观情景',
+                'probability': 0.25,
+                'impact_score': min(100, total_score + 20),
+                'expected_return': base_return * 1.8,
+                'key_assumptions': [
+                    '催化事件超预期落地',
+                    '资金持续大幅流入',
+                    '行业数据超预期'
+                ],
+                'description': f'{name}板块在多重利好催化下，迎来估值与业绩双升行情'
+            },
+            {
+                'scenario_name': '中性情景',
+                'probability': 0.5,
+                'impact_score': total_score,
+                'expected_return': base_return,
+                'key_assumptions': [
+                    '催化事件符合预期',
+                    '资金流入平稳',
+                    '行业数据符合预期'
+                ],
+                'description': f'{name}板块维持现有趋势，沿既有轨道缓慢上行或震荡'
+            },
+            {
+                'scenario_name': '悲观情景',
+                'probability': 0.25,
+                'impact_score': max(0, total_score - 25),
+                'expected_return': base_return * -1.5,
+                'key_assumptions': [
+                    '催化事件不及预期',
+                    '资金流出超预期',
+                    '行业数据不及预期'
+                ],
+                'description': f'{name}板块因利好兑现或负面因素出现回调，短期承压'
+            },
+        ]
+        
+        return {
+            'three_d_heat': three_d_heat,
+            'swot': swot,
+            'scenarios': scenarios,
+        }
+    
+    def add_skill_enhanced_section(self):
+        """添加Skill增强分析模块
+        展示顶级分析框架的深度洞察
+        """
+        s_topics = self.topics.get('s_level_topics', [])
+        a_topics = self.topics.get('a_level_topics', [])
+        
+        # 取最重要的1-2个题材做深度分析
+        top_topics = (s_topics + a_topics)[:2]
+        
+        if not top_topics:
+            return
+        
+        html = '<div class="space-y-4">'
+        
+        for topic in top_topics:
+            name = topic.get('name', '')
+            level = topic.get('level', '')
+            analysis = self._generate_skill_enhanced_analysis(topic)
+            
+            # 为每个题材生成折叠式深度分析卡片
+            topic_html = f'''
+            <div class="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden">
+                <div class="p-4 flex items-center justify-between cursor-pointer" 
+                     onclick="toggleSkillAnalysis('{name}')">
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg">🧠</span>
+                        <span class="font-bold text-white">{name} · 深度分析</span>
+                        <span class="text-xs bg-gradient-to-r from-purple-500/30 to-blue-500/30 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30">
+                            Skill增强
+                        </span>
+                    </div>
+                    <span class="text-white/40 text-sm" id="skill-arrow-{name}">▼</span>
+                </div>
+                <div id="skill-analysis-{name}" class="px-4 pb-4 hidden">
+                    <div class="grid md:grid-cols-2 gap-3">
+                        {self._render_three_d_heat(analysis['three_d_heat'])}
+                        {self._render_swot_simple(analysis['swot'])}
+                    </div>
+                    <div class="mt-3">
+                        {self._render_scenarios_simple(analysis['scenarios'])}
+                    </div>
+                </div>
+            </div>
+            '''
+            html += topic_html
+        
+        html += '</div>'
+        
+        # 添加交互脚本
+        js = '''
+        <script>
+        function toggleSkillAnalysis(name) {
+            const panel = document.getElementById('skill-analysis-' + name);
+            const arrow = document.getElementById('skill-arrow-' + name);
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                arrow.textContent = '▲';
+            } else {
+                panel.classList.add('hidden');
+                arrow.textContent = '▼';
+            }
+        }
+        </script>
+        '''
+        
+        self.add_section("🧠 Skill深度分析", html + js, "🧠")
+    
+    def _render_three_d_heat(self, heat_data: Dict) -> str:
+        """简化版三维热度渲染"""
+        policy_score = heat_data.get('policy_score', 50)
+        industry_score = heat_data.get('industry_score', 50)
+        capital_score = heat_data.get('capital_score', 50)
+        overall = heat_data.get('overall_score', 50)
+        
+        return f'''
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10">
+            <div class="text-sm font-bold text-white mb-2 flex items-center gap-1">
+                🌡️ 三维热度
+                <span class="text-xs font-normal text-white/50">综合 {overall:.0f}分</span>
+            </div>
+            <div class="space-y-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-white/50 w-10">政策</span>
+                    <div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-500 rounded-full" style="width:{policy_score}%"></div>
+                    </div>
+                    <span class="text-xs text-white/70 w-8">{policy_score:.0f}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-white/50 w-10">产业</span>
+                    <div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full bg-green-500 rounded-full" style="width:{industry_score}%"></div>
+                    </div>
+                    <span class="text-xs text-white/70 w-8">{industry_score:.0f}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-white/50 w-10">资金</span>
+                    <div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full bg-yellow-500 rounded-full" style="width:{capital_score}%"></div>
+                    </div>
+                    <span class="text-xs text-white/70 w-8">{capital_score:.0f}</span>
+                </div>
+            </div>
+        </div>
+        '''
+    
+    def _render_swot_simple(self, swot_data: Dict) -> str:
+        """简化版SWOT渲染"""
+        s = swot_data.get('strengths', [])
+        w = swot_data.get('weaknesses', [])
+        o = swot_data.get('opportunities', [])
+        t = swot_data.get('threats', [])
+        
+        def bullet(items, color):
+            return ''.join([f'<div class="text-xs text-white/60 mb-0.5"><span class="{color} mr-1">•</span>{item}</div>' for item in items[:2]])
+        
+        return f'''
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10">
+            <div class="text-sm font-bold text-white mb-2">📊 SWOT分析</div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                    <span class="text-green-400 font-semibold">优势</span>
+                    {bullet(s, 'text-green-400')}
+                </div>
+                <div>
+                    <span class="text-red-400 font-semibold">劣势</span>
+                    {bullet(w, 'text-red-400')}
+                </div>
+                <div>
+                    <span class="text-blue-400 font-semibold">机会</span>
+                    {bullet(o, 'text-blue-400')}
+                </div>
+                <div>
+                    <span class="text-orange-400 font-semibold">威胁</span>
+                    {bullet(t, 'text-orange-400')}
+                </div>
+            </div>
+        </div>
+        '''
+    
+    def _render_scenarios_simple(self, scenarios: List[Dict]) -> str:
+        """简化版情景推演渲染"""
+        sc_html = ''
+        for sc in scenarios:
+            name = sc.get('scenario_name', '')
+            prob = sc.get('probability', 0) * 100
+            ret = sc.get('expected_return', 0) * 100
+            
+            if '乐观' in name:
+                color = 'text-green-400 bg-green-500/10 border-green-500/20'
+            elif '悲观' in name:
+                color = 'text-red-400 bg-red-500/10 border-red-500/20'
+            else:
+                color = 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20'
+            
+            sc_html += f'''
+            <div class="flex-1 rounded-lg p-2 border {color} text-center">
+                <div class="text-xs font-bold mb-1">{name}</div>
+                <div class="text-lg font-black">{ret:+.1f}%</div>
+                <div class="text-xs opacity-60">{prob:.0f}%概率</div>
+            </div>
+            '''
+        
+        return f'''
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10">
+            <div class="text-sm font-bold text-white mb-2">🎯 情景推演</div>
+            <div class="flex gap-2">
+                {sc_html}
+            </div>
+        </div>
+        '''
 
 if __name__ == '__main__':
     # 测试生成
@@ -1244,3 +1587,4 @@ if __name__ == '__main__':
     with open('../docs/daily/test_daily_pro.html', 'w', encoding='utf-8') as f:
         f.write(html)
     print('已保存到 docs/daily/test_daily_pro.html')
+

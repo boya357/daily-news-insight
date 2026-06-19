@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>铜冠铜箔 深度分析 - 投资研究中心</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
     
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
@@ -850,6 +852,96 @@
                     max-width: 48rem;
                 }
             }
+            
+            /* Tab切换组件样式 */
+            .tab-container {
+                margin-bottom: 1rem;
+            }
+            
+            .tab-buttons {
+                display: flex;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                padding-bottom: 0.5rem;
+            }
+            
+            .tab-btn {
+                padding: 0.5rem 1rem;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 8px;
+                color: rgba(255,255,255,0.6);
+                cursor: pointer;
+                font-size: 0.875rem;
+                transition: all 0.3s ease;
+            }
+            
+            .tab-btn:hover {
+                background: rgba(255,255,255,0.1);
+                color: rgba(255,255,255,0.9);
+            }
+            
+            .tab-btn-active {
+                background: rgba(139, 92, 246, 0.3);
+                border-color: rgba(139, 92, 246, 0.5);
+                color: white;
+                font-weight: 500;
+            }
+            
+            .tab-container .tab-content .tab-panel {
+                display: none;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            .tab-container .tab-content .tab-panel.tab-panel-active {
+                display: block !important;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            /* Underline风格Tab */
+            .tab-style-underline .tab-buttons {
+                border-bottom: none;
+                padding-bottom: 0;
+                gap: 1.5rem;
+            }
+            
+            .tab-style-underline .tab-btn {
+                background: transparent;
+                border: none;
+                border-bottom: 2px solid transparent;
+                border-radius: 0;
+                padding: 0.5rem 0;
+            }
+            
+            .tab-style-underline .tab-btn:hover {
+                background: transparent;
+                color: rgba(255,255,255,0.9);
+            }
+            
+            .tab-style-underline .tab-btn-active {
+                border-bottom-color: #8b5cf6;
+                color: white;
+                background: transparent;
+            }
+            
+            /* 次级卡片样式 */
+            .card-subtle {
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 12px;
+                padding: 1rem;
+                transition: all 0.3s ease;
+            }
+            
+            .card-subtle:hover {
+                background: rgba(255,255,255,0.08);
+                border-color: rgba(255,255,255,0.2);
+            }
 </style>
     
     <style>
@@ -860,7 +952,6 @@
             overflow: hidden;
         }
     </style>
-    <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
 </head>
 <body>
     
@@ -882,364 +973,444 @@
     <!-- 移动端全屏菜单 -->
     <div id="mobileMenu" class="mobile-menu">
         <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
-        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a><a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a><a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中快报</a><a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后速递</a><a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链总览</a><a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a><a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a><a href="/daily-news-insight/周末速递/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a><a href="/daily-news-insight/明日催化剂/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化剂</a><a href="/daily-news-insight/s级催化扫描/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⭐ S级催化扫描</a><a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🗓️ 月度总结</a>
+        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a><a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a><a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中</a><a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后</a><a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链</a><a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a><a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a><a href="/daily-news-insight/周末速递/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a><a href="/daily-news-insight/明日催化剂/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化</a><a href="/daily-news-insight/s级催化扫描/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⚡ S级催化</a><a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📅 月报</a>
     </div>
         
     
     <div class="pro-container pt-20 has-toc">
         
-        <div class="max-w-6xl mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- 头部概览 -->
             
         <div class="glass-card rounded-2xl p-6 mb-6">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-start justify-between mb-4">
                 <div>
-                    <h1 class="text-2xl font-bold text-white mb-1">铜冠铜箔</h1>
-                    <span class="text-white/60 text-sm">301217</span>
+                    <div class="flex items-center gap-3 mb-2">
+                        <h1 class="text-2xl font-bold text-white">铜冠铜箔</h1>
+                        <span class="text-sm text-white/50">301217</span>
+                    </div>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full">股票个股分析</span><span class="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full">竹石个股Agent</span><span class="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full">超级分析师</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-3xl font-bold text-white">$56.96</span>
+                        <span class="text-sm text-green-400">+0.85 (+1.72%)</span>
+                    </div>
                 </div>
                 <div class="text-right">
-                    <div class="text-3xl font-bold text-white mb-1">50.25</div>
-                    <div class="text-green-400 text-sm">
-                        +0.00 (+0.00%)
-                    </div>
+                    <div class="text-sm text-white/50 mb-1">综合评级</div>
+                    <div class="text-2xl font-bold text-orange-400">中性</div>
+                    <div class="text-3xl font-bold text-orange-400 mt-1">48.1分</div>
                 </div>
             </div>
-            
-            <div class="grid grid-cols-4 gap-4">
+            <div class="grid grid-cols-4 gap-3 pt-4 border-t border-white/10">
                 <div class="text-center">
-                    <div class="text-white/60 text-xs mb-1">综合评级</div>
-                    <div class="text-lg font-bold text-yellow-400">
-                        中性
+                    <div class="text-xs text-white/50 mb-1">技术面</div>
+                    <div class="text-lg font-semibold text-yellow-400">
+                        50分
                     </div>
                 </div>
                 <div class="text-center">
-                    <div class="text-white/60 text-xs mb-1">综合评分</div>
-                    <div class="text-lg font-bold text-white">56.4</div>
+                    <div class="text-xs text-white/50 mb-1">游资视角</div>
+                    <div class="text-lg font-semibold text-orange-400">
+                        40分
+                    </div>
                 </div>
                 <div class="text-center">
-                    <div class="text-white/60 text-xs mb-1">技术面</div>
-                    <div class="text-lg font-bold text-white">59.2</div>
+                    <div class="text-xs text-white/50 mb-1">情绪面</div>
+                    <div class="text-lg font-semibold text-orange-400">
+                        50分
+                    </div>
                 </div>
                 <div class="text-center">
-                    <div class="text-white/60 text-xs mb-1">基本面</div>
-                    <div class="text-lg font-bold text-white">50.0</div>
+                    <div class="text-xs text-white/50 mb-1">风报比</div>
+                    <div class="text-lg font-semibold text-cyan-400">
+                        1.5
+                    </div>
                 </div>
             </div>
         </div>
         
             
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2">
+            <!-- 两列布局 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- 左列 -->
+                <div>
                     
-        <div class="mb-8">
-            <h2 class="section-title">
-                <span class="title-icon">📊</span>
-                技术面分析
-                <span class="text-sm font-normal text-white/60 ml-2">综合 59.2分 · 偏多</span>
+        <div class="glass-card rounded-2xl p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span>📊</span> 技术面分析
+                </h2>
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-white/50">综合</span>
+                    <span class="text-lg font-bold text-yellow-400">50分</span>
+                    <span class="text-sm text-yellow-400">中性</span>
+                </div>
+            </div>
+            <div class="space-y-0">
+                
+            <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                <span class="text-white/70 text-sm">均线系统</span>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-white/50">--</span>
+                    <span class="text-sm font-medium text-orange-400">34分</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                <span class="text-white/70 text-sm">MACD</span>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-white/50">死叉，绿柱放大</span>
+                    <span class="text-sm font-medium text-orange-400">48分</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                <span class="text-white/70 text-sm">RSI</span>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-white/50">中性偏弱</span>
+                    <span class="text-sm font-medium text-orange-400">40分</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                <span class="text-white/70 text-sm">KDJ</span>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-white/50">中性偏强，多头排列</span>
+                    <span class="text-sm font-medium text-yellow-400">60分</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                <span class="text-white/70 text-sm">布林带</span>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-white/50">中轨附近运行，震荡</span>
+                    <span class="text-sm font-medium text-yellow-400">50分</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                <span class="text-white/70 text-sm">成交量</span>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-white/50">放量上涨，健康</span>
+                    <span class="text-sm font-medium text-green-400">70分</span>
+                </div>
+            </div>
+            
+            </div>
+        </div>
+        
+                    
+        <div class="glass-card rounded-2xl p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span>📈</span> 缺口分析
+                    <span class="text-xs font-normal text-white/40 bg-white/10 px-2 py-0.5 rounded-full">Stock Analysis Skill</span>
+                </h2>
+                <span class="text-sm text-white/50">共 0 个缺口</span>
+            </div>
+            
+            <p class="text-sm text-white/70 mb-4">共识别到5个重要缺口，其中未回补0个。多空缺口交织，处于震荡区间。</p>
+            
+            <div class="grid grid-cols-2 gap-3">
+                
+            <div class="bg-white/5 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="font-medium text-red-400"></span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-yellow-400">中</span>
+                        <span class="text-xs text-white/40">已回补</span>
+                    </div>
+                </div>
+                <div class="flex justify-between text-xs text-white/50">
+                    <span>2026-01-10</span>
+                    <span>幅度 1.49%</span>
+                </div>
+            </div>
+            
+            <div class="bg-white/5 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="font-medium text-red-400"></span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-yellow-400">中</span>
+                        <span class="text-xs text-white/40">已回补</span>
+                    </div>
+                </div>
+                <div class="flex justify-between text-xs text-white/50">
+                    <span>2026-01-34</span>
+                    <span>幅度 2.12%</span>
+                </div>
+            </div>
+            
+            <div class="bg-white/5 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="font-medium text-red-400"></span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-white/50">低</span>
+                        <span class="text-xs text-white/40">已回补</span>
+                    </div>
+                </div>
+                <div class="flex justify-between text-xs text-white/50">
+                    <span>2026-01-03</span>
+                    <span>幅度 0.98%</span>
+                </div>
+            </div>
+            
+            <div class="bg-white/5 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="font-medium text-red-400"></span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-white/50">低</span>
+                        <span class="text-xs text-white/40">已回补</span>
+                    </div>
+                </div>
+                <div class="flex justify-between text-xs text-white/50">
+                    <span>2026-01-09</span>
+                    <span>幅度 1.07%</span>
+                </div>
+            </div>
+            
+            </div>
+            
+            
+        </div>
+        
+                    
+        <div class="glass-card rounded-2xl p-6 mb-6">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2 mb-4">
+                <span>🎯</span> 支撑压力位
             </h2>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="space-y-3">
+                <!-- 压力位 -->
+                <div class="relative pl-4 border-l-2 border-red-500/30">
+                    <div class="absolute -left-1.5 top-0 w-3 h-3 rounded-full bg-red-500"></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-white/70">20日高点</span>
+                        <span class="font-medium text-red-400">63.29</span>
+                    </div>
+                </div>
                 
-            <div class="glass-card rounded-xl p-4">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-white font-medium">均线系统</span>
-                    <span class="text-green-400 text-sm font-bold">70分</span>
+                
+                
+                <div class="relative pl-4 border-l-2 border-red-500/20">
+                    <div class="absolute -left-1.5 top-0 w-2.5 h-2.5 rounded-full bg-red-400/60"></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-white/50">均线压力</span>
+                        <span class="font-medium text-red-400/80">59.28</span>
+                    </div>
                 </div>
-                <div class="text-white/70 text-sm mb-2">多头排列</div>
-                <div class="w-full bg-white/10 rounded-full h-2">
-                    <div class="bg-gradient-to-r from-green-400/50 to-green-400 h-2 rounded-full transition-all duration-500" 
-                         style="width: 70%"></div>
+                
+                <!-- 当前价 -->
+                <div class="relative pl-4 border-l-2 border-blue-500/50">
+                    <div class="absolute -left-2 top-0 w-4 h-4 rounded-full bg-blue-500 animate-pulse"></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-blue-400">当前价</span>
+                        <span class="font-bold text-blue-400">$56.96</span>
+                    </div>
                 </div>
-                <div class="text-white/50 text-xs mt-2">MA5:52.01 MA20:50.25</div>
-            </div>
-            
-            <div class="glass-card rounded-xl p-4">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-white font-medium">MACD</span>
-                    <span class="text-yellow-400 text-sm font-bold">50分</span>
+                
+                <!-- 支撑位 -->
+                <div class="relative pl-4 border-l-2 border-green-500/20">
+                    <div class="absolute -left-1.5 top-0 w-2.5 h-2.5 rounded-full bg-green-400/60"></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-white/50">均线支撑</span>
+                        <span class="font-medium text-green-400/80">58.33</span>
+                    </div>
                 </div>
-                <div class="text-white/70 text-sm mb-2">金叉，红柱放大</div>
-                <div class="w-full bg-white/10 rounded-full h-2">
-                    <div class="bg-gradient-to-r from-yellow-400/50 to-yellow-400 h-2 rounded-full transition-all duration-500" 
-                         style="width: 50%"></div>
+                
+                
+                
+                <div class="relative pl-4 border-l-2 border-green-500/30">
+                    <div class="absolute -left-1.5 top-0 w-3 h-3 rounded-full bg-green-500"></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-white/70">20日低点</span>
+                        <span class="font-medium text-green-400">55.74</span>
+                    </div>
                 </div>
-                <div class="text-white/50 text-xs mt-2">DIF:-0.10 DEA:-0.51</div>
-            </div>
-            
-            <div class="glass-card rounded-xl p-4">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-white font-medium">RSI</span>
-                    <span class="text-yellow-400 text-sm font-bold">60分</span>
-                </div>
-                <div class="text-white/70 text-sm mb-2">中性偏强</div>
-                <div class="w-full bg-white/10 rounded-full h-2">
-                    <div class="bg-gradient-to-r from-yellow-400/50 to-yellow-400 h-2 rounded-full transition-all duration-500" 
-                         style="width: 60.3%"></div>
-                </div>
-                <div class="text-white/50 text-xs mt-2">RSI(14):60.6</div>
-            </div>
-            
-            <div class="glass-card rounded-xl p-4">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-white font-medium">KDJ</span>
-                    <span class="text-green-400 text-sm font-bold">65分</span>
-                </div>
-                <div class="text-white/70 text-sm mb-2">强势区域，多头排列</div>
-                <div class="w-full bg-white/10 rounded-full h-2">
-                    <div class="bg-gradient-to-r from-green-400/50 to-green-400 h-2 rounded-full transition-all duration-500" 
-                         style="width: 65%"></div>
-                </div>
-                <div class="text-white/50 text-xs mt-2">K:80.6 D:74.8 J:92.2</div>
-            </div>
-            
-            <div class="glass-card rounded-xl p-4">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-white font-medium">布林带</span>
-                    <span class="text-yellow-400 text-sm font-bold">60分</span>
-                </div>
-                <div class="text-white/70 text-sm mb-2">上半区运行，偏强</div>
-                <div class="w-full bg-white/10 rounded-full h-2">
-                    <div class="bg-gradient-to-r from-yellow-400/50 to-yellow-400 h-2 rounded-full transition-all duration-500" 
-                         style="width: 60%"></div>
-                </div>
-                <div class="text-white/50 text-xs mt-2">位置:73.2%</div>
-            </div>
-            
-            <div class="glass-card rounded-xl p-4">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-white font-medium">成交量</span>
-                    <span class="text-yellow-400 text-sm font-bold">50分</span>
-                </div>
-                <div class="text-white/70 text-sm mb-2">量能正常</div>
-                <div class="w-full bg-white/10 rounded-full h-2">
-                    <div class="bg-gradient-to-r from-yellow-400/50 to-yellow-400 h-2 rounded-full transition-all duration-500" 
-                         style="width: 50%"></div>
-                </div>
-                <div class="text-white/50 text-xs mt-2">量比:1.17</div>
-            </div>
-            
             </div>
         </div>
         
                 </div>
-                <div class="lg:col-span-1">
+                
+                <!-- 右列 -->
+                <div>
                     
-        <div class="glass-card rounded-xl p-6 mb-6">
-            <h3 class="text-lg font-bold text-white mb-4 flex items-center">
-                <span class="text-xl mr-2">🏆</span>
-                综合评级
-            </h3>
+        <div class="glass-card rounded-2xl p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span>🐯</span> 游资视角
+                    <span class="text-xs font-normal text-white/40 bg-white/10 px-2 py-0.5 rounded-full">竹石Agent Skill</span>
+                </h2>
+                <span class="text-sm font-bold text-orange-400">边缘股</span>
+            </div>
             
-            <div class="flex items-center justify-center mb-4">
-                <div class="relative w-32 h-32">
-                    <svg class="w-full h-full transform -rotate-90">
-                        <circle cx="64" cy="64" r="56" stroke="rgba(255,255,255,0.1)" stroke-width="8" fill="none"/>
-                        <circle cx="64" cy="64" r="56" stroke="url(#gradient)" stroke-width="8" fill="none"
-                                stroke-dasharray="791.856 360" stroke-linecap="round"
-                                class="transition-all duration-1000"/>
-                        <defs>
-                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stop-color="#667eea"/>
-                                <stop offset="100%" stop-color="#f093fb"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <span class="text-3xl font-bold text-white">56.4</span>
-                        <span class="text-xs text-white/60">综合评分</span>
-                    </div>
+            <!-- 龙头评分 -->
+            <div class="mb-4">
+                <div class="flex justify-between text-sm mb-1">
+                    <span class="text-white/70">龙头指数</span>
+                    <span class="text-orange-400 font-medium">40分</span>
+                </div>
+                <div class="h-2 bg-white/10 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full" 
+                         style="width: 40%"></div>
                 </div>
             </div>
             
-            <div class="text-center">
-                <span class="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/30 to-pink-500/30 text-white font-bold">
-                    中性
-                </span>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-white/5 rounded-lg p-3">
+                    <div class="text-xs text-white/50 mb-1">筹码结构</div>
+                    <div class="text-sm text-white/80">筹码结构一般，需观察量价配合</div>
+                </div>
+                <div class="bg-white/5 rounded-lg p-3">
+                    <div class="text-xs text-white/50 mb-1">持续性</div>
+                    <div class="text-sm text-white/80">75分</div>
+                </div>
             </div>
             
-            <div class="mt-6 space-y-3">
-                <div class="flex items-center justify-between text-sm">
-                    <span class="text-white/60">技术面权重</span>
-                    <span class="text-white">70%</span>
-                </div>
-                <div class="flex items-center justify-between text-sm">
-                    <span class="text-white/60">基本面权重</span>
-                    <span class="text-white">30%</span>
-                </div>
+            <div class="bg-white/5 rounded-lg p-3 mb-3">
+                <div class="text-xs text-white/50 mb-1">题材催化强度</div>
+                <div class="text-sm text-white/80">中强催化 - 有一定题材加持</div>
+            </div>
+            
+            <div class="flex items-center justify-between bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3">
+                <span class="text-sm text-white/70">风险收益比</span>
+                <span class="text-xl font-bold text-cyan-400">1 : 1.3</span>
             </div>
         </div>
         
                     
-        <div class="glass-card rounded-xl p-6 mb-6">
-            <h3 class="text-lg font-bold text-white mb-4 flex items-center">
-                <span class="text-xl mr-2">🎯</span>
-                支撑压力位分析
-            </h3>
+        <div class="glass-card rounded-2xl p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span>😊</span> 消息面情绪
+                    <span class="text-xs font-normal text-white/40 bg-white/10 px-2 py-0.5 rounded-full">Stock Analysis Skill</span>
+                </h2>
+                <span class="text-sm font-bold text-yellow-400">中性</span>
+            </div>
             
-            <div class="grid grid-cols-2 gap-6">
-                <div class="text-center">
-                    <div class="text-white/60 text-sm mb-1">压力位</div>
-                    <div class="text-2xl font-bold text-red-400">52.01</div>
-                    <div class="text-white/50 text-xs mt-1">距当前 +0.23%</div>
+            <!-- 情绪分数仪表 -->
+            <div class="mb-4">
+                <div class="flex justify-between text-sm mb-1">
+                    <span class="text-red-400">悲观</span>
+                    <span class="text-2xl font-bold text-yellow-400">-1</span>
+                    <span class="text-green-400">乐观</span>
                 </div>
-                <div class="text-center">
-                    <div class="text-white/60 text-sm mb-1">支撑位</div>
-                    <div class="text-2xl font-bold text-green-400">51.56</div>
-    <!-- Skill增强分析模块 -->
-    <div class="mb-6">
-        <div class="text-white font-semibold text-lg mb-3 flex items-center gap-2">
-            <span>⚡</span> Skill 增强分析
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="h-3 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 rounded-full overflow-hidden relative">
+                    <div class="absolute top-0 bottom-0 w-1 bg-white shadow-lg" 
+                         style="left: 49.5%; transform: translateX(-50%);"></div>
+                </div>
+                <div class="flex justify-between text-xs text-white/40 mt-1">
+                    <span>-100</span>
+                    <span>0</span>
+                    <span>100</span>
+                </div>
+            </div>
             
-    <div class="bg-gradient-to-r from-orange-500/10 to-red-500/10 rounded-xl p-4 border border-orange-500/20">
-        <div class="flex items-center gap-2 mb-3">
-            <span class="text-xl">📉</span>
-            <span class="text-white font-semibold">缺口分析</span>
-            <span class="text-white/50 text-xs px-2 py-0.5 bg-white/10 rounded-full">stock-analysis Skill</span>
-        </div>
-    <div class="space-y-2">
-                <div class="bg-white/5 rounded-lg p-3 border border-white/10">
-                    <div class="flex justify-between items-center">
-                        <span class="text-red-400 font-medium text-sm">向下缺口</span>
-                        <span class="text-white/50 text-xs">2026-06-20</span>
+            <p class="text-sm text-white/70 mb-4">近期无重大消息扰动，股价主要受技术面和板块情绪驱动</p>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                    <div class="text-xs text-green-400 mb-2 flex items-center gap-1">
+                        <span>✓</span> 利好因素
                     </div>
-                    <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs">
-                        <span class="text-white/70">缺口: 98.81 ~ 105.94</span>
-                        <span class="text-white/70">幅度: 6.73%</span>
-                        <span class="text-yellow-400">压力位</span>
+                    <ul class="text-xs text-white/70 space-y-1">
+                        <li>无重大利好消息</li>
+                    </ul>
+                </div>
+                <div class="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                    <div class="text-xs text-red-400 mb-2 flex items-center gap-1">
+                        <span>✕</span> 利空因素
+                    </div>
+                    <ul class="text-xs text-white/70 space-y-1">
+                        <li>无重大利空消息</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+                    
+        <div class="glass-card rounded-2xl p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span>💡</span> 专业操作建议
+                    <span class="text-xs font-normal text-white/40 bg-white/10 px-2 py-0.5 rounded-full">超级分析师 Skill</span>
+                </h2>
+                <span class="text-lg font-bold text-yellow-400">持有观望</span>
+            </div>
+            
+            <p class="text-sm text-white/70 mb-4 pb-4 border-b border-white/10">综合评级：持有观望（50.0分）。多空平衡，风报比1.50，建议观望或轻仓试探。</p>
+            
+            <!-- 买卖区间 -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                    <div class="text-xs text-green-400 mb-1">买入区间</div>
+                    <div class="text-lg font-bold text-green-400">
+                        57.16 ~ 59.50
                     </div>
                 </div>
-            
-                <div class="bg-white/5 rounded-lg p-3 border border-white/10">
-                    <div class="flex justify-between items-center">
-                        <span class="text-green-400 font-medium text-sm">向上缺口</span>
-                        <span class="text-white/50 text-xs">2026-06-10</span>
-                    </div>
-                    <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs">
-                        <span class="text-white/70">缺口: 97.21 ~ 99.83</span>
-                        <span class="text-white/70">幅度: 2.7%</span>
-                        <span class="text-yellow-400">支撑位</span>
+                <div class="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                    <div class="text-xs text-red-400 mb-1">卖出区间</div>
+                    <div class="text-lg font-bold text-red-400">
+                        58.09 ~ 60.47
                     </div>
                 </div>
-            </div></div>
-            
-    <div class="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-xl p-4 border border-blue-500/20">
-        <div class="flex items-center gap-2 mb-3">
-            <span class="text-xl">📰</span>
-            <span class="text-white font-semibold">消息面情绪</span>
-            <span class="text-white/50 text-xs px-2 py-0.5 bg-white/10 rounded-full">stock-analysis Skill</span>
-        </div>
-        <div class="flex items-center gap-4 mb-3">
-            <div class="text-center">
-                <div class="text-2xl font-bold text-green-400">16.7</div>
-                <div class="text-white/50 text-xs">情绪得分</div>
             </div>
-            <div class="flex-1">
-                <div class="flex justify-between text-xs mb-1">
-                    <span class="text-green-400">正面 3</span>
-                    <span class="text-red-400">负面 2</span>
+            
+            <!-- 止损止盈 -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-white/5 rounded-lg p-3">
+                    <div class="text-xs text-white/50 mb-1">止损位</div>
+                    <div class="text-lg font-bold text-red-400">52.76</div>
                 </div>
-                <div class="h-2 bg-white/10 rounded-full overflow-hidden flex">
-                    <div class="bg-green-500" style="width: 50.0%"></div>
-                    <div class="bg-gray-500" style="width: 16.666666666666664%"></div>
-                    <div class="bg-red-500" style="width: 33.33333333333333%"></div>
-                </div>
-            </div>
-        </div>
-        <div class="bg-white/5 rounded-lg p-2 border border-white/10">
-            <div class="text-yellow-400 text-xs font-medium">🎯 开盘影响</div>
-            <div class="text-white/80 text-sm">平开为主，情绪中性</div>
-        </div>
-    </div>
-    
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-            
-    <div class="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl p-4 border border-emerald-500/20">
-        <div class="flex items-center gap-2 mb-3">
-            <span class="text-xl">💹</span>
-            <span class="text-white font-semibold">操作建议</span>
-            <span class="text-white/50 text-xs px-2 py-0.5 bg-white/10 rounded-full">stock-analysis Skill</span>
-        </div>
-        <div class="grid grid-cols-3 gap-2 mb-3">
-            <div class="text-center bg-white/5 rounded-lg p-2">
-                <div class="text-base font-bold text-emerald-400">持有</div>
-                <div class="text-white/50 text-xs">评级</div>
-            </div>
-            <div class="text-center bg-white/5 rounded-lg p-2">
-                <div class="text-base font-bold text-yellow-400">51.2</div>
-                <div class="text-white/50 text-xs">得分</div>
-            </div>
-            <div class="text-center bg-white/5 rounded-lg p-2">
-                <div class="text-base font-bold text-purple-400">1.04</div>
-                <div class="text-white/50 text-xs">盈亏比</div>
-            </div>
-        </div>
-        <div class="grid grid-cols-2 gap-2 text-xs">
-            <div class="bg-white/5 rounded-lg p-2">
-                <span class="text-green-400">✓ 买入：</span>
-                <span class="text-white/80">132.57-137.99</span>
-            </div>
-            <div class="bg-white/5 rounded-lg p-2">
-                <span class="text-red-400">✓ 卖出：</span>
-                <span class="text-white/80">165.66-172.42</span>
-            </div>
-        </div>
-        <div class="mt-2 bg-white/5 rounded-lg p-2 text-xs">
-            <span class="text-orange-400">🛡 止损：</span>
-            <span class="text-white/80">128.52元 (14.32%)</span>
-        </div>
-    </div>
-    
-            
-    <div class="bg-gradient-to-r from-violet-500/10 to-purple-500/10 rounded-xl p-4 border border-violet-500/20">
-        <div class="flex items-center gap-2 mb-3">
-            <span class="text-xl">🧠</span>
-            <span class="text-white font-semibold">超级分析师</span>
-            <span class="text-white/50 text-xs px-2 py-0.5 bg-white/10 rounded-full">super-analyst Skill</span>
-        </div>
-        <p class="text-white/70 text-xs mb-3">12套专业分析框架，7阶段系统化流程</p>
-        <div class="grid grid-cols-4 gap-1.5">
-            <div class="text-center bg-white/5 rounded-lg p-2">
-                <div class="text-lg">📊</div><div class="text-white/70 text-xs">SWOT</div>
-            </div>
-            <div class="text-center bg-white/5 rounded-lg p-2">
-                <div class="text-lg">⚔️</div><div class="text-white/70 text-xs">五力</div>
-            </div>
-            <div class="text-center bg-white/5 rounded-lg p-2">
-                <div class="text-lg">🔮</div><div class="text-white/70 text-xs">情景</div>
-            </div>
-            <div class="text-center bg-white/5 rounded-lg p-2">
-                <div class="text-lg">💡</div><div class="text-white/70 text-xs">第一性</div>
-            </div>
-        </div>
-    </div>
-    
-        </div>
-    </div>
-    
-                    <div class="text-white/50 text-xs mt-1">距当前 0.64%</div>
+                <div class="bg-white/5 rounded-lg p-3">
+                    <div class="text-xs text-white/50 mb-1">止盈位</div>
+                    <div class="text-lg font-bold text-green-400">67.36</div>
                 </div>
             </div>
             
-            <div class="mt-4 p-3 bg-white/5 rounded-xl">
-                <div class="text-white/60 text-xs mb-2">20日波动区间</div>
-                <div class="flex justify-between text-sm">
-                    <span class="text-red-400">最高 55.20</span>
-                    <span class="text-green-400">最低 46.14</span>
+            <!-- 仓位与周期 -->
+            <div class="bg-white/5 rounded-lg p-3 mb-4">
+                <div class="text-sm text-white/70 mb-2">建议仓位：15%-30%，轻仓试探，快进快出</div>
+                <div class="text-sm text-white/50">建议持仓周期：超短线（1-2天）或观望，不恋战</div>
+            </div>
+            
+            <!-- 风险与催化 -->
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <div class="text-xs text-white/50 mb-2">⚠️ 主要风险</div>
+                    <ul class="text-xs text-white/70 space-y-1">
+                        <li>整体风险可控，严格执行止损纪律即可</li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="text-xs text-white/50 mb-2">🚀 潜在催化</div>
+                    <ul class="text-xs text-white/70 space-y-1">
+                        <li>关注后续消息面和量能变化，寻找催化信号</li>
+                    </ul>
                 </div>
             </div>
         </div>
         
                 </div>
+            </div>
+            
+            <!-- 声明 -->
+            <div class="glass-card rounded-xl p-4 mt-6">
+                <p class="text-xs text-white/40 text-center">
+                    ⚠️ 风险提示：以上分析由AI基于公开数据生成，仅供参考，不构成投资建议。
+                    股市有风险，投资需谨慎。分析结果基于历史数据，不代表未来表现。
+                    整合分析能力来自：股票个股分析 Skill、竹石个股 Agent Skill、超级分析师 Skill。
+                </p>
             </div>
         </div>
         
         
         
         <div class="text-center text-white/40 text-sm py-10">
-            <p>投资研究中心 · 数据驱动决策</p>
-            <p class="text-xs mt-2">数据更新时间：2026年06月15日 17:28</p>
+            <p>投资研究中心 · 数据驱动决策 · Skill增强版</p>
+            <p class="text-xs mt-2">数据更新时间：2026年06月19日 20:19</p>
         </div>
         
     </div>
@@ -1258,6 +1429,7 @@
   </div>
 </div>
 
+    <script src="/daily-news-insight/assets/stock-popup.js"></script>
     
     <script>
         // ==================== 移动端菜单切换 ====================
@@ -1586,7 +1758,5 @@
         }
     </script>
         
-    <script src="/daily-news-insight/assets/stock-popup.js"></script>
-<script src="../js/stock-hover-card.js" defer></script>
 </body>
 </html>
