@@ -125,9 +125,8 @@ class StockDetailPageGeneratorV3:
         gap_html = self._render_gap_analysis(technical, price)
         sr_html = self._render_support_resistance(sr, price, price_color_class)
         
-        trader_html = self._render_trader(trader, trader_score)
         sentiment_html = self._render_sentiment(news, sentiment_score)
-        strategy_html = self._render_strategy(trader, price)
+        strategy_html = self._render_strategy(trader, price, overall, technical, news, fundamental)
         
         fund_html = self._render_fundamental(fundamental)
         themes_html = self._render_themes(themes, sector, business)
@@ -292,7 +291,6 @@ class StockDetailPageGeneratorV3:
             
             <!-- 右侧列 -->
             <div class="space-y-6">
-                {trader_html}
                 {sentiment_html}
                 {strategy_html}
             </div>
@@ -807,64 +805,141 @@ class StockDetailPageGeneratorV3:
             %s
         </div>''' % (sentiment_label, stats_html, news_html, impact_html)
 
-    def _render_strategy(self, trader: Dict, current_price: float) -> str:
-        """渲染操作策略"""
-        strategy = trader.get('strategy', {}) if trader else {}
+    def _render_strategy(self, trader: Dict, current_price: float, overall: Dict = None, technical: Dict = None, news: Dict = None, fundamental: Dict = None) -> str:
+        """渲染综合投资建议（基于三维评分）"""
+        if not overall:
+            return ''
         
-        if not strategy:
-            return f'''
+        total_score = overall.get('score', 50)
+        tech_score = overall.get('technical_score', 50)
+        news_score = overall.get('news_score', 50)
+        fund_score = overall.get('fundamental_score', 50)
+        
+        # 评级判断
+        if total_score >= 75:
+            rating = '强烈推荐'
+            rating_color = 'text-green-400'
+            suggestion = '业绩与技术面共振，可考虑积极配置'
+        elif total_score >= 65:
+            rating = '推荐'
+            rating_color = 'text-green-400'
+            suggestion = '整体向好，可逢低布局'
+        elif total_score >= 55:
+            rating = '中性偏多'
+            rating_color = 'text-yellow-400'
+            suggestion = '多空因素交织，建议谨慎参与'
+        elif total_score >= 45:
+            rating = '中性'
+            rating_color = 'text-yellow-400'
+            suggestion = '观望为主，等待明确信号'
+        else:
+            rating = '谨慎'
+            rating_color = 'text-red-400'
+            suggestion = '风险大于机会，建议规避'
+        
+        # 各维度简评
+        tech_comment = ''
+        if tech_score >= 70:
+            tech_comment = '技术面多头排列，趋势向上'
+        elif tech_score >= 50:
+            tech_comment = '技术面中性，震荡整理'
+        else:
+            tech_comment = '技术面偏弱，注意风险'
+        
+        news_comment = ''
+        if news_score >= 60:
+            news_comment = '消息面偏暖，催化剂较多'
+        elif news_score >= 40:
+            news_comment = '消息面中性，多空平衡'
+        else:
+            news_comment = '消息面偏空，注意风险'
+        
+        fund_comment = ''
+        if fund_score >= 70:
+            fund_comment = '基本面优秀，业绩靓丽'
+        elif fund_score >= 50:
+            fund_comment = '基本面一般，符合预期'
+        else:
+            fund_comment = '基本面偏弱，业绩承压'
+        
+        # 支撑压力位（从技术面数据获取）
+        support_levels = technical.get('support_levels', []) if technical else []
+        resistance_levels = technical.get('resistance_levels', []) if technical else []
+        
+        support_price = support_levels[0].get('price', '-') if support_levels else '-'
+        resistance_price = resistance_levels[0].get('price', '-') if resistance_levels else '-'
+        
+        # 风险提示
+        risk_items = []
+        if news_score < 40:
+            risk_items.append('消息面偏空')
+        if fund_score < 40:
+            risk_items.append('基本面欠佳')
+        if tech_score < 50:
+            risk_items.append('技术走弱')
+        
+        risk_text = '、'.join(risk_items) if risk_items else '整体可控'
+        
+        return '''
         <div class="glass-card rounded-2xl p-6 reveal">
             <div class="section-title">
                 <span>📋</span>
-                <span>操作策略</span>
-            </div>
-            <div class="text-center py-8 text-white/40">
-                暂无策略数据
-            </div>
-        </div>'''
-        
-        buy_point = strategy.get('buy_point', '-')
-        stop_loss = strategy.get('stop_loss', '-')
-        target_1 = strategy.get('target_price_1', '-')
-        target_2 = strategy.get('target_price_2', '-')
-        operation = strategy.get('operation', '')
-        position = strategy.get('position_suggestion', '')
-        
-        return f'''
-        <div class="glass-card rounded-2xl p-6 reveal">
-            <div class="section-title">
-                <span>📋</span>
-                <span>操作策略</span>
-                <span class="text-xs text-white/40 ml-2">专业建议</span>
+                <span>综合投资建议</span>
+                <span class="text-xs %s ml-2">%s</span>
             </div>
             
-            <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="strategy-card">
-                    <div class="text-xs text-green-400 mb-1">🎯 买点建议</div>
-                    <div class="text-sm text-white/80">{buy_point}</div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="p-3 bg-white/5 rounded-lg">
+                    <div class="text-xs text-white/50 mb-1">综合评分</div>
+                    <div class="text-xl font-bold %s">%.1f分</div>
+                    <div class="text-xs text-white/60 mt-1">%s</div>
                 </div>
-                <div class="strategy-card">
-                    <div class="text-xs text-red-400 mb-1">🛑 止损位</div>
-                    <div class="text-sm text-white/80">{stop_loss}</div>
-                </div>
-                <div class="strategy-card">
-                    <div class="text-xs text-amber-400 mb-1">🎯 第一目标</div>
-                    <div class="text-sm text-white/80">{target_1}</div>
-                </div>
-                <div class="strategy-card">
-                    <div class="text-xs text-purple-400 mb-1">🚀 第二目标</div>
-                    <div class="text-sm text-white/80">{target_2}</div>
+                <div class="p-3 bg-white/5 rounded-lg">
+                    <div class="text-xs text-white/50 mb-1">当前价格</div>
+                    <div class="text-xl font-bold text-white">%.2f</div>
+                    <div class="text-xs text-white/60 mt-1">建议仓位：适中</div>
                 </div>
             </div>
             
-            <div class="p-3 bg-white/5 rounded-xl">
-                <div class="text-sm font-medium text-white mb-2">💡 操作建议</div>
-                <div class="text-xs text-white/70 leading-relaxed">{operation}</div>
+            <div class="space-y-2 mb-4">
+                <div class="flex items-center text-sm">
+                    <span class="text-white/50 w-20">📈 技术面</span>
+                    <span class="text-white/80">%s</span>
+                </div>
+                <div class="flex items-center text-sm">
+                    <span class="text-white/50 w-20">📰 消息面</span>
+                    <span class="text-white/80">%s</span>
+                </div>
+                <div class="flex items-center text-sm">
+                    <span class="text-white/50 w-20">💰 基本面</span>
+                    <span class="text-white/80">%s</span>
+                </div>
             </div>
             
-            {position and f'<div class="mt-3 text-center text-sm text-cyan-400">{position}</div>' or ''}
-        </div>'''
-    
+            <div class="grid grid-cols-2 gap-3 pt-3 border-t border-white/10">
+                <div>
+                    <div class="text-xs text-white/50 mb-1">🔵 支撑位</div>
+                    <div class="text-sm font-medium text-green-400">%s</div>
+                </div>
+                <div>
+                    <div class="text-xs text-white/50 mb-1">🔴 压力位</div>
+                    <div class="text-sm font-medium text-red-400">%s</div>
+                </div>
+            </div>
+            
+            <div class="mt-4 p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                <div class="text-xs text-amber-400 mb-1">⚠️ 风险提示</div>
+                <div class="text-sm text-amber-200/80">%s</div>
+            </div>
+        </div>''' % (
+            rating_color, rating,
+            rating_color, total_score, suggestion,
+            current_price,
+            tech_comment, news_comment, fund_comment,
+            support_price, resistance_price,
+            risk_text
+        )
+
     def _render_fundamental(self, fundamental: Dict) -> str:
         """渲染基本面分析（适配新的基本面数据结构）"""
         if not fundamental:
