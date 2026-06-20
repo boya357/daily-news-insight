@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V4升级避坑指南 - 历史教训总览</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .header p { color: #94a3b8; font-size: 1rem; }
+        
+        .section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .section h2 {
+            font-size: 1.4rem;
+            color: #f1f5f9;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section h3 {
+            font-size: 1.1rem;
+            color: #e2e8f0;
+            margin: 20px 0 10px 0;
+        }
+
+        .red-alert {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid rgba(239, 68, 68, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .red-alert h3 { color: #f87171; margin-top: 0; }
+        .red-alert ul { list-style: none; padding: 0; }
+        .red-alert li {
+            color: #fca5a5;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+            line-height: 1.5;
+        }
+        .red-alert li:last-child { border-bottom: none; }
+        .red-alert strong { color: #f87171; }
+
+        .lesson-card {
+            background: rgba(251, 191, 36, 0.08);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .lesson-card h4 {
+            color: #fbbf24;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        .lesson-card p {
+            color: #d1d5db;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .lesson-card .time { color: #9ca3af; font-size: 0.8rem; }
+
+        .principle-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+        .principle-item {
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 10px;
+            padding: 14px;
+        }
+        .principle-item h4 {
+            color: #4ade80;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .principle-item p {
+            color: #9ca3af;
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 10px 0 10px 28px;
+            position: relative;
+            color: #d1d5db;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            line-height: 1.5;
+        }
+        .checklist li:before {
+            content: "☑️";
+            position: absolute;
+            left: 0;
+            top: 10px;
+        }
+        .checklist li:last-child { border-bottom: none; }
+
+        .phase-box {
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .phase-box h4 {
+            color: #818cf8;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        .phase-box .risk { color: #f87171; font-size: 0.82rem; margin-top: 8px; }
+        .phase-box .check { color: #4ade80; font-size: 0.82rem; margin-top: 4px; }
+
+        .footer {
+            text-align: center;
+            color: #64748b;
+            padding: 20px;
+            font-size: 0.85rem;
+            margin-top: 20px;
+        }
+
+        code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85em;
+            color: #fbbf24;
+        }
+
+        @media (max-width: 640px) {
+            .header h1 { font-size: 1.5rem; }
+            .section { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📕 V4 升级避坑指南</h1>
+            <p>历史教训总览 · 系统规则汇编 · 升级风险防控</p>
+            <p style="margin-top: 8px; font-size: 0.9rem;">最后更新：2026-06-20 | 适用范围：V3.5 Pro → V4 全流程</p>
+        </div>
+
+        <!-- 三大绝对禁令 -->
+        <div class="section">
+            <h2>⛔ 三大绝对禁令</h2>
+            <p style="color: #94a3b8; margin-bottom: 16px; font-size: 0.9rem;">碰了就翻车的红线，任何情况下都不能违反</p>
+            <div class="red-alert">
+                <ul>
+                    <li>
+                        <strong>1. 禁止覆盖列表页</strong><br/>
+                        <code>latest.html</code>、<code>index.html</code> 绝对禁止全量覆盖，必须「读取 → 插入 → 保存」
+                    </li>
+                    <li>
+                        <strong>2. 禁止自制模板</strong><br/>
+                        所有页面必须用Pro生成器或标准模板，不许从零写HTML，防止样式不统一
+                    </li>
+                    <li>
+                        <strong>3. 禁止虚假数据</strong><br/>
+                        价格数据必须查当日真实数据，非交易日不生成报告，数据必须双源验证
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 历史教训 -->
+        <div class="section">
+            <h2>💥 历史教训案例库</h2>
+            <p style="color: #94a3b8; margin-bottom: 16px; font-size: 0.9rem;">历次升级踩过的坑，绝不能再踩第二次</p>
+
+            <div class="lesson-card">
+                <h4>🎨 白卡白字惨案</h4>
+                <p><span class="time">2026-06-14</span> | <strong>现象：</strong>.card-glass 白色背景样式优先级过高，覆盖了头部深色样式，导致文字看不清<br/>
+                <strong>根因：</strong>CSS优先级处理不当，后加载的样式覆盖了前面的<br/>
+                <strong>教训：</strong>所有组件必须在深色主题下测试对比度，背景色和文字色必须有足够对比度</p>
+            </div>
+
+            <div class="lesson-card">
+                <h4>📋 列表页被报告覆盖事故</h4>
+                <p><span class="time">2026-06-16</span> | <strong>现象：</strong>日报生成器直接输出到 latest.html，把列表页覆盖成了报告页<br/>
+                <strong>根因：</strong>职责不清，报告生成器和列表页维护脚本写同一个文件<br/>
+                <strong>教训：</strong>报告输出必须用 <code>YYYYMMDD_报告名.html</code> 命名，列表页由独立脚本维护，严格职责分离</p>
+            </div>
+
+            <div class="lesson-card">
+                <h4>📊 指数代码混淆bug</h4>
+                <p><span class="time">2026-06-15</span> | <strong>现象：</strong>000001既是上证指数也是平安银行，没区分类型导致数据完全错误<br/>
+                <strong>根因：</strong>API调用时没有传入类型参数，默认按股票查询<br/>
+                <strong>教训：</strong>所有金融数据必须区分类型（指数/股票/基金），API调用必须显式传 type 参数</p>
+            </div>
+
+            <div class="lesson-card">
+                <h4>🔧 self.data_dir 缺失bug</h4>
+                <p><span class="time">2026-06-16</span> | <strong>现象：</strong>日报、盘后速递的题材模块不显示，数据为空<br/>
+                <strong>根因：</strong>基类 ProGenerator 不保存 data_dir 属性，子类 _load_data() 依赖该属性但未正确传递<br/>
+                <strong>教训：</strong>基类必须保留所有必要上下文，子类 super() 调用顺序要正确，参数传递要完整</p>
+            </div>
+
+            <div class="lesson-card">
+                <h4>🏗️ 推倒重来的陷阱</h4>
+                <p><strong>现象：</strong>每次升级都想从头重写，导致旧功能丢失、新bug不断<br/>
+                <strong>根因：</strong>追求完美主义，忽视了现有系统的稳定性和历史债务<br/>
+                <strong>教训：</strong>系统升级不是重构，旧版本模块不能少，必须在现有架构上渐进式迭代</p>
+            </div>
+
+            <div class="lesson-card">
+                <h4>🔄 Git合并冲突灾难</h4>
+                <p><strong>现象：</strong>使用 <code>git merge -X theirs</code> 自动解决冲突，导致页面残留 <code>&lt;&lt;&lt;&lt;</code> 冲突标记<br/>
+                <strong>根因：</strong>图省事用自动合并，不检查结果<br/>
+                <strong>教训：</strong>禁止自动合并策略，冲突必须手动解决，合并后必须检查文件内容</p>
+            </div>
+
+            <div class="lesson-card">
+                <h4>📱 移动端适配遗漏</h4>
+                <p><span class="time">2026-06-04</span> | <strong>现象：</strong>新功能在PC端正常，手机端样式错乱<br/>
+                <strong>根因：</strong>只测了PC端，忽略了移动端适配<br/>
+                <strong>教训：</strong>所有UI变更必须同时验证PC端和移动端，响应式是必选项</p>
+            </div>
+
+            <div class="lesson-card">
+                <h4>⚡ 先 build 后 render 顺序</h4>
+                <p><strong>现象：</strong>Pro报告生成空白页<br/>
+                <strong>根因：</strong>直接调用 render()，没有先调用 build_standard_report() 填充内容<br/>
+                <strong>教训：</strong>Pro生成器必须严格按「实例化 → build → render/publish」顺序调用</p>
+            </div>
+        </div>
+
+        <!-- 架构原则 -->
+        <div class="section">
+            <h2>✅ V4 升级必须遵守的架构原则</h2>
+            <p style="color: #94a3b8; margin-bottom: 16px; font-size: 0.9rem;">从历史教训中提炼的设计原则，贯穿整个升级过程</p>
+            <div class="principle-grid">
+                <div class="principle-item">
+                    <h4>渐进式升级</h4>
+                    <p>不推翻、不重构，逐个模块迁移。每个模块独立验证通过后再推进下一个</p>
+                </div>
+                <div class="principle-item">
+                    <h4>新老并行</h4>
+                    <p>旧版本继续可用，新功能先灰度验证。确认稳定后再逐步减少对旧版本的依赖</p>
+                </div>
+                <div class="principle-item">
+                    <h4>向下兼容</h4>
+                    <p>数据格式、API接口、文件命名必须兼容旧版，不能破坏现有工作流</p>
+                </div>
+                <div class="principle-item">
+                    <h4>质量优先</h4>
+                    <p>数据准确性 > 功能丰富度 > 视觉效果。速度让位于质量，不能为了快而出错</p>
+                </div>
+                <div class="principle-item">
+                    <h4>职责分离</h4>
+                    <p>数据层、内容层、展现层严格分离，各司其职。跨层调用必须通过明确的接口</p>
+                </div>
+                <div class="principle-item">
+                    <h4>可回滚</h4>
+                    <p>每次升级都必须有回滚方案。出问题时能在5分钟内恢复到升级前状态</p>
+                </div>
+                <div class="principle-item">
+                    <h4>测试先行</h4>
+                    <p>每个模块上线前必须经过：单元测试 → 集成测试 → 真实数据验证 → 灰度观察</p>
+                </div>
+                <div class="principle-item">
+                    <h4>文档同步</h4>
+                    <p>代码和文档同步更新。架构变更必须同步更新架构图和说明文档</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 各阶段风险与检查点 -->
+        <div class="section">
+            <h2>🎯 各阶段风险点与验收检查清单</h2>
+            <p style="color: #94a3b8; margin-bottom: 16px; font-size: 0.9rem;">每个阶段完成后必须逐项检查，全部通过才能进入下一阶段</p>
+
+            <div class="phase-box">
+                <h4>Phase 1: 摸底与规范化阶段</h4>
+                <div class="check">✅ 验收检查点：</div>
+                <ul class="checklist" style="margin-top: 8px;">
+                    <li>完整的系统架构图，各模块关系清晰</li>
+                    <li>代码库文档（DeepWiki）覆盖所有核心模块</li>
+                    <li>设计规范文档化，组件标准统一</li>
+                    <li>现有所有bug清单化，优先级明确</li>
+                </ul>
+                <div class="risk">⚠️ 主要风险：摸底不全面，遗漏边缘模块 → 后果：后续升级踩坑</div>
+            </div>
+
+            <div class="phase-box">
+                <h4>Phase 2: 数据层升级阶段</h4>
+                <div class="check">✅ 验收检查点：</div>
+                <ul class="checklist" style="margin-top: 8px;">
+                    <li>数据库Schema设计文档完整，字段定义清晰</li>
+                    <li>JSON → DB 迁移工具开发完成，数据100%准确</li>
+                    <li>旧的JSON文件读写仍然可用（向下兼容）</li>
+                    <li>数据访问层（DAL）封装完成，上层无感知</li>
+                    <li>数据一致性校验机制就位（双写校验）</li>
+                </ul>
+                <div class="risk">⚠️ 主要风险：数据迁移丢失/错误 → 后果：历史数据丢失，报告出错</div>
+                <div class="risk">⚠️ 主要风险：数据库性能不达标 → 后果：页面加载变慢，影响体验</div>
+            </div>
+
+            <div class="phase-box">
+                <h4>Phase 3: 内容引擎建设阶段</h4>
+                <div class="check">✅ 验收检查点：</div>
+                <ul class="checklist" style="margin-top: 8px;">
+                    <li>五大内容引擎（市场/股票/题材/持仓/催化）全部开发完成</li>
+                    <li>输出的结构化内容模型定义清晰，字段完整</li>
+                    <li>与现有分析结果做对比，准确率不低于现有水平</li>
+                    <li>内容质量评分系统就位</li>
+                    <li>Skill整合完成，数据源可追溯</li>
+                </ul>
+                <div class="risk">⚠️ 主要风险：分析口径不一致 → 后果：同一数据不同页面显示不同</div>
+                <div class="risk">⚠️ 主要风险：内容引擎质量不如旧版 → 后果：报告质量下降</div>
+            </div>
+
+            <div class="phase-box">
+                <h4>Phase 4: 展现层重构阶段</h4>
+                <div class="check">✅ 验收检查点：</div>
+                <ul class="checklist" style="margin-top: 8px;">
+                    <li>V4组件库完整，覆盖所有常用组件</li>
+                    <li>亮/暗主题切换正常，无白卡白字问题</li>
+                    <li>PC端和移动端响应式适配正常</li>
+                    <li>所有报告类型都有V4版本，功能不缺失</li>
+                    <li>导航栏、列表页、详情页跳转链路完整</li>
+                </ul>
+                <div class="risk">⚠️ 主要风险：样式不统一，白卡白字重现 → 后果：用户体验差</div>
+                <div class="risk">⚠️ 主要风险：旧功能在V4版中缺失 → 后果：功能退化</div>
+            </div>
+
+            <div class="phase-box">
+                <h4>Phase 5: 平滑迁移与收口阶段</h4>
+                <div class="check">✅ 验收检查点：</div>
+                <ul class="checklist" style="margin-top: 8px;">
+                    <li>所有日常报告切换到V4生成，结果验证通过</li>
+                    <li>每日自动更新流程适配V4</li>
+                    <li>企业微信推送链接正确，可访问</li>
+                    <li>旧版本归档，代码保留，但不再更新</li>
+                    <li>完整的V4系统文档就位</li>
+                </ul>
+                <div class="risk">⚠️ 主要风险：切换后出现重大bug → 后果：影响日常使用</div>
+                <div class="risk">⚠️ 主要风险：回滚方案失效 → 后果：出问题无法快速恢复</div>
+            </div>
+        </div>
+
+        <!-- 数据质量红线 -->
+        <div class="section">
+            <h2>🔴 数据质量红线</h2>
+            <p style="color: #94a3b8; margin-bottom: 16px; font-size: 0.9rem;">数据是系统的生命线，任何情况下不能突破这些底线</p>
+            <ul class="checklist">
+                <li>价格数据必须查当日最新，禁止使用历史数据填充</li>
+                <li>双数据源必须同步验证，不一致时取保守值并告警</li>
+                <li>指数和股票必须区分类型，代码不能混淆</li>
+                <li>非交易日不生成交易类报告（日报/盘中/盘后）</li>
+                <li>所有数据必须标注来源，传闻必须标注可信度</li>
+                <li>数据异常值必须二次验证（如涨跌幅超过±10%）</li>
+                <li>持仓数据必须与实际一致，4只持仓不能多也不能少</li>
+            </ul>
+        </div>
+
+        <!-- 上线前必查清单 -->
+        <div class="section" style="border-color: #4ade80;">
+            <h2>🚀 每次上线前必查清单</h2>
+            <p style="color: #94a3b8; margin-bottom: 16px; font-size: 0.9rem;">任何改动上线前，逐项打勾确认</p>
+            <ul class="checklist">
+                <li>白卡白字检查：所有页面没有浅色背景+浅色文字组合</li>
+                <li>导航栏检查：11个按钮完整，跳转正确，"周三前瞻"名称统一</li>
+                <li>列表页保护：latest.html / index.html 没有被全量覆盖</li>
+                <li>移动端适配：手机端浏览正常，没有横向滚动条</li>
+                <li>数据验证：关键数据（指数、持仓）与真实行情一致</li>
+                <li>链接检查：所有内部链接可正常跳转，没有404</li>
+                <li>Git状态：工作区干净，没有未提交的冲突文件</li>
+                <li>回滚方案：确认可以快速回退到上一版本</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>📌 本文档随系统升级持续更新，每次踩坑后必须补充记录</p>
+            <p style="margin-top: 8px;">记住：我们从错误中学习，但不要从自己的错误中学习——从历史错误中学习</p>
+        </div>
+    </div>
+</body>
+</html>
