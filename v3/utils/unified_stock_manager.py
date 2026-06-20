@@ -16,7 +16,7 @@ _current_dir = Path(__file__).resolve().parent
 sys.path.insert(0, str(_current_dir.parent))
 
 from analyzers.stock_analyzer import StockAnalyzer
-from generators.stock_analysis_page_v2 import generate_stock_page
+from generators.stock_detail_unified_v3 import generate_stock_detail
 
 
 class UnifiedStockManager:
@@ -152,7 +152,9 @@ class UnifiedStockManager:
         """生成个股分析详情页（Level 3 覆盖）"""
         try:
             output_path = str(self.pages_dir / f'{stock_name}.html')
-            generate_stock_page(stock_code, stock_name, output_path)
+            html = generate_stock_detail(stock_code, stock_name, str(self.data_dir), str(self.pages_dir))
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(html)
             
             # 更新股票列表
             data = self.load_stock_list()
