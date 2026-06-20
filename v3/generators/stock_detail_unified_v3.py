@@ -106,16 +106,20 @@ class StockDetailPageGeneratorV3:
         themes = data.get('themes', [])
         sr = technical.get('support_resistance', {}) if technical else {}
         
-        # 计算各维度分数
-        tech_score = self._calc_tech_score(technical)
-        trader_score = self._calc_trader_score(trader)
-        sentiment_score = self._calc_sentiment_score(news)
-        risk_reward = self._calc_risk_reward(technical, trader)
+        # 从数据中读取三维评分（来自 stock-analysis Skill + 消息面/基本面分析）
+        overall = data.get('overall', {})
+        tech_score = overall.get('technical_score', 0) or technical.get('score', 50) or 50
+        news_score = overall.get('news_score', 0) or news.get('sentiment_score', 50) or 50
+        fundamental_score = overall.get('fundamental_score', 0) or fundamental.get('score', 50) or 50
+        # 兼容旧字段
+        sentiment_score = news_score
+        trader_score = 50.0
+        risk_reward = 1.5
         
         # 渲染各模块
         head_html = self._render_header(name, code, sector, price, change_pct, change_amount, 
                                        total_score, total_rating, price_color, price_color_class,
-                                       tech_score, trader_score, sentiment_score, risk_reward)
+                                       tech_score, news_score, fundamental_score, trader_score, sentiment_score, risk_reward)
         
         tech_html = self._render_technical(technical, price_color_class)
         gap_html = self._render_gap_analysis(technical, price)
@@ -381,7 +385,7 @@ class StockDetailPageGeneratorV3:
     
     def _render_header(self, name, code, sector, price, change_pct, change_amount,
                       total_score, total_rating, price_color, price_color_class,
-                      tech_score, trader_score, sentiment_score, risk_reward):
+                      tech_score, news_score, fundamental_score, trader_score=50, sentiment_score=50, risk_reward=1.5):
         """渲染头部"""
         sign = '+' if change_pct >= 0 else ''
         score_color = get_score_color(total_score)
@@ -414,103 +418,131 @@ class StockDetailPageGeneratorV3:
                 </div>
             </div>
             
-            <div class="grid grid-cols-4 gap-3 pt-4 border-t border-white/10">
+            <div class="grid grid-cols-3 gap-3 pt-4 border-t border-white/10">
                 <div class="text-center">
                     <div class="text-xs text-white/50 mb-1">技术面</div>
                     <div class="text-lg font-semibold {get_score_color(tech_score)}">{tech_score:.0f}分</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-xs text-white/50 mb-1">游资视角</div>
-                    <div class="text-lg font-semibold {get_score_color(trader_score)}">{trader_score:.0f}分</div>
+                    <div class="text-xs text-white/50 mb-1">消息面</div>
+                    <div class="text-lg font-semibold {get_score_color(news_score)}">{news_score:.0f}分</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-xs text-white/50 mb-1">情绪面</div>
-                    <div class="text-lg font-semibold {get_score_color(sentiment_score)}">{sentiment_score:.0f}分</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-xs text-white/50 mb-1">风报比</div>
-                    <div class="text-lg font-semibold text-cyan-400">{risk_reward:.1f}</div>
+                    <div class="text-xs text-white/50 mb-1">基本面</div>
+                    <div class="text-lg font-semibold {get_score_color(fundamental_score)}">{fundamental_score:.0f}分</div>
                 </div>
             </div>
         </div>'''
     
     def _render_technical(self, technical: Dict, price_color_class: str) -> str:
-        """渲染技术面分析"""
+        """渲染技术面分析（适配 stock-analysis Skill 数据结构）"""
         if not technical:
             return ''
         
-        indicators = [
-            ('均线系统', 'ma', 'trend'),
-            ('MACD', 'macd', 'signal'),
-            ('RSI', 'rsi', 'signal'),
-            ('KDJ', 'kdj', 'signal'),
-            ('布林带', 'boll', 'signal'),
-            ('成交量', 'volume', 'signal'),
-        ]
+        tech_score = technical.get('score', 50) or 50
+        trend = technical.get('trend', {})
+        trend_desc = trend.get('description', '')
+        trend_dir = trend.get('direction', '')
+        
+        # 构建指标列表
+        indicators = []
+        
+        # 均线系统
+        ma5 = technical.get('ma5', '-')
+        ma10 = technical.get('ma10', '-')
+        ma20 = technical.get('ma20', '-')
+        if ma5 != '-' or ma10 != '-':
+            indicators.append({
+                'name': '均线系统',
+                'signal': trend_dir or '正常',
+                'detail': 'MA5: %s | MA10: %s | MA20: %s' % (ma5, ma10, ma20),
+                'score': tech_score
+            })
+        
+        # MACD
+        macd = technical.get('macd', {})
+        if macd:
+            dif = macd.get('dif', '-')
+            dea = macd.get('dea', '-')
+            macd_val = macd.get('macd', '-')
+            signal_list = macd.get('signal', [])
+            signal = signal_list[0] if signal_list else '正常'
+            indicators.append({
+                'name': 'MACD',
+                'signal': signal,
+                'detail': 'DIF: %s | DEA: %s | MACD: %s' % (dif, dea, macd_val),
+                'score': tech_score
+            })
+        
+        # RSI
+        rsi = technical.get('rsi', {})
+        if rsi:
+            rsi_val = rsi.get('value', '-')
+            signal = rsi.get('signal', '正常')
+            indicators.append({
+                'name': 'RSI',
+                'signal': signal,
+                'detail': 'RSI: %s' % rsi_val,
+                'score': tech_score
+            })
+        
+        # 成交量
+        volume = technical.get('volume', {})
+        if volume:
+            vol_ratio = volume.get('volume_ratio', '-')
+            signal = volume.get('signal', '正常')
+            vol_hands = volume.get('volume_hands', '-')
+            indicators.append({
+                'name': '成交量',
+                'signal': signal,
+                'detail': '量比: %s | 手数: %s' % (vol_ratio, vol_hands),
+                'score': tech_score
+            })
         
         items_html = ''
-        for name, key, signal_key in indicators:
-            ind = technical.get(key, {})
-            score = ind.get('score', 50) or 50
-            signal = ind.get(signal_key, '-') or '-'
-            
-            # 特殊处理
-            if key == 'ma':
-                ma5 = ind.get('ma5', '-')
-                ma10 = ind.get('ma10', '-')
-                detail = f'MA5: {ma5} | MA10: {ma10}'
-            elif key == 'macd':
-                dif = ind.get('dif', '-')
-                dea = ind.get('dea', '-')
-                detail = f'DIF: {dif} | DEA: {dea}'
-            elif key == 'rsi':
-                rsi_val = ind.get('rsi', '-')
-                detail = f'RSI: {rsi_val}'
-            elif key == 'kdj':
-                k = ind.get('k', '-')
-                d = ind.get('d', '-')
-                j = ind.get('j', '-')
-                detail = f'K: {k} | D: {d} | J: {j}'
-            elif key == 'boll':
-                upper = ind.get('upper', '-')
-                middle = ind.get('middle', '-')
-                lower = ind.get('lower', '-')
-                detail = f'上: {upper} | 中: {middle} | 下: {lower}'
-            elif key == 'volume':
-                vol_ratio = ind.get('vol_ratio', '-')
-                detail = f'量比: {vol_ratio}'
-            else:
-                detail = ''
-            
+        for ind in indicators:
+            score = ind['score']
             score_pct = min(max(float(score), 0), 100)
             bar_color = get_score_hex(float(score))
             
-            items_html += f'''
+            item_str = '''
                 <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
                     <div class="flex-1">
                         <div class="flex items-center justify-between mb-1">
-                            <span class="text-white/70 text-sm">{name}</span>
-                            <span class="text-xs text-white/50">{signal}</span>
+                            <span class="text-white/70 text-sm">%s</span>
+                            <span class="text-xs text-white/50">%s</span>
                         </div>
                         <div class="progress-bar">
-                            <div class="progress-fill" style="width: {score_pct}%; background: {bar_color};"></div>
+                            <div class="progress-fill" style="width: %s%%; background: %s;"></div>
                         </div>
-                        <div class="text-xs text-white/40 mt-1">{detail}</div>
+                        <div class="text-xs text-white/40 mt-1">%s</div>
                     </div>
                     <div class="ml-4 text-right w-12">
-                        <span class="text-sm font-semibold {get_score_color(float(score))}">{score}</span>
+                        <span class="text-sm font-semibold %s">%s</span>
                     </div>
-                </div>'''
+                </div>''' % (ind['name'], ind['signal'], score_pct, bar_color, ind['detail'], get_score_color(float(score)), score)
+            items_html += item_str
         
-        return f'''
+        # 趋势描述
+        trend_html = ''
+        if trend_desc:
+            trend_html = '''
+            <div class="mt-4 p-3 bg-white/5 rounded-lg">
+                <div class="text-sm text-white/70 mb-1">📈 趋势判断</div>
+                <div class="text-sm text-white/90">%s</div>
+            </div>''' % trend_desc
+        
+        return '''
         <div class="glass-card rounded-2xl p-6 reveal">
             <div class="section-title">
                 <span>📊</span>
                 <span>技术面分析</span>
+                <span class="text-xs text-white/40 ml-2">Stock Analysis Skill</span>
             </div>
-            {items_html}
-        </div>'''
-    
+            %s
+            %s
+        </div>''' % (items_html, trend_html)
+
     def _render_gap_analysis(self, technical: Dict, current_price: float) -> str:
         """渲染缺口分析"""
         # 由于没有K线数据，展示简化版本或基于支撑压力位的分析
@@ -694,69 +726,87 @@ class StockDetailPageGeneratorV3:
         </div>'''
     
     def _render_sentiment(self, news: Dict, sentiment_score: float) -> str:
-        """渲染消息面情绪"""
-        news_list = news.get('list', []) if news else []
+        """渲染消息面情绪（适配新的消息分析数据结构）"""
+        if not news:
+            return ''
         
-        if not news_list:
-            return f'''
-        <div class="glass-card rounded-2xl p-6 reveal">
-            <div class="section-title">
-                <span>📰</span>
-                <span>消息面情绪</span>
-            </div>
-            <div class="text-center py-8 text-white/40">
-                暂无新闻数据
-            </div>
-        </div>'''
+        key_news = news.get('key_news', [])
+        if not key_news:
+            return ''
         
-        # 计算情绪分布
-        positive = sum(1 for n in news_list if n.get('sentiment') == 'positive')
-        negative = sum(1 for n in news_list if n.get('sentiment') == 'negative')
-        neutral = len(news_list) - positive - negative
+        sentiment_label = news.get('sentiment_label', '中性')
+        total_count = news.get('total_count', 0)
+        positive_count = news.get('positive_count', 0)
+        negative_count = news.get('negative_count', 0)
+        impact_assessment = news.get('impact_assessment', '')
         
+        # 新闻列表
         news_html = ''
-        for item in news_list[:4]:  # 最多显示4条
+        for item in key_news[:5]:
+            title = item.get('title', '')
+            source = item.get('source', '')
+            publish_time = item.get('publish_time', '')
             sentiment = item.get('sentiment', 'neutral')
+            
             if sentiment == 'positive':
                 sentiment_color = 'text-green-400'
-                sentiment_label = '利好'
+                sentiment_tag = '利好'
             elif sentiment == 'negative':
                 sentiment_color = 'text-red-400'
-                sentiment_label = '利空'
+                sentiment_tag = '利空'
             else:
-                sentiment_color = 'text-gray-400'
-                sentiment_label = '中性'
+                sentiment_color = 'text-yellow-400'
+                sentiment_tag = '中性'
             
-            news_html += f'''
-            <div class="news-item">
-                <div class="flex items-start gap-2">
-                    <span class="text-xs {sentiment_color} mt-0.5">[{sentiment_label}]</span>
-                    <div class="flex-1">
-                        <div class="text-sm text-white/80">{item.get('title', '')}</div>
-                        <div class="text-xs text-white/40 mt-1">{item.get('source', '')} · {item.get('time', '')}</div>
+            news_item = '''
+                <div class="py-3 border-b border-white/5 last:border-0">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="text-sm text-white/90 font-medium mb-1">%s</div>
+                            <div class="text-xs text-white/50">%s · %s</div>
+                        </div>
+                        <span class="text-xs px-2 py-1 rounded %s bg-white/10 ml-3 flex-shrink-0">%s</span>
                     </div>
-                </div>
-            </div>'''
+                </div>''' % (title, source, publish_time, sentiment_color, sentiment_tag)
+            news_html += news_item
         
-        return f'''
+        # 情绪统计
+        stats_html = '''
+            <div class="grid grid-cols-3 gap-2 mb-4 text-center">
+                <div class="p-2 bg-white/5 rounded-lg">
+                    <div class="text-lg font-bold text-white/80">%s</div>
+                    <div class="text-xs text-white/50">新闻总数</div>
+                </div>
+                <div class="p-2 bg-white/5 rounded-lg">
+                    <div class="text-lg font-bold text-green-400">%s</div>
+                    <div class="text-xs text-white/50">利好</div>
+                </div>
+                <div class="p-2 bg-white/5 rounded-lg">
+                    <div class="text-lg font-bold text-red-400">%s</div>
+                    <div class="text-xs text-white/50">利空</div>
+                </div>
+            </div>''' % (total_count, positive_count, negative_count)
+        
+        impact_html = ''
+        if impact_assessment:
+            impact_html = '''
+            <div class="mt-3 p-3 bg-white/5 rounded-lg">
+                <div class="text-xs text-white/50 mb-1">📝 消息面评估</div>
+                <div class="text-sm text-white/80">%s</div>
+            </div>''' % impact_assessment
+        
+        return '''
         <div class="glass-card rounded-2xl p-6 reveal">
             <div class="section-title">
                 <span>📰</span>
                 <span>消息面情绪</span>
-                <span class="text-xs text-white/40 ml-2">超级分析师</span>
+                <span class="text-xs text-white/40 ml-2">%s</span>
             </div>
-            
-            <div class="flex items-center gap-4 mb-4 p-3 bg-white/5 rounded-xl">
-                <div class="text-3xl font-bold {get_score_color(sentiment_score)}">{sentiment_score:.0f}</div>
-                <div class="flex-1">
-                    <div class="text-sm text-white/70">情绪综合评分</div>
-                    <div class="text-xs text-white/50">利好 {positive} 条 · 利空 {negative} 条 · 中性 {neutral} 条</div>
-                </div>
-            </div>
-            
-            {news_html}
-        </div>'''
-    
+            %s
+            %s
+            %s
+        </div>''' % (sentiment_label, stats_html, news_html, impact_html)
+
     def _render_strategy(self, trader: Dict, current_price: float) -> str:
         """渲染操作策略"""
         strategy = trader.get('strategy', {}) if trader else {}
@@ -816,62 +866,89 @@ class StockDetailPageGeneratorV3:
         </div>'''
     
     def _render_fundamental(self, fundamental: Dict) -> str:
-        """渲染基本面分析"""
+        """渲染基本面分析（适配新的基本面数据结构）"""
         if not fundamental:
             return ''
         
-        pe = fundamental.get('pe_ratio', '-')
-        pb = fundamental.get('pb_ratio', '-')
+        score = fundamental.get('score', 50) or 50
+        rating = fundamental.get('rating', '未知')
+        
+        pe_ttm = fundamental.get('pe_ttm', '-')
+        pe_static = fundamental.get('pe_static', '-')
+        pb = fundamental.get('pb', '-')
         market_cap = fundamental.get('market_cap', '-')
-        roe = fundamental.get('roe', '-')
-        eps = fundamental.get('eps', '-')
+        
+        revenue_growth = fundamental.get('revenue_growth', '-')
+        profit_growth = fundamental.get('profit_growth', '-')
         gross_margin = fundamental.get('gross_margin', '-')
         net_margin = fundamental.get('net_margin', '-')
-        summary = fundamental.get('summary', '')
-        score = fundamental.get('score', 50) or 50
+        roe = fundamental.get('roe', '-')
         
-        return f'''
+        target_price = fundamental.get('target_price', '-')
+        analyst_count = fundamental.get('analyst_count', 0)
+        analyst_rating = fundamental.get('analyst_rating', '')
+        
+        # 估值指标
+        valuation_items = []
+        if pe_ttm != '-':
+            valuation_items.append('<div><span class="text-white/70">PE(TTM):</span> <span class="text-white/90 font-medium">%s</span></div>' % pe_ttm)
+        if pe_static != '-':
+            valuation_items.append('<div><span class="text-white/70">PE(静态):</span> <span class="text-white/90 font-medium">%s</span></div>' % pe_static)
+        if pb != '-':
+            valuation_items.append('<div><span class="text-white/70">PB:</span> <span class="text-white/90 font-medium">%s</span></div>' % pb)
+        if market_cap != '-':
+            valuation_items.append('<div><span class="text-white/70">市值:</span> <span class="text-white/90 font-medium">%s</span></div>' % market_cap)
+        
+        valuation_html = ''
+        if valuation_items:
+            valuation_html = '<div class="grid grid-cols-2 gap-2 text-sm">' + ''.join(
+                '<div class="p-2 bg-white/5 rounded">%s</div>' % item for item in valuation_items
+            ) + '</div>'
+        
+        # 成长性指标
+        growth_items = []
+        if revenue_growth != '-':
+            rev_color = 'text-green-400' if isinstance(revenue_growth, (int, float)) and revenue_growth > 0 else 'text-red-400'
+            growth_items.append('<div><span class="text-white/70">营收增速:</span> <span class="%s font-medium">%s%%</span></div>' % (rev_color, revenue_growth))
+        if profit_growth != '-':
+            profit_color = 'text-green-400' if isinstance(profit_growth, (int, float)) and profit_growth > 0 else 'text-red-400'
+            growth_items.append('<div><span class="text-white/70">净利润增速:</span> <span class="%s font-medium">%s%%</span></div>' % (profit_color, profit_growth))
+        if gross_margin != '-':
+            growth_items.append('<div><span class="text-white/70">毛利率:</span> <span class="text-white/90 font-medium">%s</span></div>' % gross_margin)
+        if roe != '-':
+            growth_items.append('<div><span class="text-white/70">ROE:</span> <span class="text-white/90 font-medium">%s</span></div>' % roe)
+        
+        growth_html = ''
+        if growth_items:
+            growth_html = '<div class="grid grid-cols-2 gap-2 text-sm mt-3">' + ''.join(
+                '<div class="p-2 bg-white/5 rounded">%s</div>' % item for item in growth_items
+            ) + '</div>'
+        
+        # 机构评级
+        analyst_html = ''
+        if analyst_count > 0 or target_price != '-':
+            analyst_html = '''
+            <div class="mt-4 p-3 bg-white/5 rounded-lg">
+                <div class="text-sm text-white/70 mb-2">📊 机构评级</div>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-white/60">评级: %s</span>
+                    <span class="text-white/60">目标价: %s</span>
+                    <span class="text-white/60">分析师: %s人</span>
+                </div>
+            </div>''' % (analyst_rating or '暂无', target_price, analyst_count)
+        
+        return '''
         <div class="glass-card rounded-2xl p-6 reveal">
             <div class="section-title">
-                <span>📊</span>
+                <span>💰</span>
                 <span>基本面分析</span>
-                <span class="text-xs text-white/40 ml-2">综合评分 {score}分</span>
+                <span class="text-xs text-white/40 ml-2">%s · %s分</span>
             </div>
-            
-            <div class="grid grid-cols-3 md:grid-cols-6 gap-3 mb-4">
-                <div class="text-center p-2 bg-white/5 rounded-lg">
-                    <div class="text-xs text-white/50">PE</div>
-                    <div class="text-sm font-semibold text-white">{pe}</div>
-                </div>
-                <div class="text-center p-2 bg-white/5 rounded-lg">
-                    <div class="text-xs text-white/50">PB</div>
-                    <div class="text-sm font-semibold text-white">{pb}</div>
-                </div>
-                <div class="text-center p-2 bg-white/5 rounded-lg">
-                    <div class="text-xs text-white/50">市值</div>
-                    <div class="text-sm font-semibold text-white">{market_cap}</div>
-                </div>
-                <div class="text-center p-2 bg-white/5 rounded-lg">
-                    <div class="text-xs text-white/50">ROE</div>
-                    <div class="text-sm font-semibold text-white">{roe}</div>
-                </div>
-                <div class="text-center p-2 bg-white/5 rounded-lg">
-                    <div class="text-xs text-white/50">EPS</div>
-                    <div class="text-sm font-semibold text-white">{eps}</div>
-                </div>
-                <div class="text-center p-2 bg-white/5 rounded-lg">
-                    <div class="text-xs text-white/50">毛利率</div>
-                    <div class="text-sm font-semibold text-white">{gross_margin}</div>
-                </div>
-            </div>
-            
-            {summary and f'''
-            <div class="p-3 bg-white/5 rounded-xl">
-                <div class="text-sm font-medium text-white mb-2">📝 基本面摘要</div>
-                <div class="text-xs text-white/70 leading-relaxed">{summary}</div>
-            </div>''' or ''}
-        </div>'''
-    
+            %s
+            %s
+            %s
+        </div>''' % (rating, score, valuation_html, growth_html, analyst_html)
+
     def _render_themes(self, themes: List[str], sector: str, business: str) -> str:
         """渲染题材概念"""
         if not themes and not sector and not business:
