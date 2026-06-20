@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepWiki - 投资研究系统深度文档</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e4e4e7;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+        .header .subtitle {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px 24px;
+            text-align: center;
+        }
+        .stat-item .number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #60a5fa;
+        }
+        .stat-item .label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        .chapters {
+            display: grid;
+            gap: 20px;
+        }
+        .chapter-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .chapter-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(96, 165, 250, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        .chapter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .chapter-number {
+            font-size: 0.85rem;
+            color: #60a5fa;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .chapter-size {
+            font-size: 0.8rem;
+            color: #64748b;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+        .chapter-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #f1f5f9;
+        }
+        .chapter-desc {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .chapter-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .tag {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: rgba(96, 165, 250, 0.1);
+            color: #60a5fa;
+            border: 1px solid rgba(96, 165, 250, 0.2);
+        }
+        .tag.purple {
+            background: rgba(167, 139, 250, 0.1);
+            color: #a78bfa;
+            border-color: rgba(167, 139, 250, 0.2);
+        }
+        .tag.green {
+            background: rgba(52, 211, 153, 0.1);
+            color: #34d399;
+            border-color: rgba(52, 211, 153, 0.2);
+        }
+        .tag.orange {
+            background: rgba(251, 146, 60, 0.1);
+            color: #fb923c;
+            border-color: rgba(251, 146, 60, 0.2);
+        }
+        .tag.pink {
+            background: rgba(244, 114, 182, 0.1);
+            color: #f472b6;
+            border-color: rgba(244, 114, 182, 0.2);
+        }
+        .tag.cyan {
+            background: rgba(34, 211, 238, 0.1);
+            color: #22d3ee;
+            border-color: rgba(34, 211, 238, 0.2);
+        }
+        .tag.rose {
+            background: rgba(251, 113, 133, 0.1);
+            color: #fb7185;
+            border-color: rgba(251, 113, 133, 0.2);
+        }
+        .features {
+            margin-top: 50px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #e2e8f0;
+        }
+        .feature-desc {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            .stats {
+                gap: 12px;
+            }
+            .stat-item {
+                padding: 12px 16px;
+            }
+            .stat-item .number {
+                font-size: 1.4rem;
+            }
+            .chapter-card {
+                padding: 20px;
+            }
+            .chapter-title {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 DeepWiki</h1>
+            <p class="subtitle">投资研究系统 · 深度技术文档</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="number">7</div>
+                    <div class="label">完整章节</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">12,700+</div>
+                    <div class="label">文档行数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">50+</div>
+                    <div class="label">二级主题</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">200+</div>
+                    <div class="label">三级子主题</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chapters">
+            <a href="chapter_01_architecture_overview_full.md" class="chapter-card">
+                <div class="chapter-header">
+                    <span class="chapter-number">第 1 章</span>
+                    <span class="chapter-size">1,838 行</span>
+                </div>
+                <h2 class="chapter-title">系统架构总览</h2>
+                <p class="chapter-desc">从宏观视角理解系统定位、演进历程与五层架构全景，建立整体认知框架。</p>
+                <div class="chapter-tags">
+                    <span class="tag">架构演进</span>
+                    <span class="tag">五层架构</span>
+                    <span class="tag">技术栈</span>
+                    <span class="tag">设计原则</span>
+                </div>
+            </a>
+
+            <a href="chapter_02_core_engine_full.md" class="chapter-card">
+                <div class="chapter-header">
+                    <span class="chapter-number">第 2 章</span>
+                    <span class="chapter-size">1,900 行</span>
+                </div>
+                <h2 class="chapter-title">核心引擎层</h2>
+                <p class="chapter-desc">系统的大脑，深入剖析调度、分析、选股、风控、催化七大核心引擎。</p>
+                <div class="chapter-tags">
+                    <span class="tag purple">调度引擎</span>
+                    <span class="tag green">选股引擎</span>
+                    <span class="tag orange">风控引擎</span>
+                    <span class="tag pink">催化分析</span>
+                </div>
+            </a>
+
+            <a href="chapter_03_generators_full.md" class="chapter-card">
+                <div class="chapter-header">
+                    <span class="chapter-number">第 3 章</span>
+                    <span class="chapter-size">1,592 行</span>
+                </div>
+                <h2 class="chapter-title">生成器体系</h2>
+                <p class="chapter-desc">内容生产工厂，从数据到HTML的完整渲染管道与三代生成器演进。</p>
+                <div class="chapter-tags">
+                    <span class="tag cyan">三级继承</span>
+                    <span class="tag">盘后速递</span>
+                    <span class="tag">日报生成</span>
+                    <span class="tag">列表页</span>
+                </div>
+            </a>
+
+            <a href="chapter_04_components_full.md" class="chapter-card">
+                <div class="chapter-header">
+                    <span class="chapter-number">第 4 章</span>
+                    <span class="chapter-size">2,814 行</span>
+                </div>
+                <h2 class="chapter-title">组件库系统</h2>
+                <p class="chapter-desc">Pro版UI基石，九大组件分类、双主题系统、组件渲染机制深度解析。</p>
+                <div class="chapter-tags">
+                    <span class="tag rose">玻璃态UI</span>
+                    <span class="tag">数据组件</span>
+                    <span class="tag">图表组件</span>
+                    <span class="tag">主题系统</span>
+                </div>
+            </a>
+
+            <a href="chapter_05_data_layer_full.md" class="chapter-card">
+                <div class="chapter-header">
+                    <span class="chapter-number">第 5 章</span>
+                    <span class="chapter-size">1,400 行</span>
+                </div>
+                <h2 class="chapter-title">数据层</h2>
+                <p class="chapter-desc">系统数据源底座，多源数据接入、清洗、统一管理的完整体系。</p>
+                <div class="chapter-tags">
+                    <span class="tag green">行情数据</span>
+                    <span class="tag">股票管理</span>
+                    <span class="tag">数据质量</span>
+                    <span class="tag">统一加载</span>
+                </div>
+            </a>
+
+            <a href="chapter_06_content_engine_full.md" class="chapter-card">
+                <div class="chapter-header">
+                    <span class="chapter-number">第 6 章</span>
+                    <span class="chapter-size">1,937 行</span>
+                </div>
+                <h2 class="chapter-title">内容分析引擎</h2>
+                <p class="chapter-desc">智能分析的大脑，持仓、市场、新闻、题材四大分析引擎详解。</p>
+                <div class="chapter-tags">
+                    <span class="tag pink">持仓分析</span>
+                    <span class="tag orange">情绪研判</span>
+                    <span class="tag purple">题材生命周期</span>
+                    <span class="tag">质量评估</span>
+                </div>
+            </a>
+
+            <a href="chapter_07_devops_full.md" class="chapter-card">
+                <div class="chapter-header">
+                    <span class="chapter-number">第 7 章</span>
+                    <span class="chapter-size">1,263 行</span>
+                </div>
+                <h2 class="chapter-title">工具与运维体系</h2>
+                <p class="chapter-desc">系统运行保障，开发、测试、部署、监控的全链路工具链。</p>
+                <div class="chapter-tags">
+                    <span class="tag cyan">CI/CD</span>
+                    <span class="tag green">监控告警</span>
+                    <span class="tag">性能优化</span>
+                    <span class="tag rose">安全管理</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-title">深度优先</div>
+                <div class="feature-desc">不仅讲是什么，更讲为什么这么设计</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🖼️</div>
+                <div class="feature-title">图文并茂</div>
+                <div class="feature-desc">架构图、流程图、表格可视化复杂概念</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💻</div>
+                <div class="feature-title">代码佐证</div>
+                <div class="feature-desc">100+真实代码片段，可直接对应源码</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📐</div>
+                <div class="feature-title">结构化</div>
+                <div class="feature-desc">统一的四层分析结构，阅读效率最大化</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>💡 本文档由 AI 基于系统代码库自动生成 · 持续更新中</p>
+            <p style="margin-top: 8px;">最后更新：2026-06-20</p>
+        </div>
+    </div>
+</body>
+</html>
