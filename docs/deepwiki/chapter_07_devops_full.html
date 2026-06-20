@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第7章 工具与运维体系 - 质量保证与工程化</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e4e4e7;
+            padding: 40px 20px;
+            line-height: 1.8;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 40px;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #f1f5f9;
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+            font-weight: 600;
+        }
+        h1 { font-size: 2rem; border-bottom: 2px solid rgba(96, 165, 250, 0.3); padding-bottom: 12px; }
+        h2 { font-size: 1.5rem; border-left: 4px solid #60a5fa; padding-left: 16px; }
+        h3 { font-size: 1.25rem; color: #a78bfa; }
+        p { margin-bottom: 1em; color: #cbd5e1; }
+        ul, ol { margin: 1em 0; padding-left: 2em; }
+        li { margin-bottom: 0.5em; color: #cbd5e1; }
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.9em;
+            color: #34d399;
+        }
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 1.5em 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        pre code {
+            background: none;
+            padding: 0;
+            color: #e2e8f0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5em 0;
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        th {
+            background: rgba(96, 165, 250, 0.1);
+            color: #60a5fa;
+            font-weight: 600;
+        }
+        blockquote {
+            border-left: 4px solid #f472b6;
+            padding-left: 16px;
+            margin: 1.5em 0;
+            color: #94a3b8;
+            font-style: italic;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 2em 0;
+        }
+        a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 24px;
+            color: #60a5fa;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 640px) {
+            body { padding: 20px 10px; }
+            .container { padding: 20px; }
+            h1 { font-size: 1.5rem; }
+            h2 { font-size: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-btn">← 返回目录</a>
+        <article class="markdown-body">
+<h1>第7章 工具与运维体系 - 质量保证与工程化</h1>
+
+<blockquote>本章深入解析 DeepWiki V3.0 的质量保障体系与工程化实践，从三层验证架构到工作流引擎，从列表页更新机制到部署发布体系，全方位展示一个成熟静态站点生成系统的运维工具箱。</blockquote>
+
+<hr>
+
+<h2>7.1 验证器体系：三层验证架构</h2>
+
+<h3>7.1.1 功能定位</h3>
+
+DeepWiki V3.0 采用<strong>三层验证架构</strong>，从结构、链接到内容层层把关，确保生成页面的质量一致性。这一体系的设计目标是：
+
+- <strong>结构完整性</strong>：确保每个页面都有标准的导航、页脚、响应式布局
+- <strong>链接正确性</strong>：根治历史遗留的大小写不一致、路径错误等问题
+- <strong>内容规范性</strong>：检测模板占位符残留、废弃目录引用等问题
+- <strong>自动化</strong>：将校验嵌入发布工作流，实现"发布即校验"
+
+<h3>7.1.2 核心实现</h3>
+
+三层验证架构由三个独立的校验器组成，各司其职又协同工作：
+
+<pre><code class="lang-">
+┌─────────────────────────────────────────────────────────┐
+│                     发布工作流                            │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│               第一层：结构校验器 (Structure)                │
+│  - 基础HTML结构检查（DOCTYPE/head/body）                  │
+│  - 导航栏完整性检查（11个导航项）                          │
+│  - 移动端菜单检查                                         │
+│  - Tailwind CSS加载检查                                   │
+│  - 内容区域间距检查                                       │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│               第二层：链接校验器 (Link)                     │
+│  - 导航链接路径正确性                                      │
+│  - 大小写一致性（S级催化 vs s级催化）                       │
+│  - 内部链接格式规范                                        │
+│  - 本地文件存在性检查                                      │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│               第三层：内容校验器 (Content)                  │
+│  - 标题完整性检查（title/h1）                              │
+│  - 废弃目录链接检测                                        │
+│  - 模板占位符残留检测                                      │
+└─────────────────────────────────────────────────────────┘
+<pre><code class="lang-">
+
+<strong>统一调用入口</strong>：
+
+<pre><code class="lang-python">
+<h1>workflow.py 中的校验流程</h1>
+def _validate_report(self, filepath: str) -> bool:
+    """校验报告完整性"""
+    with open(filepath, 'r', encoding='utf-8') as f:
+        html = f.read()
+    
+    # 结构校验
+    struct_errors = StructureValidator.validate(html)
+    
+    # 链接校验
+    link_errors = LinkValidator.validate(html)
+    
+    # 文件链接校验（深度检查）
+    file_link_errors = LinkValidator.check_file_links(filepath)
+    
+    # 内容校验
+    content_errors = ContentValidator.validate(html)
+    
+    return not any([struct_errors, link_errors, 
+                   file_link_errors, content_errors])
+<pre><code class="lang-">
+
+<h3>7.1.3 设计亮点</h3>
+
+<strong>1. 单一职责原则</strong>
+每个校验器只负责一个维度的检查，代码清晰、易于维护和扩展。新增校验规则时，只需在对应校验器中添加方法即可。
+
+<strong>2. 渐进式检查</strong>
+- 轻量检查（HTML文本解析）先执行，快速发现问题
+- 重量检查（文件系统遍历）后执行，避免不必要的IO操作
+- 校验失败不阻断发布，但给出明确警告，兼顾效率与安全
+
+<strong>3. 配置驱动</strong>
+导航项、废弃目录、受保护文件等都从 <code>core/config.py</code> 统一配置，避免硬编码分散在各处。
+
+<h3>7.1.4 注意事项</h3>
+
+- 校验器基于字符串匹配和正则表达式工作，不依赖重量级HTML解析库，部署轻量
+- 文件级链接检查需要处理相对路径和绝对路径的转换，注意基准目录的正确性
+- 新增页面模板时，需要同步更新校验规则（如新的布局类名）
+- 校验失败默认只警告不阻断，适合内容型站点；对于关键页面可配置为阻断模式
+
+<hr>
+
+<h2>7.2 结构校验器</h2>
+
+<h3>7.2.1 功能定位</h3>
+
+结构校验器 (<code>StructureValidator</code>) 是三层验证的<strong>第一道防线</strong>，负责检查页面的基础骨架是否完整。它确保每个生成的页面都符合站点的统一结构规范。
+
+<h3>7.2.2 核心实现</h3>
+
+<strong>校验入口</strong>：
+
+<pre><code class="lang-python">
+class StructureValidator:
+    """结构校验器"""
+    
+    @staticmethod
+    def validate(html: str) -> list:
+        """执行所有结构校验，返回错误列表"""
+        errors = []
+        errors.extend(StructureValidator._check_basic_structure(html))
+        errors.extend(StructureValidator._check_navbar(html))
+        errors.extend(StructureValidator._check_mobile_menu(html))
+        errors.extend(StructureValidator._check_tailwind(html))
+        errors.extend(StructureValidator._check_content_spacing(html))
+        return errors
+<pre><code class="lang-">
+
+<strong>1. 基础结构检查</strong>
+
+采用检查清单模式，逐项验证HTML基础结构：
+
+<pre><code class="lang-python">
+def _check_basic_structure(html: str) -> list:
+    errors = []
+    checks = [
+        ("<!DOCTYPE html>", "缺少DOCTYPE声明"),
+        ("<html", "缺少html标签"),
+        ("<head", "缺少head标签"),
+        ("<body", "缺少body标签"),
+        ("<meta charset", "缺少charset声明"),
+        ('<meta name="viewport"', "缺少viewport声明"),
+    ]
+    for pattern, msg in checks:
+        if pattern not in html:
+            errors.append(f"[结构] {msg}")
+    return errors
+<pre><code class="lang-">
+
+<strong>2. 导航栏完整性检查</strong>
+
+导航栏是站点的核心骨架，需要确保所有11个导航项都正确存在：
+
+<pre><code class="lang-python">
+def _check_navbar(html: str) -> list:
+    errors = []
+    
+    # 检查导航栏存在（通过glass-nav类检测）
+    if 'glass-nav' not in html:
+        errors.append("[结构] 缺少标准导航栏")
+        return errors
+    
+    # 检查是否包含所有预期的导航项
+    found_labels = []
+    for item in NAV_ITEMS:
+        if item["path"] in html:
+            found_labels.append(item["label"])
+    
+    if len(found_labels) < expected_count:
+        missing = [item["label"] for item in NAV_ITEMS 
+                   if item["label"] not in found_labels]
+        errors.append(f"[结构] 导航栏缺少{len(missing)}个链接: {', '.join(missing)}")
+    
+    # 检查玻璃态样式、z-index、站点名称等
+    if "backdrop-filter" not in html:
+        errors.append("[结构] 导航栏缺少玻璃态样式")
+    if "z-50" not in html:
+        errors.append("[结构] 导航栏z-index不正确")
+    if "投资研究中心" not in html:
+        errors.append("[结构] 导航栏缺少站点名称")
+    
+    return errors
+<pre><code class="lang-">
+
+<strong>3. 移动端菜单检查</strong>
+
+确保响应式设计的完整性：
+
+<pre><code class="lang-python">
+def _check_mobile_menu(html: str) -> list:
+    errors = []
+    checks = [
+        ('id="mobileMenu"', "缺少移动端菜单容器"),
+        ("toggleMobileMenu()", "缺少toggleMobileMenu函数"),
+        ("hamburger-btn", "缺少汉堡按钮"),
+        ("close-menu-btn", "缺少关闭按钮"),
+        ("mobile-menu-item", "缺少移动端菜单项"),
+    ]
+    for pattern, msg in checks:
+        if pattern not in html:
+            errors.append(f"[结构] {msg}")
+    
+    # 检查响应式断点
+    if "@media (max-width: 768px)" not in html:
+        errors.append("[结构] 缺少移动端响应式样式")
+    return errors
+<pre><code class="lang-">
+
+<h3>7.2.3 设计亮点</h3>
+
+<strong>1. 特征检测而非结构解析</strong>
+不使用 BeautifulSoup 等HTML解析器，而是通过关键类名、ID、函数名等"特征指纹"来检测结构。这种方式：
+- 部署零依赖
+- 对HTML格式容错性强
+- 执行速度极快
+
+<strong>2. 防御式检查</strong>
+对于导航栏检查，如果连 <code>glass-nav</code> 类都不存在，直接返回错误，不继续执行后续更细粒度的检查，避免无意义的匹配。
+
+<strong>3. 单一配置源</strong>
+导航项数据完全来自 <code>NAV_ITEMS</code> 配置，校验逻辑与业务数据解耦。新增导航项时，只需修改配置文件。
+
+<h3>7.2.4 注意事项</h3>
+
+- 字符串匹配方式对HTML格式变化敏感，如果模板重构导致类名变化，需要同步更新校验规则
+- <code>backdrop-filter</code> 属性可能在不同浏览器前缀下有不同写法，校验时需考虑兼容性
+- 对于动态渲染的内容（如JavaScript注入的导航），结构校验器无法检测，需要配合端到端测试
+
+<hr>
+
+<h2>7.3 链接校验器</h2>
+
+<h3>7.3.1 功能定位</h3>
+
+链接校验器 (<code>LinkValidator</code>) 是三层验证的<strong>第二层</strong>，专门解决链接正确性问题。它的诞生源于一个经典的历史遗留问题：<strong>S级催化 vs s级催化</strong> 大小写不一致导致的404错误。
+
+<h3>7.3.2 核心实现</h3>
+
+<strong>校验入口</strong>：
+
+<pre><code class="lang-python">
+class LinkValidator:
+    """链接校验器"""
+    
+    @staticmethod
+    def validate(html: str) -> list:
+        """执行所有链接校验"""
+        errors = []
+        errors.extend(LinkValidator._check_nav_links(html))
+        errors.extend(LinkValidator._check_case_sensitive(html))
+        errors.extend(LinkValidator._check_internal_links(html))
+        return errors
+<pre><code class="lang-">
+
+<strong>1. 导航链接检查</strong>
+
+验证导航栏中的链接路径是否与配置一致：
+
+<pre><code class="lang-python">
+def _check_nav_links(html: str) -> list:
+    errors = []
+    nav_start = html.find('<nav')
+    nav_end = html.find('</nav>', nav_start) if nav_start > 0 else 0
+    
+    if nav_start > 0 and nav_end > nav_start:
+        nav_section = html[nav_start:nav_end]
+        href_pattern = r'href="([^"]+)"'
+        all_hrefs = re.findall(href_pattern, nav_section)
+    
+    # 检查每个导航项的路径是否正确
+    for item in NAV_ITEMS:
+        expected_path = item["path"]
+        found = False
+        for link in nav_links:
+            if link == expected_path or link.endswith(expected_path):
+                found = True
+                break
+        if not found:
+            errors.append(f"[链接] 导航栏缺少'{item['label']}的正确链接: {expected_path}")
+    return errors
+<pre><code class="lang-">
+
+<strong>2. 大小写一致性检查</strong>
+
+针对历史遗留问题的专项检查：
+
+<pre><code class="lang-python">
+def _check_case_sensitive(html: str) -> list:
+    errors = []
+    # 查找所有包含"级催化"的路径
+    catalyst_pattern = re.findall(r'href="([^"]<em>级催化[^"]</em>)"', html)
+    
+    for link in catalyst_pattern:
+        # 检查是否包含大写S的情况
+        if "S级催化" in link and "s级催化" not in link:
+            if "s级催化扫描" in link.lower():
+                if "S级催化扫描" in link:
+                    errors.append(f"[链接] S级催化路径大小写不一致: {link} (应该是小写s)")
+    return errors
+<pre><code class="lang-">
+
+<strong>3. 文件级深度检查</strong>
+
+不仅检查HTML中的链接文本，还验证本地文件是否真实存在：
+
+<pre><code class="lang-python">
+@staticmethod
+def check_file_links(filepath: str) -> list:
+    """检查文件中的所有链接（文件级别的深度检查）"""
+    errors = []
+    with open(filepath, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # 提取所有链接
+    links = re.findall(r'href="([^"]+)"', content)
+    img_links = re.findall(r'src="([^"]+)"', content)
+    all_links = links + img_links
+    
+    import os
+    base_dir = os.path.dirname(filepath)
+    
+    for link in all_links:
+        if link.startswith('http') or link.startswith('#'):
+            continue
+        
+        # 处理相对路径的文件存在性检查
+        if link.startswith('../') or not link.startswith('/'):
+            target_path = os.path.normpath(os.path.join(base_dir, link))
+            if any(link.endswith(ext) for ext in 
+                   ['.html', '.css', '.js', '.png', '.jpg', '.svg']):
+                if not os.path.exists(target_path):
+                    errors.append(f"[链接] 本地文件不存在: {link} -> {target_path}")
+    return errors
+<pre><code class="lang-">
+
+<h3>7.3.3 设计亮点</h3>
+
+<strong>1. 问题驱动设计</strong>
+大小写检查不是凭空设计的，而是针对实际发生过的线上问题（S级催化目录大小写不一致）的专项治理。这体现了"从故障中学习"的工程文化。
+
+<strong>2. 分层检查策略</strong>
+- 文本层：检查HTML中的链接字符串格式
+- 文件层：检查链接指向的本地文件是否存在
+- 网络层：（可扩展）检查外部链接的可达性
+
+<strong>3. 白名单机制</strong>
+跳过 <code>http://</code>、<code>#</code>、<code>javascript:</code> 等不需要检查的链接类型，聚焦于内部链接。
+
+<h3>7.3.4 注意事项</h3>
+
+- 文件存在性检查只针对静态资源文件，对于动态路由或后端接口不适用
+- 大小写检查是"硬编码"的规则，对于其他可能的大小写问题需要逐一添加
+- 绝对路径（如 <code>/daily-news-insight/xxx</code>）的文件存在性检查需要知道项目根目录
+- 大量文件的深度检查可能较慢，建议只在CI/CD环境中执行全量检查
+
+<hr>
+
+<h2>7.4 内容校验器</h2>
+
+<h3>7.4.1 功能定位</h3>
+
+内容校验器 (<code>ContentValidator</code>) 是三层验证的<strong>第三层</strong>，负责检查页面内容的规范性。它不检查数据的业务正确性，而是确保内容的"格式健康"——没有模板残留、没有指向废弃目录的链接等。
+
+<h3>7.4.2 核心实现</h3>
+
+<strong>校验入口</strong>：
+
+<pre><code class="lang-python">
+class ContentValidator:
+    """内容校验器"""
+    
+    @staticmethod
+    def validate(html: str) -> list:
+        """执行所有内容校验"""
+        errors = []
+        errors.extend(ContentValidator._check_title(html))
+        errors.extend(ContentValidator._check_deprecated_links(html))
+        errors.extend(ContentValidator._check_template_placeholder(html))
+        return errors
+<pre><code class="lang-">
+
+<strong>1. 标题完整性检查</strong>
+
+确保页面有正确的标题层级：
+
+<pre><code class="lang-python">
+def _check_title(html: str) -> list:
+    errors = []
+    title_match = re.search(r"<title>(.*?)</title>", html)
+    if not title_match:
+        errors.append("[内容] 缺少title标签")
+    elif not title_match.group(1).strip():
+        errors.append("[内容] title标签为空")
+    
+    # 检查h1标题
+    if "<h1" not in html:
+        errors.append("[内容] 缺少h1标题")
+    return errors
+<pre><code class="lang-">
+
+<strong>2. 废弃目录链接检测</strong>
+
+检测是否还有页面引用了已经废弃的目录：
+
+<pre><code class="lang-python">
+def _check_deprecated_links(html: str) -> list:
+    errors = []
+    for dep_dir in DEPRECATED_DIRS:
+        if dep_dir in html:
+            errors.append(f"[内容] 包含指向已废弃目录的链接: {dep_dir}")
+    return errors
+<pre><code class="lang-">
+
+<strong>3. 模板占位符残留检测</strong>
+
+防止模板中的占位符文本被意外发布到线上：
+
+<pre><code class="lang-python">
+def _check_template_placeholder(html: str) -> list:
+    errors = []
+    placeholders = [
+        "{{title}}",
+        "{{content}}",
+        "Lorem ipsum",
+        "占位符",
+        "template",
+        "TODO",
+    ]
+    
+    # 移除HTML标签，只检查文本内容
+    text_only = re.sub(r'<[^>]+>', '', html)
+    
+    for ph in placeholders:
+        if ph.lower() in text_only.lower():
+            errors.append(f"[内容] 可能包含模板占位符: '{ph}'")
+    return errors
+<pre><code class="lang-">
+
+<h3>7.4.3 设计亮点</h3>
+
+<strong>1. 文本提取技术</strong>
+检查占位符时，先通过 <code>re.sub(r'<[^>]+>', '', html)</code> 移除HTML标签，只检查纯文本内容。这样可以避免误报——比如 <code>class="template"</code> 这样的HTML属性不会被误判为模板占位符。
+
+<strong>2. 大小写不敏感匹配</strong>
+使用 <code>.lower()</code> 进行不区分大小写的匹配，提高检测覆盖率。
+
+<strong>3. 配置驱动的废弃目录清单</strong>
+<code>DEPRECATED_DIRS</code> 统一维护在配置文件中，新增废弃目录时只需修改配置。
+
+<h3>7.4.4 注意事项</h3>
+
+- 占位符检测可能产生误报，比如内容中真的包含 "TODO" 字样（这在技术文章中很常见）
+- 标题检查只验证存在性，不验证标题的文案质量
+- 废弃目录检测是精确字符串匹配，对于变体形式（如加了前后缀）可能漏检
+- 建议将内容校验的严重级别设为"警告"而非"错误"，避免误报阻断发布
+
+<hr>
+
+<h2>7.5 工作流引擎</h2>
+
+<h3>7.5.1 功能定位</h3>
+
+工作流引擎 (<code>ReportPublisher</code>) 是 DeepWiki V3.0 的<strong>发布中枢</strong>。它将报告生成、归档、校验、列表更新、Git部署等环节串联成一条自动化流水线，实现"一键发布"。
+
+<h3>7.5.2 核心实现</h3>
+
+<strong>发布流水线</strong>：
+
+<pre><code class="lang-mermaid">
+flowchart LR
+    A[报告生成] --> B[类型验证]
+    B --> C[自动命名]
+    C --> D[文件归档]
+    D --> E[三层校验]
+    E --> F{校验通过?}
+    F -->|是| G[更新列表页]
+    F -->|否| H[警告但继续]
+    H --> G
+    G --> I[Git部署]
+    I --> J[发布完成]
+<pre><code class="lang-">
+
+<strong>核心类结构</strong>：
+
+<pre><code class="lang-python">
+class ReportPublisher:
+    """报告发布器 - 一站式完成：归档 → 更新列表 → 校验 → 部署"""
+    
+    def __init__(self, docs_root: str = "docs"):
+        self.git_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.docs_root = os.path.join(self.git_root, docs_root)
+    
+    def publish(self, html_content: str, title: str, report_type: str,
+                filename: str = None, excerpt: str = None, 
+                auto_deploy: bool = True) -> dict:
+        """完整发布流程"""
+        result = {
+            "success": False, "filepath": None,
+            "list_updated": False, "validated": False,
+            "deployed": False, "errors": []
+        }
+        
+        # 1. 验证报告类型
+        if report_type not in REPORT_TYPES:
+            result["errors"].append(f"未知的报告类型: {report_type}")
+            return result
+        
+        # 2. 自动生成文件名
+        if not filename:
+            date_str = datetime.now().strftime("%Y%m%d")
+            safe_title = self._make_safe_filename(title)
+            filename = f"{date_str}_{safe_title}.html"
+        
+        # 3. 归档报告（含安全检查）
+        target_dir = os.path.join(self.docs_root, type_info.get("dir", ""))
+        filepath = os.path.join(target_dir, filename)
+        
+        if self._is_protected(filename):
+            result["errors"].append(f"不能覆盖受保护文件: {filename}")
+            return result
+        
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+        
+        result["filepath"] = filepath
+        
+        # 4. 校验报告
+        result["validated"] = self._validate_report(filepath)
+        
+        # 5. 更新列表页
+        result["list_updated"] = self._update_list_page(
+            report_type=report_type, title=title,
+            date=datetime.now().strftime("%Y-%m-%d"),
+            url=filename, excerpt=excerpt
+        )
+        
+        # 6. Git部署
+        if auto_deploy:
+            result["deployed"] = self._git_deploy(
+                f"新增{type_info.get('name', '')}报告: {title}"
+            )
+        
+        result["success"] = True
+        return result
+<pre><code class="lang-">
+
+<strong>安全机制 - 受保护文件</strong>：
+
+<pre><code class="lang-python">
+def _is_protected(self, filename: str) -> bool:
+    """检查是否是受保护文件"""
+    for protected in PROTECTED_FILES:
+        if protected.endswith(filename) or filename == protected:
+            return True
+    return False
+<pre><code class="lang-">
+
+<h3>7.5.3 设计亮点</h3>
+
+<strong>1. 结果对象模式</strong>
+<code>publish</code> 方法返回一个字典，包含每个环节的执行状态和错误信息。调用方可以清晰地知道哪个环节成功、哪个环节失败。
+
+<strong>2. 优雅降级</strong>
+校验失败不阻断发布，列表更新失败也不阻断部署。每个环节都是"尽力而为"，确保核心功能（报告发布）不受外围功能故障影响。
+
+<strong>3. 安全屏障</strong>
+<code>_is_protected</code> 方法防止意外覆盖 <code>index.html</code>、<code>latest.html</code> 等关键文件，这是从历史事故中总结出的保护机制。
+
+<strong>4. 自动命名</strong>
+从标题自动生成安全的文件名，处理特殊字符、限制长度，遵循 <code>日期_标题.html</code> 的命名规范。
+
+<h3>7.5.4 注意事项</h3>
+
+- Git部署依赖本地Git环境和SSH密钥配置，在容器环境中需要额外配置
+- <code>publish</code> 方法是同步执行的，对于大型报告生成可能需要异步化
+- 备份机制（<code>.bak</code> 文件）只保留最近一次，建议增加版本化备份
+- 并发发布时可能存在列表页更新冲突，需要考虑锁机制或队列化
+
+<hr>
+
+<h2>7.6 列表页更新机制</h2>
+
+<h3>7.6.1 功能定位</h3>
+
+列表页是内容型站点的<strong>导航空门</strong>，它的稳定性至关重要。DeepWiki V3.0 设计了一套"<strong>安全增量更新</strong>"机制，解决了历史上 <code>latest.html</code> 被意外覆盖、列表结构损坏等问题。
+
+<h3>7.6.2 核心实现</h3>
+
+<strong>标记位安全更新</strong>：
+
+列表页使用 <code><!-- LIST_START --></code> 和 <code><!-- LIST_END --></code> 两个标记位界定列表内容区域。更新操作只修改这两个标记之间的内容，确保页面其他部分（导航、页脚、样式等）不受影响。
+
+<pre><code class="lang-html">
+<div class="report-list">
+    <!-- LIST_START -->
+    <!-- 报告卡片插入到这里 -->
+    <!-- LIST_END -->
+</div>
+<pre><code class="lang-">
+
+<strong>增量插入逻辑</strong>：
+
+<pre><code class="lang-python">
+class ListPageGenerator:
+    """列表页生成器 - 安全增量更新机制"""
+    
+    LIST_START_MARKER = "<!-- LIST_START -->"
+    LIST_END_MARKER = "<!-- LIST_END -->"
+    
+    def insert_report(self, list_filepath: str, title: str, date: str, 
+                      url: str, excerpt: str = None, tag: str = None) -> bool:
+        """安全插入新报告（只修改标记位之间的内容）"""
+        
+        # 安全检查：只允许修改列表页文件
+        is_list_file = list_filepath.endswith("latest.html") or "/list_" in list_filepath
+        if not is_list_file:
+            for protected in PROTECTED_FILES:
+                if protected in list_filepath:
+                    print(f"[WARNING] Cannot modify protected file: {list_filepath}")
+                    return False
+        
+        # 读取原文件
+        with open(list_filepath, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # 检查标记位是否存在
+        if self.LIST_START_MARKER not in content:
+            print(f"[ERROR] List page missing markers")
+            return False
+        
+        # 生成新卡片
+        new_card = self._make_card_html(title, date, url, excerpt, tag)
+        
+        # 在 LIST_START 标记后插入新卡片（置顶）
+        start_pos = content.find(self.LIST_START_MARKER) + len(self.LIST_START_MARKER)
+        new_content = content[:start_pos] + "\n" + new_card + content[start_pos:]
+        
+        # 备份后写入
+        backup_path = list_filepath + ".bak"
+        with open(backup_path, 'w', encoding='utf-8') as f:
+            f.write(content)  # 备份原文件
+        
+        with open(list_filepath, 'w', encoding='utf-8') as f:
+            f.write(new_content)
+        
+        return True
+<pre><code class="lang-">
+
+<strong>卡片HTML结构</strong>：
+
+<pre><code class="lang-python">
+def _make_card_html(self, title: str, date: str, url: str, 
+                    excerpt: str = None, tag: str = None) -> str:
+    """生成报告卡片HTML"""
+    return f"""
+        <!-- REPORT_CARD_START -->
+        <a href="{url}" class="block bg-white/90 ...">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <h3 class="font-semibold text-gray-800 ...">{title}</h3>
+                    {excerpt_html}
+                </div>
+                {tag_html}
+            </div>
+            <p class="text-xs text-gray-400 mt-3">{date}</p>
+        </a>
+        <!-- REPORT_CARD_END -->
+"""
+<pre><code class="lang-">
+
+<strong>Pro版列表页全量生成</strong>：
+
+Pro版支持全量扫描目录生成列表页，适用于批量更新或初始化场景：
+
+<pre><code class="lang-python">
+class ListPageProGenerator(ProGenerator):
+    """列表页 - Pro版生成器"""
+    
+    def _scan_report_files(self):
+        """扫描目录下的报告文件"""
+        dir_path = self.docs_dir / self.channel_key
+        all_files = []
+        seen_files = set()
+        
+        for pattern in self.config['patterns']:
+            regex = re.compile(pattern)
+            for f in dir_path.iterdir():
+                if f.is_file() and regex.match(f.name) and f.name != 'latest.html':
+                    if f.name in seen_files:
+                        continue
+                    seen_files.add(f.name)
+                    # ... 提取日期、排序
+        all_files.sort(key=lambda x: x['date'], reverse=True)
+        return all_files
+<pre><code class="lang-">
+
+<strong>兼容性回退机制</strong>：
+
+当Pro版更新失败时，自动回退到兼容模式：
+
+<pre><code class="lang-python">
+def _update_list_page(self, report_type, title, date, url, excerpt):
+    """更新列表页（带降级机制）"""
+    # 尝试使用V3.0增量更新
+    try:
+        generator = ListPageGenerator(report_type)
+        success = generator.insert_report(...)
+        if success:
+            return True
+    except Exception as e:
+        print(f"⚠️  V3.0列表更新失败，尝试兼容模式: {e}")
+    
+    # 兼容模式：直接在列表开头插入卡片
+    return self._update_list_page_compat(...)
+<pre><code class="lang-">
+
+<h3>7.6.3 设计亮点</h3>
+
+<strong>1. 标记位原则</strong>
+这是列表页更新机制的核心设计思想——"<strong>只修改你该修改的地方</strong>"。通过明确的标记位界定操作范围，最大限度降低误操作风险。
+
+<strong>2. 防御性编程</strong>
+- 更新前检查文件是否为受保护文件
+- 更新前验证标记位是否存在
+- 更新前自动备份原文件
+- 失败时提供降级方案
+
+<strong>3. 双模式设计</strong>
+- 增量模式：日常单篇发布，高效快速
+- 全量模式：批量重建，确保完整性
+- 两种模式互为补充，兼顾效率和可靠性
+
+<strong>4. 卡片自描述</strong>
+每个卡片都有 <code><!-- REPORT_CARD_START --></code> 和 <code><!-- REPORT_CARD_END --></code> 标记，便于统计数量、批量删除等操作。
+
+<h3>7.6.4 注意事项</h3>
+
+- 标记位必须准确无误，如果模板修改导致标记位丢失，增量更新会失败
+- 增量更新是"头插法"，新报告永远在最前面，适用于按时间倒序的列表
+- 全量生成依赖文件名模式匹配，如果文件命名不规范会导致漏扫
+- 并发更新同一个列表页可能导致内容丢失，建议使用文件锁或队列
+- 备份文件（<code>.bak</code>）需要定期清理，避免占用过多空间
+
+<hr>
+
+<h2>7.7 部署与发布体系</h2>
+
+<h3>7.7.1 功能定位</h3>
+
+DeepWiki 采用 <strong>GitHub Pages + Git 工作流</strong> 的部署方案，整个发布过程自动化、可追溯、可回滚。部署体系的设计目标是：
+
+- <strong>一键部署</strong>：一条命令完成数据更新、页面生成、Git提交、推送上线
+- <strong>可追溯</strong>：每次部署都有明确的提交信息和时间戳
+- <strong>幂等性</strong>：没有变更时不产生无意义的提交
+- <strong>分层执行</strong>：支持"只生成不部署"、"只部署不生成"等灵活组合
+
+<h3>7.7.2 核心实现</h3>
+
+<strong>一键部署脚本</strong>：
+
+<pre><code class="lang-bash">
+#!/bin/bash
+<h1>一键部署脚本 - 投资研究中心</h1>
+
+set -e
+
+echo "🚀 开始部署投资研究中心..."
+
+<h1>1. 数据更新</h1>
+echo "📊 [1/4] 更新数据..."
+python3 scripts/fetch_market_data.py
+
+<h1>2. 生成Pro页面</h1>
+echo "🔧 [2/4] 生成Pro工具页面..."
+python3 scripts/run_workflow.py --pages
+
+<h1>3. 构建状态</h1>
+echo "📋 [3/4] 更新工作流状态..."
+
+<h1>4. Git部署</h1>
+echo "🌐 [4/4] 部署到GitHub Pages..."
+git add -A
+
+<h1>检查是否有变更（幂等性保证）</h1>
+if git diff --cached --quiet; then
+    echo "   ℹ️  没有新内容需要提交"
+else
+    COMMIT_MSG="deploy: 自动部署 $(date '+%Y-%m-%d %H:%M:%S')"
+    git commit -m "$COMMIT_MSG"
+    git push
+    echo "   ✅ 部署成功！"
+fi
+
+echo "🎉 部署完成！"
+<pre><code class="lang-">
+
+<strong>Python 层 Git 部署</strong>：
+
+在 <code>ReportPublisher</code> 中也封装了 Git 部署能力：
+
+<pre><code class="lang-python">
+def _git_deploy(self, commit_message: str) -> bool:
+    """Git提交并部署"""
+    try:
+        # 切换到git根目录
+        original_dir = os.getcwd()
+        os.chdir(self.git_root)
+        
+        # 添加所有变更
+        subprocess.run(["git", "add", "-A"], capture_output=True, text=True)
+        
+        # 提交
+        result = subprocess.run(
+            ["git", "commit", "-m", commit_message],
+            capture_output=True, text=True
+        )
+        
+        if result.returncode != 0:
+            if "nothing to commit" in result.stdout:
+                print("   ℹ️  没有需要提交的变更")
+                os.chdir(original_dir)
+                return True
+            print(f"   ❌ Git提交失败: {result.stderr}")
+            os.chdir(original_dir)
+            return False
+        
+        # 推送
+        push_result = subprocess.run(
+            ["git", "push"],
+            capture_output=True, text=True
+        )
+        
+        if push_result.returncode != 0:
+            print(f"   ❌ Git推送失败: {push_result.stderr}")
+            os.chdir(original_dir)
+            return False
+        
+        os.chdir(original_dir)
+        return True
+        
+    except Exception as e:
+        print(f"   ❌ Git部署异常: {e}")
+        return False
+<pre><code class="lang-">
+
+<strong>部署架构图</strong>：
+
+<pre><code class="lang-">
+┌─────────────────────────────────────────────────────┐
+│                  本地开发环境                          │
+│  ┌────────────┐  ┌────────────┐  ┌───────────────┐  │
+│  │ 数据采集脚本│  │ 页面生成器  │  │ 质量校验器      │  │
+│  └──────┬─────┘  └──────┬─────┘  └───────┬───────┘  │
+│         └───────────────┼────────────────┘          │
+│                         ▼                           │
+│                  ┌────────────┐                     │
+│                  │ Git 提交   │                     │
+│                  └──────┬─────┘                     │
+│                         │                           │
+└─────────────────────────┼───────────────────────────┘
+                          │ git push
+                          ▼
+┌─────────────────────────────────────────────────────┐
+│                   GitHub 仓库                         │
+│  - 源码                                              │
+│  - docs/ 目录（GitHub Pages 根目录）                 │
+└─────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────┐
+│                  GitHub Pages                        │
+│  - 静态资源托管                                      │
+│  - 自动构建发布                                      │
+│  - 自定义域名支持                                    │
+└─────────────────────────────────────────────────────┘
+<pre><code class="lang-">
+
+<h3>7.7.3 设计亮点</h3>
+
+<strong>1. 幂等性设计</strong>
+通过 <code>git diff --cached --quiet</code> 检查是否有实际变更，避免"空提交"。这对于定时触发的自动部署场景特别重要。
+
+<strong>2. 目录切换保护</strong>
+执行 Git 命令前后保存和恢复工作目录，避免副作用影响其他操作。使用 <code>try/finally</code> 模式会更完善。
+
+<strong>3. 分层部署脚本</strong>
+- Shell 层：面向运维人员，直观易读
+- Python 层：面向程序调用，可集成到工作流
+- 两层都可以独立使用，也可以组合使用
+
+<strong>4. 提交信息规范</strong>
+自动生成包含时间戳的提交信息，便于追溯每次部署的时间点。
+
+<h3>7.7.4 注意事项</h3>
+
+- 部署脚本依赖本地 Git 环境和认证配置，在 CI 环境中需要配置 Access Token
+- <code>set -e</code> 会让脚本在任何命令失败时立即退出，对于非关键步骤可以用 <code>|| true</code> 降级
+- 大文件（如图片、数据文件）建议使用 Git LFS，避免仓库膨胀
+- 部署频率需要考虑 GitHub Pages 的构建限制，过于频繁可能触发限流
+- 建议配置 GitHub Actions 实现自动化持续部署，替代本地手动部署
+
+<hr>
+
+<h2>7.8 系统状态监控</h2>
+
+<h3>7.8.1 功能定位</h3>
+
+系统状态监控为运维人员提供<strong>可视化的运行状态面板</strong>，展示工作流各环节的执行状态、定时任务配置、系统健康度等信息。它是DeepWiki的"驾驶舱"。
+
+<h3>7.8.2 核心实现</h3>
+
+<strong>WorkflowStatusProGenerator</strong> 实现了完整的监控页面：
+
+<pre><code class="lang-python">
+class WorkflowStatusProGenerator(ProGenerator):
+    """工作流监控中心 - Pro版生成器"""
+    
+    data_type = "workflow"
+    
+    def __init__(self, data_dir: str = "data", config_dir: str = "config"):
+        super().__init__(title="工作流监控中心", ...)
+        self.config_dir = config_dir
+        self._load_config()
+    
+    def _load_config(self):
+        """加载定时任务配置"""
+        config_path = os.path.join(..., 'schedule.json')
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                self.schedule_config = json.load(f)
+        except:
+            self.schedule_config = {'tasks': []}
+<pre><code class="lang-">
+
+<strong>三大监控模块</strong>：
+
+<strong>1. 系统状态概览</strong>
+
+<pre><code class="lang-python">
+def _generate_status_overview(self) -> str:
+    """生成系统状态概览"""
+    status = self.system_status
+    content = f'''
+        <h2 class="text-lg font-bold text-white mb-4">
+            <span class="text-blue-400 mr-2">📊</span>系统状态
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white/5 rounded-xl p-4 text-center">
+                <div class="text-3xl mb-2">🟢</div>
+                <div class="text-xl font-bold text-white">{current_status}</div>
+                <div class="text-sm text-white/60 mt-1">整体状态</div>
+            </div>
+            <!-- 最后部署、可用率、报告总数... -->
+        </div>
+    '''
+    return GlassCard(content=content, ...).render()
+<pre><code class="lang-">
+
+<strong>2. 工作流步骤状态</strong>
+
+<pre><code class="lang-python">
+def _generate_workflow_steps(self) -> str:
+    """生成工作流步骤"""
+    self.workflow_steps = [
+        {'id': 'data_collection', 'name': '数据采集', 
+         'status': 'pending', 'description': '获取市场行情、持仓数据等', 
+         'last_run': '-'},
+        {'id': 'report_generation', 'name': '报告生成', 
+         'status': 'pending', 'description': '生成各类分析报告', 
+         'last_run': '-'},
+        {'id': 'list_update', 'name': '列表页更新', 
+         'status': 'pending', 'description': '更新各栏目最新列表', 
+         'last_run': '-'},
+        {'id': 'git_deploy', 'name': 'Git部署', 
+         'status': 'pending', 'description': '提交并部署到GitHub Pages', 
+         'last_run': '-'},
+    ]
+    
+    steps_html = ''
+    for step in self.workflow_steps:
+        # 根据状态显示不同颜色边框
+        border_class = status_border_colors.get(step['status'], ...)
+        steps_html += f'''
+        <div class="border {border_class} rounded-xl p-5 mb-3">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">{icon}</span>
+                    <div>
+                        <h3 class="font-bold text-white">{step['name']}</h3>
+                        <p class="text-white/60 text-sm">{step['description']}</p>
+                    </div>
+                </div>
+                <span class="text-xs text-white/40">
+                    上次执行: {step['last_run']}
+                </span>
+            </div>
+        </div>
+        '''
+<pre><code class="lang-">
+
+<strong>3. 定时任务列表</strong>
+
+<pre><code class="lang-python">
+def _generate_scheduled_tasks(self) -> str:
+    """生成定时任务列表"""
+    tasks_html = ''
+    for task in self.scheduled_tasks:
+        name = task.get('name', '')
+        cron = task.get('cron', '')
+        description = task.get('description', '')
+        enabled = task.get('enabled', True)
+        status_dot = '🟢' if enabled else '⚫'
+        
+        tasks_html += f'''
+        <div class="flex items-center justify-between py-3 border-b ...">
+            <div class="flex items-center gap-3">
+                <span>{status_dot}</span>
+                <div>
+                    <div class="font-semibold text-white">{name}</div>
+                    <div class="text-sm text-white/50">{cron}</div>
+                </div>
+            </div>
+            <div class="text-white/70 text-sm">{description}</div>
+        </div>
+        '''
+<pre><code class="lang-">
+
+<strong>数据质量检查器</strong>：
+
+除了工作流状态监控，还有专门的数据质量监控：
+
+<pre><code class="lang-python">
+class DataQualityChecker:
+    """数据质量校验器"""
+    
+    def check_portfolio_data(self) -> Tuple[bool, List[str]]:
+        """检查持仓数据质量"""
+        # - 价格合理性检查（>0, <10000）
+        # - 涨跌幅合理性检查（±20%以内）
+        # - 成本价合理性检查
+        # - 更新时间新鲜度检查
+    
+    def check_market_data(self) -> Tuple[bool, List[str]]:
+        """检查市场数据质量"""
+        # - 指数点位合理性
+        # - 涨跌家数总和合理性
+        # - 恐惧贪婪指数范围检查（0-100）
+        # - 更新时间检查
+<pre><code class="lang-">
+
+<h3>7.8.3 设计亮点</h3>
+
+<strong>1. 玻璃态可视化</strong>
+采用深色玻璃态设计风格，状态展示直观美观，符合现代监控面板的设计语言。
+
+<strong>2. 配置驱动</strong>
+定时任务从 <code>schedule.json</code> 配置文件加载，不硬编码在代码中，便于修改和扩展。
+
+<strong>3. 优雅降级</strong>
+配置文件加载失败时，使用空配置而非崩溃，确保监控页面本身始终可用。
+
+<strong>4. 多维度监控</strong>
+- 流程维度：工作流各步骤状态
+- 时间维度：定时任务配置与执行记录
+- 数据维度：数据质量健康度检查
+- 系统维度：可用率、部署时间等全局指标
+
+<h3>7.8.4 注意事项</h3>
+
+- 当前工作流状态是静态的（默认都是 pending），需要配合实际的状态写入机制才能实时反映运行状态
+- 数据质量检查基于本地文件，对于实时性要求高的场景需要配合主动探针
+- 缺少告警机制——状态异常时只有视觉展示，没有主动通知
+- 建议增加：健康检查API、Prometheus指标导出、告警通知（邮件/飞书/钉钉）
+
+<hr>
+
+<h2>7.9 工程化最佳实践</h2>
+
+<h3>7.9.1 单一数据源原则 (SSOT)</h3>
+
+<strong>核心思想</strong>：所有配置、路径、导航项都从一个地方统一引用，杜绝分散硬编码导致的不一致。
+
+<strong>实践体现</strong>：
+
+<pre><code class="lang-python">
+<h1>v3/core/config.py - 所有配置的唯一来源</h1>
+NAV_ITEMS = [...]          # 导航项（11个，唯一数据源）
+REPORT_TYPES = {...}       # 报告类型与目录映射
+COLORS = {...}             # 主题配色
+SIZES = {...}              # 尺寸规范
+BASE_CSS = "..."           # 公共CSS样式
+PROTECTED_FILES = [...]    # 受保护文件
+DEPRECATED_DIRS = [...]    # 废弃目录
+<pre><code class="lang-">
+
+<strong>收益</strong>：
+- 修改导航项只需改一处，避免遗漏
+- 全站风格统一，不会出现不同页面颜色、间距不一致
+- 新增报告类型有标准流程，降低上手成本
+
+<h3>7.9.2 测试驱动的质量保障</h3>
+
+<strong>测试体系</strong>：
+
+DeepWiki V3.0 有完整的系统测试脚本 <code>test_system.py</code>，覆盖：
+- 基础组件测试（Navbar、Footer、Card等）
+- 数据组件测试（DataCard、DataGrid、CompareTable等）
+- 生成器测试（各类型报告生成）
+- 校验器测试（结构、链接、内容校验）
+
+<strong>测试代码示例</strong>：
+
+<pre><code class="lang-python">
+def test_basic_components():
+    """测试基础组件"""
+    from components.layout import Navbar, Footer
+    
+    nav = Navbar(active_key="industry_chain")
+    nav_html = nav.render()
+    assert "投资研究中心" in nav_html, "Navbar缺少站点名称"
+    assert "产业链" in nav_html, "Navbar缺少产业链链接"
+    assert "toggleMobileMenu" in nav_html, "Navbar缺少移动端菜单函数"
+    print("  ✅ Navbar 正常")
+<pre><code class="lang-">
+
+<strong>建议扩展</strong>：
+- 增加端到端测试（使用 Playwright 等工具）
+- 增加视觉回归测试（比对页面截图）
+- 增加性能测试（页面加载速度、生成速度）
+
+<h3>7.9.3 防御式编程</h3>
+
+<strong>多层保护机制</strong>：
+
+<pre><code class="lang-">
+┌──────────────────────────────────────────┐
+│           第一层：类型验证                  │
+│  检查 report_type 是否在 REPORT_TYPES 中   │
+└──────────────────────────────────────────┘
+                      ↓
+┌──────────────────────────────────────────┐
+│           第二层：受保护文件检查            │
+│  防止覆盖 index.html、latest.html         │
+└──────────────────────────────────────────┘
+                      ↓
+┌──────────────────────────────────────────┐
+│           第三层：标记位验证               │
+│  更新列表页前验证 LIST_START 标记是否存在   │
+└──────────────────────────────────────────┘
+                      ↓
+┌──────────────────────────────────────────┐
+│           第四层：自动备份                 │
+│  修改文件前先保存 .bak 备份               │
+└──────────────────────────────────────────┘
+                      ↓
+┌──────────────────────────────────────────┐
+│           第五层：降级机制                 │
+│  高级模式失败时回退到兼容模式              │
+└──────────────────────────────────────────┘
+<pre><code class="lang-">
+
+<h3>7.9.4 渐进式重构与兼容</h3>
+
+<strong>双轨并行策略</strong>：
+
+DeepWiki 的演进过程中，始终保持新旧版本的兼容性：
+
+- <strong>ListPageGenerator</strong>（经典版）与 <strong>ListPageProGenerator</strong>（Pro版）并存
+- <strong>V3工作流</strong> 与 旧版脚本 并存
+- 新功能优先在Pro版中实现，稳定后再迁移经典版
+
+<strong>兼容模式示例</strong>：
+
+<pre><code class="lang-python">
+<h1>先尝试新版本</h1>
+try:
+    generator = ListPageGenerator(report_type)
+    success = generator.insert_report(...)
+    if success:
+        return True
+except Exception as e:
+    print(f"⚠️  V3.0失败，尝试兼容模式: {e}")
+
+<h1>失败后回退到旧方法</h1>
+return self._update_list_page_compat(...)
+<pre><code class="lang-">
+
+<h3>7.9.5 命名规范与目录结构</h3>
+
+<strong>文件命名规范</strong>：
+
+<pre><code class="lang-">
+{日期}_{标题}.html
+例如：20260619_每日新闻洞察.html
+<pre><code class="lang-">
+
+- 日期前缀便于按时间排序和归档
+- 标题部分去除特殊字符，确保跨平台兼容性
+- 统一使用 <code>.html</code> 扩展名
+
+<strong>目录结构规范</strong>：
+
+<pre><code class="lang-">
+docs/
+├── index.html              # 首页
+├── daily/                  # 日报频道
+│   ├── latest.html         # 列表页
+│   └── 20260619_xxx.html   # 报告文件
+├── intraday/               # 盘中快报频道
+├── aftermarket/            # 盘后速递频道
+├── s级催化扫描/             # S级催化频道
+└── ...
+<pre><code class="lang-">
+
+- 每个频道一个独立目录
+- 每个频道有一个 <code>latest.html</code> 作为列表入口
+- 报告文件按日期倒序排列在列表页中
+
+<h3>7.9.6 工具函数复用</h3>
+
+<strong>utils 工具集</strong>：
+
+<pre><code class="lang-python">
+<h1>v3/utils/helpers.py</h1>
+
+def sanitize_filename(filename: str) -> str:
+    """清理文件名，移除非法字符"""
+
+def format_date(date_str: str = None, format: str = "%Y-%m-%d") -> str:
+    """格式化日期"""
+
+def get_project_root() -> str:
+    """获取项目根目录"""
+
+def ensure_dir(path: str) -> str:
+    """确保目录存在，返回路径"""
+
+def html_to_text(html: str) -> str:
+    """简单的HTML转纯文本"""
+
+def truncate_text(text: str, max_length: int = 100) -> str:
+    """截断文本"""
+<pre><code class="lang-">
+
+<strong>设计原则</strong>：
+- 纯函数，无副作用
+- 单一职责，每个函数只做一件事
+- 有默认参数，调用灵活
+- 命名清晰，见名知意
+
+<hr>
+
+<h2>本章小结</h2>
+
+DeepWiki V3.0 的工具与运维体系体现了"<strong>从事故中学习，在迭代中完善</strong>"的工程哲学：
+
+- <strong>三层验证架构</strong>源自对页面质量一致性的追求
+- <strong>安全增量更新</strong>源自 <code>latest.html</code> 被意外覆盖的教训
+- <strong>受保护文件机制</strong>源自关键文件被误删的事故
+- <strong>大小写检查</strong>源自"S级催化"路径问题
+
+这些工程化实践不是凭空设计的，而是在真实使用场景中逐步打磨出来的。它们共同构成了DeepWiki的质量保障网，让这个内容生成系统能够稳定、可靠地运行。
+
+<blockquote><strong>下一章预告</strong>：第8章将深入探讨 DeepWiki 的数据分析与可视化能力，包括数据加载引擎、图表组件库、交互式可视化等核心技术。</blockquote>
+        </article>
+    </div>
+</body>
+</html>

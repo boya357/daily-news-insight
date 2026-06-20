@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第3章 生成器体系 - 内容生产的流水线工厂</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e4e4e7;
+            padding: 40px 20px;
+            line-height: 1.8;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 40px;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #f1f5f9;
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+            font-weight: 600;
+        }
+        h1 { font-size: 2rem; border-bottom: 2px solid rgba(96, 165, 250, 0.3); padding-bottom: 12px; }
+        h2 { font-size: 1.5rem; border-left: 4px solid #60a5fa; padding-left: 16px; }
+        h3 { font-size: 1.25rem; color: #a78bfa; }
+        p { margin-bottom: 1em; color: #cbd5e1; }
+        ul, ol { margin: 1em 0; padding-left: 2em; }
+        li { margin-bottom: 0.5em; color: #cbd5e1; }
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.9em;
+            color: #34d399;
+        }
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 1.5em 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        pre code {
+            background: none;
+            padding: 0;
+            color: #e2e8f0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5em 0;
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        th {
+            background: rgba(96, 165, 250, 0.1);
+            color: #60a5fa;
+            font-weight: 600;
+        }
+        blockquote {
+            border-left: 4px solid #f472b6;
+            padding-left: 16px;
+            margin: 1.5em 0;
+            color: #94a3b8;
+            font-style: italic;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 2em 0;
+        }
+        a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 24px;
+            color: #60a5fa;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 640px) {
+            body { padding: 20px 10px; }
+            .container { padding: 20px; }
+            h1 { font-size: 1.5rem; }
+            h2 { font-size: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-btn">← 返回目录</a>
+        <article class="markdown-body">
+<h1>第3章 生成器体系 - 内容生产的流水线工厂</h1>
+
+<h2>章节概述</h2>
+
+生成器体系是DeepWiki系统的"内容生产工厂"，负责将数据层的原始数据和内容引擎的分析结果，转化为最终用户可见的HTML报告页面。这一层是系统与用户之间的桥梁，直接决定了产品的视觉体验和交互质量。
+
+从V1到V4的演进过程中，生成器体系经历了三次重大架构重构：
+
+| 版本 | 架构模式 | 核心特征 | 生成器数量 |
+|-----|---------|---------|-----------|
+| V1 | 单体模板 | 单文件混合逻辑与渲染 | 3个 |
+| V2 | 模块化拆分 | 按报告类型拆分文件 | 8个 |
+| V3 | 基类继承体系 | 统一基类 + 子类实现 | 15+个 |
+| V3.5 Pro | 组件化架构 | Pro组件库 + 生成器基类 + 主题系统 | 20+个 |
+| V4 | 深浅双主题 | 一套代码双主题切换 | 25+个 |
+
+每一次架构演进都解决了前一阶段的核心痛点：V2解决了代码膨胀难以维护的问题，V3解决了接口不统一的问题，V3.5 Pro解决了视觉风格不一致的问题，V4则解决了深色主题不适合所有场景的问题。
+
+本章将深入剖析生成器体系的架构设计、核心实现机制、关键生成器的设计思路，以及从普通版到Pro版再到V4版的技术演进路径。
+
+<hr>
+
+<h2>3.1 生成器架构总览</h2>
+
+<h3>3.1.1 三层继承体系设计</h3>
+
+<h4>架构全景图</h4>
+
+生成器体系采用<strong>三级继承架构</strong>，从抽象到具体逐层递进：
+
+<pre><code class="lang-">
+┌───────────────────────────────────────────────────────────┐
+│                    BaseGenerator (base.py)                │
+│  最底层抽象，定义 generate/save/validate/publish 接口     │
+└─────────────────────────────┬─────────────────────────────┘
+                              │
+                              ▼
+┌───────────────────────────────────────────────────────────┐
+│              ProGenerator (pro_base.py)                   │
+│  Pro版基类，继承ProPage组件，统一数据加载、发布流程      │
+│  包含：DataLoader集成、主题系统、通用组件便捷方法        │
+└─────────────────────────────┬─────────────────────────────┘
+                              │
+          ┌───────────────────┴───────────────────┐
+          ▼                                       ▼
+┌───────────────────────┐               ┌───────────────────────┐
+│ ReportProGenerator    │               │ 工具类生成器基类      │
+│ (report_pro_base.py)  │               │  (如ListPagePro等)   │
+│ 报告类生成器专用基类  │               │  特定场景的基类抽象  │
+│ 章节化内容组织        │               └───────────┬───────────┘
+│ 头部/章节/结尾结构    │                           │
+└───────────┬───────────┘                           │
+            │                                       │
+            ▼                                       ▼
+┌───────────────────────┐               ┌───────────────────────┐
+│  具体报告生成器       │               │  具体工具生成器       │
+│  DailyReportPro       │               │  ListPagePro          │
+│  AftermarketPro       │               │  HomePagePro          │
+│  IntradayPro          │               │  PortfolioDashboard   │
+│  ...                  │               │  SectorHeatmapPro     │
+└───────────────────────┘               └───────────────────────┘
+<pre><code class="lang-">
+
+<strong>设计思想：</strong> 每一层只负责一个抽象级别的事情，上层定义规范，下层实现具体业务逻辑。这种设计使得新增一个生成器的成本极低——只需要继承对应基类，实现一两个核心方法即可。
+
+<h4>第一层：BaseGenerator - 最基础的接口契约</h4>
+
+<code>BaseGenerator</code> 位于 <code>v3/generators/base.py</code>，是所有生成器的根基类，定义了生成器的四大核心接口：
+
+<pre><code class="lang-python">
+class BaseGenerator:
+    """生成器基类"""
+    
+    def __init__(self, report_type: str):
+        self.report_type = report_type
+        self.report = None  # 子类必须初始化
+    
+    def generate(self) -> str:
+        """生成HTML内容 - 子类必须实现"""
+        raise NotImplementedError("子类必须实现 generate 方法")
+    
+    def save(self, filepath: str) -> str:
+        """保存到文件"""
+        self.generate()
+        return self.report.save(filepath)
+    
+    def validate(self) -> list:
+        """验证报告"""
+        self.generate()
+        return self.report.validate()
+    
+    def publish(self, title: str = None, report_type: str = None, 
+                filename: str = None, excerpt: str = None,
+                auto_deploy: bool = True, docs_root: str = "docs") -> dict:
+        """一键发布：生成 → 归档 → 更新列表 → 校验 → Git部署"""
+        # ... 发布流程实现
+<pre><code class="lang-">
+
+<strong>设计亮点：</strong>
+
+1. <strong>极简接口</strong>：只定义了4个核心方法，子类只需实现 <code>generate()</code> 一个方法
+2. <strong>模板方法模式</strong>：<code>save()</code>、<code>validate()</code>、<code>publish()</code> 都在基类中实现了标准流程，子类无需重复实现
+3. <strong>延迟生成</strong>：所有方法都会先调用 <code>generate()</code>，确保内容已生成
+4. <strong>发布一体化</strong>：<code>publish()</code> 方法封装了完整的发布流程，包括生成、归档、更新列表页、质量校验、Git部署
+
+<strong>技术权衡：</strong>
+
+基类的 <code>publish()</code> 方法虽然提供了一体化的发布体验，但也引入了对工作流模块的依赖。基类中采用了<strong>延迟导入</strong>的方式来避免循环依赖：
+
+<pre><code class="lang-python">
+<h1>导入发布器（延迟导入避免循环导入）</h1>
+from workflow import ReportPublisher
+<pre><code class="lang-">
+
+这种设计的好处是保持了基类的功能完整性，同时避免了模块间的循环依赖问题。代价是运行时才能发现导入错误，但考虑到 <code>workflow</code> 是系统核心模块，这个风险是可控的。
+
+<h4>第二层：ProGenerator - Pro版生成器的核心基类</h4>
+
+<code>ProGenerator</code> 位于 <code>v3/generators/pro_base.py</code>，是V3.5架构中最重要的基类，所有Pro版生成器都继承自它。它不仅继承了 <code>BaseGenerator</code> 的接口规范，还继承了 <code>ProPage</code> 组件（页面级组件），融合了组件系统的能力。
+
+<strong>核心职责：</strong>
+
+| 职责模块 | 功能说明 |
+|---------|---------|
+| 页面渲染 | 继承ProPage，提供完整的HTML页面渲染能力（导航、内容区、页脚） |
+| 数据加载 | 集成DataLoader，统一数据获取方式，支持数据刷新 |
+| 主题系统 | 支持深色/浅色主题切换，V4白底深字风格 |
+| 错误处理 | 统一的异常捕获和错误返回格式 |
+| 发布流程 | 标准化的保存、验证、发布流程 |
+| 通用组件 | 提供TabPane、CardGroup、DataGrid等通用组件的便捷创建方法 |
+
+<strong>关键代码结构：</strong>
+
+<pre><code class="lang-python">
+class ProGenerator(ProPage):
+    """Pro版生成器基类"""
+    
+    # 子类必须设置的数据类型
+    data_type: str = ""  # 数据类型标识，如 "portfolio"、"topics" 等
+    
+    def __init__(self, title: str = "投资研究中心", 
+                 active_page: str = "", 
+                 footer_text: str = "",
+                 data_dir: str = "data",
+                 show_toc: bool = False,
+                 toc_position: str = "right",
+                 theme: str = "dark"):
+        super().__init__(
+            title=title, active_page=active_page, 
+            footer_text=footer_text, update_time="",
+            show_toc=show_toc, toc_position=toc_position,
+            theme=theme
+        )
+        self.data_loader: DataLoader = get_data_loader(data_dir)
+        self._data_loaded = False
+        self._output_path = ""
+    
+    def load_data(self):
+        """加载数据 - 子类可重写此方法加载特定数据"""
+        # 默认从数据加载器获取更新时间
+        if self.data_type:
+            update_time = self.data_loader.get_update_time(self.data_type)
+            if update_time:
+                self.update_time = update_time
+        
+        if not self.update_time:
+            self.update_time = datetime.now().strftime('%Y年%m月%d日 %H:%M')
+        
+        self._data_loaded = True
+    
+    def render(self) -> str:
+        """渲染完整HTML页面（确保数据已加载）"""
+        if not self._data_loaded:
+            self.load_data()
+        return super().render()
+    
+    def _content(self) -> str:
+        """页面主要内容 - 子类必须重写此方法"""
+        raise NotImplementedError("子类必须实现 _content 方法")
+<pre><code class="lang-">
+
+<strong>设计模式：模板方法模式</strong>
+
+<code>ProGenerator</code> 大量使用了<strong>模板方法模式</strong>：
+- <code>render()</code> 是模板方法，定义了"先加载数据，再渲染"的标准流程
+- <code>load_data()</code> 是钩子方法，子类可以重写以加载特定数据
+- <code>_content()</code> 是抽象方法，子类必须实现以提供页面内容
+
+这种设计确保了所有Pro版生成器具有一致的行为模式，同时允许灵活扩展。
+
+<h4>第三层：ReportProGenerator - 报告类生成器专用基类</h4>
+
+对于日报、盘后速递这类<strong>章节化报告</strong>，系统提供了 <code>ReportProGenerator</code> 基类，进一步封装了报告的结构化特征。
+
+<strong>报告的标准结构：</strong>
+
+<pre><code class="lang-">
+┌─────────────────────────────────┐
+│        报告头部 (Header)        │
+│  标题 · 副标题 · 日期          │
+├─────────────────────────────────┤
+│        章节 1 (Section)        │
+│  图标 · 标题 · 内容           │
+├─────────────────────────────────┤
+│        章节 2 (Section)        │
+│  图标 · 标题 · 内容           │
+├─────────────────────────────────┤
+│        ...                     │
+└─────────────────────────────────┘
+<pre><code class="lang-">
+
+<strong>核心API：</strong>
+
+<pre><code class="lang-python">
+class ReportProGenerator(ProGenerator):
+    """报告生成器基类 - Pro版"""
+    
+    def __init__(self, title: str = "报告",
+                 report_type: str = "daily",
+                 subtitle: str = "",
+                 date_str: str = None, ...):
+        # 初始化报告元数据
+        self.report_type = report_type
+        self.subtitle = subtitle
+        self.date_str = date_str
+        self._sections = []  # 章节列表
+    
+    def add_section(self, title: str, content: str, 
+                    icon: str = "📄", extra_class: str = ""):
+        """添加一个章节"""
+        self._sections.append({
+            'title': title, 'content': content,
+            'icon': icon, 'extra_class': extra_class,
+        })
+    
+    def _generate_header(self) -> str:
+        """生成报告头部"""
+        # ... 标题、副标题、日期的HTML
+    
+    def _generate_sections(self) -> str:
+        """生成所有章节（遍历self._sections）"""
+        # ... 每个章节用GlassCard包裹
+    
+    def _content(self) -> str:
+        """页面主要内容（基类实现，子类一般无需重写）"""
+        return f'''
+        <div class="max-w-4xl mx-auto">
+            {self._generate_header()}
+            {self._generate_sections()}
+        </div>
+        '''
+<pre><code class="lang-">
+
+<strong>设计亮点：</strong>
+
+1. <strong>声明式章节构建</strong>：子类通过 <code>add_section()</code> 方法添加章节，不需要关心HTML结构
+2. <strong>自动玻璃态包装</strong>：每个章节自动使用 <code>GlassCard</code> 组件包装，保持视觉一致性
+3. <strong>可重写的渲染方法</strong>：<code>_generate_header()</code> 和 <code>_generate_sections()</code> 都可以被子类重写
+4. <strong>最大宽度约束</strong>：报告内容限制在 <code>max-w-4xl</code>，确保阅读体验
+
+<strong>使用模式：</strong>
+
+一个典型的报告生成器使用方式如下：
+
+<pre><code class="lang-python">
+<h1>1. 创建生成器实例</h1>
+gen = DailyReportProGenerator(date_str='2026-06-15', weekday='周一')
+
+<h1>2. 添加各个章节</h1>
+gen.add_market_overview()       # 市场概览
+gen.add_important_news()        # 重要新闻
+gen.add_sector_analysis()       # 板块分析
+gen.add_tomorrow_prediction()   # 明日预判
+gen.add_risk_warning()          # 风险提示
+
+<h1>3. 渲染或发布</h1>
+html = gen.render()
+<h1>或 gen.save('output.html')</h1>
+<h1>或 gen.publish('output.html')</h1>
+<pre><code class="lang-">
+
+这种"构建器模式"的API设计，使得报告的组装过程清晰可读，每个章节方法内部封装了该章节的所有渲染逻辑。
+
+<h3>3.1.2 生成器的分类体系</h3>
+
+按照功能定位，系统中的20+个生成器可以分为四大类：
+
+| 类别 | 代表生成器 | 核心特征 | 页面结构 |
+|-----|-----------|---------|---------|
+| 报告类 | DailyReportPro、AftermarketPro、IntradayPro | 按时间周期生成，章节化内容，有明确的发布时点 | 头部 + 多章节 + 页脚 |
+| 工具类 | PortfolioDashboardPro、SectorHeatmapPro、AlertSystemPro | 交互性强，数据实时性要求高，功能导向 | 导航 + 功能卡片 + 数据可视化 |
+| 列表导航类 | ListPagePro、HomePagePro | 内容聚合与导航，链接到具体报告 | 头部 + 卡片网格 + 分类导航 |
+| 专题研究类 | IndustryChainPro、SLevelCatalystPro、TopicDeepDivePro | 深度内容，特定主题，不定期发布 | 长文结构 + 数据图表 + 分析框架 |
+
+<strong>各类生成器的基类选择：</strong>
+
+<pre><code class="lang-">
+报告类 → ReportProGenerator → ProGenerator → ProPage
+工具类 → ProGenerator → ProPage
+列表导航类 → ProGenerator → ProPage
+专题研究类 → ReportProGenerator → ProGenerator → ProPage
+<pre><code class="lang-">
+
+<h3>3.1.3 插件化扩展机制</h3>
+
+生成器体系的扩展性设计体现在三个层面：
+
+<h4>1. 继承扩展</h4>
+
+最基础的扩展方式，通过继承基类实现新的生成器。这也是系统中最主要的扩展方式。
+
+<strong>新增一个报告生成器的步骤：</strong>
+
+1. 继承 <code>ReportProGenerator</code>
+2. 实现 <code>_load_data()</code> 方法（加载所需数据）
+3. 实现各个章节的 <code>add_xxx()</code> 方法
+4. 提供 <code>build_standard_report()</code> 便捷方法（可选但推荐）
+5. 提供 <code>__main__</code> 测试入口
+
+整个过程不需要编写任何页面框架代码、导航代码、主题样式代码，全部由基类提供。
+
+<h4>2. 组件组合扩展</h4>
+
+生成器可以自由组合使用 <code>components.pro</code> 中的各种UI组件，通过组合而非继承的方式扩展页面能力。
+
+<strong>常用组件：</strong>
+
+| 组件名 | 用途 | 使用场景 |
+|-------|------|---------|
+| GlassCard | 玻璃态卡片容器 | 章节容器、内容块包裹 |
+| TabPane | Tab切换面板 | 多分类新闻、多维度数据 |
+| CardGroup | 卡片组布局 | 指标卡片、功能入口 |
+| DataGrid | 数据网格 | 关键指标展示 |
+| SectionTitle | 章节标题 | 内容分区标题 |
+| TagBadge | 标签徽章 | 状态标记、分类标签 |
+
+<strong>设计思想：组件大于页面</strong>
+
+系统遵循"组件大于页面"的设计哲学——页面只是组件的容器和组合方式，真正的复用单元是组件。这种设计使得新增页面时，可以像搭积木一样快速组合出所需的界面。
+
+<h4>3. 主题系统扩展</h4>
+
+V3.5 Pro架构引入了主题系统，支持深色（dark）和浅色（light）两种主题。V4风格就是基于light主题实现的。
+
+<strong>主题切换机制：</strong>
+
+<pre><code class="lang-python">
+<h1>创建V4风格的生成器（白底深字）</h1>
+gen = DailyReportProGenerator(theme='light')
+
+<h1>或者使用V4Generator基类（默认light主题）</h1>
+class V4Generator(ProGenerator):
+    """V4风格生成器基类 - 默认使用light主题"""
+    def __init__(self, <em></em>kwargs):
+        if 'theme' not in kwargs:
+            kwargs['theme'] = 'light'
+        super().__init__(<em></em>kwargs)
+<pre><code class="lang-">
+
+主题切换的实现并不是简单地替换几个颜色变量，而是通过<strong>CSS覆盖机制</strong>实现的。在 <code>components/pro.py</code> 中的 <code>get_v4_theme_css()</code> 函数，通过CSS选择器的优先级覆盖，将V3.5的深色玻璃态样式转换为V4的浅色卡片样式。
+
+<strong>技术权衡：CSS覆盖 vs 重新设计</strong>
+
+| 方案 | 优点 | 缺点 |
+|-----|------|------|
+| CSS覆盖 | 100%兼容现有代码，零迁移成本 | CSS复杂度高，部分特殊组件可能有样式冲突 |
+| 重新设计 | 样式干净，性能更优 | 需要重写所有生成器，迁移成本高 |
+
+系统选择了CSS覆盖的方案，因为它可以在不修改任何业务代码的前提下，实现主题切换。这是典型的<strong>向后兼容优先</strong>的设计决策。
+
+<hr>
+
+<h2>3.2 盘后速递生成器 - AftermarketPro 深度解析</h2>
+
+盘后速递是系统中最核心的报告类型之一，每个交易日收盘后自动生成，为用户提供当日市场的全面复盘和次日操作策略。
+
+<h3>3.2.1 功能定位与内容结构</h3>
+
+<h4>定位</h4>
+
+盘后速递定位于<strong>"收盘后的10分钟快速复盘"</strong>，帮助用户在交易结束后快速了解当日市场全貌，为次日交易做好准备。
+
+<h4>标准内容结构</h4>
+
+<pre><code class="lang-">
+盘后速递
+├── 今日核心亮点 ⭐
+│   └── 一句话总结当日市场最核心的特征
+├── 市场收盘总结 📊
+│   ├── 四大指数涨跌幅卡片
+│   └── 成交额、上涨/下跌家数、涨停/跌停等关键数据
+├── 板块表现 📊
+│   ├── 强势板块TOP3-5
+│   └── 弱势板块TOP3-5
+├── 市场情绪 🌡️
+│   ├── 恐惧贪婪指数
+│   └── 情绪四维度指标
+├── 龙虎榜摘要 🏆
+│   └── 机构动向、知名游资统计
+├── 晚间重要新闻 📰
+│   └── 3-5条最重要的晚间资讯
+├── 业绩预增追踪 📈
+│   └── 近期业绩大增公司梳理
+├── 持仓表现总结 💼
+│   └── 持仓个股当日表现
+├── 明日预判 🎯
+│   ├── 大盘走势预判
+│   ├── 题材机会预判
+│   └── 风险提示
+├── 风险提示 ⚠️
+│   └── 3项主要风险
+├── 交易计划 📋
+│   └── 持仓策略、关注方向、操作建议
+└── 每日总结 📝
+    └── 当日操作回顾与经验总结
+<pre><code class="lang-">
+
+<h3>3.2.2 核心实现机制</h3>
+
+<h4>数据加载策略</h4>
+
+盘后速递的数据加载采用<strong>"懒加载 + 预加载结合"</strong>的策略：
+
+<pre><code class="lang-python">
+def _load_data(self):
+    """加载数据"""
+    # 基础数据 - 必选
+    self.indices = get_indices_for_daily()
+    self.portfolio = load_portfolio()
+    self.market_data = load_market_data()
+    self.hot_sectors = get_hot_sectors()
+    self.cold_sectors = get_cold_sectors()
+    
+    # 题材数据 - 可选，失败不影响整体
+    try:
+        data_path = os.path.join(self.data_dir, 'topics.json')
+        with open(data_path, 'r', encoding='utf-8') as f:
+            self.topics = json.load(f)
+    except:
+        self.topics = {}
+    
+    # 预判数据 - 可选
+    try:
+        data_path = os.path.join(self.data_dir, 'predictions.json')
+        with open(data_path, 'r', encoding='utf-8') as f:
+            self.predictions = json.load(f)
+    except:
+        self.predictions = {}
+<pre><code class="lang-">
+
+<strong>设计亮点：容错降级</strong>
+
+- 核心数据（指数、行情、板块）是必需的，加载失败会导致报告无法生成
+- 增强数据（题材、预判）是可选的，使用 <code>try-except</code> 包裹，加载失败时退化为空数据
+- 每个章节方法内部也会做数据存在性检查，数据缺失时显示占位提示
+
+这种<strong>渐进式降级</strong>的设计确保了报告的可用性——即使部分数据源异常，报告仍然能够生成，只是内容丰富度会降低。
+
+<h4>指数卡片的视觉编码</h4>
+
+市场总结章节的四大指数卡片，采用了<strong>颜色+渐变</strong>的视觉编码方式：
+
+<pre><code class="lang-python">
+if up:
+    gradient = 'from-red-500/20 to-orange-500/10 border-red-500/30'
+    text_color = 'text-red-400'
+else:
+    gradient = 'from-green-500/20 to-emerald-500/10 border-green-500/30'
+    text_color = 'text-green-400'
+<pre><code class="lang-">
+
+<strong>视觉编码规则：</strong>
+
+| 市场状态 | 主色调 | 渐变方向 | 语义 |
+|---------|--------|---------|------|
+| 上涨 | 红色 → 橙色 | 左上到右下 | 中国股市传统，红色表示上涨 |
+| 下跌 | 绿色 → 翠绿 | 左上到右下 | 中国股市传统，绿色表示下跌 |
+
+<blockquote><strong>设计说明：</strong> 与国际惯例（绿涨红跌）不同，A股市场习惯用红色表示上涨、绿色表示下跌。系统遵循了国内用户的认知习惯，这是产品本地化的重要体现。</blockquote>
+
+<h4>市场情绪的多维度呈现</h4>
+
+市场情绪章节是盘后速递的亮点功能之一，采用了<strong>恐惧贪婪指数 + 多维度指标</strong>的呈现方式：
+
+<pre><code class="lang-python">
+def add_market_sentiment(self):
+    """市场情绪 - Pro版"""
+    market = self.market_data
+    sentiment = market.get('sentiment', {})
+    market_data = market.get('market_data', {})
+    
+    fg_score = sentiment.get('fear_greed', 50)
+    
+    # 根据分数判断情绪等级和颜色
+    if fg_score >= 80:
+        level = '极度贪婪'
+        level_color = 'text-red-400'
+        level_bg = 'from-red-500/30 to-orange-500/20'
+    elif fg_score >= 60:
+        level = '贪婪'
+        level_color = 'text-orange-400'
+        level_bg = 'from-orange-500/30 to-yellow-500/20'
+    elif fg_score >= 40:
+        level = '中性'
+        level_color = 'text-blue-400'
+        level_bg = 'from-blue-500/30 to-cyan-500/20'
+    elif fg_score >= 20:
+        level = '恐惧'
+        level_color = 'text-green-400'
+        level_bg = 'from-green-500/30 to-emerald-500/20'
+    else:
+        level = '极度恐惧'
+        level_color = 'text-emerald-400'
+        level_bg = 'from-emerald-500/30 to-teal-500/20'
+<pre><code class="lang-">
+
+<strong>情绪分级设计：</strong>
+
+| 分数区间 | 情绪等级 | 主色调 | 投资含义 |
+|---------|---------|--------|---------|
+| 80-100 | 极度贪婪 | 红色 | 市场过热，警惕回调风险 |
+| 60-79 | 贪婪 | 橙色 | 情绪偏乐观，可适度参与 |
+| 40-59 | 中性 | 蓝色 | 情绪平稳，区间震荡 |
+| 20-39 | 恐惧 | 绿色 | 情绪偏谨慎，注意风险 |
+| 0-19 | 极度恐惧 | 深绿 | 市场恐慌，可能有超跌机会 |
+
+<h3>3.2.3 设计亮点与技术权衡</h3>
+
+<h4>亮点1：卡片套卡片的层次感</h4>
+
+盘后速递严格遵循了Pro版的<strong>"卡片套卡片"</strong>设计原则：
+
+- 每个章节是一个大的 <code>GlassCard</code>（外层卡片）
+- 章节内部的数据块是小的卡片（内层卡片）
+- 内外层之间有明显的视觉层级区分
+
+这种设计创造了清晰的视觉层次，让用户能够快速识别内容的组织结构。
+
+<h4>亮点2：渐进式信息密度</h4>
+
+不同章节的信息密度是不同的，呈现出<strong>"先总后分、先概览后细节"</strong>的渐进式结构：
+
+1. <strong>今日核心亮点</strong> - 最高密度，一句话总结
+2. <strong>市场收盘总结</strong> - 高密度，关键指标卡片
+3. <strong>板块表现</strong> - 中密度，板块列表
+4. <strong>市场情绪</strong> - 中密度，情绪指标
+5. <strong>晚间新闻</strong> - 低密度，新闻详情
+6. <strong>明日预判/交易计划</strong> - 低密度，文字分析
+
+这种信息密度的梯度设计符合用户的阅读习惯——先快速浏览核心信息，再有选择地阅读感兴趣的细节。
+
+<h4>技术权衡：数据完整性 vs 生成速度</h4>
+
+盘后速递的数据来源多样，包括行情、板块、题材、持仓、新闻等多个数据源。在设计时需要权衡：
+
+| 策略 | 优点 | 缺点 | 适用场景 |
+|-----|------|------|---------|
+| 全量加载 | 内容最丰富，用户体验最好 | 加载慢，依赖多，失败率高 | 盘后非实时场景 |
+| 增量加载 | 速度快，失败影响小 | 实现复杂，需要异步机制 | 实时性要求高的场景 |
+| 核心+可选 | 平衡速度与完整性，容错性好 | 部分功能可能缺失 | 大多数场景 |
+
+盘后速递采用了<strong>"核心+可选"</strong>的策略，因为盘后报告对实时性要求不高（收盘后15分钟内生成即可），但需要保证基本可用性。核心数据确保报告可用，可选数据提升报告质量。
+
+<hr>
+
+<h2>3.3 日报生成器 - DailyReportPro 的设计艺术</h2>
+
+每日新闻洞察（日报）是系统中内容最丰富、结构最复杂的报告类型之一，也是Pro版生成器的代表作。
+
+<h3>3.3.1 功能定位与设计目标</h3>
+
+<h4>定位</h4>
+
+日报定位于<strong>"盘前深度资讯早餐"</strong>，在每个交易日开盘前发布，帮助用户在开盘前全面了解隔夜市场动态、重要新闻、板块机会和操作策略。
+
+<h4>设计目标</h4>
+
+1. <strong>信息密度高</strong>：在有限的篇幅内提供尽可能多的有效信息
+2. <strong>结构化清晰</strong>：用户能够快速定位到自己关心的内容
+3. <strong>多维度覆盖</strong>：覆盖大盘、板块、题材、个股、新闻等多个维度
+4. <strong>可操作性强</strong>：不仅提供信息，还要给出明确的操作建议
+
+<h3>3.3.2 核心模块深度解析</h3>
+
+<h4>模块1：重要新闻汇总 - 8分类Tab切换</h4>
+
+重要新闻汇总是日报中技术含量最高的模块之一，采用了<strong>8分类Tab切换</strong>的交互设计。
+
+<strong>新闻分类体系：</strong>
+
+| 分类 | 图标 | 内容侧重 | 更新频率 |
+|-----|------|---------|---------|
+| 政策 | 📋 | 宏观政策、监管动态、行业政策 | 每日 |
+| 宏观 | 📊 | 经济数据、PMI、CPI、社融等 | 每周/每月 |
+| 市场 | 📈 | 大盘走势、资金流向、市场情绪 | 每日 |
+| 行业 | 🏭 | 行业动态、产业链变化、供需格局 | 每日 |
+| 公司 | 🏢 | 上市公司公告、业绩、重大事项 | 每日 |
+| 科技 | 💻 | 技术突破、新产品、行业趋势 | 每日 |
+| 金融 | 💹 | 银行、保险、券商、基金动态 | 每周 |
+| 周期 | ⛏️ | 大宗商品、周期品价格 | 每日 |
+
+<strong>Tab切换实现机制：</strong>
+
+日报的Tab切换采用了<strong>纯CSS + 原生JS</strong>的实现方式，不依赖任何前端框架：
+
+<pre><code class="lang-html">
+<!-- Tab按钮组 -->
+<div class="news-tabs-container">
+    <button class="news-tab-btn active" onclick="switchNewsTab(0)">📋 政策</button>
+    <button class="news-tab-btn" onclick="switchNewsTab(1)">📊 宏观</button>
+    <!-- ... 更多按钮 -->
+</div>
+
+<!-- Tab内容面板 -->
+<div class="news-tab-panel" id="news-tab-panel-0" style="display: block;">
+    <!-- 政策新闻内容 -->
+</div>
+<div class="news-tab-panel" id="news-tab-panel-1" style="display: none;">
+    <!-- 宏观新闻内容 -->
+</div>
+
+<!-- JS交互 -->
+<script>
+function switchNewsTab(index) {
+    var buttons = document.querySelectorAll('.news-tab-btn');
+    buttons.forEach(function(btn, i) {
+        btn.classList.toggle('active', i === index);
+    });
+    var panels = document.querySelectorAll('.news-tab-panel');
+    panels.forEach(function(panel, i) {
+        panel.style.display = i === index ? 'block' : 'none';
+    });
+}
+</script>
+<pre><code class="lang-">
+
+<strong>设计亮点：</strong>
+
+1. <strong>零依赖</strong>：纯原生实现，不需要加载任何JS库，页面加载速度快
+2. <strong>可访问性好</strong>：使用语义化的button和onclick，兼容性强
+3. <strong>动画过渡</strong>：切换时有淡入动画，提升体验
+4. <strong>易扩展</strong>：新增分类只需添加按钮和面板，不需要修改JS逻辑
+
+<h4>模块2：核心题材深度推演 - 六维评分模型</h4>
+
+题材分析是日报的核心价值模块，采用了<strong>六维评分模型</strong>对题材进行全方位评估。
+
+<strong>六维评分体系：</strong>
+
+| 维度 | 图标 | 权重 | 评估内容 |
+|-----|------|------|---------|
+| 政策 | 📋 | 1.2 | 政策支持力度、政策持续性 |
+| 产业 | 🏭 | 1.2 | 行业景气度、技术成熟度、市场空间 |
+| 资金 | 💰 | 1.5 | 资金流入强度、机构持仓、龙虎榜数据 |
+| 情绪 | 🔥 | 1.0 | 市场关注度、舆情热度、赚钱效应 |
+| 估值 | 📐 | 0.8 | 板块估值水平、相对估值分位 |
+| 催化 | ⚡ | 1.3 | 近期催化剂、事件驱动密度 |
+
+<strong>六维评分的可视化呈现：</strong>
+
+每个题材都有一个六维雷达图/进度条的可视化展示，让用户一眼就能看出题材的优劣势。在Pro版中，采用了<strong>横向进度条</strong>的呈现方式：
+
+<pre><code class="lang-python">
+<h1>每个维度一个进度条卡片</h1>
+dim_html = f'''
+<div class="text-center bg-white/5 rounded-lg p-2">
+    <div class="text-sm mb-0.5">{icon}</div>
+    <div class="text-sm font-bold text-white">{score}</div>
+    <div class="text-xs text-white/50 mt-0.5">{dim_label}</div>
+    <div class="w-full h-1 bg-white/10 rounded-full mt-1 overflow-hidden">
+        <div class="h-full {bar_color} rounded-full" 
+             style="width: {score}%"></div>
+    </div>
+</div>
+'''
+<pre><code class="lang-">
+
+<strong>颜色编码规则：</strong>
+
+| 分数区间 | 颜色 | 含义 |
+|---------|------|------|
+| 85-100 | 绿色 (bg-green-500) | 优秀，该维度很强 |
+| 70-84 | 黄色 (bg-yellow-500) | 良好，该维度较强 |
+| 0-69 | 红色 (bg-red-500) | 一般，该维度有待加强 |
+
+<h4>模块3：Skill增强分析 - 折叠式深度洞察</h4>
+
+Skill增强分析是V3.5新增的高级功能，为重要题材提供<strong>三维热度 + SWOT + 情景推演</strong>的深度分析框架。
+
+<strong>分析框架：</strong>
+
+<pre><code class="lang-">
+🧠 Skill深度分析（可折叠展开）
+├── 🌡️ 三维热度
+│   ├── 政策热度
+│   ├── 产业热度
+│   └── 资金热度
+├── 📊 SWOT分析
+│   ├── 优势 (Strengths)
+│   ├── 劣势 (Weaknesses)
+│   ├── 机会 (Opportunities)
+│   └── 威胁 (Threats)
+└── 🎯 情景推演
+    ├── 乐观情景（概率25%）
+    ├── 中性情景（概率50%）
+    └── 悲观情景（概率25%）
+<pre><code class="lang-">
+
+<strong>折叠交互设计：</strong>
+
+深度分析默认是折叠的，用户点击后展开。这种设计有两个好处：
+
+1. <strong>信息渐进式呈现</strong>：默认只显示标题，不干扰正常阅读流
+2. <strong>按需加载</strong>：用户只在需要时查看深度分析，减少认知负担
+
+实现方式也是纯JS的简单实现：
+
+<pre><code class="lang-javascript">
+function toggleSkillAnalysis(name) {
+    const panel = document.getElementById('skill-analysis-' + name);
+    const arrow = document.getElementById('skill-arrow-' + name);
+    if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        arrow.textContent = '▲';
+    } else {
+        panel.classList.add('hidden');
+        arrow.textContent = '▼';
+    }
+}
+<pre><code class="lang-">
+
+<h3>3.3.3 内容生成的智能算法</h3>
+
+日报不只是简单的数据展示，还包含了多个智能分析算法。
+
+<h4>算法1：板块持续性评估</h4>
+
+<code>_assess_sustainability()</code> 方法根据板块的上涨逻辑和涨幅，智能评估板块行情的可持续性：
+
+<pre><code class="lang-python">
+def _assess_sustainability(self, sector):
+    """评估板块持续性"""
+    reason = sector.get('reason', '')
+    change_pct = self._parse_change_pct(sector.get('change_pct', 0))
+    
+    score = 50  # 基准分
+    
+    # 关键词加分（高权重）
+    keywords_high = ['周期反转', '需求爆发', '政策支持', '技术突破', '国产替代']
+    keywords_mid = ['业绩超预期', '行业景气', '资金流入']
+    
+    for kw in keywords_high:
+        if kw in reason:
+            score += 15  # 每个高权重关键词加15分
+    
+    for kw in keywords_mid:
+        if kw in reason:
+            score += 10  # 每个中权重关键词加10分
+    
+    # 涨幅过大减分（物极必反）
+    if change_pct > 0.05:
+        score -= 10
+    
+    score = max(10, min(95, score))  # 限制在10-95分之间
+    
+    # 分级
+    if score >= 80:
+        level = '很强'
+    elif score >= 60:
+        level = '较强'
+    elif score >= 40:
+        level = '一般'
+    else:
+        level = '较弱'
+    
+    return {'score': score, 'level': level}
+<pre><code class="lang-">
+
+<strong>算法设计思想：</strong>
+
+1. <strong>基于关键词的语义评分</strong>：通过匹配上涨原因中的关键词来评估逻辑的硬度
+2. <strong>涨幅反向调节</strong>：短期涨幅过大反而降低持续性评分，体现"物极必反"的投资规律
+3. <strong>边界约束</strong>：分数限制在合理范围内，避免极端值
+4. <strong>分级输出</strong>：将连续分数转换为离散等级，便于用户理解
+
+<h4>算法2：情景推演模型</h4>
+
+<code>_generate_skill_enhanced_analysis()</code> 中的情景推演模块，基于综合评分计算不同情景下的预期收益：
+
+<pre><code class="lang-python">
+<h1>情景推演</h1>
+base_return = 0.0
+
+<h1>根据综合评分计算基准预期收益</h1>
+total_score = topic.get('total_score', 50)
+if total_score >= 80:
+    base_return = 0.15  # 15% 预期收益
+elif total_score >= 60:
+    base_return = 0.08  # 8%
+elif total_score >= 40:
+    base_return = 0.02  # 2%
+else:
+    base_return = -0.05  # -5%
+
+scenarios = [
+    {
+        'scenario_name': '乐观情景',
+        'probability': 0.25,
+        'impact_score': min(100, total_score + 20),
+        'expected_return': base_return * 1.8,
+        'key_assumptions': ['催化事件超预期落地', '资金持续大幅流入', ...],
+    },
+    {
+        'scenario_name': '中性情景',
+        'probability': 0.5,
+        'impact_score': total_score,
+        'expected_return': base_return,
+        'key_assumptions': ['催化事件符合预期', ...],
+    },
+    {
+        'scenario_name': '悲观情景',
+        'probability': 0.25,
+        'impact_score': max(0, total_score - 25),
+        'expected_return': base_return * -1.5,
+        'key_assumptions': ['催化事件不及预期', ...],
+    },
+]
+<pre><code class="lang-">
+
+<strong>概率分布设计：</strong>
+
+采用了<strong>"橄榄型"</strong>的概率分布——中性情景概率最高（50%），乐观和悲观情景概率较低（各25%）。这种分布符合大多数市场情况的统计规律。
+
+<h3>3.3.4 设计哲学总结</h3>
+
+日报生成器体现了三个重要的设计哲学：
+
+<h4>1. 信息分层设计</h4>
+
+不是所有信息都同等重要。日报通过<strong>字体大小、颜色对比度、卡片层级</strong>等视觉手段，将信息分为不同层级，引导用户的注意力流动：
+
+- <strong>一级信息</strong>：大标题、核心数据、关键结论（高对比度、大字号）
+- <strong>二级信息</strong>：章节标题、重要指标（中对比度、中字号）
+- <strong>三级信息</strong>：详细内容、辅助说明（低对比度、小字号）
+
+<h4>2. 交互增强信息密度</h4>
+
+通过Tab切换、折叠展开等交互手段，在不增加页面长度的前提下，大幅提升信息密度。用户可以自主选择想看的内容，而不是被动接受全部信息。
+
+<h4>3. 分析框架的产品化</h4>
+
+将专业的投资分析框架（SWOT、情景推演、六维评分）产品化、可视化，让普通用户也能使用专业工具进行投资分析。这是系统的核心价值之一。
+
+<hr>
+
+<h2>3.4 列表页生成器 - ListPagePro 的归档机制</h2>
+
+列表页是内容系统中不可或缺的一部分，它像书架一样，将历史报告按类别和时间组织起来，方便用户查阅。
+
+<h3>3.4.1 功能定位与频道配置</h3>
+
+<h4>定位</h4>
+
+列表页定位于<strong>"报告归档与导航"</strong>，是用户查找历史报告的入口。每个报告类型对应一个列表页。
+
+<h4>频道配置系统</h4>
+
+ListPagePro 采用了<strong>配置驱动</strong>的设计，所有频道信息集中在 <code>CHANNEL_CONFIGS</code> 字典中：
+
+<pre><code class="lang-python">
+CHANNEL_CONFIGS = {
+    'daily': {
+        'title': '每日新闻洞察', 'nav_text': '日报',
+        'patterns': [r'^\d{8}_每日新闻洞察.*\.html$'],
+        'icon': '📰', 'tag': '每日洞察',
+        'description': '隔夜新闻与当日操作策略',
+    },
+    'aftermarket': {
+        'title': '盘后速递', 'nav_text': '盘后',
+        'patterns': [r'^\d{8}_盘后速递.*\.html$'],
+        'icon': '📊', 'tag': '盘后速递',
+        'description': '收盘后热点复盘与机会挖掘',
+    },
+    # ... 更多频道
+}
+<pre><code class="lang-">
+
+<strong>配置项说明：</strong>
+
+| 配置项 | 用途 | 设计考量 |
+|-------|------|---------|
+| title | 页面大标题 | 用户第一眼看到的内容，需要清晰准确 |
+| nav_text | 导航栏显示文字 | 空间有限，需要简洁 |
+| patterns | 文件匹配正则列表 | 支持多个pattern，应对文件名格式变化 |
+| icon | 图标 | 视觉识别，快速定位 |
+| tag | 标签文字 | 卡片上的分类标签 |
+| description | 频道描述 | 帮助用户理解该频道的内容定位 |
+
+这种<strong>配置驱动</strong>的设计使得新增频道非常简单——只需要在配置字典中添加一项，不需要修改任何逻辑代码。
+
+<h3>3.4.2 文件扫描与匹配机制</h3>
+
+<h4>多Pattern匹配</h4>
+
+每个频道可以配置多个文件名正则pattern，应对历史文件名格式不统一的问题：
+
+<pre><code class="lang-python">
+<h1>例如产业链频道，历史上有多种文件名格式</h1>
+'industry-chain': {
+    'patterns': [
+        r'^\d{8}_.<em>产业链.</em>\.html$', 
+        r'^\d{8}_.<em>深度研究.</em>\.html$',
+        r'^.<em>cowos.</em>\.html$'
+    ],
+    # ...
+}
+<pre><code class="lang-">
+
+<h4>去重机制</h4>
+
+由于多个pattern可能匹配到同一个文件，系统内置了去重逻辑：
+
+<pre><code class="lang-python">
+seen_files = set()  # 去重集合
+for pattern in self.config['patterns']:
+    regex = re.compile(pattern)
+    for f in dir_path.iterdir():
+        if f.is_file() and regex.match(f.name) and f.name != 'latest.html':
+            if f.name in seen_files:  # 去重检查
+                continue
+            seen_files.add(f.name)
+            # ... 添加到列表
+<pre><code class="lang-">
+
+<h4>日期提取与排序</h4>
+
+系统自动从文件名中提取8位日期（如 <code>20260615</code>），并按日期倒序排列：
+
+<pre><code class="lang-python">
+<h1>尝试从文件名提取日期</h1>
+date_match = re.search(r'(\d{8})', f.name)
+date_str = date_match.group(1) if date_match else ''
+<pre><code class="lang-">
+
+<strong>设计亮点：容错性</strong>
+
+如果文件名中没有日期，也不会报错，只是日期显示为空。这确保了即使文件名格式不规范，列表页也能正常工作。
+
+<h3>3.4.3 卡片网格布局</h3>
+
+列表页采用<strong>响应式卡片网格</strong>布局，不同屏幕尺寸下自动调整列数：
+
+<pre><code class="lang-">
+桌面端（大屏）：4列
+平板（中屏）：3列
+平板（小屏）：2列
+手机：2列或1列
+<pre><code class="lang-">
+
+<strong>卡片设计：</strong>
+
+<pre><code class="lang-">
+┌─────────────────────┐
+│        📰          │  图标（大字号，视觉焦点）
+│                     │
+│  每日新闻洞察 · 6月  │  标题（中字号，加粗）
+│  中旬市场分析...     │  （两行截断，超出省略）
+│                     │
+│  2026-06-15         │  日期（小字号，低对比度）
+│  [每日洞察]         │  标签（小字号，圆角背景）
+└─────────────────────┘
+<pre><code class="lang-">
+
+<strong>hover交互：</strong>
+
+鼠标悬停时，卡片有三个视觉变化：
+1. 轻微放大（<code>scale(1.05)</code>）
+2. 阴影加深
+3. 过渡动画（<code>transition: all 0.3s</code>）
+
+这种微交互提升了用户体验，让静态页面有了动态感。
+
+<h3>3.4.4 批量生成机制</h3>
+
+系统提供了 <code>generate_all_list_pages()</code> 函数，可以一键生成所有频道的列表页：
+
+<pre><code class="lang-python">
+def generate_all_list_pages(docs_dir: str = "docs") -> dict:
+    """生成所有频道的列表页"""
+    results = {
+        'success': [],
+        'failed': [],
+        'total': len(CHANNEL_CONFIGS),
+    }
+    
+    for channel_key in CHANNEL_CONFIGS:
+        try:
+            generator = ListPageProGenerator(channel_key, docs_dir=docs_dir)
+            result = generator.publish()
+            results['success'].append({
+                'channel': channel_key,
+                'title': CHANNEL_CONFIGS[channel_key]['title'],
+                'file_count': result['file_count'],
+            })
+        except Exception as e:
+            results['failed'].append({
+                'channel': channel_key,
+                'error': str(e),
+            })
+    
+    return results
+<pre><code class="lang-">
+
+<strong>设计亮点：容错性与统计</strong>
+
+- 单个频道生成失败不会影响其他频道
+- 生成完成后返回详细的成功/失败统计
+- 失败信息包含具体错误原因，便于排查
+
+这种设计在批量操作中非常重要——确保部分失败不会导致整体崩溃，同时提供足够的调试信息。
+
+<hr>
+
+<h2>3.5 模板系统 - 组件化与主题切换</h2>
+
+模板系统是生成器体系的视觉基础，决定了页面的外观风格和组件复用方式。
+
+<h3>3.5.1 Pro组件库的架构</h3>
+
+Pro组件库位于 <code>v3/components/pro.py</code>，是V3.5架构的核心创新之一。它不是一个传统的模板引擎，而是一个<strong>"面向对象的HTML组件库"</strong>。
+
+<h4>组件层级</h4>
+
+<pre><code class="lang-">
+ProTheme（主题常量）
+    │
+    ├── Component（组件基类）
+    │   ├── ProPage（页面级组件）
+    │   ├── GlassCard（玻璃卡片）
+    │   ├── TabPane（Tab面板）
+    │   ├── CardGroup（卡片组）
+    │   ├── DataGrid（数据网格）
+    │   ├── SectionTitle（章节标题）
+    │   └── TagBadge（标签徽章）
+    │
+    └── get_v4_theme_css()（V4主题CSS生成函数）
+<pre><code class="lang-">
+
+<h4>组件基类：Component</h4>
+
+所有组件都继承自 <code>Component</code> 基类，提供统一的 <code>render()</code> 接口：
+
+<pre><code class="lang-python">
+class Component:
+    """组件基类"""
+    
+    def render(self) -> str:
+        """渲染组件为HTML字符串"""
+        raise NotImplementedError
+<pre><code class="lang-">
+
+这是一个典型的<strong>组合模式</strong>实现——每个组件都可以独立渲染，也可以嵌套在其他组件中。
+
+<h3>3.5.2 页面级组件：ProPage</h3>
+
+<code>ProPage</code> 是最高层级的组件，代表一个完整的HTML页面，包含了导航栏、内容区、页脚等完整页面结构。
+
+<h4>页面结构</h4>
+
+<pre><code class="lang-">
+┌─────────────────────────────────────────┐
+│              导航栏 (Nav)               │
+│  Logo · 首页 · 日报 · 盘后 · ...      │
+├─────────────────────────────────────────┤
+│                                         │
+│           主内容区 (Main)              │
+│  (由子类的 _content() 方法填充)        │
+│                                         │
+├─────────────────────────────────────────┤
+│              页脚 (Footer)             │
+│  更新时间 · 版权信息                   │
+└─────────────────────────────────────────┘
+<pre><code class="lang-">
+
+<h4>响应式导航栏</h4>
+
+ProPage的导航栏有几个设计亮点：
+
+1. <strong>玻璃态效果</strong>：半透明背景 + 模糊效果，现代感强
+2. <strong>激活状态</strong>：当前页面对应的导航项有高亮效果
+3. <strong>响应式</strong>：移动端自动调整布局
+4. <strong>固定定位</strong>：滚动时导航栏保持在顶部
+
+<h3>3.5.3 核心组件详解</h3>
+
+<h4>GlassCard - 玻璃态卡片</h4>
+
+玻璃态卡片是Pro版最具辨识度的视觉元素，也是使用最频繁的组件。
+
+<strong>视觉特征：</strong>
+- 半透明背景（<code>rgba(255, 255, 255, 0.1)</code>）
+- 毛玻璃模糊效果（<code>backdrop-filter: blur(10px)</code>）
+- 半透明边框（<code>border: 1px solid rgba(255, 255, 255, 0.2)</code>）
+- 圆角设计（<code>border-radius: 16px</code> 或 <code>20px</code>）
+- 柔和阴影
+
+<strong>使用场景：</strong>
+- 章节容器
+- 数据卡片
+- 功能模块包裹
+
+<h4>TabPane - Tab切换面板</h4>
+
+TabPane 是一个高复用性的交互组件，支持在有限空间内展示多组内容。
+
+<strong>特性：</strong>
+- 支持任意数量的Tab
+- 自定义Tab样式（default / underline）
+- 平滑的切换动画
+- 纯JS实现，零依赖
+
+<strong>在系统中的应用：</strong>
+- 日报的8分类新闻
+- 题材的多级分类
+- 持仓的多维度视图
+
+<h4>DataGrid - 数据网格</h4>
+
+DataGrid 用于展示关键指标数据，采用<strong>图标+数值+标签</strong>的布局模式。
+
+<strong>典型应用：</strong>
+
+<pre><code class="lang-">
+┌──────┬──────┬──────┬──────┐
+│  📈  │  📉  │  💰  │  🔥  │  图标
+│ 1.2万｜ 8千 ｜ 500亿｜ 68   ｜  数值（大字号加粗）
+│ 成交额｜ 下跌家｜ 北向｜ 情绪  ｜  标签（小字号低对比度）
+└──────┴──────┴──────┴──────┘
+<pre><code class="lang-">
+
+这种布局模式信息密度高，视觉效果好，广泛应用于各类数据概览场景。
+
+<h3>3.5.4 主题系统设计</h3>
+
+<h4>双主题架构</h4>
+
+系统支持两种主题：
+
+| 主题 | 标识符 | 视觉风格 | 适用场景 |
+|-----|--------|---------|---------|
+| 深色主题 | dark | 深紫渐变背景 + 玻璃态卡片 + 亮色文字 | 夜间阅读、专业工具、酷炫效果 |
+| 浅色主题 | light | 浅蓝/浅紫渐变背景 + 白色卡片 + 深色文字 | 日间阅读、正式报告、长文阅读 |
+
+V3.5默认使用深色主题，V4默认使用浅色主题。
+
+<h4>主题切换技术实现</h4>
+
+主题切换的核心技术是 <strong>CSS变量覆盖 + 选择器优先级</strong>。
+
+在深色主题下，使用的是默认的Tailwind CSS工具类（如 <code>text-white</code>、<code>bg-white/10</code>）。
+
+切换到浅色主题时，系统会注入一段V4主题CSS，通过更高优先级的选择器覆盖原有样式：
+
+<pre><code class="lang-css">
+/<em> V4主题CSS - 覆盖深色主题的文字颜色 </em>/
+.pro-container .text-white { 
+    color: #1E293B !important; 
+}
+.pro-container .text-white/70 { 
+    color: #475569 !important; 
+}
+.pro-container .text-white/50 { 
+    color: #94A3B8 !important; 
+}
+
+/<em> 卡片背景改为白色 </em>/
+.card-glass {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+<pre><code class="lang-">
+
+<strong>技术权衡：CSS覆盖方案的利与弊</strong>
+
+| 优点 | 缺点 |
+|-----|------|
+| 100%向后兼容，现有生成器代码零修改 | CSS文件体积增大，有冗余 |
+| 主题切换只需修改一个参数 | 部分特殊组件可能出现样式冲突 |
+| 可以渐进式迁移 | 依赖!important，不够优雅 |
+| 开发效率高 | 调试困难（需要检查样式覆盖） |
+
+<strong>设计决策的底层逻辑：</strong>
+
+这是一个典型的<strong>"开发效率 > 代码优雅"</strong>的工程决策。在资源有限的情况下，优先保证功能快速上线和向后兼容，而不是追求代码的绝对优雅。这在创业型项目中是非常务实的选择。
+
+<hr>
+
+<h2>3.6 内容渲染管道 - 从数据到页面的生成流程</h2>
+
+一个HTML页面的生成不是一蹴而就的，而是经过了一个清晰的渲染管道。
+
+<h3>3.6.1 渲染管道的五个阶段</h3>
+
+<pre><code class="lang-">
+数据加载 → 内容组装 → 组件渲染 → 页面组装 → 质量校验 → 输出
+   ①          ②          ③          ④          ⑤
+<pre><code class="lang-">
+
+<h4>阶段①：数据加载（Data Loading）</h4>
+
+<strong>入口：</strong> <code>load_data()</code> 方法
+
+<strong>职责：</strong>
+- 从DataLoader获取所需的所有数据
+- 进行数据预处理（格式转换、计算衍生指标）
+- 设置更新时间
+- 标记 <code>_data_loaded = True</code>
+
+<strong>设计原则：</strong>
+- 所有数据加载集中在一个方法中，便于维护
+- 可选数据使用try-except容错
+- 数据预处理在加载阶段完成，渲染阶段只负责展示
+
+<h4>阶段②：内容组装（Content Assembly）</h4>
+
+<strong>入口：</strong> 各个 <code>add_xxx()</code> 方法
+
+<strong>职责：</strong>
+- 将数据转换为章节内容
+- 调用底层组件生成HTML片段
+- 通过 <code>add_section()</code> 添加到章节列表
+
+<strong>特点：</strong>
+- 每个章节一个方法，职责清晰
+- 方法之间相互独立，可以按需调用
+- 支持灵活的章节组合
+
+<h4>阶段③：组件渲染（Component Rendering）</h4>
+
+<strong>入口：</strong> 各组件的 <code>render()</code> 方法
+
+<strong>职责：</strong>
+- 将组件配置转换为HTML字符串
+- 注入CSS样式和JS脚本
+- 处理交互逻辑
+
+<h4>阶段④：页面组装（Page Assembly）</h4>
+
+<strong>入口：</strong> <code>render()</code> 方法
+
+<strong>职责：</strong>
+- 组装HTML头部（meta、title、CSS）
+- 组装导航栏
+- 组装主体内容
+- 组装页脚
+- 注入主题CSS
+- 注入JS脚本
+
+这一阶段由 <code>ProPage.render()</code> 实现，是整个页面的总装环节。
+
+<h4>阶段⑤：质量校验（Quality Validation）</h4>
+
+<strong>入口：</strong> <code>validate()</code> 方法
+
+<strong>校验项：</strong>
+
+| 校验项 | 检查方法 | 失败影响 |
+|-------|---------|---------|
+| DOCTYPE声明 | 检查 <code><!DOCTYPE html></code> 是否存在 | 严重 |
+| 导航栏 | 检查 <code>glass-nav</code> 类名 | 一般 |
+| 内容容器 | 检查 <code>pro-container</code> 类名 | 严重 |
+| 内容长度 | 检查HTML长度是否足够 | 一般 |
+
+<strong>设计思想：</strong>
+
+质量校验是生成流程的"守门员"，确保生成的页面达到最低质量标准。虽然目前校验项还比较基础，但这套机制为后续扩展更复杂的校验（如链接检查、无障碍检查、性能检查）预留了空间。
+
+<h3>3.6.2 发布流程管道</h3>
+
+除了渲染管道，还有一个更完整的<strong>发布管道</strong>：
+
+<pre><code class="lang-">
+生成HTML → 保存文件 → 质量校验 → 更新列表页 → Git部署
+<pre><code class="lang-">
+
+这个完整的发布流程由 <code>publish()</code> 方法封装，实现了"一键发布"。
+
+<strong>各环节说明：</strong>
+
+1. <strong>生成HTML</strong>：调用 <code>render()</code> 生成完整HTML内容
+2. <strong>保存文件</strong>：写入到指定路径的HTML文件
+3. <strong>质量校验</strong>：调用 <code>validate()</code> 检查页面质量
+4. <strong>更新列表页</strong>：自动更新对应频道的列表页（ListPagePro）
+5. <strong>Git部署</strong>：自动提交并推送到Git仓库，触发静态页面部署
+
+<h3>3.6.3 渲染性能优化</h3>
+
+虽然静态页面生成对性能要求不高，但系统仍然做了一些优化设计：
+
+<h4>1. 延迟渲染</h4>
+
+页面内容只在真正需要的时候才渲染。例如，<code>render()</code> 方法会先检查数据是否加载，未加载则先加载数据，避免重复加载。
+
+<h4>2. 组件复用</h4>
+
+常用组件（如GlassCard、TabPane）都是无状态的，可以重复调用，避免了重复的样式定义。
+
+<h4>3. CSS内联</h4>
+
+所有CSS都内联在HTML页面中，虽然增加了页面体积，但：
+- 减少了HTTP请求数
+- 页面可以离线使用
+- 部署简单（单文件即可）
+
+这是典型的<strong>"用空间换体验和便捷性"</strong>的权衡。
+
+<hr>
+
+<h2>3.7 Pro版 vs 普通版 vs V4版 - 演进路线与技术权衡</h2>
+
+生成器体系经历了从普通版到Pro版再到V4版的演进，每次演进都反映了技术团队对用户体验和系统架构的深入思考。
+
+<h3>3.7.1 三代生成器的对比</h3>
+
+| 维度 | 普通版 (V2/V3) | Pro版 (V3.5) | V4版 (V4) |
+|-----|---------------|-------------|----------|
+| 视觉风格 | 简约白底 | 深色玻璃态 | 浅色系专业 |
+| 基类体系 | 简单BaseGenerator | ProGenerator + ReportProGenerator | V4Generator (继承ProGenerator) |
+| 组件系统 | 零散的HTML拼接 | 结构化Pro组件库 | 增强版Pro组件库 |
+| 主题支持 | 无 | 深色主题 | 深浅双主题 |
+| 页面布局 | 固定宽度居中 | 响应式 + 卡片套卡片 | 响应式 + 白色卡片 |
+| 数据层 | 直接读文件 | DataLoader统一接口 | DataLoader统一接口 |
+| 交互性 | 纯静态 | Tab切换、折叠展开 | 增强交互 |
+| 视觉冲击力 | 低 | 高 | 中 |
+| 阅读舒适度 | 一般 | 夜间好，日间一般 | 好（适合长文） |
+| 生成器数量 | 10+ | 20+ | 25+ |
+
+<h3>3.7.2 Pro版的核心创新</h3>
+
+Pro版是生成器体系的一次重大升级，引入了多个关键创新：
+
+<h4>创新1：卡片套卡片的视觉层次</h4>
+
+Pro版之前，页面内容是平铺直叙的。Pro版引入了<strong>"卡片套卡片"</strong>的设计语言，通过多层次的卡片嵌套创造了视觉深度。
+
+<strong>设计心理学依据：</strong>
+- 人类视觉系统对层次分明的界面更容易理解
+- 卡片创造了清晰的内容边界，减少认知负担
+- 半透明玻璃态效果现代感强，提升产品质感
+
+<h4>创新2：统一组件库</h4>
+
+Pro版之前，每个生成器各自编写HTML/CSS，代码重复率高，风格不统一。Pro版建立了统一的Pro组件库，实现了：
+- 视觉风格100%统一
+- 组件代码100%复用
+- 新增生成器效率提升300%
+
+<h4>创新3：主题系统</h4>
+
+Pro版的主题系统为后续的V4版奠定了基础。虽然V3.5只有深色主题，但主题切换的架构已经预留好了。
+
+<h3>3.7.3 V4版的演进逻辑</h3>
+
+V4版是在Pro版基础上的迭代，核心变化是<strong>从深色主题切换到浅色主题</strong>。
+
+<h4>为什么需要V4浅色主题？</h4>
+
+深色玻璃态虽然酷炫，但也有其局限性：
+
+1. <strong>长文阅读体验差</strong>：深色背景+亮色文字在长时间阅读时更容易视觉疲劳
+2. <strong>正式感不足</strong>：玻璃态风格偏"科技感"、"酷炫"，但不够"专业"、"正式"
+3. <strong>打印效果差</strong>：深色背景打印时会消耗大量墨水，且效果不佳
+4. <strong>部分用户偏好</strong>：有些用户就是不习惯深色模式
+
+<h4>V4版的技术实现策略</h4>
+
+V4版采用了<strong>"一套代码，双主题支持"</strong>的策略，而不是重写一套生成器：
+
+<pre><code class="lang-">
+┌─────────────────────────────────────────────┐
+│              业务逻辑层（共用）             │
+│  DailyReportPro、AftermarketPro 等        │
+└───────────────────┬───────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────────┐
+│              Pro组件层（共用）              │
+│  ProPage、GlassCard、TabPane 等           │
+└───────────────────┬───────────────────────┘
+                    │
+          ┌─────────┴─────────┐
+          ▼                   ▼
+    深色主题CSS           浅色主题CSS
+    (默认)               (V4主题覆盖)
+<pre><code class="lang-">
+
+<strong>策略优势：</strong>
+- <strong>维护成本低</strong>：只需要维护一套业务代码
+- <strong>迁移成本低</strong>：现有Pro版生成器自动支持V4主题，只需传参切换
+- <strong>渐进式演进</strong>：可以根据需要逐步将页面从深色切换到浅色
+
+<h3>3.7.4 演进中的技术权衡</h3>
+
+<h4>权衡1：复用性 vs 专业性</h4>
+
+<strong>问题：</strong> 是做一个大而全的通用生成器，还是多个小而精的专用生成器？
+
+<strong>决策：</strong> 采用<strong>"基类复用 + 专用子类"</strong>的架构。基类提供通用能力，每个具体生成器专注于自己的业务逻辑。
+
+<strong>结果：</strong> 既保证了代码复用，又保证了每个生成器的专业性。
+
+<h4>权衡2：配置驱动 vs 代码驱动</h4>
+
+<strong>问题：</strong> 列表页的频道配置，是放在配置文件里，还是硬编码在代码中？
+
+<strong>决策：</strong> 采用<strong>字典配置</strong>的方式，配置与代码在同一个文件中。
+
+<strong>原因：</strong>
+- 配置项不多（10-20个频道），单独维护配置文件收益不大
+- 配置和代码在一起，修改方便，不需要切换文件
+- 减少IO操作，生成速度更快
+
+<h4>权衡3：纯静态 vs 轻交互</h4>
+
+<strong>问题：</strong> 静态页面是否需要引入JavaScript交互？
+
+<strong>决策：</strong> 引入<strong>轻量级</strong>的原生JS交互（Tab切换、折叠展开），但不使用任何前端框架。
+
+<strong>原因：</strong>
+- 纯静态页面信息密度有限，适当的交互可以大幅提升信息密度
+- 原生JS体积极小（通常<1KB），对页面加载速度影响可忽略
+- 不使用框架避免了依赖膨胀，保持了页面的轻量特性
+
+<hr>
+
+<h2>3.8 生成器的扩展开发指南</h2>
+
+理解了生成器体系的架构设计后，本节总结新增生成器的最佳实践。
+
+<h3>3.8.1 新增生成器的步骤</h3>
+
+<h4>步骤1：确定生成器类型</h4>
+
+首先确定生成器属于哪种类型，选择对应的基类：
+
+| 场景 | 推荐基类 | 示例 |
+|-----|---------|------|
+| 章节化报告 | ReportProGenerator | 日报、盘后速递、周复盘 |
+| 工具类页面 | ProGenerator | 持仓仪表盘、板块热力图 |
+| 列表/导航页 | ProGenerator | 首页、列表页 |
+| 专题研究 | ReportProGenerator | 产业链深度、催化专题 |
+
+<h4>步骤2：实现核心方法</h4>
+
+最少需要实现以下方法：
+
+<pre><code class="lang-python">
+class MyGenerator(ReportProGenerator):
+    """我的新生成器"""
+    
+    data_type = "my_data"  # 数据类型标识
+    
+    def __init__(self, <em></em>kwargs):
+        super().__init__(
+            title="我的报告",
+            report_type="my_report",
+            subtitle="这是一个示例报告",
+            <em></em>kwargs
+        )
+    
+    def load_data(self):
+        """加载数据"""
+        super().load_data()
+        # 加载你的特定数据
+        self.my_data = self.data_loader.get_my_data()
+    
+    def _content(self) -> str:
+        """页面内容（如果继承ReportProGenerator通常不需要重写）"""
+        # 如果你使用ReportProGenerator，
+        # 只需要通过add_section()添加章节即可
+        pass
+    
+    def build_standard_report(self):
+        """构建标准报告（推荐提供此便捷方法）"""
+        self.add_section_1()
+        self.add_section_2()
+        # ... 添加更多章节
+        return self
+<pre><code class="lang-">
+
+<h4>步骤3：添加章节方法</h4>
+
+每个章节对应一个 <code>add_xxx()</code> 方法：
+
+<pre><code class="lang-python">
+def add_my_section(self):
+    """添加我的章节"""
+    # 1. 从self.my_data中获取数据
+    data = self.my_data
+    
+    # 2. 组装章节内容HTML
+    content = f'''
+    <div class="grid grid-cols-2 gap-4">
+        <!-- 你的内容 -->
+    </div>
+    '''
+    
+    # 3. 添加到章节列表
+    self.add_section("章节标题", content, "📊")
+<pre><code class="lang-">
+
+<h4>步骤4：添加测试入口</h4>
+
+在文件末尾添加 <code>__main__</code> 测试入口：
+
+<pre><code class="lang-python">
+if __name__ == '__main__':
+    gen = MyGenerator()
+    gen.build_standard_report()
+    html = gen.render()
+    print(f'生成成功，长度: {len(html)} 字符')
+    
+    # 保存测试
+    gen.save('test_output.html')
+    print('已保存到 test_output.html')
+<pre><code class="lang-">
+
+<h3>3.8.2 设计最佳实践</h3>
+
+<h4>实践1：遵循卡片套卡片原则</h4>
+
+- 外层章节使用 <code>GlassCard</code> 或 <code>add_section()</code>（自动使用GlassCard）
+- 内层数据块使用小卡片或背景色块
+- 确保至少两层卡片层次
+
+<h4>实践2：数据与渲染分离</h4>
+
+- 数据加载统一在 <code>load_data()</code> 中完成
+- 渲染方法只负责将数据转换为HTML，不做数据计算
+- 复杂计算逻辑考虑抽离到utils或内容引擎层
+
+<h4>实践3：容错降级设计</h4>
+
+- 可选数据使用 <code>try-except</code> 包裹
+- 数据缺失时显示友好的占位提示
+- 确保核心数据缺失时有明确的错误提示
+
+<h4>实践4：保持章节独立性</h4>
+
+- 每个章节方法独立，不依赖其他章节的状态
+- 章节可以自由组合、增删
+- 章节顺序由 <code>build_standard_report()</code> 控制
+
+<h4>实践5：使用Pro组件而非手写HTML</h4>
+
+- 优先使用 <code>GlassCard</code>、<code>TabPane</code>、<code>CardGroup</code> 等Pro组件
+- 避免在业务代码中写大量原生CSS
+- 通用模式考虑抽象为新的Pro组件
+
+<hr>
+
+<h2>本章小结</h2>
+
+生成器体系是DeepWiki系统的"内容生产工厂"，经历了从V1到V4的多次架构演进，形成了今天成熟的三级继承架构和组件化体系。
+
+<h3>核心要点回顾</h3>
+
+1. <strong>三级继承架构</strong>：<code>BaseGenerator</code> → <code>ProGenerator</code> → <code>ReportProGenerator</code>，每层负责一个抽象级别，兼具统一性和灵活性。
+
+2. <strong>组件化设计</strong>：Pro组件库提供了GlassCard、TabPane、DataGrid等可复用组件，实现了"搭积木"式的页面构建。
+
+3. <strong>双主题系统</strong>：通过CSS覆盖机制实现深色/浅色主题切换，一套代码支持两种视觉风格，兼顾了酷炫感和阅读舒适度。
+
+4. <strong>模板方法模式</strong>：基类定义标准流程（加载数据→渲染→保存→发布），子类只需要实现业务相关的钩子方法。
+
+5. <strong>卡片套卡片</strong>：多层次的卡片设计创造了清晰的视觉层次，提升了界面的专业感和信息组织效率。
+
+6. <strong>容错降级机制</strong>：核心数据+可选数据的分层加载策略，确保了部分数据源异常时报告仍能正常生成。
+
+7. <strong>配置驱动</strong>：列表页等通用生成器采用配置驱动的设计，新增频道只需修改配置，不需要修改逻辑代码。
+
+<h3>技术智慧总结</h3>
+
+生成器体系的演进过程，体现了几个重要的工程智慧：
+
+- <strong>渐进式重构</strong>：不是一步到位设计完美架构，而是随着业务发展逐步演进，每一步都解决当下最痛的问题。
+- <strong>向后兼容优先</strong>：V4主题采用CSS覆盖而非重写，确保了历史代码的可用性，降低了迁移成本。
+- <strong>复用与专用的平衡</strong>：通过基类复用通用逻辑，通过子类实现业务专用逻辑，在复用性和专业性之间找到了良好的平衡点。
+- <strong>轻交互理念</strong>：用最小的JS代价（原生JS、百行级别）获得最大的体验提升（Tab切换、折叠展开）。
+
+生成器体系不是孤立的，它向下对接数据层和内容引擎，向上对接工作流调度系统，是整个系统中承上启下的关键一层。理解了生成器的设计思想，也就理解了DeepWiki系统的产品哲学——用技术手段提升信息生产和消费的效率。
+        </article>
+    </div>
+</body>
+</html>
