@@ -1,0 +1,1838 @@
+# 第1章 系统架构总览
+
+## 章节概述
+
+投资研究系统是一个面向A股市场的自动化投研内容生成平台，采用分层架构设计，从底层数据到上层展现形成了完整的价值链路。系统每日自动生成盘前早报、午间速递、收盘深度洞察三份核心报告，并提供持仓预警、板块热力图、龙虎榜透视、题材分析等二十余个工具页面，服务于个人投资者的投研决策全流程。
+
+系统架构经历了从V1单体脚本到V2模块化、V3插件化、再到V4组件化的四次重大演进，逐步形成了"数据层-引擎层-内容层-生成层-组件层"的五层经典架构。其核心设计理念是"内容与展现分离、数据与逻辑分离、工具与报告分离"，通过分层解耦实现了快速迭代和高质量输出的平衡。
+
+本章将从系统定位出发，沿着架构演进的时间线，深入剖析每一层的设计原理、核心实现与技术权衡，并结合具体代码片段展示架构如何在实践中落地。
+
+---
+
+## 1.1 系统定位与核心价值
+
+### 1.1.1 定位：个人投资者的AI投研助手
+
+在当前的投资信息环境中，个人投资者面临着信息过载与信息不对称的双重困境。一方面，市场上每天产生海量的资讯、研报、公告，人工筛选效率低下；另一方面，机构投资者拥有专业的研究团队和数据终端，个人投资者在信息获取和处理能力上存在显著差距。
+
+本系统的核心定位是**为个人投资者提供7×24小时自动化的AI投研助手**，通过算法和自动化流程，将分散的市场数据、新闻资讯、公司公告等信息进行结构化处理和深度分析，生成专业级别的投研内容，帮助个人投资者缩小与机构的信息差距。
+
+### 1.1.2 核心价值矩阵
+
+系统的核心价值体现在以下四个维度：
+
+| 价值维度 | 具体表现 | 技术支撑 |
+|---------|---------|---------|
+| **时效性** | 盘前、盘中、盘后多时点自动生成，确保信息及时 | 定时任务 + 增量数据抓取 |
+| **全面性** | 覆盖行情、新闻、财务、题材、资金等多维度 | 多数据源整合 + 统一数据模型 |
+| **深度性** | 不仅罗列数据，更提供逻辑推演和策略建议 | 多维度分析引擎 + 知识图谱 |
+| **可追溯** | 所有预判可验证，所有数据来源可查 | 预判验证中心 + 数据溯源机制 |
+
+### 1.1.3 全链路覆盖
+
+系统构建了从**数据获取 → 分析加工 → 内容生成 → 可视化展现 → 效果验证**的完整价值链路：
+
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│  数据获取层  │───▶│  分析加工层  │───▶│  内容生成层  │
+└─────────────┘    └─────────────┘    └─────────────┘
+       │                   │                   │
+       ▼                   ▼                   ▼
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│ 多源数据采集 │    │ 多维度分析  │    │ 报告与工具  │
+│ 清洗与标准化 │    │ 逻辑推演    │    │ 个性化输出  │
+└─────────────┘    └─────────────┘    └─────────────┘
+                             │
+                             ▼
+                      ┌─────────────┐
+                      │  效果验证层  │
+                      │ 预判准确率  │
+                      │ 策略回测    │
+                      └─────────────┘
+                             │
+                             ▼
+                      ┌─────────────┐
+                      │  反馈优化层  │ ◀── 闭环优化
+                      └─────────────┘
+```
+
+这一全链路设计使得系统不再是简单的信息聚合工具，而是一个具备自我优化能力的投研决策支持系统。
+
+### 1.1.4 设计理念
+
+系统的设计理念可以概括为"三个分离、一个统一"：
+
+**1. 内容与展现分离**
+- 分析逻辑专注于产出结构化内容模型，不涉及任何UI代码
+- 展现层专注于如何将内容模型可视化，不掺杂业务逻辑
+- 好处：同一分析结果可以多种形式呈现（报告、仪表盘、移动端等）
+
+**2. 数据与逻辑分离**
+- 所有数据统一从数据层获取，分析层不直接对接外部数据源
+- 数据格式标准化，确保不同模块使用同源数据
+- 好处：杜绝数据不一致，降低数据源变更的影响面
+
+**3. 工具与报告分离**
+- 工具页面提供交互式数据探索，报告提供结构化分析结论
+- 两者共享底层分析引擎，但输出形态和使用场景不同
+- 好处：满足不同深度的用户需求，从快速浏览到深度研究
+
+**4. 一个统一：统一设计语言**
+- 全站使用统一的配色、间距、字体、组件规范
+- 所有页面通过组件库构建，确保视觉一致性
+- 好处：降低用户学习成本，提升专业感和可信度
+
+---
+
+## 1.2 架构演进历程
+
+系统架构并非一蹴而就，而是经历了四个主要版本的迭代演进。每一次架构升级都解决了前一阶段的核心痛点，同时为下一阶段的发展奠定基础。
+
+### 1.2.1 V1 时代：单文件脚本（2024年初）
+
+**阶段特征：** 功能耦合、快速原型
+
+在项目初期，系统只是一个单一的Python脚本，所有功能都在一个文件中实现。代码量约500行，主要功能是抓取每日新闻并生成简单的HTML报告。
+
+```
+┌─────────────────────────────────────┐
+│           single_script.py          │
+│  数据抓取 │ 文本处理 │ HTML生成     │
+│  全部耦合在一个文件中                │
+└─────────────────────────────────────┘
+```
+
+**核心痛点：**
+- 代码难以维护，新增功能容易引入bug
+- 没有模块化，无法复用逻辑
+- 没有测试，质量完全依赖人工检查
+
+**历史意义：**
+- 验证了"自动化生成投研内容"这一核心需求的可行性
+- 积累了基础的数据抓取和HTML生成经验
+- 为后续架构演进提供了业务基础
+
+### 1.2.2 V2 时代：模块化拆分（2024年中）
+
+**阶段特征：** 模块化、生成器模式出现
+
+随着功能增多，V1的单文件架构难以维护，于是进行了第一次架构重构：将代码按功能拆分为多个模块。
+
+```
+┌─────────────────────────────────────────────┐
+│                  主入口脚本                  │
+├──────────┬──────────┬──────────┬──────────┤
+│ 数据模块  │ 分析模块  │ 生成模块  │ 工具模块  │
+│ data.py  │ analyze.py│ report.py│ utils.py │
+└──────────┴──────────┴──────────┴──────────┘
+```
+
+**关键演进：**
+1. **生成器模式**：引入了`DailyReportGenerator`类，封装报告生成流程
+2. **数据与展现初步分离**：数据获取和HTML生成拆分为不同函数
+3. **工具函数抽取**：通用工具函数放到`utils.py`中
+
+**核心代码示例（V2时期的生成器雏形）：**
+
+```python
+class DailyReportGenerator:
+    """V2时期的日报生成器 - 模块化初期"""
+    
+    def __init__(self, date):
+        self.date = date
+        self.news_data = []
+        self.market_data = {}
+    
+    def fetch_data(self):
+        """抓取数据 - 与生成逻辑分离"""
+        self.news_data = fetch_daily_news()
+        self.market_data = fetch_market_summary()
+    
+    def generate_html(self):
+        """生成HTML - 数据与模板混合"""
+        html = "<html><head><title>日报</title></head><body>"
+        html += f"<h1>每日新闻洞察 - {self.date}</h1>"
+        html += "<h2>市场概览</h2>"
+        html += f"<p>上证指数：{self.market_data.get('shanghai', 'N/A')}</p>"
+        # ... 更多硬编码的HTML拼接
+        return html
+```
+
+**存在的问题：**
+- HTML拼接与业务逻辑仍然混杂在生成器类中
+- 不同类型的报告（日报、午报等）代码重复率高
+- 没有统一的UI组件，视觉一致性差
+- 新增报告类型需要从零开始写
+
+### 1.2.3 V3 时代：插件化架构（2024年底-2025年初）
+
+**阶段特征：** 插件化、工具页面爆发式增长
+
+V3是系统架构的一次重大跃迁。随着用户需求增多，工具类页面从最初的2-3个快速增长到20多个。如果按照V2的模式，每个工具页面都独立开发，代码重复和维护成本将不可接受。
+
+V3架构的核心创新是**插件化架构**：将系统分为核心框架和功能插件两部分。核心框架提供统一的配置、导航、样式、发布流程；每个功能页面作为一个插件，遵循统一的接口规范。
+
+```
+┌─────────────────────────────────────────────────────┐
+│                      核心框架                       │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
+│  │ 配置系统  │  │ 报告核心  │  │ 发布工作流 │        │
+│  └──────────┘  └──────────┘  └──────────┘        │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
+│  │ 组件库    │  │ 数据加载  │  │ 校验系统  │        │
+│  └──────────┘  └──────────┘  └──────────┘        │
+├─────────────────────────────────────────────────────┤
+│                      功能插件                       │
+│  日报  │  午报  │  盘后  │  持仓预警  │  板块热力  │
+│  龙虎榜 │  S级催化 │  题材健康度  │  预判验证  │ ...│
+└─────────────────────────────────────────────────────┘
+```
+
+**核心架构组件：**
+
+1. **单一数据源配置（SSOT）** - `core/config.py`
+   
+   所有的路径配置、导航配置、配色方案都集中在一个配置文件中，杜绝不一致。
+
+   ```python
+   # V3 核心配置 - 单一数据源原则 (SSOT)
+   REPORT_TYPES = {
+       "daily": {"name": "日报", "dir": "daily", "list_file": "latest.html"},
+       "intraday": {"name": "盘中快报", "dir": "intraday", "list_file": "latest.html"},
+       "aftermarket": {"name": "盘后速递", "dir": "aftermarket", "list_file": "latest.html"},
+       # ... 更多类型
+   }
+   
+   NAV_ITEMS = [
+       {"key": "index", "label": "首页", "icon": "🏠", "path": "/daily-news-insight/index.html"},
+       {"key": "daily", "label": "日报", "icon": "📰", "path": "/daily-news-insight/daily/latest.html"},
+       # ... 更多导航项
+   ]
+   
+   COLORS = {
+       "primary": "#4f46e5",
+       "secondary": "#7c3aed",
+       "success": "#10b981",
+       # ... 更多颜色
+   }
+   ```
+
+2. **Report核心类** - `core/report.py`
+   
+   所有报告都通过Report类生成，保证样式、结构、导航栏完全统一。
+
+   ```python
+   class Report:
+       """报告生成器核心类
+       
+       使用方法:
+       report = Report(title="报告标题", type="industry_chain")
+       report.add(Section("标题", "内容"))
+       report.add_data_card("市值", "1000亿")
+       html = report.generate()
+       """
+       
+       def __init__(self, title: str, report_type: str = "industry_chain", subtitle: str = None):
+           self.title = title
+           self.report_type = report_type
+           self.subtitle = subtitle
+           self.components = []
+           self._has_chart = False
+       
+       def add(self, component):
+           """添加一个组件到报告中"""
+           component_name = type(component).__name__
+           if "Chart" in component_name:
+               self._has_chart = True
+           self.components.append(component)
+           return self  # 支持链式调用
+       
+       def generate(self) -> str:
+           """生成完整的HTML报告"""
+           # 自动检测是否包含图表，决定是否加载Chart.js
+           body_html = self._generate_body()
+           has_chart = "<canvas" in body_html or "new Chart(" in body_html
+           head_html = self._generate_head(force_chart=has_chart)
+           return head_html + body_html + get_animation_js() + "</body></html>"
+   ```
+
+3. **组件库系统** - `components/`
+   
+   将常用的UI元素抽象为可复用组件，包括Section、Card、DataGrid、Chart等。
+
+4. **统一数据加载器** - `utils/data_loader.py`
+   
+   所有模块通过统一的数据加载器获取数据，确保数据一致性。
+
+5. **发布工作流** - `workflow.py`
+   
+   一站式完成报告生成 → 归档 → 更新列表 → 校验 → Git部署。
+
+**V3架构的历史贡献：**
+- 工具页面从3个爆发式增长到23个，开发效率提升5倍以上
+- 视觉风格完全统一，专业感大幅提升
+- 发布流程自动化，从生成到上线仅需5分钟
+- 代码复用率从不足30%提升到70%以上
+
+### 1.2.4 V4 时代：组件化设计（2025年中至今）
+
+**阶段特征：** 组件化、统一设计语言、内容与展现彻底分离
+
+V4架构是在V3基础上的进一步深化，核心驱动力来自两个方面：
+1. 随着内容深度增加，分析逻辑和UI展现的耦合越来越严重
+2. 移动端适配需求提升，需要更灵活的布局和交互
+
+V4的核心演进是**内容与展现的彻底分离**，引入了内容分析层（Content Layer）的概念。
+
+```
+┌─────────────────────────────────────────────────┐
+│                  展现层（View）                 │
+│  V4组件库  │  页面生成器  │  主题系统          │
+├─────────────────────────────────────────────────┤
+│                  内容层（Model）                │
+│  市场分析引擎  │  持仓分析引擎  │  题材分析引擎  │
+│  新闻分析引擎  │  个股分析引擎  │  ...           │
+├─────────────────────────────────────────────────┤
+│                  数据层（Data）                 │
+│  行情数据  │  新闻数据  │  财务数据  │  持仓数据 │
+└─────────────────────────────────────────────────┘
+```
+
+**核心创新点：**
+
+1. **内容模型（ContentModel）**
+   
+   所有分析引擎输出结构化的内容模型，而不是直接生成HTML。内容模型包含标题、摘要、各维度分析结果、评分等结构化数据。
+
+   ```python
+   @dataclass
+   class ContentModel:
+       """内容模型基类
+       
+       所有分析引擎的输出都应该是ContentModel的子类，
+       包含结构化的分析结论和元数据。
+       """
+       title: str = ""
+       summary: str = ""
+       depth_score: float = 0.0  # 内容深度评分 0-100
+       data_quality: float = 0.0  # 数据质量评分 0-100
+       update_time: str = ""
+       source: str = ""  # 数据来源说明
+   
+   @dataclass
+   class MarketAnalysisResult(ContentModel):
+       """市场分析结果"""
+       indices: List[IndexInfo] = field(default_factory=list)
+       hot_sectors: List[SectorInfo] = field(default_factory=list)
+       sentiment: MarketSentiment = field(default_factory=MarketSentiment)
+       market_trend: str = ""  # 市场整体趋势判断
+       strategy_suggestion: str = ""  # 操作策略建议
+   ```
+
+2. **分析维度（AnalysisDimension）**
+   
+   每个分析引擎可以包含多个分析维度，每个维度有独立的评分和权重，支持灵活的深度评估。
+
+   ```python
+   @dataclass
+   class AnalysisDimension:
+       """分析维度
+       
+       每个分析模块可以包含多个分析维度，
+       每个维度有独立的评分和内容。
+       """
+       name: str
+       weight: float = 1.0  # 权重，用于计算整体深度评分
+       content: str = ""
+       score: float = 0.0  # 该维度的评分 0-100
+       details: Dict[str, Any] = field(default_factory=dict)
+   ```
+
+3. **V4组件库** - `components/v4_components.py`
+   
+   新一代组件库，采用更现代的设计语言，支持响应式布局和更丰富的交互。
+
+4. **V4基类生成器** - `generators/v4_base.py`
+   
+   所有V4页面的通用框架，统一封装导航栏、TOC目录、操作按钮、页脚、JS交互、主题CSS。
+
+   ```python
+   class V4BaseGenerator:
+       """V4页面生成器基类
+       
+       统一封装：导航栏、TOC目录、操作按钮、页脚、JS交互、主题CSS
+       所有V4页面继承此类，只需实现特有内容模块
+       """
+       
+       def __init__(self, data_dir: str = "data"):
+           self.data_dir = data_dir
+           self.portfolio_result: Optional[PortfolioAnalysisResult] = None
+           self.market_result: Optional[MarketAnalysisResult] = None
+           self.news_result: Optional[NewsAnalysisResult] = None
+           self.page_title = "V4 页面"
+           self.toc_items: List[Tuple[str, str]] = []
+       
+       def load_data(self):
+           """加载基础数据（可被子类扩展）"""
+           portfolio_analyzer = PortfolioAnalyzer(data_dir=self.data_dir)
+           self.portfolio_result = portfolio_analyzer.analyze()
+           # ... 其他数据加载
+   ```
+
+### 1.2.5 演进总结
+
+| 版本 | 时间 | 核心特征 | 代码规模 | 页面数量 | 架构模式 |
+|------|------|---------|---------|---------|---------|
+| V1 | 2024初 | 单文件脚本 | ~500行 | 1个 | 单体架构 |
+| V2 | 2024中 | 模块化拆分 | ~3000行 | 3-5个 | 模块化架构 |
+| V3 | 2024底 | 插件化架构 | ~2万行 | 23个 | 插件化架构 |
+| V4 | 2025中 | 组件化设计 | ~5万行 | 23个（升级中） | 分层组件架构 |
+
+**架构演进的核心驱动力：**
+1. **规模驱动**：功能增多推动模块化和组件化
+2. **质量驱动**：对一致性和可靠性的要求提升
+3. **效率驱动**：开发和维护效率需要持续优化
+4. **体验驱动**：用户对交互和视觉体验的要求不断提高
+
+---
+
+## 1.3 五层架构全景
+
+经过四次架构演进，系统最终形成了清晰的五层架构模型。每一层都有明确的职责边界，层与层之间通过标准化接口交互，既保证了各层的独立演进，又确保了整体的一致性和可维护性。
+
+### 1.3.1 架构全景图
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  第五层：展现层（Presentation Layer）                    │
+│                                                          │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐   │
+│  │  报告页  │  │ 工具页  │  │  列表页  │  │  首页   │   │
+│  └─────────┘  └─────────┘  └─────────┘  └─────────┘   │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │              UI 组件库（Component）              │    │
+│  │  Section │ Card │ Chart │ Table │ Tag │ ...    │    │
+│  └─────────────────────────────────────────────────┘    │
+├──────────────────────────────────────────────────────────┤
+│  第四层：生成器层（Generator Layer）                     │
+│                                                          │
+│  日报生成器 │ 午报生成器 │ 盘后生成器 │ 持仓预警生成器   │
+│  板块热力生成器 │ 龙虎榜生成器 │ S级催化生成器 │ ...    │
+│                                                          │
+│  基类：BaseGenerator / V4BaseGenerator                   │
+├──────────────────────────────────────────────────────────┤
+│  第三层：内容分析层（Content Analysis Layer）            │
+│                                                          │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐   │
+│  │ 市场分析 │  │ 持仓分析 │  │ 题材分析 │  │ 新闻分析 │   │
+│  └─────────┘  └─────────┘  └─────────┘  └─────────┘   │
+│                                                          │
+│  基类：ContentAnalyzer / 输出：ContentModel              │
+├──────────────────────────────────────────────────────────┤
+│  第二层：核心引擎层（Core Engine Layer）                 │
+│                                                          │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐   │
+│  │ 配置系统 │  │ 报告核心 │  │ 发布引擎 │  │ 校验系统 │   │
+│  └─────────┘  └─────────┘  └─────────┘  └─────────┘   │
+├──────────────────────────────────────────────────────────┤
+│  第一层：数据层（Data Layer）                            │
+│                                                          │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐   │
+│  │ 行情数据 │  │ 新闻数据 │  │ 财务数据 │  │ 持仓数据 │   │
+│  └─────────┘  └─────────┘  └─────────┘  └─────────┘   │
+│                                                          │
+│  数据采集 → 清洗转换 → 标准化存储 → 统一加载              │
+└──────────────────────────────────────────────────────────┘
+```
+
+### 1.3.2 第一层：数据层（Data Layer）
+
+**功能定位：** 负责所有外部数据的获取、清洗、标准化和持久化存储，为上层提供统一、可靠、高质量的数据供给。
+
+**核心职责：**
+1. **多源数据采集**：从腾讯财经、东方财富、韭研公社等多个数据源抓取数据
+2. **数据清洗**：去重、纠错、格式统一、缺失值处理
+3. **标准化存储**：以统一的JSON格式存储在`data/`目录下
+4. **统一加载接口**：提供标准的数据加载函数，屏蔽底层存储细节
+
+**核心模块：**
+
+| 模块 | 文件 | 功能描述 |
+|------|------|---------|
+| 统一数据加载器 | `utils/data_loader.py` | 提供标准化的数据获取接口 |
+| 市场数据管理器 | `utils/market_data_manager.py` | 市场行情数据的获取与管理 |
+| 稳定数据抓取器 | `utils/stable_market_fetcher.py` | 高可靠的行情数据抓取 |
+| 股票发现管理器 | `utils/stock_discovery_manager.py` | 标的发现与筛选管理 |
+| 统一股票管理器 | `utils/unified_stock_manager.py` | 股票数据统一管理 |
+| 数据质量检查器 | `utils/data_quality_checker.py` | 数据质量评估与监控 |
+
+**设计亮点：**
+
+1. **单一数据源原则（SSOT）**
+   
+   所有上层模块必须通过统一的数据加载器获取数据，禁止直接访问原始数据文件或外部API。这确保了数据口径的一致性，避免了不同模块对同一指标计算出不同结果的问题。
+
+   ```python
+   # 正确方式：通过统一加载器获取数据
+   from utils.data_loader import get_market_summary, get_hot_sectors
+   
+   market_data = get_market_summary()  # 所有模块拿到的都是同一份数据
+   ```
+
+2. **多路径容错加载**
+   
+   数据加载器支持多个候选路径，确保在不同运行环境下都能正确找到数据文件。
+
+   ```python
+   def _load_data(self):
+       """加载市场数据 - 多路径容错"""
+       import json
+       
+       possible_paths = [
+           os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                       '..', '..', self.data_dir, 'market.json'),
+           os.path.join(os.getcwd(), self.data_dir, 'market.json'),
+           '/app/data/所有对话/主对话/data/market.json',
+       ]
+       
+       data_path = None
+       for path in possible_paths:
+           if os.path.exists(path):
+               data_path = path
+               break
+       
+       if not data_path:
+           raise FileNotFoundError(f"找不到市场数据文件，尝试路径: {possible_paths}")
+       
+       with open(data_path, 'r', encoding='utf-8') as f:
+           return json.load(f)
+   ```
+
+3. **数据质量评估**
+   
+   内置数据质量检查器，对每一批数据进行完整性、准确性、时效性评估，并给出质量评分。低质量数据会触发告警，避免"垃圾进、垃圾出"。
+
+**技术权衡：**
+- **文件存储 vs 数据库**：选择了JSON文件存储而非数据库。原因是数据量不大（单文件几MB），文件存储更简单、部署更容易、Git版本管理更直观。如果未来数据量大幅增长，可平滑迁移到SQLite或其他轻量数据库。
+- **全量更新 vs 增量更新**：目前采用全量更新策略，每次生成报告前重新拉取全部数据。好处是逻辑简单、数据一致性好；缺点是数据获取时间较长。对于当前日更频率，这是可接受的权衡。
+- **多数据源 vs 单数据源**：使用多个数据源交叉验证，而不是依赖单一数据源。好处是数据可靠性更高，单一数据源故障不影响整体；缺点是数据整合逻辑更复杂。
+
+### 1.3.3 第二层：核心引擎层（Core Engine Layer）
+
+**功能定位：** 提供系统的核心基础设施和框架能力，是所有上层功能的基础支撑。
+
+**核心职责：**
+1. **配置管理**：统一管理全站配置，确保一致性
+2. **报告核心**：提供报告生成的基础框架
+3. **发布引擎**：管理报告的归档、列表更新、部署流程
+4. **质量校验**：对生成结果进行多维度质量检查
+
+**核心模块：**
+
+| 模块 | 文件 | 功能描述 |
+|------|------|---------|
+| 配置系统 | `core/config.py` | 站点配置、报告类型、导航、主题等 |
+| 报告核心 | `core/report.py` | Report类、ReportBuilder、统一报告框架 |
+| 发布工作流 | `workflow.py` | 报告发布全流程管理 |
+| 结构校验器 | `validators/structure.py` | HTML结构规范性检查 |
+| 链接校验器 | `validators/links.py` | 内部链接有效性检查 |
+| 内容校验器 | `validators/content.py` | 内容质量检查 |
+
+**核心实现：**
+
+**1. Report类 - 统一报告框架**
+
+Report类是V3架构的核心抽象，它封装了报告页面的通用结构：
+- 统一的HTML头部（meta标签、Tailwind CSS、图表库等）
+- 统一的导航栏和页脚
+- 统一的内容布局和排版规范
+- 组件化的内容添加方式
+
+```python
+class Report:
+    """报告生成器核心类
+    
+    设计亮点：
+    1. 组件化构建：通过add()方法添加各种组件
+    2. 链式调用：支持report.add(a).add(b)的流畅API
+    3. 智能依赖：自动检测是否需要加载Chart.js等资源
+    4. 安全保护：内置受保护文件检查，防止误覆盖
+    """
+    
+    def __init__(self, title: str, report_type: str = "industry_chain", subtitle: str = None):
+        self.title = title
+        self.report_type = report_type
+        self.subtitle = subtitle
+        self.components = []
+        self._has_chart = False
+    
+    def add(self, component):
+        """添加一个组件到报告中"""
+        component_name = type(component).__name__
+        if "Chart" in component_name:
+            self._has_chart = True
+        self.components.append(component)
+        return self  # 支持链式调用
+    
+    def generate(self) -> str:
+        """生成完整的HTML报告
+        
+        智能依赖检测：先渲染body，根据内容中是否包含图表
+        决定head中是否加载Chart.js，避免不必要的资源加载
+        """
+        body_html = self._generate_body()
+        has_chart = "<canvas" in body_html or "new Chart(" in body_html
+        head_html = self._generate_head(force_chart=has_chart)
+        return head_html + body_html + "\n" + get_animation_js() + "\n</body>\n</html>"
+    
+    def save(self, filepath: str) -> str:
+        """保存报告到文件，返回文件路径
+        
+        安全检查：防止覆盖受保护文件
+        """
+        from core.config import PROTECTED_FILES
+        filename = os.path.basename(filepath)
+        for protected in PROTECTED_FILES:
+            if filename == protected:
+                raise PermissionError(f"不能覆盖受保护文件: {filepath}")
+        
+        html = self.generate()
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(html)
+        return filepath
+```
+
+**2. ReportPublisher - 一站式发布**
+
+发布工作流实现了"一键发布"：生成 → 归档 → 更新列表 → 校验 → Git部署。
+
+```python
+class ReportPublisher:
+    """报告发布器
+    一站式完成：归档 → 更新列表 → 校验 → 部署
+    """
+    
+    def publish(self, html_content: str, title: str, report_type: str, 
+                filename: str = None, excerpt: str = None, 
+                auto_deploy: bool = True) -> dict:
+        """完整发布流程"""
+        result = {
+            "success": False,
+            "title": title,
+            "report_type": report_type,
+            "filepath": None,
+            "list_updated": False,
+            "validated": False,
+            "deployed": False,
+            "errors": []
+        }
+        
+        # 1. 验证报告类型
+        if report_type not in REPORT_TYPES:
+            result["errors"].append(f"未知的报告类型: {report_type}")
+            return result
+        
+        # 2. 自动生成文件名 & 归档报告
+        # 3. 校验报告
+        validation_passed = self._validate_report(filepath)
+        
+        # 4. 更新列表页
+        if validation_passed:
+            self._update_list_page(report_type, title, filename, excerpt)
+            result["list_updated"] = True
+        
+        # 5. Git部署
+        if auto_deploy and validation_passed:
+            self._git_deploy(f"发布: {title}")
+            result["deployed"] = True
+        
+        result["success"] = validation_passed
+        return result
+```
+
+**设计亮点：**
+
+1. **内置安全机制**：受保护文件列表（PROTECTED_FILES）防止关键页面被误覆盖
+2. **智能资源加载**：根据内容自动判断是否需要加载Chart.js等重型资源
+3. **发布即归档**：发布的同时自动更新历史列表，无需手动维护
+4. **质量门禁**：校验不通过的报告不会被发布，确保线上质量
+
+### 1.3.4 第三层：内容分析层（Content Analysis Layer）
+
+**功能定位：** 系统的"大脑"，负责将原始数据转化为有价值的分析结论和洞察。这是V4架构中新增的核心层级，也是系统从"信息聚合"向"智能分析"升级的关键。
+
+**核心职责：**
+1. **多维度分析**：从市场、持仓、题材、新闻等多个维度进行深度分析
+2. **结构化输出**：输出标准的ContentModel，而非零散的数据
+3. **质量评估**：内置评分机制，评估分析内容的深度和数据质量
+4. **维度权重**：支持多维度加权，灵活调整分析重点
+
+**核心分析引擎：**
+
+| 分析引擎 | 文件 | 功能描述 | 输出模型 |
+|---------|------|---------|---------|
+| 市场分析引擎 | `content/market_analyzer.py` | 大盘走势、板块热点、市场情绪分析 | MarketAnalysisResult |
+| 持仓分析引擎 | `content/portfolio_analyzer.py` | 持仓盈亏、风险、弹性分析 | PortfolioAnalysisResult |
+| 题材分析引擎 | `content/topic_analyzer.py` | 题材热度、生命周期、催化分析 | TopicAnalysisResult |
+| 新闻分析引擎 | `content/news_analyzer.py` | 新闻情感、重要性、相关性分析 | NewsAnalysisResult |
+
+**核心抽象：**
+
+**1. ContentModel - 内容模型基类**
+
+```python
+@dataclass
+class ContentModel:
+    """内容模型基类
+    
+    所有分析引擎的输出都应该是ContentModel的子类，
+    包含结构化的分析结论和元数据。
+    
+    设计思想：
+    - 结构化：所有内容都是可解析的数据结构，而非自由文本
+    - 可评估：内置深度评分和质量评分，便于质量控制
+    - 可追溯：记录更新时间和数据来源，便于溯源
+    """
+    title: str = ""
+    summary: str = ""
+    depth_score: float = 0.0  # 内容深度评分 0-100
+    data_quality: float = 0.0  # 数据质量评分 0-100
+    update_time: str = ""
+    source: str = ""  # 数据来源说明
+    
+    def to_dict(self) -> Dict:
+        """转换为字典格式"""
+        return {
+            'title': self.title,
+            'summary': self.summary,
+            'depth_score': self.depth_score,
+            'data_quality': self.data_quality,
+            'update_time': self.update_time,
+            'source': self.source,
+        }
+    
+    def is_valid(self) -> bool:
+        """内容是否有效（达到最低质量要求）"""
+        return self.depth_score >= 30 and self.data_quality >= 50
+```
+
+**2. ContentAnalyzer - 分析器基类**
+
+```python
+class ContentAnalyzer:
+    """内容分析器基类
+    
+    所有内容分析引擎都继承自此类，提供统一的分析接口和质量评估。
+    
+    核心设计模式：
+    - 模板方法模式：analyze()定义流程，子类实现具体分析逻辑
+    - 组合模式：通过多个AnalysisDimension组合出完整分析
+    - 策略模式：不同的评分策略可以灵活替换
+    """
+    
+    def __init__(self, data_loader=None):
+        self.data_loader = data_loader
+        self.dimensions: List[AnalysisDimension] = []
+        self._analysis_done = False
+    
+    def analyze(self) -> ContentModel:
+        """执行分析，返回内容模型
+        
+        子类必须实现此方法。
+        标准实现流程：
+        1. 加载数据
+        2. 按维度分析
+        3. 计算综合评分
+        4. 生成摘要
+        5. 返回内容模型
+        """
+        raise NotImplementedError("子类必须实现 analyze 方法")
+    
+    def calculate_depth_score(self) -> float:
+        """根据各维度加权计算整体深度评分"""
+        if not self.dimensions:
+            return 0.0
+        
+        total_weight = sum(d.weight for d in self.dimensions)
+        if total_weight == 0:
+            return 0.0
+        
+        weighted_score = sum(d.score * d.weight for d in self.dimensions)
+        return round(weighted_score / total_weight, 1)
+    
+    def generate_summary(self) -> str:
+        """基于各维度核心结论生成整体摘要
+        
+        只取高分维度的核心结论，避免低质量内容影响摘要质量
+        """
+        if not self.dimensions:
+            return ""
+        
+        key_points = []
+        for d in self.dimensions:
+            if d.score >= 70 and d.content:
+                key_points.append(d.content[:100])
+        
+        if key_points:
+            return "；".join(key_points) + "。"
+        return ""
+```
+
+**3. AnalysisDimension - 分析维度**
+
+```python
+@dataclass
+class AnalysisDimension:
+    """分析维度
+    
+    每个分析模块可以包含多个分析维度，
+    每个维度有独立的评分和内容。
+    
+    这是一个强大的抽象，使得：
+    - 可以灵活增删分析维度
+    - 可以调整各维度的权重
+    - 可以单独评估每个维度的质量
+    - 可以为不同用户/场景定制维度组合
+    """
+    name: str
+    weight: float = 1.0  # 权重
+    content: str = ""
+    score: float = 0.0  # 该维度的评分 0-100
+    details: Dict[str, Any] = field(default_factory=dict)
+```
+
+**以市场分析引擎为例：**
+
+```python
+class MarketAnalyzer(ContentAnalyzer):
+    """市场分析器
+    
+    统一市场分析口径，所有页面的市场分析都通过此引擎生成。
+    """
+    
+    def analyze(self) -> MarketAnalysisResult:
+        # 1. 加载数据
+        market_data = self._load_market_data()
+        
+        # 2. 指数分析维度
+        index_dim = self._analyze_indices(market_data)
+        self.add_dimension(index_dim)
+        
+        # 3. 市场情绪维度
+        sentiment_dim = self._analyze_sentiment(market_data)
+        self.add_dimension(sentiment_dim)
+        
+        # 4. 板块热点维度
+        sector_dim = self._analyze_sectors(market_data)
+        self.add_dimension(sector_dim)
+        
+        # 5. 量能分析维度
+        volume_dim = self._analyze_volume(market_data)
+        self.add_dimension(volume_dim)
+        
+        # 6. 策略建议维度（权重最高）
+        strategy_dim = self._generate_strategy(market_data)
+        strategy_dim.weight = 2.0  # 策略维度权重加倍
+        self.add_dimension(strategy_dim)
+        
+        # 7. 构建结果
+        result = MarketAnalysisResult(
+            title="市场分析",
+            indices=self._build_index_list(market_data),
+            hot_sectors=self._build_sector_list(market_data),
+            sentiment=self._build_sentiment(market_data),
+            market_trend=strategy_dim.details.get('trend', ''),
+            strategy_suggestion=strategy_dim.content,
+        )
+        
+        # 8. 计算综合评分
+        result.depth_score = self.calculate_depth_score()
+        result.data_quality = self._calculate_data_quality(market_data)
+        result.summary = self.generate_summary()
+        
+        return result
+```
+
+**设计亮点：**
+
+1. **内容与展现彻底分离**：分析层只产出结构化数据，不关心如何展示。同一个分析结果可以用在日报、仪表盘、移动端等多种场景。
+2. **可组合的分析维度**：通过增减AnalysisDimension，可以灵活调整分析深度和侧重点。
+3. **内置质量控制**：每个分析结果都有深度评分和质量评分，低质量内容可以被过滤或降级展示。
+4. **统一分析口径**：所有页面使用相同的分析引擎，确保不同页面上的同一指标结论一致。
+
+**技术权衡：**
+- **预计算 vs 实时计算**：目前采用预计算模式，数据更新时批量计算所有分析结果。好处是访问速度快、计算资源可控；缺点是数据不是实时的。对于日更频率的投研内容，这是合理的权衡。
+- **完整性 vs 简洁性**：ContentModel包含了完整的分析细节，但在展示时往往只需要部分信息。通过提供丰富的结构化数据，让展现层可以根据需要灵活取用，而不是在分析层就做过度裁剪。
+
+### 1.3.5 第四层：生成器层（Generator Layer）
+
+**功能定位：** 连接内容层和展现层的桥梁，负责将内容分析结果转化为具体的页面HTML。每个生成器对应一种页面类型，封装了该类型页面的特有布局和展示逻辑。
+
+**核心职责：**
+1. **页面组装**：选择合适的组件，组织页面结构
+2. **内容映射**：将ContentModel中的数据映射到UI组件上
+3. **特化逻辑**：实现特定页面类型的专属逻辑
+4. **生命周期管理**：数据加载、生成、保存、发布全流程
+
+**生成器家族：**
+
+系统目前有20+个生成器，按功能可以分为几大类：
+
+| 类别 | 代表生成器 | 数量 | 特点 |
+|------|-----------|------|------|
+| 报告类 | DailyReportGenerator、IntradayGenerator、AftermarketGenerator | 7+ | 定时生成，内容为主 |
+| 工具类 | SectorHeatmapGenerator、LonghubangGenerator、AlertSystemGenerator | 10+ | 交互式，数据探索为主 |
+| 列表类 | ListPageGenerator | 1 | 归档索引，导航功能 |
+| 首页类 | HomePageGenerator | 1 | 门户入口，信息聚合 |
+| 个股类 | StockAnalysisGenerator | 1 | 单标的深度分析 |
+
+**核心基类：**
+
+**1. BaseGenerator - V3生成器基类**
+
+```python
+class BaseGenerator:
+    """生成器基类
+    
+    定义了生成器的标准接口：
+    - generate(): 生成HTML内容
+    - save(): 保存到文件
+    - validate(): 验证报告
+    - publish(): 一键发布
+    
+    所有专用生成器都继承自此基类，确保统一的行为模式。
+    """
+    
+    def __init__(self, report_type: str):
+        self.report_type = report_type
+        self.report = None
+        self._components = []
+    
+    def generate(self) -> str:
+        """生成HTML内容 - 子类必须实现"""
+        raise NotImplementedError("子类必须实现 generate 方法")
+    
+    def save(self, filepath: str) -> str:
+        """保存到文件"""
+        self.generate()
+        return self.report.save(filepath)
+    
+    def validate(self) -> list:
+        """验证报告"""
+        self.generate()
+        return self.report.validate()
+    
+    def publish(self, title: str = None, report_type: str = None, 
+                filename: str = None, excerpt: str = None,
+                auto_deploy: bool = True, docs_root: str = "docs") -> dict:
+        """一键发布：生成 → 归档 → 更新列表 → 校验 → Git部署"""
+        html_content = self.generate()
+        publisher = ReportPublisher(docs_root=docs_root)
+        return publisher.publish(
+            html_content=html_content,
+            title=title or getattr(self, 'display_title', ''),
+            report_type=report_type or self.report_type,
+            filename=filename,
+            excerpt=excerpt,
+            auto_deploy=auto_deploy
+        )
+```
+
+**2. V4BaseGenerator - V4新一代生成器基类**
+
+V4基类在V3基础上增加了更多功能，适应更复杂的交互需求：
+
+```python
+class V4BaseGenerator:
+    """V4页面生成器基类
+    
+    统一封装：导航栏、TOC目录、操作按钮、页脚、JS交互、主题CSS
+    所有V4页面继承此类，只需实现特有内容模块。
+    
+    相比V3 BaseGenerator的增强：
+    - 内置内容分析引擎集成（自动加载市场/持仓/新闻分析结果）
+    - 悬浮目录导航（TOC）
+    - 三级导航架构（首页 → 列表页 → 详情页）
+    - V4设计语言组件库
+    - 更丰富的交互JS
+    """
+    
+    def __init__(self, data_dir: str = "data"):
+        self.data_dir = data_dir
+        # 内置三大分析结果，子类可直接使用
+        self.portfolio_result: Optional[PortfolioAnalysisResult] = None
+        self.market_result: Optional[MarketAnalysisResult] = None
+        self.news_result: Optional[NewsAnalysisResult] = None
+        self.page_title = "V4 页面"
+        self.toc_items: List[Tuple[str, str]] = []  # 目录项
+    
+    def load_data(self):
+        """加载基础数据（可被子类扩展）
+        
+        模板方法模式：基类加载通用数据，子类加载特有数据
+        """
+        try:
+            portfolio_analyzer = PortfolioAnalyzer(data_dir=self.data_dir)
+            self.portfolio_result = portfolio_analyzer.analyze()
+        except Exception:
+            self.portfolio_result = None
+        
+        try:
+            market_analyzer = MarketAnalyzer(data_dir=self.data_dir)
+            self.market_result = market_analyzer.analyze()
+        except Exception:
+            self.market_result = None
+        
+        try:
+            news_analyzer = NewsAnalyzer(data_dir=self.data_dir)
+            self.news_result = news_analyzer.analyze()
+        except Exception:
+            self.news_result = None
+    
+    def render_nav(self) -> str:
+        """渲染V4导航栏"""
+        # V4版本导航项目配置 - 三级导航架构
+        V4_NAV_ITEMS = [
+            {"key": "home", "label": "首页", "icon": "🏠", "path": "index_v4.html"},
+            {"key": "daily", "label": "日报", "icon": "📰", "path": "list_daily_v4.html"},
+            # ... 更多导航项
+        ]
+        # ... 渲染逻辑
+    
+    def render_toc(self) -> str:
+        """渲染悬浮目录导航"""
+        items_html = ""
+        for label, section_id in self.toc_items:
+            items_html += f'<a href="#{section_id}" class="v4-toc-item" data-section="{section_id}">{label}</a>'
+        
+        return f'''
+        <div class="v4-toc" id="toc">
+            <div class="v4-toc-header">
+                <span>📑 目录导航</span>
+                <button class="v4-toc-toggle" onclick="toggleToc()">−</button>
+            </div>
+            <div class="v4-toc-items" id="tocItems">
+                {items_html}
+            </div>
+        </div>
+        '''
+```
+
+**设计亮点：**
+
+1. **模板方法模式**：基类定义流程骨架，子类实现具体步骤
+2. **内置数据分析**：基类自动加载并分析市场、持仓、新闻数据，子类直接使用
+3. **统一发布接口**：所有生成器都有相同的publish()方法，便于调度
+4. **渐进式升级**：V3和V4生成器并存，支持逐步迁移，避免大爆炸式重构
+
+### 1.3.6 第五层：组件库层（Component Layer）
+
+**功能定位：** 系统的"UI积木"，提供可复用的界面组件，确保全站视觉一致性和交互统一性。
+
+**核心职责：**
+1. **UI组件封装**：将常用UI元素封装为可复用组件
+2. **视觉一致性**：确保所有页面使用统一的设计语言
+3. **交互标准化**：统一的动画、交互模式和用户体验
+4. **效率提升**：避免重复造轮子，加快页面开发速度
+
+**组件分类：**
+
+| 类别 | 核心组件 | 功能描述 |
+|------|---------|---------|
+| 布局组件 | Section、Card、Grid、SplitLayout | 页面结构与容器 |
+| 数据展示 | DataGrid、CompareTable、ProgressBar | 数据可视化展示 |
+| 图表组件 | LineChart、BarChart、PieChart、RadarChart | 各类图表 |
+| 状态指示 | RiskAlert、Badge、Tag、StatusIndicator | 状态与等级展示 |
+| 导航组件 | Navbar、Footer、Breadcrumb、Tabs | 导航与分页 |
+| 业务组件 | StockCard、TopicCard、MarketOverview | 业务特定组件 |
+| 动效组件 | FadeIn、CountUp、ProgressAnimation | 动画与交互 |
+
+**核心基类：**
+
+```python
+class Component:
+    """组件基类
+    
+    所有组件继承自Component，提供统一的渲染接口。
+    
+    设计模式：
+    - 组合模式：组件可以嵌套组合
+    - 字符串化：__str__方法直接返回HTML，便于拼接
+    - 相加操作：支持component + component的便捷拼接
+    """
+    
+    def __init__(self, **kwargs):
+        self.props = kwargs
+    
+    def render(self) -> str:
+        """渲染组件为HTML字符串 - 子类必须实现"""
+        raise NotImplementedError("子类必须实现 render 方法")
+    
+    def __str__(self) -> str:
+        return self.render()
+    
+    def __add__(self, other):
+        """支持组件相加拼接"""
+        if isinstance(other, Component):
+            return self.render() + other.render()
+        elif isinstance(other, str):
+            return self.render() + other
+        return NotImplemented
+```
+
+**布局组件示例 - Section：**
+
+```python
+class Section(Component):
+    """
+    章节组件 - 用于分隔内容区域
+    带精致的标题图标和渐变设计
+    
+    设计亮点：
+    - 多变体支持：default/highlight/dark/subtle
+    - 内置图标：标题左侧可选图标
+    - 副标题支持：更丰富的标题层级
+    - 右侧扩展：extra参数支持右侧徽章等元素
+    """
+    
+    def __init__(self, title: str = "", content=None, 
+                 icon: str = None, variant: str = "default",
+                 subtitle: str = None, extra=None):
+        super().__init__()
+        self.title = title
+        self.content = content
+        self.icon = icon
+        self.variant = variant
+        self.subtitle = subtitle
+        self.extra = extra
+    
+    def render(self) -> str:
+        # 标题区域
+        title_html = ""
+        if self.title:
+            icon_html = ""
+            if self.icon:
+                icon_html = f'''
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    {icon_svg(self.icon, 20, "white")}
+                </div>
+                '''
+            
+            subtitle_html = f'''
+            <div style="font-size: 13px; color: #9ca3af; margin-top: 2px; font-weight: 400;">
+                {self.subtitle}
+            </div>
+            ''' if self.subtitle else ''
+            
+            extra_html = f'<div style="margin-left: auto;">{self.extra.render() if hasattr(self.extra, "render") else self.extra}</div>' if self.extra else ''
+            
+            title_html = f'''
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                {icon_html}
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #1f2937; 
+                               margin: 0; line-height: 1.3;">
+                        {self.title}
+                    </h2>
+                    {subtitle_html}
+                </div>
+                {extra_html}
+            </div>
+            '''
+        
+        # 内容
+        content_html = ""
+        if self.content is not None:
+            if hasattr(self.content, 'render'):
+                content_html = self.content.render()
+            else:
+                content_html = str(self.content)
+        
+        # 变体样式
+        variants = {
+            "default": {
+                "bg": "white",
+                "padding": "28px",
+                "border": "1px solid rgba(0, 0, 0, 0.06)",
+                "radius": "20px",
+                "shadow": "0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 0.8) inset",
+                "title_color": "#1f2937",
+            },
+            "highlight": {
+                "bg": "linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%)",
+                "padding": "28px",
+                "border": "1px solid rgba(79, 70, 229, 0.1)",
+                "radius": "20px",
+                "shadow": "0 4px 16px rgba(79, 70, 229, 0.08)",
+                "title_color": "#1f2937",
+            },
+            "dark": {
+                "bg": "linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)",
+                "padding": "28px",
+                "border": "1px solid rgba(255, 255, 255, 0.1)",
+                "radius": "20px",
+                "shadow": "0 8px 32px rgba(0, 0, 0, 0.3)",
+                "title_color": "white",
+            },
+            "subtle": {
+                "bg": "transparent",
+                "padding": "0",
+                "border": "none",
+                "radius": "0",
+                "shadow": "none",
+                "title_color": "#1f2937",
+            },
+        }
+        
+        v = variants.get(self.variant, variants["default"])
+        # 更新标题颜色
+        if self.title:
+            title_html = title_html.replace('color: #1f2937;', f'color: {v["title_color"]};')
+        
+        return f'''
+        <section style="margin-bottom: 32px;">
+            {title_html}
+            <div style="background: {v["bg"]}; 
+                        padding: {v["padding"]}; 
+                        border: {v["border"]};
+                        border-radius: {v["radius"]};
+                        box-shadow: {v["shadow"]};">
+                {content_html}
+            </div>
+        </section>
+        '''
+```
+
+**V4组件库的进化：**
+
+V4组件库在V3基础上进行了全面升级，主要体现在：
+
+1. **设计语言升级**：从深色渐变背景转向浅色内容优先的设计，更适合长文本阅读
+2. **组件粒度更细**：V4有30+组件，V3时期约15个
+3. **交互更丰富**：增加了悬浮效果、展开收起、标签切换等交互
+4. **响应式更好**：全面优化移动端适配
+5. **主题系统**：支持明暗主题切换（规划中）
+
+```python
+# V4 设计系统常量
+V4_COLORS = {
+    'primary': '#8B5CF6',      # 主色 - 紫色
+    'secondary': '#6366F1',    # 次色 - 靛蓝
+    'success': '#10B981',      # 成功 - 绿色
+    'warning': '#F59E0B',      # 警告 - 橙色
+    'danger': '#EF4444',       # 危险 - 红色
+    'info': '#3B82F6',         # 信息 - 蓝色
+    'text_primary': '#1F2937', # 主要文字
+    'text_secondary': '#6B7280',# 次要文字
+    'text_muted': '#9CA3AF',   # 弱化文字
+    'bg_card': '#FFFFFF',      # 卡片背景
+    'bg_page': '#F8FAFC',      # 页面背景
+    'border': '#E5E7EB',       # 边框色
+}
+
+V4_RADIUS = {
+    'sm': '8px',
+    'md': '12px',
+    'lg': '16px',
+    'xl': '20px',
+}
+```
+
+**设计亮点：**
+
+1. **面向对象的组件设计**：每个组件是一个类，有自己的属性和渲染方法
+2. **多变体支持**：通过variant参数支持多种视觉风格，满足不同场景需求
+3. **组合式构建**：大组件由小组件组合而成，层级清晰
+4. **内联样式优先**：使用内联style而非CSS类，确保静态HTML部署时的一致性
+5. **渐进增强**：JS动效是可选增强，不影响基础内容的可读性
+
+**技术权衡：**
+- **内联样式 vs CSS类**：选择了以内联样式为主。好处是无需维护独立的CSS文件、组件自包含、部署简单；缺点是HTML体积较大、无法利用缓存。对于静态站点生成场景，这是可接受的权衡。
+- **组件粒度**：组件粒度太细则使用繁琐，太粗则不够灵活。目前的设计偏向中等粒度，一个Section/Card级别的组件封装了完整的容器样式，使用方便但定制性稍弱。
+- **服务端渲染 vs 客户端渲染**：采用纯服务端渲染（SSR），所有HTML在Python中生成。好处是SEO友好、加载快、不依赖JS；缺点是交互能力有限，复杂交互需要额外写JS。
+
+---
+
+## 1.4 核心设计原则
+
+架构设计不是凭空想象的，而是由一系列核心设计原则指导的。这些原则贯穿于系统的每一个层级和每一个模块，是架构决策的依据。
+
+### 1.4.1 单一数据源原则（Single Source of Truth）
+
+**理念：** 任何数据元素，在系统中应该只有一个权威来源。所有需要使用该数据的地方，都应该从这个唯一来源获取，而不是各自维护一份副本。
+
+**为什么重要：**
+- 杜绝数据不一致：如果多个地方各自保存同一份数据，很容易出现更新不同步导致的不一致
+- 降低维护成本：数据变更时只需要修改一处
+- 提高可信度：用户知道所有页面的数据口径是统一的
+
+**在系统中的体现：**
+
+1. **配置单一来源**：`core/config.py`是所有配置的唯一来源
+   
+   ```python
+   # ❌ 错误方式：每个文件硬编码路径
+   nav_items = [
+       {"label": "日报", "path": "/daily-news-insight/daily/latest.html"},
+       # ...
+   ]
+   
+   # ✅ 正确方式：从统一配置导入
+   from core.config import NAV_ITEMS, REPORT_TYPES, BASE_PATH
+   ```
+
+2. **数据单一来源**：`utils/data_loader.py`是数据访问的唯一入口
+   
+   所有分析引擎和生成器都通过data_loader获取数据，而不是直接读取JSON文件或调用外部API。
+
+3. **组件单一来源**：UI组件统一从`components/`导入
+   
+   所有页面使用相同的组件库，确保视觉和交互一致性。
+
+**实际效果：**
+- 调整站点路径时，只需要修改config.py中的BASE_PATH
+- 更换数据源时，只需要修改data_loader中的实现
+- 更新UI样式时，只需要修改组件库，所有页面自动更新
+
+### 1.4.2 内容与展现分离
+
+**理念：** 将"内容是什么"和"内容如何展示"分开处理。内容层专注于产出结构化的分析结果，展现层专注于如何将这些结果可视化。
+
+**为什么重要：**
+- **复用性**：同一份分析结果可以用多种形式展示（报告、仪表盘、API、移动端）
+- **可维护性**：修改展示样式不影响分析逻辑，优化分析逻辑不影响UI
+- **可测试性**：内容层可以独立测试，不需要浏览器环境
+- **专业分工**：分析师专注于分析逻辑，设计师专注于视觉呈现
+
+**在系统中的体现：**
+
+1. **ContentModel与Component的分离**
+   
+   - ContentModel（内容层）：纯数据结构，包含分析结论
+   - Component（展现层）：纯UI组件，接收数据并渲染为HTML
+   - Generator（连接层）：负责将ContentModel的数据映射到Component
+
+   ```python
+   # 内容层 - 只关心分析结果，不关心如何展示
+   class MarketAnalyzer(ContentAnalyzer):
+       def analyze(self) -> MarketAnalysisResult:
+           # ... 分析逻辑
+           return MarketAnalysisResult(
+               sentiment=MarketSentiment(
+                   up_count=3200,
+                   down_count=1800,
+                   sentiment_level="贪婪"
+               ),
+               # ...
+           )
+   
+   # 展现层 - 只关心如何渲染，不关心数据从哪来
+   class MarketOverview(Component):
+       def __init__(self, up_count, down_count, sentiment_level):
+           self.up_count = up_count
+           self.down_count = down_count
+           self.sentiment_level = sentiment_level
+       
+       def render(self):
+           # ... 渲染逻辑
+           return f"<div>上涨: {self.up_count} 下跌: {self.down_count}</div>"
+   
+   # 生成层 - 连接内容和展现
+   class DailyReportGenerator(V4BaseGenerator):
+       def generate(self):
+           # 获取分析结果
+           market_result = self.market_result
+           
+           # 用组件渲染
+           overview = MarketOverview(
+               up_count=market_result.sentiment.up_count,
+               down_count=market_result.sentiment.down_count,
+               sentiment_level=market_result.sentiment.sentiment_level
+           )
+           
+           # 组装页面
+           # ...
+   ```
+
+2. **数据驱动的组件渲染**
+   
+   组件只接收数据参数，不包含业务逻辑。相同的数据输入，总是产生相同的输出。
+
+### 1.4.3 渐进式降级（Graceful Degradation）
+
+**理念：** 系统的局部故障不应该导致整体不可用。当某个模块或数据源出现问题时，系统应该能够降级运行，尽可能保持核心功能可用。
+
+**为什么重要：**
+- **可靠性**：外部数据源不稳定是常态，系统需要有容错能力
+- **用户体验**：部分功能可用总比完全不可用好
+- **恢复能力**：故障时系统继续运行，问题修复后自动恢复正常
+
+**在系统中的体现：**
+
+1. **数据加载容错**
+   
+   每个数据加载都有异常处理，加载失败时返回空数据或默认值，而不是抛出异常导致整个报告生成失败。
+
+   ```python
+   def load_data(self):
+       """加载基础数据 - 渐进式降级
+       
+       某个数据加载失败不会影响其他数据，
+       页面会显示可用的部分，缺失的部分显示占位提示
+       """
+       try:
+           portfolio_analyzer = PortfolioAnalyzer(data_dir=self.data_dir)
+           self.portfolio_result = portfolio_analyzer.analyze()
+       except Exception:
+           # 持仓数据加载失败，设为None，页面降级展示
+           self.portfolio_result = None
+       
+       try:
+           market_analyzer = MarketAnalyzer(data_dir=self.data_dir)
+           self.market_result = market_analyzer.analyze()
+       except Exception:
+           # 市场数据加载失败，设为None
+           self.market_result = None
+   ```
+
+2. **组件级降级**
+   
+   页面渲染时检查数据是否可用，不可用时显示友好的提示而非空白或错误。
+
+   ```python
+   def render_portfolio_section(self):
+       """渲染持仓部分 - 如果数据不可用则降级显示"""
+       if self.portfolio_result is None or not self.portfolio_result.is_valid():
+           # 降级：显示提示信息
+           return Section(
+               title="持仓分析",
+               icon="📊",
+               content="<p style='color: #9ca3af; text-align: center; padding: 40px 0;'>"
+                       "持仓数据暂不可用，请稍后再试</p>"
+           ).render()
+       
+       # 正常渲染
+       # ...
+   ```
+
+3. **多数据源冗余**
+   
+   关键数据使用多个数据源，主数据源故障时自动切换到备用数据源。
+
+### 1.4.4 质量优先：宁慢勿错
+
+**理念：** 在金融投研场景中，数据的准确性远比速度重要。宁可生成慢一点，也不能输出错误的数据或误导性的结论。
+
+**为什么重要：**
+- **信任是基础**：投研工具的核心价值在于可信度。一次错误的分析可能导致用户失去所有信任。
+- **金融后果**：错误的信息可能导致用户做出错误的投资决策，产生实际的金钱损失。
+- **专业形象**：准确但不完美的分析，比花哨但错误的分析更专业。
+
+**在系统中的体现：**
+
+1. **多层校验机制**
+   
+   - 数据层校验：数据质量检查器评估数据完整性和准确性
+   - 内容层校验：分析结果必须达到最低质量分数才会被使用
+   - 结构层校验：HTML结构、链接有效性检查
+   - 发布门禁：校验不通过的报告不会发布
+
+   ```python
+   class ContentModel:
+       def is_valid(self) -> bool:
+           """内容是否有效（达到最低质量要求）
+           
+           质量门禁：深度评分低于30或数据质量低于50的内容
+           不允许发布，避免低质量内容损害系统可信度
+           """
+           return self.depth_score >= 30 and self.data_quality >= 50
+   ```
+
+2. **数据来源标注**
+   
+   所有数据都标注来源，重要结论都有数据支撑，让用户可以追溯和验证。
+
+3. **克制的观点输出**
+   
+   对于不确定的分析结论，明确标注"可能性"、"有待观察"等限定词，而不是给出绝对化的判断。
+
+### 1.4.5 可观测性：全链路状态可追踪
+
+**理念：** 系统的运行状态应该是可观测的。出了问题能够快速定位，运行情况能够量化评估，效果好坏有数据支撑。
+
+**为什么重要：**
+- **故障排查**：自动化系统出问题时，需要快速定位根因
+- **效果评估**：系统是否在产生价值，价值有多大，需要数据回答
+- **持续优化**：基于数据而非感觉来做优化决策
+
+**在系统中的体现：**
+
+1. **工作流状态监控**
+   
+   每次生成任务都有详细的日志记录，包括开始时间、结束时间、各步骤耗时、成功/失败状态。
+
+2. **预判验证中心**
+   
+   对系统做出的所有预判和观点进行跟踪验证，计算准确率，形成闭环。
+
+3. **周度进化报告**
+   
+   每周统计系统的运行数据：生成了多少报告、分析了多少只股票、预判准确率变化、新增了什么功能等。
+
+4. **内容质量评分**
+   
+   每一份分析内容都有深度评分和数据质量评分，可以跟踪内容质量的变化趋势。
+
+---
+
+## 1.5 技术栈总览
+
+系统采用了简洁实用的技术栈选型，避免过度工程化，以最小的复杂度满足需求。
+
+### 1.5.1 整体技术栈
+
+```
+┌─────────────────────────────────────────────────────┐
+│                   前端技术栈                        │
+│                                                     │
+│  HTML5         语义化标签，静态内容为主             │
+│  Tailwind CSS  原子化CSS，快速构建UI               │
+│  JavaScript    原生JS，轻量交互                    │
+│  Chart.js      图表可视化                          │
+│  Font Awesome  图标库                              │
+├─────────────────────────────────────────────────────┤
+│                   后端技术栈                        │
+│                                                     │
+│  Python 3.x    核心开发语言                        │
+│  Jinja2        模板引擎（部分使用）                 │
+│  Requests      HTTP请求库                         │
+│  BeautifulSoup HTML解析                           │
+│  lxml          XML/HTML解析（高性能）              │
+├─────────────────────────────────────────────────────┤
+│                   数据存储                          │
+│                                                     │
+│  JSON 文件     轻量数据存储，Git友好               │
+│  本地文件系统   静态页面托管                        │
+├─────────────────────────────────────────────────────┤
+│                   部署与运维                        │
+│                                                     │
+│  GitHub Pages  静态站点托管                        │
+│  GitHub Actions CI/CD，定时任务                    │
+│  Git           版本控制                            │
+└─────────────────────────────────────────────────────┘
+```
+
+### 1.5.2 后端：Python为主
+
+**选择Python的原因：**
+1. **数据处理能力强**：Python在数据分析、爬虫、文本处理方面有丰富的生态
+2. **开发效率高**：语法简洁，原型开发快，适合快速迭代
+3. **AI/ML友好**：未来引入机器学习模型时，Python是首选语言
+4. **团队熟悉**：开发者对Python最熟练，维护成本低
+
+**核心库和工具：**
+
+| 库名 | 用途 | 选择理由 |
+|------|------|---------|
+| `dataclasses` | 数据结构定义 | Python标准库，类型安全，比dict更清晰 |
+| `json` | JSON数据处理 | 标准库，性能足够 |
+| `requests` | HTTP请求 | 最流行的Python HTTP客户端，简单可靠 |
+| `BeautifulSoup4` | HTML解析 | 简单易用，适合快速开发 |
+| `lxml` | XML/HTML解析 | 性能好，XPath支持强 |
+| `re` | 正则表达式 | 标准库，文本处理必备 |
+| `datetime` | 日期时间处理 | 标准库 |
+| `os / pathlib` | 文件系统操作 | 标准库 |
+
+### 1.5.3 前端：原生三件套 + Tailwind CSS
+
+**技术选型：**
+
+| 技术 | 用途 | 选择理由 |
+|------|------|---------|
+| 原生HTML5 | 页面结构 | 静态站点，不需要复杂的前端框架 |
+| Tailwind CSS | 样式框架 | 原子化CSS，快速开发，设计一致 |
+| 原生JavaScript | 交互逻辑 | 轻量，无构建步骤，部署简单 |
+| Chart.js | 图表库 | 轻量、美观、功能足够，无需重型图表库 |
+| 内联SVG图标 | 图标系统 | 无外部依赖，可定制颜色大小 |
+
+**为什么不用React/Vue等前端框架：**
+1. **场景不匹配**：系统以内容展示为主，交互相对简单，不需要复杂的状态管理
+2. **性能考虑**：纯静态HTML加载速度最快，用户体验好
+3. **部署简单**：纯静态文件，不需要Node.js构建流程，直接部署到GitHub Pages
+4. **维护成本**：减少技术栈复杂度，一个Python开发者就能搞定全栈
+5. **SEO友好**：服务端渲染的HTML对搜索引擎更友好
+
+### 1.5.4 数据源：多源整合
+
+**主要数据源：**
+
+| 数据源 | 数据类型 | 使用方式 |
+|--------|---------|---------|
+| 腾讯财经 | 行情数据、个股数据 | API + 网页抓取 |
+| 东方财富 | 财务数据、板块数据 | 网页抓取 |
+| 韭研公社 | 题材催化、热门概念 | 网页抓取 |
+| 同花顺 | 龙虎榜、资金流向 | 网页抓取 |
+
+**数据获取策略：**
+- **多源验证**：关键数据从多个数据源获取，交叉验证
+- **容错设计**：单个数据源故障不影响整体
+- **礼貌抓取**：控制请求频率，避免对源站造成压力
+- **本地缓存**：已获取的数据缓存到本地，减少重复请求
+
+### 1.5.5 部署：GitHub Pages + Actions
+
+**部署架构：**
+
+```
+┌─────────────────┐
+│  GitHub Actions  │ 定时触发 / 手动触发
+│  ┌─────────────┐│
+│  │  Python脚本  ││ 生成报告和工具页面
+│  └─────────────┘│
+│         │        │
+│         ▼        │
+│  ┌─────────────┐│
+│  │  静态HTML   ││ 输出到 docs/ 目录
+│  └─────────────┘│
+│         │        │
+│         ▼        │
+│  ┌─────────────┐│
+│  │  Git提交    ││ 提交到仓库
+│  └─────────────┘│
+└─────────┬───────┘
+          │
+          ▼
+┌─────────────────┐
+│  GitHub Pages   │ 托管静态网站
+│  (CDN加速)      │
+└─────────────────┘
+          │
+          ▼
+┌─────────────────┐
+│     用户访问     │
+└─────────────────┘
+```
+
+**GitHub Actions 定时任务配置示例：**
+
+```yaml
+name: 每日报告生成
+
+on:
+  schedule:
+    - cron: '0 22 * * *'  # 每天早上6点（北京时间）生成盘前早报
+    - cron: '30 3 * * *'  # 中午11:30生成午间速递
+    - cron: '0 8 * * *'   # 下午4点生成盘后报告
+  workflow_dispatch:      # 支持手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: 设置Python环境
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: 安装依赖
+        run: pip install requests beautifulsoup4 lxml
+      
+      - name: 生成报告
+        run: python v3/generate_all.py
+      
+      - name: 部署到GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+```
+
+**选择GitHub Pages的原因：**
+1. **免费**：公开仓库免费使用，个人项目零成本
+2. **简单**：纯静态文件，不需要服务器运维
+3. **可靠**：GitHub的基础设施稳定性极高
+4. **CI/CD集成好**：GitHub Actions与Pages无缝集成
+5. **版本控制**：Git历史天然就是内容的版本记录
+
+**技术权衡：**
+- **静态 vs 动态**：选择纯静态站点，牺牲了实时性和个性化，但换来了简单、快速、低成本
+- **免费额度 vs 自建服务器**：GitHub Pages有流量限制，但对于个人项目完全够用，远优于自购服务器
+- **服务器端能力**：无法使用服务器端功能（如数据库、用户系统等），但目前阶段不需要
+
+---
+
+## 1.6 系统能力版图
+
+经过多次迭代，系统已经发展为一个功能相对完整的投研平台，涵盖了从数据到洞察、从监控到验证的完整链路。
+
+### 1.6.1 能力全景图
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                     报告类能力                           │
+│                                                          │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐              │
+│  │ 盘前早报  │  │ 午间速递  │  │ 盘后深度  │              │
+│  │ Daily    │  │ Intraday │  │ Aftermarket             │
+│  └──────────┘  └──────────┘  └──────────┘              │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐              │
+│  │ 周末特刊  │  │ 周度展望  │  │ 月度总结  │              │
+│  └──────────┘  └──────────┘  └──────────┘              │
+├──────────────────────────────────────────────────────────┤
+│                     工具类能力                           │
+│                                                          │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐              │
+│  │ 持仓预警  │  │ 板块热力  │  │ 龙虎榜透视 │             │
+│  └──────────┘  └──────────┘  └──────────┘              │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐              │
+│  │ 智能预警  │  │ 数据时光  │  │ 产业链时钟 │             │
+│  └──────────┘  └──────────┘  └──────────┘              │
+├──────────────────────────────────────────────────────────┤
+│                     题材类能力                           │
+│                                                          │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐              │
+│  │ S级催化   │  │ 明日催化  │  │ 题材健康度 │             │
+│  └──────────┘  └──────────┘  └──────────┘              │
+│  ┌──────────┐  ┌──────────┐                             │
+│  │ 题材深度  │  │ 智能选题  │                             │
+│  └──────────┘  └──────────┘                             │
+├──────────────────────────────────────────────────────────┤
+│                     个股类能力                           │
+│                                                          │
+│  ┌──────────────────────────────────────────┐           │
+│  │            100+ 只个股深度分析            │           │
+│  │  基本面  │  技术面  │  资金面  │ 消息面   │           │
+│  └──────────────────────────────────────────┘           │
+├──────────────────────────────────────────────────────────┤
+│                     验证类能力                           │
+│                                                          │
+│  ┌──────────┐  ┌──────────┐                             │
+│  │ 预判验证  │  │ 周度进化  │                             │
+│  └──────────┘  └──────────┘                             │
+└──────────────────────────────────────────────────────────┘
+```
+
+### 1.6.2 报告类能力
+
+报告是系统最核心的输出形式，特点是结构化、有深度、定时生成。
+
+**核心报告产品：**
+
+| 报告名称 | 生成频率 | 发布时间 | 核心内容 | 目标用户 |
+|---------|---------|---------|---------|---------|
+| **盘前早报** | 每日 | 早6:00 | 隔夜要闻、大盘预判、热点板块、重点个股 | 短线交易者 |
+| **午间速递** | 每日 | 午11:30 | 上午盘面回顾、热点追踪、下午展望 | 日内交易者 |
+| **盘后深度洞察** | 每日 | 晚16:00 | 全天复盘、涨跌分析、资金流向、明日策略 | 所有投资者 |
+| **周末特刊** | 每周 | 周六 | 一周重点回顾、深度专题、周末要闻 | 中长期投资者 |
+| **周度策略展望** | 每周 | 周日 | 下周大势判断、板块机会、风险提示 | 策略型投资者 |
+| **月度总结** | 每月 | 月初 | 月度行情回顾、数据统计、下月展望 | 所有投资者 |
+
+**报告的通用结构：**
+1. 市场概览 - 指数表现、涨跌家数、成交额
+2. 热点追踪 - 涨幅居前板块、催化因素分析
+3. 核心观点 - 对当前市场的判断和策略建议
+4. 持仓跟踪 - 个人持仓表现和操作建议（如有）
+5. 明日关注 - 下一个交易日的重点观察方向
+
+### 1.6.3 工具类能力
+
+工具页面提供交互式的数据探索能力，特点是灵活、实时、可定制。
+
+**核心工具产品：**
+
+| 工具名称 | 核心功能 | 使用场景 |
+|---------|---------|---------|
+| **持仓智能预警仪表盘** | 持仓盈亏一览、止损预警、弹性测算、风险评估 | 每日开盘前检查持仓风险 |
+| **智能预警系统** | 自定义价格预警、涨跌幅预警、策略条件预警 | 监控特定标的的价格触发点 |
+| **板块热力图** | 行业/概念板块涨跌热力分布、资金流向、龙头股 | 快速感知市场热点方向 |
+| **龙虎榜透视** | 龙虎榜数据深度解析、游资动向、机构买卖 | 跟踪主力资金动向 |
+| **数据时光机** | 历史行情回溯、历史上的今天、大盘历史对比 | 研究历史规律、验证策略 |
+| **产业链时钟** | 产业链上下游传导关系、景气度轮动 | 行业配置参考 |
+
+### 1.6.4 题材类能力
+
+题材分析是A股投资的重要维度，系统提供了完整的题材分析工具体系。
+
+**题材分析矩阵：**
+
+| 分析维度 | 工具名称 | 核心价值 |
+|---------|---------|---------|
+| **重磅催化** | S级催化主题 | 识别级别最高、影响最大的产业催化 |
+| **事件驱动** | 明日催化剂 | 短期事件性机会的提前布局 |
+| **生命周期** | 题材健康度 | 判断题材处于启动/发酵/高潮/衰退哪个阶段 |
+| **深度研究** | 题材深度 | 单个题材的产业链、受益股、催化逻辑深度拆解 |
+| **标的发现** | 智能选题助手 | 根据多重条件筛选优质标的 |
+
+**题材分析的核心逻辑：**
+1. **催化识别**：从新闻、公告、研报中识别潜在催化因素
+2. **级别评估**：评估催化的影响力级别（S/A/B/C级）
+3. **产业链映射**：分析催化影响的上下游环节
+4. **受益股筛选**：筛选最受益的个股标的
+5. **热度追踪**：跟踪题材的市场热度变化
+6. **生命周期判断**：判断题材所处的阶段，给出操作建议
+
+### 1.6.5 个股类能力
+
+**覆盖范围：** 100+只重点个股，覆盖主要行业龙头、高景气赛道标的、题材核心股等。
+
+**分析维度：**
+- **基本面**：财务状况、盈利能力、成长能力、估值水平
+- **技术面**：趋势判断、支撑压力、量价配合、形态分析
+- **资金面**：主力资金流向、龙虎榜数据、机构持仓
+- **消息面**：最新公告、新闻资讯、研报观点
+- **催化面**：潜在催化剂、事件驱动因素
+
+### 1.6.6 验证类能力
+
+验证类能力是系统的"自省机制"，确保系统在持续进化而不是盲目输出。
+
+**预判验证中心：**
+- 记录系统所有公开的预判和观点
+- 跟踪预判的实际结果
+- 计算预判准确率和错误类型分布
+- 分析预判偏差的原因，持续优化模型
+
+**周度进化报告：**
+- 内容产出统计：生成了多少报告、分析了多少标的
+- 质量指标变化：深度评分趋势、数据质量趋势
+- 预判准确率：本周预判表现如何
+- 新功能上线：本周新增了什么能力
+- 已知问题与改进计划：透明度展示
+
+---
+
+## 本章小结
+
+本章从系统定位出发，沿着架构演进的时间线，详细介绍了投资研究系统的五层架构模型和核心设计原则。
+
+**关键要点回顾：**
+
+1. **系统定位**：面向个人投资者的AI投研助手，提供从数据到洞察的全链路服务
+2. **架构演进**：V1单体脚本 → V2模块化 → V3插件化 → V4组件化，逐步进化
+3. **五层架构**：
+   - 数据层：多源数据采集、清洗、标准化存储
+   - 引擎层：配置系统、报告核心、发布引擎、校验系统
+   - 内容层：市场、持仓、题材、新闻四大分析引擎
+   - 生成层：20+个生成器，对应不同类型的页面
+   - 组件层：丰富的UI组件库，确保视觉一致
+4. **核心设计原则**：单一数据源、内容与展现分离、渐进式降级、质量优先、可观测性
+5. **技术栈**：Python后端 + 原生前端 + GitHub Pages部署
+6. **能力版图**：报告、工具、题材、个股、验证五大类能力，23个功能模块
+
+这一架构的优势在于：
+- **可扩展性强**：新增功能模块不会影响现有系统
+- **一致性高**：统一的配置、组件、分析口径
+- **维护成本低**：分层清晰，问题定位快
+- **迭代速度快**：组件复用高，新功能开发效率高
+
+当然，架构不是一成不变的。随着业务的发展，未来可能会引入更多层次（如服务层、API层）、更多技术（如数据库、缓存）、更多能力（如用户系统、个性化推荐）。但五层架构的核心思想——分层解耦、单一数据源、内容与展现分离——将继续指导系统的演进。
+
+在下一章中，我们将深入数据层，详细介绍数据采集、清洗、存储和管理的具体实现。
