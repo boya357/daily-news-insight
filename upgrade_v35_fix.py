@@ -80,6 +80,63 @@ class StockAnalysisListGenerator(ProGenerator):
                 continue
         return ''
     
+    def _get_stock_scores(self, name: str) -> dict:
+        """获取股票的三维评分"""
+        # 先找股票代码
+        code = ''
+        json_files = glob.glob(os.path.join(self.docs_dir, 'data', 'stock_analysis', '*.json'))
+        target_file = None
+        for f in json_files:
+            try:
+                with open(f, 'r', encoding='utf-8') as fp:
+                    data = json.load(fp)
+                    if data.get('name') == name:
+                        code = data.get('code', '')
+                        target_file = f
+                        break
+            except:
+                continue
+        
+        if not target_file:
+            return {}
+        
+        try:
+            with open(target_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except:
+            return {}
+        
+        scores = {}
+        
+        # 技术面评分
+        technical = data.get('technical', {})
+        tech_scores = []
+        for key in ['ma', 'macd', 'rsi', 'kdj', 'boll', 'volume']:
+            if key in technical and isinstance(technical[key], dict) and 'score' in technical[key]:
+                tech_scores.append(technical[key]['score'])
+        if tech_scores:
+            scores['technical'] = round(sum(tech_scores) / len(tech_scores), 1)
+        elif technical.get('overall_score'):
+            scores['technical'] = technical['overall_score']
+        
+        # 基本面评分
+        fundamental = data.get('fundamental', {})
+        if fundamental.get('score') is not None:
+            scores['fundamental'] = round(fundamental['score'], 1)
+        
+        # 消息面评分（如果有）
+        news = data.get('news', {})
+        if news.get('sentiment_score') is not None:
+            scores['news'] = round(news['sentiment_score'], 1)
+        
+        # 综合评分
+        overall = data.get('overall', {})
+        if overall.get('score') is not None:
+            scores['overall'] = round(overall['score'], 1)
+            scores['rating'] = overall.get('rating', '')
+        
+        return scores
+    
     def _content(self) -> str:
         stats_html = f'''
         <div class="grid grid-cols-3 gap-4 mb-8">
@@ -111,6 +168,33 @@ class StockAnalysisListGenerator(ProGenerator):
             link = f'{name}.html' if has_detail else '#'
             opacity = '' if has_detail else 'opacity-50'
             
+            # 获取三维评分
+            scores = self._get_stock_scores(name) if has_detail else {}
+            tech_score = scores.get('technical', '-')
+            fund_score = scores.get('fundamental', '-')
+            news_score = scores.get('news', '-')
+            overall_score = scores.get('overall', '')
+            
+            # 评分颜色
+            def get_score_color(s):
+                if s == '-':
+                    return 'text-white/40'
+                try:
+                    val = float(s)
+                    if val >= 70:
+                        return 'text-green-400'
+                    elif val >= 50:
+                        return 'text-yellow-400'
+                    else:
+                        return 'text-red-400'
+                except:
+                    return 'text-white/40'
+            
+            tech_color = get_score_color(tech_score)
+            fund_color = get_score_color(fund_score)
+            news_color = get_score_color(news_score)
+            
+            # 综合评级颜色
             rating_color = {
                 '买入': 'bg-green-500/20 text-green-400',
                 '增持': 'bg-emerald-500/20 text-emerald-400',
@@ -119,6 +203,28 @@ class StockAnalysisListGenerator(ProGenerator):
                 '卖出': 'bg-red-500/20 text-red-400',
                 '已分析': 'bg-blue-500/20 text-blue-400',
             }.get(rating, 'bg-white/10 text-white/60')
+            
+            # 三维评分显示
+            scores_html = ''
+            if scores:
+                scores_html = f'''
+                <div class="mt-3 pt-3 border-t border-white/10">
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div>
+                            <div class="text-xs text-white/40 mb-1">技术面</div>
+                            <div class="font-bold {tech_color}">{tech_score}</div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-white/40 mb-1">消息面</div>
+                            <div class="font-bold {news_color}">{news_score}</div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-white/40 mb-1">基本面</div>
+                            <div class="font-bold {fund_color}">{fund_score}</div>
+                        </div>
+                    </div>
+                </div>
+                '''
             
             cards_html += f'''
             <a href="{link}" class="glass-card rounded-xl p-5 {opacity} hover:border-blue-400/50 transition-all duration-300 group block">
@@ -130,6 +236,7 @@ class StockAnalysisListGenerator(ProGenerator):
                     {f'<span class="text-xs px-2.5 py-1 rounded-full {rating_color} font-medium">{rating}</span>' if rating else ''}
                 </div>
                 {f'<p class="text-white/40 text-sm mt-1">{sector}</p>' if sector else ''}
+                {scores_html}
                 <div class="mt-4 flex items-center text-blue-400/70 text-sm group-hover:text-blue-400 font-medium">
                     <span>查看深度分析</span>
                     <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
