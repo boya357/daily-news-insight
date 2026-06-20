@@ -345,6 +345,47 @@ class UnifiedStockManager:
             if sector:
                 sector_p = '<p class="text-white/40 text-xs mt-2">' + sector + '</p>'
 
+            # 读取三维评分
+            scores_html = ''
+            if has_detail:
+                try:
+                    import json
+                    import os
+                    data_file = os.path.join(str(self.data_dir), code + '.json')
+                    if os.path.exists(data_file):
+                        with open(data_file, 'r') as f:
+                            stock_detail = json.load(f)
+                        overall = stock_detail.get('overall', {})
+                        tech_score = overall.get('technical_score', 0) or 0
+                        news_score = overall.get('news_score', 0) or 0
+                        fund_score = overall.get('fundamental_score', 0) or 0
+                        
+                        def get_score_color(score):
+                            if score >= 70: return 'text-green-400'
+                            elif score >= 50: return 'text-yellow-400'
+                            else: return 'text-red-400'
+                        
+                        tech_color = get_score_color(tech_score)
+                        news_color = get_score_color(news_score)
+                        fund_color = get_score_color(fund_score)
+                        
+                        scores_html = '<div class="grid grid-cols-3 gap-2 mt-3 text-center">'
+                        scores_html += '<div class="bg-white/5 rounded-lg py-1.5">'
+                        scores_html += '<div class="text-[10px] text-white/40">技术</div>'
+                        scores_html += '<div class="text-sm font-semibold %s">%.0f</div>' % (tech_color, tech_score)
+                        scores_html += '</div>'
+                        scores_html += '<div class="bg-white/5 rounded-lg py-1.5">'
+                        scores_html += '<div class="text-[10px] text-white/40">消息</div>'
+                        scores_html += '<div class="text-sm font-semibold %s">%.0f</div>' % (news_color, news_score)
+                        scores_html += '</div>'
+                        scores_html += '<div class="bg-white/5 rounded-lg py-1.5">'
+                        scores_html += '<div class="text-[10px] text-white/40">基本</div>'
+                        scores_html += '<div class="text-sm font-semibold %s">%.0f</div>' % (fund_color, fund_score)
+                        scores_html += '</div>'
+                        scores_html += '</div>'
+                except Exception as e:
+                    pass
+
             card = '<a href="' + link + '" class="glass-card rounded-xl p-4 ' + cursor_class + ' hover:border-blue-400/50 transition-all duration-300 group block">'
             card += '<div class="flex items-start justify-between mb-2">'
             card += '<div>'
@@ -354,6 +395,7 @@ class UnifiedStockManager:
             card += rating_span
             card += '</div>'
             card += sector_p
+            card += scores_html
             card += '<div class="mt-3 flex items-center text-blue-400/70 text-xs group-hover:text-blue-400">'
             card += '<span>查看深度分析</span>'
             card += '<svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">'
