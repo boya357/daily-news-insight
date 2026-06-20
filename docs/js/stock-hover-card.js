@@ -175,7 +175,9 @@
         
         // 价格
         let price = null;
-        if (data.market && data.market.price != null) {
+        if (data.market && data.market.current_price != null) {
+            price = Number(data.market.current_price);
+        } else if (data.market && data.market.price != null) {
             price = Number(data.market.price);
         } else if (data.technical && data.technical.current_price != null) {
             price = Number(data.technical.current_price);
@@ -188,7 +190,9 @@
         
         // 涨跌幅
         let change = null;
-        if (data.market && data.market.change_percent !== undefined) {
+        if (data.market && data.market.change_pct !== undefined) {
+            change = Number(data.market.change_pct);
+        } else if (data.market && data.market.change_percent !== undefined) {
             change = Number(data.market.change_percent);
         } else if (data.overall && data.overall.change_pct !== undefined) {
             change = Number(data.overall.change_pct);
@@ -200,19 +204,27 @@
         
         // 换手率
         if (data.market && data.market.turnover_rate != null) {
-            turnoverEl.textContent = Number(data.market.turnover_rate).toFixed(2) + '%';
+            const tr = Number(data.market.turnover_rate);
+            turnoverEl.textContent = tr.toFixed(2) + '%';
         } else if (data.technical && data.technical.volume) {
             turnoverEl.textContent = '有量';
         }
         
         // 评级
+        let rating = null;
         if (data.overall && data.overall.rating) {
-            ratingEl.textContent = data.overall.rating;
+            rating = data.overall.rating;
+        } else if (data.technical && data.technical.rating) {
+            rating = data.technical.rating;
+        }
+        if (rating) {
+            ratingEl.textContent = rating;
             const ratingColors = {
                 '买入': '#4ade80', '增持': '#34d399', '持有': '#fbbf24',
                 '减持': '#fb923c', '卖出': '#f87171', '观望': '#94a3b8',
+                '推荐': '#4ade80', '谨慎推荐': '#fbbf24', '中性': '#94a3b8',
             };
-            ratingEl.style.color = ratingColors[data.overall.rating] || '#60a5fa';
+            ratingEl.style.color = ratingColors[rating] || '#60a5fa';
         }
         
         // 代码
@@ -220,7 +232,7 @@
             codeEl.textContent = data.code;
         }
         
-        // 支撑位/压力位
+        // 支撑位/压力位 - 支持多种数据格式
         if (data.technical && data.technical.support_resistance) {
             const sr = data.technical.support_resistance;
             if (sr.resistance && sr.resistance.length > 0) {
@@ -229,10 +241,20 @@
             if (sr.support && sr.support.length > 0) {
                 supportEl.textContent = Number(sr.support[0]).toFixed(2);
             }
+        } else if (data.technical && data.technical.resistance_levels && data.technical.resistance_levels.length > 0) {
+            // stock-analysis Skill 格式
+            resistanceEl.textContent = Number(data.technical.resistance_levels[0].price).toFixed(2);
+        }
+        if (data.technical && data.technical.support_levels && data.technical.support_levels.length > 0) {
+            supportEl.textContent = Number(data.technical.support_levels[0].price).toFixed(2);
         } else if (data.technical && data.technical.boll) {
             const boll = data.technical.boll;
-            if (boll.upper) resistanceEl.textContent = Number(boll.upper).toFixed(2);
-            if (boll.lower) supportEl.textContent = Number(boll.lower).toFixed(2);
+            if (boll.upper && resistanceEl.textContent === '--') {
+                resistanceEl.textContent = Number(boll.upper).toFixed(2);
+            }
+            if (boll.lower) {
+                supportEl.textContent = Number(boll.lower).toFixed(2);
+            }
         }
         
         // 三维评分
@@ -245,7 +267,11 @@
         
         // 技术面评分
         let techScore = null;
-        if (data.technical) {
+        if (data.technical && data.technical.score != null) {
+            // stock-analysis Skill 格式 - 直接有总分
+            techScore = Number(data.technical.score);
+        } else if (data.technical) {
+            // 旧格式 - 从子指标计算
             const techIndicators = ['ma', 'macd', 'rsi', 'kdj', 'boll', 'volume'];
             let sum = 0, count = 0;
             techIndicators.forEach(key => {
@@ -287,13 +313,15 @@
         // 所属板块/题材
         let sectors = [];
         if (data.sector) sectors.push(data.sector);
-        if (data.themes && Array.isArray(data.themes)) {
+        if (data.themes && Array.isArray(data.themes) && data.themes.length > 0) {
             sectors = sectors.concat(data.themes.slice(0, 3));
         }
         if (sectors.length > 0) {
-            sectorsEl.innerHTML = sectors.map(s => 
+            sectorsEl.innerHTML = sectors.filter(s => s && s.trim()).map(s => 
                 `<span style="font-size: 11px; padding: 2px 8px; background: rgba(96, 165, 250, 0.15); color: #60a5fa; border-radius: 999px; white-space: nowrap;">${s}</span>`
             ).join('');
+        } else {
+            sectorsEl.innerHTML = '<span style="font-size: 11px; color: rgba(255,255,255,0.3);">暂无数据</span>';
         }
         
         // Skill标签显示
@@ -302,15 +330,28 @@
         const actionTag = card.querySelector('.shc-tag-action');
         
         // 检查是否有缺口分析数据
-        if (data.technical && (data.technical.gap_analysis || data.technical.gaps)) {
+        const hasGaps = data.technical && (
+            data.technical.gap_analysis || 
+            data.technical.gaps || 
+            (data.technical.gaps && (data.technical.gaps.up_gaps || data.technical.gaps.down_gaps) &&
+             (data.technical.gaps.up_gaps.length > 0 || data.technical.gaps.down_gaps.length > 0))
+        );
+        if (hasGaps) {
             gapTag.style.display = 'block';
         }
-        // 检查是否有情绪分析
-        if (data.sentiment || (data.overall && data.overall.sentiment)) {
+        // 检查是否有情绪/消息分析
+        if (data.sentiment || 
+            (data.overall && data.overall.sentiment) || 
+            (data.news && data.news.length > 0) ||
+            (data.news && data.news.sentiment_score != null)) {
             sentimentTag.style.display = 'block';
         }
-        // 检查是否有操作建议
-        if (data.action || data.advice || (data.overall && data.overall.rating)) {
+        // 检查是否有操作建议/评级
+        if (data.action || 
+            data.advice || 
+            (data.overall && data.overall.rating) ||
+            (data.technical && data.technical.rating) ||
+            (data.trader && data.trader.action)) {
             actionTag.style.display = 'block';
         }
     }
