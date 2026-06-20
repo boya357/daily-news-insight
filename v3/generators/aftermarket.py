@@ -4,6 +4,7 @@
 """
 import sys
 import os
+import json
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -85,6 +86,125 @@ class AftermarketGenerator:
         news_html += '</div>'
         
         section = Section(title="🌙 晚间重要新闻", content=news_html, icon="moon")
+        self._components.append(section)
+    
+    def add_earnings_forecast(self):
+        """添加半年报业绩预增追踪模块"""
+        # 加载业绩预告数据
+        earnings_data = None
+        try:
+            data_path = os.path.join('data', 'earnings_forecast', 'earnings_big_growth.json')
+            with open(data_path, 'r', encoding='utf-8') as f:
+                earnings_data = json.load(f)
+        except:
+            pass
+        
+        if not earnings_data or not earnings_data.get("items"):
+            content = '''
+            <div style="text-align: center; padding: 30px; color: var(--text-secondary);">
+                <div style="font-size: 2rem; margin-bottom: 10px;">📊</div>
+                <div>暂无业绩大增预告数据</div>
+            </div>
+            '''
+            section = Section(title="📈 业绩预增追踪", content=content, icon="trending_up")
+            self._components.append(section)
+            return
+        
+        items = earnings_data.get("items", [])
+        update_time = earnings_data.get("update_time", "")
+        threshold = earnings_data.get("threshold", 100)
+        
+        items_html = '<div style="display: flex; flex-direction: column; gap: 12px;">'
+        
+        for item in items:
+            name = item.get("name", "")
+            code = item.get("code", "")
+            amp_lower = item.get("add_amp_lower", 0)
+            amp_upper = item.get("add_amp_upper")
+            predict_type = item.get("predict_type", "")
+            reason = item.get("change_reason", "")[:80] + ("..." if len(item.get("change_reason", "")) > 80 else "")
+            notice_date = item.get("notice_date", "")[:10]
+            first_found = item.get("first_found_time", "")
+            
+            # 增幅显示
+            if amp_upper:
+                try:
+                    amp_str = f"{amp_lower:.0f}% ~ {float(amp_upper):.0f}%"
+                except:
+                    amp_str = f"{amp_lower:.0f}%"
+            else:
+                amp_str = f"{amp_lower:.0f}%"
+            
+            # 根据增幅设置颜色
+            if amp_lower >= 500:
+                amp_color = '#c084fc'  # purple-400
+                amp_bg = 'rgba(192, 132, 252, 0.15)'
+            elif amp_lower >= 200:
+                amp_color = '#f472b6'  # pink-400
+                amp_bg = 'rgba(244, 114, 182, 0.15)'
+            elif amp_lower >= 100:
+                amp_color = '#4ade80'  # green-400
+                amp_bg = 'rgba(74, 222, 128, 0.15)'
+            else:
+                amp_color = '#60a5fa'  # blue-400
+                amp_bg = 'rgba(96, 165, 250, 0.15)'
+            
+            items_html += f'''
+            <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); 
+                        border-radius: 12px; padding: 16px; backdrop-filter: blur(10px);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            <span style="color: var(--text-primary); font-weight: 600; font-size: 15px;">{name}</span>
+                            <span style="color: var(--text-muted); font-size: 12px;">{code}</span>
+                            <span style="font-size: 11px; padding: 2px 8px; border-radius: 10px; 
+                                  background: {amp_bg}; color: {amp_color};">{predict_type}</span>
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 8px;">
+                            {reason}
+                        </div>
+                        <div style="display: flex; gap: 16px; font-size: 12px; color: var(--text-muted);">
+                            <span>📅 披露: {notice_date}</span>
+                            <span>🔍 发现: {first_found}</span>
+                        </div>
+                    </div>
+                    <div style="text-align: right; flex-shrink: 0;">
+                        <div style="font-size: 20px; font-weight: 700; color: {amp_color};">{amp_str}</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">净利润增幅</div>
+                    </div>
+                </div>
+            </div>
+            '''
+        
+        items_html += '</div>'
+        
+        # 顶部统计信息
+        stats_html = f'''
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+            <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); 
+                        border-radius: 10px; padding: 14px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: #4ade80; margin-bottom: 4px;">{len(items)}</div>
+                <div style="font-size: 12px; color: var(--text-muted);">业绩大增公司</div>
+            </div>
+            <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); 
+                        border-radius: 10px; padding: 14px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: #60a5fa; margin-bottom: 4px;">≥{threshold}%</div>
+                <div style="font-size: 12px; color: var(--text-muted);">增幅阈值</div>
+            </div>
+        </div>
+        '''
+        
+        content = stats_html + items_html
+        
+        # 添加更新时间
+        if update_time:
+            content += f'''
+            <div style="text-align: right; font-size: 12px; color: var(--text-muted); margin-top: 12px;">
+                数据更新时间: {update_time}
+            </div>
+            '''
+        
+        section = Section(title="📈 业绩预增追踪", content=content, icon="trending_up")
         self._components.append(section)
     
     def add_holdings_tracking(self, holdings: list):

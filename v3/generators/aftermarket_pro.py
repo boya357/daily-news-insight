@@ -190,6 +190,118 @@ class AftermarketProGenerator(ReportProGenerator):
         
         self.add_section("晚间重要新闻", news_html, "📰")
     
+    def add_earnings_forecast(self):
+        """添加半年报业绩预增追踪模块"""
+        # 加载业绩预告数据
+        earnings_data = None
+        try:
+            data_path = os.path.join(self.data_dir, 'earnings_forecast', 'earnings_big_growth.json')
+            with open(data_path, 'r', encoding='utf-8') as f:
+                earnings_data = json.load(f)
+        except:
+            pass
+        
+        if not earnings_data or not earnings_data.get("items"):
+            # 没有数据时显示占位
+            content = '''
+            <div class="bg-white/5 rounded-xl p-6 text-center border border-white/10">
+                <div class="text-3xl mb-2">📊</div>
+                <div class="text-white/60 text-sm">暂无业绩大增预告数据</div>
+            </div>
+            '''
+            self.add_section("业绩预增追踪", content, "📈")
+            return
+        
+        items = earnings_data.get("items", [])
+        update_time = earnings_data.get("update_time", "")
+        threshold = earnings_data.get("threshold", 100)
+        
+        items_html = '<div class="space-y-3">'
+        
+        for i, item in enumerate(items):
+            name = item.get("name", "")
+            code = item.get("code", "")
+            amp_lower = item.get("add_amp_lower", 0)
+            amp_upper = item.get("add_amp_upper")
+            predict_type = item.get("predict_type", "")
+            reason = item.get("change_reason", "")[:80] + ("..." if len(item.get("change_reason", "")) > 80 else "")
+            notice_date = item.get("notice_date", "")[:10]  # 只取日期部分
+            first_found = item.get("first_found_time", "")
+            
+            # 增幅显示
+            if amp_upper:
+                try:
+                    amp_str = f"{amp_lower:.0f}% ~ {float(amp_upper):.0f}%"
+                except:
+                    amp_str = f"{amp_lower:.0f}%"
+            else:
+                amp_str = f"{amp_lower:.0f}%"
+            
+            # 根据增幅设置颜色
+            if amp_lower >= 500:
+                amp_color = "text-purple-400"
+                amp_bg = "bg-purple-500/20 border-purple-500/30"
+            elif amp_lower >= 200:
+                amp_color = "text-pink-400"
+                amp_bg = "bg-pink-500/20 border-pink-500/30"
+            elif amp_lower >= 100:
+                amp_color = "text-green-400"
+                amp_bg = "bg-green-500/20 border-green-500/30"
+            else:
+                amp_color = "text-blue-400"
+                amp_bg = "bg-blue-500/20 border-blue-500/30"
+            
+            items_html += f'''
+            <div class="bg-white/5 rounded-xl p-4 border border-white/10 hover:bg-white/10 transition-colors">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-white font-semibold">{name}</span>
+                            <span class="text-white/40 text-xs">{code}</span>
+                            <span class="text-xs px-2 py-0.5 rounded-full {amp_bg} {amp_color}">{predict_type}</span>
+                        </div>
+                        <div class="text-white/70 text-xs leading-relaxed mb-2">{reason}</div>
+                        <div class="flex items-center gap-4 text-xs text-white/40">
+                            <span>📅 披露: {notice_date}</span>
+                            <span>🔍 发现: {first_found}</span>
+                        </div>
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                        <div class="text-lg font-bold {amp_color}">{amp_str}</div>
+                        <div class="text-xs text-white/40">净利润增幅</div>
+                    </div>
+                </div>
+            </div>
+            '''
+        
+        items_html += '</div>'
+        
+        # 顶部统计信息
+        stats_html = f'''
+        <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="bg-white/5 rounded-lg p-3 text-center border border-white/10">
+                <div class="text-2xl font-bold text-green-400">{len(items)}</div>
+                <div class="text-xs text-white/50">业绩大增公司</div>
+            </div>
+            <div class="bg-white/5 rounded-lg p-3 text-center border border-white/10">
+                <div class="text-2xl font-bold text-blue-400">≥{threshold}%</div>
+                <div class="text-xs text-white/50">增幅阈值</div>
+            </div>
+        </div>
+        '''
+        
+        content = stats_html + items_html
+        
+        # 添加更新时间脚注
+        if update_time:
+            content += f'''
+            <div class="text-right text-xs text-white/30 mt-3">
+                数据更新时间: {update_time}
+            </div>
+            '''
+        
+        self.add_section("业绩预增追踪", content, "📈")
+    
     def add_longhubang_summary(self, data: dict = None):
         """添加龙虎榜摘要"""
         content = '''
@@ -488,6 +600,7 @@ class AftermarketProGenerator(ReportProGenerator):
         self.add_market_sentiment()
         self.add_longhubang_summary()
         self.add_evening_news()
+        self.add_earnings_forecast()
         self.add_portfolio_summary()
         self.add_tomorrow_prediction()
         self.add_risk_warning()
