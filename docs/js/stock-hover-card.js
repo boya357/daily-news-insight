@@ -95,6 +95,24 @@
             </div>
             
             <div style="margin-bottom: 14px;">
+                <div style="font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 5px;">三维评分</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 6px; padding: 8px 4px; text-align: center;">
+                        <div style="font-size: 9px; color: rgba(255,255,255,0.4); margin-bottom: 2px;">技术面</div>
+                        <div style="font-size: 14px; font-weight: 700; color: #9ca3af;" class="shc-tech-score">--</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 6px; padding: 8px 4px; text-align: center;">
+                        <div style="font-size: 9px; color: rgba(255,255,255,0.4); margin-bottom: 2px;">消息面</div>
+                        <div style="font-size: 14px; font-weight: 700; color: #9ca3af;" class="shc-news-score">--</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 6px; padding: 8px 4px; text-align: center;">
+                        <div style="font-size: 9px; color: rgba(255,255,255,0.4); margin-bottom: 2px;">基本面</div>
+                        <div style="font-size: 14px; font-weight: 700; color: #9ca3af;" class="shc-fund-score">--</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 14px;">
                 <div style="font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 5px;">所属板块</div>
                 <div style="display: flex; gap: 5px; flex-wrap: wrap;" class="shc-sectors">
                     <span style="font-size: 11px; padding: 2px 8px; background: rgba(96, 165, 250, 0.15); color: #60a5fa; border-radius: 999px;">加载中...</span>
@@ -151,6 +169,9 @@
         const resistanceEl = card.querySelector('.shc-resistance');
         const supportEl = card.querySelector('.shc-support');
         const sectorsEl = card.querySelector('.shc-sectors');
+        const techScoreEl = card.querySelector('.shc-tech-score');
+        const newsScoreEl = card.querySelector('.shc-news-score');
+        const fundScoreEl = card.querySelector('.shc-fund-score');
         
         // 价格
         let price = null;
@@ -212,6 +233,55 @@
             const boll = data.technical.boll;
             if (boll.upper) resistanceEl.textContent = Number(boll.upper).toFixed(2);
             if (boll.lower) supportEl.textContent = Number(boll.lower).toFixed(2);
+        }
+        
+        // 三维评分
+        function getScoreColor(score) {
+            if (score == null || isNaN(score)) return '#9ca3af';
+            if (score >= 70) return '#4ade80';
+            if (score >= 50) return '#fbbf24';
+            return '#f87171';
+        }
+        
+        // 技术面评分
+        let techScore = null;
+        if (data.technical) {
+            const techIndicators = ['ma', 'macd', 'rsi', 'kdj', 'boll', 'volume'];
+            let sum = 0, count = 0;
+            techIndicators.forEach(key => {
+                if (data.technical[key] && data.technical[key].score != null) {
+                    sum += data.technical[key].score;
+                    count++;
+                }
+            });
+            if (count > 0) techScore = Math.round(sum / count * 10) / 10;
+            else if (data.technical.overall_score != null) techScore = data.technical.overall_score;
+        }
+        if (techScore != null) {
+            techScoreEl.textContent = techScore;
+            techScoreEl.style.color = getScoreColor(techScore);
+        }
+        
+        // 基本面评分
+        let fundScore = null;
+        if (data.fundamental && data.fundamental.score != null) {
+            fundScore = data.fundamental.score;
+        }
+        if (fundScore != null) {
+            fundScoreEl.textContent = Math.round(fundScore * 10) / 10;
+            fundScoreEl.style.color = getScoreColor(fundScore);
+        }
+        
+        // 消息面评分
+        let newsScore = null;
+        if (data.news && data.news.sentiment_score != null) {
+            newsScore = data.news.sentiment_score;
+        } else if (data.sentiment && data.sentiment.score != null) {
+            newsScore = data.sentiment.score;
+        }
+        if (newsScore != null) {
+            newsScoreEl.textContent = Math.round(newsScore * 10) / 10;
+            newsScoreEl.style.color = getScoreColor(newsScore);
         }
         
         // 所属板块/题材
