@@ -440,7 +440,7 @@ class TomorrowCatalystGenerator:
         {js}
         '''
         
-        section = Section(title="🧠 催化深度分析", content=content, icon="brain", variant="highlight")
+        section = Section(title="🧠 催化深度分析", content=content, icon="brain", variant="dark")
         self._components.append(section)
 
     def add_risk_warning(self, risks: list):

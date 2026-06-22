@@ -79,6 +79,7 @@ class Section(Component):
                 "border": "1px solid rgba(0, 0, 0, 0.06)",
                 "radius": "20px",
                 "shadow": "0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 -1px 0 rgba(0, 0, 0, 0.02) inset",
+                "title_color": "#1f2937",
             },
             "highlight": {
                 "bg": "linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%)",
@@ -86,6 +87,15 @@ class Section(Component):
                 "border": "1px solid rgba(79, 70, 229, 0.1)",
                 "radius": "20px",
                 "shadow": "0 4px 16px rgba(79, 70, 229, 0.08), 0 1px 0 rgba(255, 255, 255, 0.6) inset",
+                "title_color": "#1f2937",
+            },
+            "dark": {
+                "bg": "linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)",
+                "padding": "28px",
+                "border": "1px solid rgba(255, 255, 255, 0.1)",
+                "radius": "20px",
+                "shadow": "0 8px 32px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(255, 255, 255, 0.05) inset",
+                "title_color": "white",
             },
             "subtle": {
                 "bg": "transparent",
@@ -93,10 +103,18 @@ class Section(Component):
                 "border": "none",
                 "radius": "0",
                 "shadow": "none",
+                "title_color": "#1f2937",
             },
         }
         
         v = variants.get(self.variant, variants["default"])
+        
+        # 更新标题颜色
+        if self.title:
+            title_html = title_html.replace(
+                'color: #1f2937;',
+                f'color: {v["title_color"]};'
+            )
         
         return f'''
         <section style="margin-bottom: 32px;">

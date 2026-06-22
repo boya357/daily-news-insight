@@ -20,9 +20,9 @@ REPORT_TYPES = {
     "industry_chain": {"name": "产业链", "dir": "industry_chain", "list_file": "latest.html"},
     "weekly_review": {"name": "周复盘", "dir": "weekly_review", "list_file": "latest.html"},
     "weekly_outlook": {"name": "周三前瞻", "dir": "weekly_outlook", "list_file": "latest.html"},
-    "weekend_express": {"name": "周末速递", "dir": "周末速递", "list_file": "latest.html"},
-    "tomorrow_catalyst": {"name": "明日催化剂", "dir": "明日催化剂", "list_file": "latest.html"},
-    "s_level_catalyst": {"name": "S级催化", "dir": "s级催化扫描", "list_file": "latest.html"},
+    "weekend_express": {"name": "周末速递", "dir": "weekend_express", "list_file": "latest.html"},
+    "tomorrow_catalyst": {"name": "明日催化剂", "dir": "tomorrow_catalyst", "list_file": "latest.html"},
+    "s_level_catalyst": {"name": "S级催化", "dir": "s_level_catalyst", "list_file": "latest.html"},
     "monthly": {"name": "月报", "dir": "monthly", "list_file": "latest.html"},
 }
 
@@ -37,9 +37,9 @@ NAV_ITEMS = [
     {"key": "industry_chain", "label": "产业链", "icon": "🔗", "path": "/daily-news-insight/industry_chain/latest.html"},
     {"key": "weekly_review", "label": "周复盘", "icon": "📋", "path": "/daily-news-insight/weekly_review/latest.html"},
     {"key": "weekly_outlook", "label": "周三前瞻", "icon": "🔮", "path": "/daily-news-insight/weekly_outlook/latest.html"},
-    {"key": "weekend_express", "label": "周末速递", "icon": "📦", "path": "/daily-news-insight/周末速递/latest.html"},
-    {"key": "tomorrow_catalyst", "label": "明日催化", "icon": "⏰", "path": "/daily-news-insight/明日催化剂/latest.html"},
-    {"key": "s_level_catalyst", "label": "S级催化", "icon": "⭐", "path": "/daily-news-insight/s级催化扫描/latest.html"},
+    {"key": "weekend_express", "label": "周末速递", "icon": "📦", "path": "/daily-news-insight/weekend_express/latest.html"},
+    {"key": "tomorrow_catalyst", "label": "明日催化", "icon": "⏰", "path": "/daily-news-insight/tomorrow_catalyst/latest.html"},
+    {"key": "s_level_catalyst", "label": "S级催化", "icon": "⭐", "path": "/daily-news-insight/s_level_catalyst/latest.html"},
     {"key": "monthly", "label": "月报", "icon": "🗓️", "path": "/daily-news-insight/monthly/latest.html"},
 ]
 

@@ -100,8 +100,22 @@ class WeeklyReviewGenerator:
         self._components.append(section)
     
     def add_important_events(self, events: list):
-        """添加本周重要事件时间线"""
-        timeline = Timeline(events)
+        """添加本周重要事件时间线
+        兼容两种数据格式：
+        - 标准格式：{time, title, content, type}
+        - 简化格式：{date, event, impact}
+        """
+        normalized_events = []
+        for e in events:
+            normalized = {
+                'time': e.get('time') or e.get('date', ''),
+                'title': e.get('title') or e.get('event', ''),
+                'content': e.get('content') or e.get('impact', ''),
+                'type': e.get('type', 'primary'),
+            }
+            normalized_events.append(normalized)
+        
+        timeline = Timeline(normalized_events)
         section = Section(title="📅 本周重要事件", content=timeline.render(), icon="calendar")
         self._components.append(section)
     

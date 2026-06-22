@@ -38,7 +38,7 @@ CHANNEL_CONFIGS = {
     },
     'industry_chain': {
         'title': '产业链总览', 'nav_text': '产业链',
-        'patterns': [r'^\d{8}_.*产业链.*\.html$', r'^\d{8}_.*深度研究.*\.html$'],
+        'patterns': [r'^\d{8}_.*产业链.*\.html$', r'^\d{8}_.*深度研究.*\.html$', r'^.*cowos.*\.html$'],
         'icon': '🔬', 'tag': '深度研究',
         'description': '产业链深度研究与投资机会分析',
     },
@@ -54,60 +54,23 @@ CHANNEL_CONFIGS = {
         'icon': '🔮', 'tag': '前瞻分析',
         'description': '下周行情前瞻与策略预判',
     },
-    's级催化扫描': {
+    's_level_catalyst': {
         'title': 'S级催化扫描', 'nav_text': 'S级催化',
         'patterns': [r'^\d{8}_.*[Ss]级催化.*\.html$'],
         'icon': '🚀', 'tag': 'S级催化',
         'description': '超级催化剂深度扫描与机会分析',
     },
-    '周末速递': {
+    'weekend_express': {
         'title': '周末速递', 'nav_text': '周末速递',
         'patterns': [r'^\d{8}_周末速递.*\.html$'],
         'icon': '📦', 'tag': '周末速递',
         'description': '周末重要资讯与下周投资机会',
     },
-    '明日催化剂': {
+    'tomorrow_catalyst': {
         'title': '明日催化剂', 'nav_text': '明日催化',
         'patterns': [r'^\d{8}_明日催化剂.*\.html$'],
         'icon': '💡', 'tag': '明日催化',
         'description': '明日重要事件与催化机会预判',
-    },
-
-    'industry-chain': {
-        'title': '产业链总览', 'nav_text': '产业链',
-        'patterns': [r'^\d{8}_.*产业链.*\.html$', r'^\d{8}_.*深度研究.*\.html$', r'^.*cowos.*\.html$'],
-        'icon': '🔬', 'tag': '深度研究',
-        'description': '产业链深度研究与投资机会分析',
-    },
-    'weekly-review': {
-        'title': '周复盘', 'nav_text': '周复盘',
-        'patterns': [r'^\d{8}_周复盘.*\.html$'],
-        'icon': '📋', 'tag': '周度复盘',
-        'description': '每周行情回顾与经验总结',
-    },
-    'weekly-outlook': {
-        'title': '周三前瞻', 'nav_text': '周三前瞻',
-        'patterns': [r'^\d{8}_周三前瞻.*\.html$'],
-        'icon': '🔮', 'tag': '前瞻分析',
-        'description': '下周行情前瞻与策略预判',
-    },
-    'weekend-express': {
-        'title': '周末速递', 'nav_text': '周末速递',
-        'patterns': [r'^\d{8}_周末速递.*\.html$'],
-        'icon': '📦', 'tag': '周末速递',
-        'description': '周末重要资讯与下周投资机会',
-    },
-    'tomorrow-catalyst': {
-        'title': '明日催化剂', 'nav_text': '明日催化',
-        'patterns': [r'^\d{8}_明日催化剂.*\.html$'],
-        'icon': '💡', 'tag': '明日催化',
-        'description': '明日重要事件与催化机会预判',
-    },
-    's-level-catalyst': {
-        'title': 'S级催化扫描', 'nav_text': 'S级催化',
-        'patterns': [r'^\d{8}_.*[Ss]级催化.*\.html$'],
-        'icon': '🚀', 'tag': 'S级催化',
-        'description': '超级催化剂深度扫描与机会分析',
     },
     'monthly': {
         'title': '月度总结', 'nav_text': '月报',
@@ -115,7 +78,7 @@ CHANNEL_CONFIGS = {
         'icon': '🗓️', 'tag': '月度报告',
         'description': '月度行情总结与下月展望',
     },
-    '题材健康度报告': {
+    'topic_health': {
         'title': '题材健康度', 'nav_text': '题材健康度',
         'patterns': [r'^\d{8}_.*题材.*\.html$', r'^health_report_\d{8}\.html$'],
         'icon': '💚', 'tag': '题材分析',
