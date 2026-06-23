@@ -440,7 +440,7 @@ if __name__ == '__main__':
     print(f'Pro版S级催化扫描生成成功，长度: {len(html)} 字符')
     
     # 保存测试
-    os.makedirs('../docs/s级催化扫描', exist_ok=True)
-    with open('../docs/s级催化扫描/20260615_S级催化扫描.html', 'w', encoding='utf-8') as f:
+    os.makedirs('../docs/s_level_catalyst', exist_ok=True)
+    with open('../docs/s_level_catalyst/20260615_S级催化扫描.html', 'w', encoding='utf-8') as f:
         f.write(html)
-    print('已保存到 docs/s级催化扫描/20260615_S级催化扫描.html')
+    print('已保存到 docs/s_level_catalyst/20260615_S级催化扫描.html')

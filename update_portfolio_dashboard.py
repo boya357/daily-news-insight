@@ -8,7 +8,7 @@ import re
 from datetime import datetime
 
 def update_portfolio_dashboard():
-    html_path = "docs/持仓智能预警仪表盘/index.html"
+    html_path = "docs/portfolio_dashboard/index.html"
     
     # 读取文件
     with open(html_path, 'r', encoding='utf-8') as f:

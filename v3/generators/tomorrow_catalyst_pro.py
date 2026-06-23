@@ -328,7 +328,7 @@ if __name__ == '__main__':
     print(f'Pro版明日催化剂生成成功，长度: {len(html)} 字符')
     
     # 保存测试
-    os.makedirs('../docs/明日催化剂', exist_ok=True)
-    with open('../docs/明日催化剂/20260616_明日催化剂.html', 'w', encoding='utf-8') as f:
+    os.makedirs('../docs/tomorrow_catalyst', exist_ok=True)
+    with open('../docs/tomorrow_catalyst/20260616_明日催化剂.html', 'w', encoding='utf-8') as f:
         f.write(html)
-    print('已保存到 docs/明日催化剂/20260616_明日催化剂.html')
+    print('已保存到 docs/tomorrow_catalyst/20260616_明日催化剂.html')

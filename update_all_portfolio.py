@@ -373,7 +373,7 @@ def update_warning_system(data):
     """更新智能预警系统页面 - 完整数据驱动版本"""
     print("🔄 更新智能预警系统...")
     
-    html_path = 'docs/智能预警系统/index.html'
+    html_path = 'docs/alert-system/index.html'
     backup_file(html_path)
     
     with open(html_path, 'r', encoding='utf-8') as f:
@@ -961,7 +961,7 @@ def update_topics_page(data):
     """更新智能选题助手页面 - 按data-topic-id精准更新全字段"""
     print("🔄 更新智能选题助手...")
     
-    html_path = 'docs/智能选题助手/index.html'
+    html_path = 'docs/topic-picker/index.html'
     backup_file(html_path)
     
     with open(html_path, 'r', encoding='utf-8') as f:
@@ -1363,7 +1363,7 @@ def update_industry_chain_page(data):
     """更新产业链时钟页面 - 按data-chain-id精准更新"""
     print("🔄 更新产业链时钟...")
     
-    html_path = 'docs/产业链时钟/index.html'
+    html_path = 'docs/industry_chain_clock/index.html'
     backup_file(html_path)
     
     with open(html_path, 'r', encoding='utf-8') as f:
@@ -1490,7 +1490,7 @@ def update_predictions_page(data):
     """更新预判验证页面 - 整体容器替换模式"""
     print("🔄 更新预判验证系统...")
     
-    html_path = 'docs/预判验证/index.html'
+    html_path = 'docs/prediction_verification/index.html'
     backup_file(html_path)
     
     with open(html_path, 'r', encoding='utf-8') as f:
@@ -2174,7 +2174,7 @@ def update_topic_detail_pages(topics_data, details_data):
     print("🔄 生成题材深度分析页面...")
     
     import os
-    output_dir = 'docs/题材深度'
+    output_dir = 'docs/topic-depth'
     os.makedirs(output_dir, exist_ok=True)
     
     # 合并所有题材

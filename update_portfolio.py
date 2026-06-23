@@ -362,7 +362,7 @@ def main():
     print(f"加载了 {len(stocks)} 只股票数据")
     
     # 读取原HTML模板
-    template_path = 'docs/持仓智能预警仪表盘/index.html.bak.original'
+    template_path = 'docs/portfolio_dashboard/index.html.bak.original'
     if not os.path.exists(template_path):
         template_path = 'templates/portfolio_dashboard.html'
     
@@ -401,7 +401,7 @@ def main():
     print("   ✅ 完成")
     
     # 保存
-    output_path = 'docs/持仓智能预警仪表盘/index.html'
+    output_path = 'docs/portfolio_dashboard/index.html'
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html)
     

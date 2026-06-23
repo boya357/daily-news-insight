@@ -309,7 +309,7 @@ class PortfolioDashboardGenerator:
             f.write(html)
         return filepath
     
-    def publish(self, output_path: str = "docs/持仓监控/index.html"):
+    def publish(self, output_path: str = "docs/portfolio_monitor/index.html"):
         """发布"""
         self.save(output_path)
         print(f'✓ 持仓监控仪表盘已发布: {output_path}')

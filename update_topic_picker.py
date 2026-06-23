@@ -8,7 +8,7 @@ import re
 from datetime import datetime
 
 def update_topic_picker():
-    html_path = "docs/智能选题助手/index.html"
+    html_path = "docs/topic-picker/index.html"
     
     # 读取文件
     with open(html_path, 'r', encoding='utf-8') as f:

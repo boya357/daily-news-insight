@@ -31,6 +31,6 @@ gen.add_timeline_analysis([
 gen.add_risk_warning(["AI芯片需求不及预期", "行业竞争加剧", "海外技术封锁风险"])
 gen.add_investment_strategy("逢低布局，长期持有。建议配置仓位20-25%，回调10-15%是加仓良机。")
 
-output_path = f"/root/daily-news-insight/docs/s级催化扫描/{DATE}_V30测试_S级催化.html"
+output_path = f"/root/daily-news-insight/docs/s_level_catalyst/{DATE}_V30测试_S级催化.html"
 gen.save(output_path)
 print("✅ S级催化测试报告已生成")

@@ -60,7 +60,7 @@ def main():
     reports = []
     
     # S级催化扫描
-    s_report = get_latest_report('docs/s级催化扫描', '⭐', 'S级催化扫描', '超级催化事件深度挖掘')
+    s_report = get_latest_report('docs/s_level_catalyst', '⭐', 'S级催化扫描', '超级催化事件深度挖掘')
     if s_report:
         reports.append(s_report)
     

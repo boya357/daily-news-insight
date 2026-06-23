@@ -15,7 +15,7 @@ list_gen = ListPageGenerator("s_level_catalyst")
 
 # 插入新报告
 result = list_gen.insert_report(
-    list_filepath="docs/s级催化扫描/latest.html",
+    list_filepath="docs/s_level_catalyst/latest.html",
     title="工信部发布AI+信息通信三年行动方案",
     date="2026-06-10",
     url="20260610_工信部AI+信息通信三年行动方案.html",
@@ -26,5 +26,5 @@ result = list_gen.insert_report(
 print(f"列表页更新结果：{'成功' if result else '失败'}")
 
 # 验证列表完整性
-is_valid = list_gen.validate_list_integrity("docs/s级催化扫描/latest.html")
+is_valid = list_gen.validate_list_integrity("docs/s_level_catalyst/latest.html")
 print(f"列表完整性验证：{'通过' if is_valid else '失败'}")

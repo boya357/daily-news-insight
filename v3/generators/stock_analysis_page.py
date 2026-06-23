@@ -343,5 +343,5 @@ def generate_stock_analysis_page(code, name, output_path, data_dir="data"):
 
 
 if __name__ == '__main__':
-    output = generate_stock_analysis_page('002837', '英维克', 'docs/个股分析/英维克.html')
+    output = generate_stock_analysis_page('002837', '英维克', 'docs/stock_analysis/英维克.html')
     print(f"页面已生成: {output}")

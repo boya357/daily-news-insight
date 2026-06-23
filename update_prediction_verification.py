@@ -8,7 +8,7 @@ import re
 from datetime import datetime
 
 def update_prediction_verification():
-    html_path = "docs/预判验证/index.html"
+    html_path = "docs/prediction_verification/index.html"
     
     # 读取文件
     with open(html_path, 'r', encoding='utf-8') as f:

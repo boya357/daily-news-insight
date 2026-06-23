@@ -268,7 +268,7 @@ class WeeklyEvolutionGenerator:
             f.write(html)
         return filepath
     
-    def publish(self, output_path: str = "docs/周度进化报告/index.html"):
+    def publish(self, output_path: str = "docs/weekly-evolution/index.html"):
         """发布"""
         self.save(output_path)
         print(f'✓ 周度进化报告已发布: {output_path}')

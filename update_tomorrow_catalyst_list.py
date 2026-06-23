@@ -277,7 +277,7 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
     
-    tomorrow_dir = 'docs/明日催化剂'
+    tomorrow_dir = 'docs/tomorrow_catalyst'
     
     # 1. 扫描目录下所有报告文件（排除latest.html）
     all_files = glob.glob(f'{tomorrow_dir}/20*.html')

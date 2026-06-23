@@ -8,7 +8,7 @@ import re
 from datetime import datetime
 
 def update_warning_system():
-    html_path = "docs/智能预警系统/index.html"
+    html_path = "docs/alert-system/index.html"
     
     # 读取文件
     with open(html_path, 'r', encoding='utf-8') as f:

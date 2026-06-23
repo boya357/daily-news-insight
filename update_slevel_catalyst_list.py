@@ -277,7 +277,7 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
     
-    slevel_dir = 'docs/s级催化扫描'
+    slevel_dir = 'docs/s_level_catalyst'
     
     # 1. 扫描目录下所有报告文件（排除latest.html）
     all_files = glob.glob(f'{slevel_dir}/20*.html')

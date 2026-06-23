@@ -539,7 +539,7 @@ class PortfolioDashboardProV2Generator:
             f.write(html)
         return filepath
     
-    def publish(self, output_path: str = "docs/持仓智能预警仪表盘/index_pro.html"):
+    def publish(self, output_path: str = "docs/portfolio_dashboard/index_pro.html"):
         """发布到生产路径"""
         return self.save(output_path)
 

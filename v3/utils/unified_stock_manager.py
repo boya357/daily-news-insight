@@ -269,7 +269,7 @@ class UnifiedStockManager:
         """生成个股分析列表页
 
         Args:
-            output_path: 输出路径，默认为 docs/个股分析/index.html
+            output_path: 输出路径，默认为 docs/stock_analysis/index.html
 
         Returns:
             生成的HTML内容

@@ -277,7 +277,7 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
     
-    weekend_dir = 'docs/周末速递'
+    weekend_dir = 'docs/weekend_express'
     
     # 1. 扫描目录下所有报告文件（排除latest.html）
     all_files = glob.glob(f'{weekend_dir}/20*.html')

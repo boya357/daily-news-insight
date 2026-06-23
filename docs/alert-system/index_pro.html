@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智能预警系统 - 投资研究中心</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
     
         <style>
@@ -851,6 +852,96 @@
                     max-width: 48rem;
                 }
             }
+            
+            /* Tab切换组件样式 */
+            .tab-container {
+                margin-bottom: 1rem;
+            }
+            
+            .tab-buttons {
+                display: flex;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                padding-bottom: 0.5rem;
+            }
+            
+            .tab-btn {
+                padding: 0.5rem 1rem;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 8px;
+                color: rgba(255,255,255,0.6);
+                cursor: pointer;
+                font-size: 0.875rem;
+                transition: all 0.3s ease;
+            }
+            
+            .tab-btn:hover {
+                background: rgba(255,255,255,0.1);
+                color: rgba(255,255,255,0.9);
+            }
+            
+            .tab-btn-active {
+                background: rgba(139, 92, 246, 0.3);
+                border-color: rgba(139, 92, 246, 0.5);
+                color: white;
+                font-weight: 500;
+            }
+            
+            .tab-container .tab-content .tab-panel {
+                display: none;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            .tab-container .tab-content .tab-panel.tab-panel-active {
+                display: block !important;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            /* Underline风格Tab */
+            .tab-style-underline .tab-buttons {
+                border-bottom: none;
+                padding-bottom: 0;
+                gap: 1.5rem;
+            }
+            
+            .tab-style-underline .tab-btn {
+                background: transparent;
+                border: none;
+                border-bottom: 2px solid transparent;
+                border-radius: 0;
+                padding: 0.5rem 0;
+            }
+            
+            .tab-style-underline .tab-btn:hover {
+                background: transparent;
+                color: rgba(255,255,255,0.9);
+            }
+            
+            .tab-style-underline .tab-btn-active {
+                border-bottom-color: #8b5cf6;
+                color: white;
+                background: transparent;
+            }
+            
+            /* 次级卡片样式 */
+            .card-subtle {
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 12px;
+                padding: 1rem;
+                transition: all 0.3s ease;
+            }
+            
+            .card-subtle:hover {
+                background: rgba(255,255,255,0.08);
+                border-color: rgba(255,255,255,0.2);
+            }
 </style>
     
     <style>
@@ -873,7 +964,7 @@
                 <span class="text-white font-bold text-lg">投资研究中心</span>
             </div>
             <div class="nav-links flex items-center space-x-1 flex-wrap gap-1">
-                <a href="/daily-news-insight/index.html" class="text-white bg-white/20 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a><a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a><a href="/daily-news-insight/intraday/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a><a href="/daily-news-insight/aftermarket/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a><a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a><a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a><a href="/daily-news-insight/weekly_outlook/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周三前瞻</a><a href="/daily-news-insight/周末速递/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a><a href="/daily-news-insight/明日催化剂/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a><a href="/daily-news-insight/s级催化扫描/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a><a href="/daily-news-insight/monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
+                <a href="/daily-news-insight/index.html" class="text-white bg-white/20 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a><a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a><a href="/daily-news-insight/intraday/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a><a href="/daily-news-insight/aftermarket/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a><a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a><a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a><a href="/daily-news-insight/weekly_outlook/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周三前瞻</a><a href="/daily-news-insight/weekend_express/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a><a href="/daily-news-insight/tomorrow_catalyst/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a><a href="/daily-news-insight/s_level_catalyst/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a><a href="/daily-news-insight/monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
             </div>
             <button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
         </div>
@@ -882,7 +973,7 @@
     <!-- 移动端全屏菜单 -->
     <div id="mobileMenu" class="mobile-menu">
         <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
-        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a><a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a><a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中快报</a><a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后速递</a><a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链总览</a><a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a><a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a><a href="/daily-news-insight/周末速递/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a><a href="/daily-news-insight/明日催化剂/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化剂</a><a href="/daily-news-insight/s级催化扫描/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⭐ S级催化扫描</a><a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🗓️ 月度总结</a>
+        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a><a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a><a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中</a><a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后</a><a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链</a><a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a><a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a><a href="/daily-news-insight/weekend_express/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a><a href="/daily-news-insight/tomorrow_catalyst/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化</a><a href="/daily-news-insight/s_level_catalyst/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⚡ S级催化</a><a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📅 月报</a>
     </div>
         
     
@@ -902,7 +993,7 @@
                                 fill="none"
                                 stroke-linecap="round"
                                 stroke-dasharray="376.9908"
-                                stroke-dashoffset="158.336136"/>
+                                stroke-dashoffset="169.64585999999997"/>
                         <defs>
                             <linearGradient id="riskGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#f59e0b"/>
@@ -911,7 +1002,7 @@
                         </defs>
                     </svg>
                     <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <div class="text-4xl font-black text-white">58</div>
+                        <div class="text-4xl font-black text-white">55</div>
                         <div class="text-sm text-white/60">风险指数</div>
                     </div>
                 </div>
@@ -924,11 +1015,11 @@
                     
                     <div class="grid grid-cols-2 gap-4 mb-4">
                         <div class="bg-white/5 rounded-xl p-4 text-center">
-                            <div class="text-2xl font-bold text-white">40-50%</div>
+                            <div class="text-2xl font-bold text-white">6成</div>
                             <div class="text-sm text-white/60 mt-1">建议仓位</div>
                         </div>
                         <div class="bg-white/5 rounded-xl p-4 text-center">
-                            <div class="text-2xl font-bold text-white">7</div>
+                            <div class="text-2xl font-bold text-white">4</div>
                             <div class="text-sm text-white/60 mt-1">预警数</div>
                         </div>
                     </div>
@@ -940,7 +1031,7 @@
             
         <div class="card-glass p-6 mb-6 ">
             
-            <h2 class="section-title"><span class="text-xl">📊</span>📊 多维度监控</h2>
+            <h2 class="section-title"><span class="text-2xl mr-3">📊</span>📊 多维度监控</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 
             <div class="bg-white/5 border border-white/10 rounded-xl p-5">
@@ -957,15 +1048,15 @@
                 <div class="mb-3">
                     <div class="flex justify-between text-sm text-white/60 mb-1">
                         <span>风险评分</span>
-                        <span>55/100</span>
+                        <span>52/100</span>
                     </div>
                     <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full" style="width: 55%"></div>
+                        <div class="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full" style="width: 52%"></div>
                     </div>
                 </div>
                 
                 <div class="space-y-1">
-                    <div class="text-sm text-white/70 mb-1">• <span class="text-white/50">监控内容：</span>指数涨跌幅、波动率、量能变化、涨跌家数比、外资流向</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">风险事件：</span>美股半导体暴跌引发恐慌，纳指跌0.91%，A股下周面临关键窗口</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">触发条件：</span>核心板块单日暴跌超5% 或 市场风格剧烈切换</div>
+                    <div class="text-sm text-white/70 mb-1">• <span class="text-white/50">监控内容：</span>指数涨跌幅、波动率、量能变化、涨跌家数比、外资流向</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">风险事件：</span>沪指大涨1.78%站上4160点，创业板指涨2.52%，科创50涨1.96%。两市成交维持高位，科技成长主线延续，但短期涨幅较大需警惕回调风险。</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">触发条件：</span>沪指有效跌破4050点支撑、科技主线集体回调超5%、北向资金大幅流出超百亿</div>
                 </div>
             </div>
             
@@ -983,15 +1074,15 @@
                 <div class="mb-3">
                     <div class="flex justify-between text-sm text-white/60 mb-1">
                         <span>风险评分</span>
-                        <span>50/100</span>
+                        <span>52/100</span>
                     </div>
                     <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full" style="width: 50%"></div>
+                        <div class="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full" style="width: 52%"></div>
                     </div>
                 </div>
                 
                 <div class="space-y-1">
-                    <div class="text-sm text-white/70 mb-1">• <span class="text-white/50">监控内容：</span>北向资金、南向资金、主力资金、龙虎榜、游资动向、ETF申赎</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">风险事件：</span>美股科技股遭抛售，半导体板块领跌，资金转向防御板块</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">触发条件：</span>主力净流出超150亿 或 科技ETF大额赎回</div>
+                    <div class="text-sm text-white/70 mb-1">• <span class="text-white/50">监控内容：</span>北向资金、南向资金、主力资金、龙虎榜、游资动向、ETF申赎</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">风险事件：</span>两市成交放大至3.48万亿但主力资金分化严重，科技板块吸金效应明显，传统行业资金持续流出；ETF资金持续流入科技赛道，情绪偏热</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">触发条件：</span>北向资金单日净流出超80亿、主力资金净流出超500亿、科技ETF大额赎回</div>
                 </div>
             </div>
             
@@ -1001,23 +1092,23 @@
                         <span class="text-2xl">📦</span>
                         <h3 class="text-white font-bold">持仓风险监控</h3>
                     </div>
-                    <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full">
-                        中高风险
+                    <span class="px-2 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded-full">
+                        中低风险
                     </span>
                 </div>
                 
                 <div class="mb-3">
                     <div class="flex justify-between text-sm text-white/60 mb-1">
                         <span>风险评分</span>
-                        <span>65/100</span>
+                        <span>48/100</span>
                     </div>
                     <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full" style="width: 65%"></div>
+                        <div class="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full" style="width: 48%"></div>
                     </div>
                 </div>
                 
                 <div class="space-y-1">
-                    <div class="text-sm text-white/70 mb-1">• <span class="text-white/50">监控内容：</span>持仓标的价格、涨跌幅、成交量、换手率、龙虎榜、公告消息</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">风险事件：</span>英维克跌破止损位，铜冠铜箔高位加速，*ST建艺接近止损</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">触发条件：</span>持仓标的跌破止损位 或 单日跌幅超8% 或 重大利空公告</div>
+                    <div class="text-sm text-white/70 mb-1">• <span class="text-white/50">监控内容：</span>持仓标的价格、涨跌幅、成交量、换手率、龙虎榜、公告消息</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">风险事件：</span>雅克科技涨停(+10%)趋势向上，铜冠铜箔小幅回调(-1.75%)仍在高位，英维克反弹(+3.94%)但仍破止损，*ST建艺跌停(-4.98%)摘帽预期下波动加大。整体持仓分化明显，需注意高位股回调风险。</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">触发条件：</span>持仓标的单日跌幅超8%、跌破关键支撑位、重大利空公告</div>
                 </div>
             </div>
             
@@ -1028,22 +1119,22 @@
                         <h3 class="text-white font-bold">板块轮动监控</h3>
                     </div>
                     <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full">
-                        中高风险
+                        中风险
                     </span>
                 </div>
                 
                 <div class="mb-3">
                     <div class="flex justify-between text-sm text-white/60 mb-1">
                         <span>风险评分</span>
-                        <span>65/100</span>
+                        <span>55/100</span>
                     </div>
                     <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full" style="width: 65%"></div>
+                        <div class="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full" style="width: 55%"></div>
                     </div>
                 </div>
                 
                 <div class="space-y-1">
-                    <div class="text-sm text-white/70 mb-1">• <span class="text-white/50">监控内容：</span>热门板块涨跌幅、资金流向、轮动速度、板块持续性、龙头股表现</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">风险事件：</span>市场高低切换明显，高位科技股回落，低位防御板块获资金流入</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">触发条件：</span>领涨板块单日切换 或 龙头股批量跌停</div>
+                    <div class="text-sm text-white/70 mb-1">• <span class="text-white/50">监控内容：</span>行业板块涨跌、资金流向、轮动速度、持续性判断</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">风险事件：</span>科技赛道持续强势但板块内部分化加剧，低位补涨个股增多；传统周期和消费板块持续弱势，资金虹吸效应明显；轮动速度加快，追高风险加大</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">触发条件：</span>主线板块单日放量大跌、高低切明显、三日以上板块轮动无持续性</div>
                 </div>
             </div>
             
@@ -1053,8 +1144,34 @@
                         <span class="text-2xl">🔥</span>
                         <h3 class="text-white font-bold">题材情绪监控</h3>
                     </div>
+                    <span class="px-2 py-1 bg-orange-500/20 text-orange-400 text-xs font-bold rounded-full">
+                        中高风险
+                    </span>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="flex justify-between text-sm text-white/60 mb-1">
+                        <span>风险评分</span>
+                        <span>68/100</span>
+                    </div>
+                    <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full" style="width: 68%"></div>
+                    </div>
+                </div>
+                
+                <div class="space-y-1">
+                    <div class="text-sm text-white/70 mb-1">• <span class="text-white/50">监控内容：</span>连板高度、涨停家数、跌停家数、情绪指标、赚钱效应</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">风险事件：</span>科技主线全面爆发，存储芯片、AI算力、半导体设备轮番上涨，涨停家数超80家，市场情绪贪婪。但板块内部分化加剧，高低切迹象显现，情绪过热需警惕回调。</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">触发条件：</span>涨停家数低于30家、跌停家数超30家、情绪跌入恐慌区间</div>
+                </div>
+            </div>
+            
+            <div class="bg-white/5 border border-white/10 rounded-xl p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl">📰</span>
+                        <h3 class="text-white font-bold">事件驱动监控</h3>
+                    </div>
                     <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full">
-                        中等风险
+                        中风险
                     </span>
                 </div>
                 
@@ -1069,33 +1186,7 @@
                 </div>
                 
                 <div class="space-y-1">
-                    <div class="text-sm text-white/70 mb-1">• <span class="text-white/50">监控内容：</span>涨停家数、连板高度、赚钱效应、亏钱效应、题材持续性</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">风险事件：</span>AI PC新题材崛起，存储/机器人相对抗跌，科技股整体分化</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">触发条件：</span>连板高度降至3板以下 或 跌停家数超30家</div>
-                </div>
-            </div>
-            
-            <div class="bg-white/5 border border-white/10 rounded-xl p-5">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-2">
-                        <span class="text-2xl">📅</span>
-                        <h3 class="text-white font-bold">事件驱动监控</h3>
-                    </div>
-                    <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-full">
-                        中等风险
-                    </span>
-                </div>
-                
-                <div class="mb-3">
-                    <div class="flex justify-between text-sm text-white/60 mb-1">
-                        <span>风险评分</span>
-                        <span>45/100</span>
-                    </div>
-                    <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full" style="width: 45%"></div>
-                    </div>
-                </div>
-                
-                <div class="space-y-1">
-                    <div class="text-sm text-white/70 mb-1">• <span class="text-white/50">监控内容：</span>重要会议、政策发布、公司公告、行业数据、外围市场事件</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">风险事件：</span>美联储6月议息会议临近，SpaceX上市影响科技股情绪</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">触发条件：</span>重大政策出台 或 黑天鹅事件 或 关键经济数据发布</div>
+                    <div class="text-sm text-white/70 mb-1">• <span class="text-white/50">监控内容：</span>政策发布、行业新闻、公司公告、宏观数据、地缘政治</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">风险事件：</span>美联储6月议息会议落地，维持利率不变，点阵图显示年内仅降息1次(此前预期2次)，鹰派程度略超预期；陆家嘴论坛释放支持科技发展信号；半年末流动性需关注</div><div class="text-sm text-white/70 mb-1">• <span class="text-white/50">触发条件：</span>重大政策转向、超预期宏观数据、黑天鹅事件</div>
                 </div>
             </div>
             
@@ -1106,80 +1197,180 @@
             
         <div class="card-glass p-6 mb-6 ">
             
-            <h2 class="section-title"><span class="text-xl">🚨</span>🚨 紧急预警</h2>
+            <h2 class="section-title"><span class="text-2xl mr-3">📦</span>📦 持仓风险监控</h2>
+            <p class="text-sm text-white/60 mb-4">实时监控持仓标的风险状态，及时预警止损信号</p>
             
-            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-white font-semibold mb-1">英维克严重破止损</h4>
-                        <p class="text-sm text-white/60 mb-2">收盘价65.90元已严重跌破止损位98.00元，跌幅达-36.84%</p>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-xs text-white/40">⏰ 今日收盘</span>
-                            <span class="px-2 py-0.5 bg-white/10 text-white/60 text-xs rounded-full">建议：止损</span>
-                        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+                    <div class="card-subtle rounded-xl p-4 h-full">
                         
-                <div class="mt-2 p-2 bg-white/5 rounded-lg border-l-2 border-yellow-400">
-                    <span class="text-xs text-yellow-400 font-medium">💡 建议：</span>
-                    <span class="text-xs text-white/70">明日开盘立即止损出局</span>
-                </div>
-                
+                        <div class="text-sm text-white/70 leading-relaxed">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🆘</span>
+                    <div>
+                        <h4 class="text-white font-bold">英维克</h4>
+                        <span class="text-xs text-white/50">002837</span>
                     </div>
                 </div>
+                <span class="px-2 py-1 bg-red-500/20 text-red-400 text-xs font-bold rounded-full">
+                    🔴 建议止损
+                </span>
             </div>
-            
-            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-white font-semibold mb-1">铜冠铜箔高位震荡</h4>
-                        <p class="text-sm text-white/60 mb-2">收盘价141.89元，今日上涨+1.38%，浮盈扩大至+62.79%</p>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-xs text-white/40">⏰ 今日收盘</span>
-                            <span class="px-2 py-0.5 bg-white/10 text-white/60 text-xs rounded-full">浮盈：+62.79%</span><span class="px-2 py-0.5 bg-white/10 text-white/60 text-xs rounded-full">建议：减仓</span>
-                        </div>
-                        
-                <div class="mt-2 p-2 bg-white/5 rounded-lg border-l-2 border-yellow-400">
-                    <span class="text-xs text-yellow-400 font-medium">💡 建议：</span>
-                    <span class="text-xs text-white/70">减仓锁定利润</span>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                    <div class="text-lg font-bold text-white">81.48</div>
+                    <div class="text-xs text-white/50">当前价</div>
                 </div>
+                <div class="text-right">
+                    <div class="text-lg font-bold text-green-400">+5.41%</div>
+                    <div class="text-xs text-white/50">今日涨跌</div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between text-sm border-t border-white/10 pt-2">
+                <div>
+                    <span class="text-white/50">止损价: </span>
+                    <span class="text-white/80">98.00</span>
+                </div>
+                <div>
+                    <span class="text-white/50">距止损: </span>
+                    <span class="text-red-400 font-medium">-16.86%</span>
+                </div>
+            </div>
+            </div>
+                    </div>
                 
+                    <div class="card-subtle rounded-xl p-4 h-full">
+                        
+                        <div class="text-sm text-white/70 leading-relaxed">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">✅</span>
+                    <div>
+                        <h4 class="text-white font-bold">铜冠铜箔</h4>
+                        <span class="text-xs text-white/50">301217</span>
                     </div>
                 </div>
+                <span class="px-2 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded-full">
+                    🟢 持有观望
+                </span>
             </div>
-            
-            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-white font-semibold mb-1">科技股分化加剧</h4>
-                        <p class="text-sm text-white/60 mb-2">英伟达COMPUTEX演讲后，PCB、CPO、光模块集体回调，AI PC新题材崛起</p>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-xs text-white/40">⏰ 今日收盘</span>
-                            <span class="px-2 py-0.5 bg-white/10 text-white/60 text-xs rounded-full">建议：调仓</span>
-                        </div>
-                        
-                <div class="mt-2 p-2 bg-white/5 rounded-lg border-l-2 border-yellow-400">
-                    <span class="text-xs text-yellow-400 font-medium">💡 建议：</span>
-                    <span class="text-xs text-white/70">暂时规避高位科技硬件端，关注新题材机会</span>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                    <div class="text-lg font-bold text-white">171.81</div>
+                    <div class="text-xs text-white/50">当前价</div>
                 </div>
+                <div class="text-right">
+                    <div class="text-lg font-bold text-red-400">-12.56%</div>
+                    <div class="text-xs text-white/50">今日涨跌</div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between text-sm border-t border-white/10 pt-2">
+                <div>
+                    <span class="text-white/50">止损价: </span>
+                    <span class="text-white/80">78.44</span>
+                </div>
+                <div>
+                    <span class="text-white/50">距止损: </span>
+                    <span class="text-green-400 font-medium">+119.03%</span>
+                </div>
+            </div>
+            </div>
+                    </div>
                 
+                    <div class="card-subtle rounded-xl p-4 h-full">
+                        
+                        <div class="text-sm text-white/70 leading-relaxed">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">✅</span>
+                    <div>
+                        <h4 class="text-white font-bold">雅克科技</h4>
+                        <span class="text-xs text-white/50">002409</span>
                     </div>
                 </div>
+                <span class="px-2 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded-full">
+                    🟢 持有观望
+                </span>
             </div>
-            
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                    <div class="text-lg font-bold text-white">157.32</div>
+                    <div class="text-xs text-white/50">当前价</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-lg font-bold text-red-400">-4.76%</div>
+                    <div class="text-xs text-white/50">今日涨跌</div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between text-sm border-t border-white/10 pt-2">
+                <div>
+                    <span class="text-white/50">止损价: </span>
+                    <span class="text-white/80">87.04</span>
+                </div>
+                <div>
+                    <span class="text-white/50">距止损: </span>
+                    <span class="text-green-400 font-medium">+80.74%</span>
+                </div>
+            </div>
+            </div>
+                    </div>
+                
+                    <div class="card-subtle rounded-xl p-4 h-full">
+                        
+                        <div class="text-sm text-white/70 leading-relaxed">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">📈</span>
+                    <div>
+                        <h4 class="text-white font-bold">*ST建艺</h4>
+                        <span class="text-xs text-white/50">002789</span>
+                    </div>
+                </div>
+                <span class="px-2 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded-full">
+                    🟢 持有观望
+                </span>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                    <div class="text-lg font-bold text-white">13.42</div>
+                    <div class="text-xs text-white/50">当前价</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-lg font-bold text-red-400">-5.02%</div>
+                    <div class="text-xs text-white/50">今日涨跌</div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between text-sm border-t border-white/10 pt-2">
+                <div>
+                    <span class="text-white/50">止损价: </span>
+                    <span class="text-white/80">12.50</span>
+                </div>
+                <div>
+                    <span class="text-white/50">距止损: </span>
+                    <span class="text-green-400 font-medium">+7.36%</span>
+                </div>
+            </div>
+            </div>
+                    </div>
+                
+        </div>
+        
         
         </div>
         
             
         <div class="card-glass p-6 mb-6 ">
             
-            <h2 class="section-title"><span class="text-xl">⚠️</span>⚠️ 风险警告</h2>
+            <h2 class="section-title"><span class="text-2xl mr-3">🚨</span>🚨 紧急预警</h2>
             
             <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
                 <div class="flex items-start justify-between gap-4">
                     <div class="flex-1 min-w-0">
-                        <h4 class="text-white font-semibold mb-1">市场剧烈高低切换</h4>
-                        <p class="text-sm text-white/60 mb-2">高位科技股集体回落，煤炭/电力/高股息等低位防御板块获资金大幅流入</p>
+                        <h4 class="text-white font-semibold mb-1">美联储鹰派信号超预期</h4>
+                        <p class="text-sm text-white/60 mb-2"></p>
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-xs text-white/40">⏰ 今日</span>
+                            <span class="text-xs text-white/40">⏰ 06-19 02:00</span>
                             
                         </div>
                         
@@ -1190,102 +1381,10 @@
             <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
                 <div class="flex items-start justify-between gap-4">
                     <div class="flex-1 min-w-0">
-                        <h4 class="text-white font-semibold mb-1">AI PC新题材崛起</h4>
-                        <p class="text-sm text-white/60 mb-2">英伟达发布RTX Spark超级芯片引爆AI PC概念，华勤技术涨停，雷神科技20cm+</p>
+                        <h4 class="text-white font-semibold mb-1">市场成交维持高位但分化加剧</h4>
+                        <p class="text-sm text-white/60 mb-2"></p>
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-xs text-white/40">⏰ 今日</span>
-                            
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
-            
-            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-white font-semibold mb-1">存储/机器人相对抗跌</h4>
-                        <p class="text-sm text-white/60 mb-2">存储芯片/HBM、人形机器人板块相对抗跌，中长期逻辑仍在</p>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-xs text-white/40">⏰ 今日</span>
-                            
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
-            
-            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-white font-semibold mb-1">大基金减持影响延续</h4>
-                        <p class="text-sm text-white/60 mb-2">半导体板块情绪承压，科创50指数整体偏弱</p>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-xs text-white/40">⏰ 今日</span>
-                            
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
-            
-        
-        </div>
-        
-            
-        <div class="card-glass p-6 mb-6 ">
-            
-            <h2 class="section-title"><span class="text-xl">ℹ️</span>ℹ️ 信息提示</h2>
-            
-            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-white font-semibold mb-1">苹果WWDC大会</h4>
-                        <p class="text-sm text-white/60 mb-2">关注iOS 18 AI功能发布，警惕不及预期风险</p>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-xs text-white/40">⏰ 6月3日</span>
-                            
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
-            
-            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-white font-semibold mb-1">AI PC题材持续性观察</h4>
-                        <p class="text-sm text-white/60 mb-2">观察华勤技术、雷神科技、春秋电子等核心标的持续性</p>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-xs text-white/40">⏰ 重点关注</span>
-                            
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
-            
-            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-white font-semibold mb-1">*ST建艺摘帽审核中</h4>
-                        <p class="text-sm text-white/60 mb-2">深交所审核进行中，预计6月上旬获得最终批复，今日上涨+5.02%</p>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-xs text-white/40">⏰ 待批复</span>
-                            
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
-            
-            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-white font-semibold mb-1">美联储议息会议</h4>
-                        <p class="text-sm text-white/60 mb-2">市场预期维持利率不变，关注鲍威尔讲话措辞变化</p>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-xs text-white/40">⏰ 6月18日</span>
+                            <span class="text-xs text-white/40">⏰ 06-19 15:00</span>
                             
                         </div>
                         
@@ -1299,28 +1398,100 @@
             
         <div class="card-glass p-6 mb-6 ">
             
-            <h2 class="section-title"><span class="text-xl">🎯</span>🎯 应对策略</h2>
+            <h2 class="section-title"><span class="text-2xl mr-3">⚠️</span>⚠️ 风险警告</h2>
+            
+            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-white font-semibold mb-1">半年末机构结算窗口临近</h4>
+                        <p class="text-sm text-white/60 mb-2"></p>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-xs text-white/40">⏰ 06-19</span>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-white font-semibold mb-1">铜冠铜箔等高位股累积涨幅过大</h4>
+                        <p class="text-sm text-white/60 mb-2"></p>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-xs text-white/40">⏰ 06-19</span>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            
+        
+        </div>
+        
+            
+        <div class="card-glass p-6 mb-6 ">
+            
+            <h2 class="section-title"><span class="text-2xl mr-3">ℹ️</span>ℹ️ 信息提示</h2>
+            
+            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-white font-semibold mb-1">存储芯片板块持续走强</h4>
+                        <p class="text-sm text-white/60 mb-2"></p>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-xs text-white/40">⏰ 06-19</span>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-white font-semibold mb-1">科创板表现强势</h4>
+                        <p class="text-sm text-white/60 mb-2"></p>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-xs text-white/40">⏰ 06-19</span>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            
+        
+        </div>
+        
+            
+        <div class="card-glass p-6 mb-6 ">
+            
+            <h2 class="section-title"><span class="text-2xl mr-3">🎯</span>🎯 应对策略</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
                     <h3 class="text-red-400 font-bold mb-3 flex items-center gap-2">
                         <span>🔴</span> 立即行动
                     </h3>
-                    <div class="flex items-start gap-2 mb-2 last:mb-0"><span class="text-red-400 mt-0.5">•</span><span class="text-sm text-white/80">英维克明日开盘后立即止损出局，避免亏损进一步扩大</span></div><div class="flex items-start gap-2 mb-2 last:mb-0"><span class="text-red-400 mt-0.5">•</span><span class="text-sm text-white/80">铜冠铜箔减仓至25%，锁定部分利润，剩余仓位观察</span></div><div class="flex items-start gap-2 mb-2 last:mb-0"><span class="text-red-400 mt-0.5">•</span><span class="text-sm text-white/80">暂时规避PCB/CPO/光模块/液冷等高位科技硬件端</span></div>
+                    <p class="text-white/40 text-sm">暂无</p>
                 </div>
                 
                 <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
                     <h3 class="text-yellow-400 font-bold mb-3 flex items-center gap-2">
                         <span>🟡</span> 密切关注
                     </h3>
-                    <div class="flex items-start gap-2 mb-2 last:mb-0"><span class="text-yellow-400 mt-0.5">•</span><span class="text-sm text-white/80">AI PC/智能体PC新题材持续性观察（华勤/雷神/春秋）</span></div><div class="flex items-start gap-2 mb-2 last:mb-0"><span class="text-yellow-400 mt-0.5">•</span><span class="text-sm text-white/80">煤炭/电力/高股息防御板块的配置机会</span></div><div class="flex items-start gap-2 mb-2 last:mb-0"><span class="text-yellow-400 mt-0.5">•</span><span class="text-sm text-white/80">市场高低切换风格延续性观察，控制整体仓位</span></div>
+                    <p class="text-white/40 text-sm">暂无</p>
                 </div>
                 
                 <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
                     <h3 class="text-green-400 font-bold mb-3 flex items-center gap-2">
                         <span>🟢</span> 持有观望
                     </h3>
-                    <div class="flex items-start gap-2 mb-2 last:mb-0"><span class="text-green-400 mt-0.5">•</span><span class="text-sm text-white/80">雅克科技继续持有，存储芯片+HBM双逻辑，趋势完好</span></div><div class="flex items-start gap-2 mb-2 last:mb-0"><span class="text-green-400 mt-0.5">•</span><span class="text-sm text-white/80">*ST建艺继续持有，等待摘帽审批结果</span></div><div class="flex items-start gap-2 mb-2 last:mb-0"><span class="text-green-400 mt-0.5">•</span><span class="text-sm text-white/80">观察铜冠铜箔高位震荡情况，若不破20日线可继续持有</span></div>
+                    <p class="text-white/40 text-sm">暂无</p>
                 </div>
             </div>
         
@@ -1331,7 +1502,7 @@
         
         <div class="text-center text-white/40 text-sm py-10">
             <p>智能预警系统 · 实时监控风险机会</p>
-            <p class="text-xs mt-2">数据更新时间：2026年06月15日 21:38</p>
+            <p class="text-xs mt-2">数据更新时间：2026年06月22日 21:30</p>
         </div>
         
     </div>
@@ -1350,6 +1521,8 @@
   </div>
 </div>
 
+    <script src="/daily-news-insight/assets/stock-popup.js"></script>
+    
     <script>
         // ==================== 移动端菜单切换 ====================
         function toggleMobileMenu() {
@@ -1677,6 +1850,5 @@
         }
     </script>
         
-<script src="../js/stock-hover-card.js" defer></script>
 </body>
 </html>
