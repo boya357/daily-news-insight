@@ -52,7 +52,7 @@ def update_alert_system():
     print("📊 更新智能预警系统...")
     try:
         generator = AlertSystemProGenerator(data_dir=DATA_DIR)
-        output_path = os.path.join(DOCS_DIR, '智能预警系统', 'index.html')
+        output_path = os.path.join(DOCS_DIR, 'alert-system', 'index.html')
         result = generator.publish(output_path)
         print(f"   ✅ 更新完成")
         print(f"   输出路径: {output_path}")
@@ -85,7 +85,7 @@ def update_portfolio_dashboard():
     try:
         data_path = os.path.join(DATA_DIR, 'portfolio.json')
         generator = PortfolioDashboardProGenerator(data_path=data_path)
-        output_path = os.path.join(DOCS_DIR, '持仓智能预警仪表盘', 'index.html')
+        output_path = os.path.join(DOCS_DIR, 'portfolio_dashboard', 'index.html')
         result = generator.publish(output_path)
         print(f"   ✅ 更新完成")
         print(f"   输出路径: {output_path}")
@@ -117,7 +117,7 @@ def update_weekly_evolution():
     print("📈 更新周度进化报告...")
     try:
         generator = WeeklyEvolutionProGenerator(data_dir=DATA_DIR)
-        output_path = os.path.join(DOCS_DIR, '周度进化报告', 'index.html')
+        output_path = os.path.join(DOCS_DIR, 'weekly-evolution', 'index.html')
         result = generator.publish(output_path)
         print(f"   ✅ 更新完成")
         print(f"   输出路径: {output_path}")
@@ -165,7 +165,7 @@ def update_longhubang():
     print("🐉 更新龙虎榜透视...")
     try:
         generator = LonghuBangProGenerator(data_dir=DATA_DIR)
-        output_path = os.path.join(DOCS_DIR, '龙虎榜', 'index.html')
+        output_path = os.path.join(DOCS_DIR, 'longhubang', 'index.html')
         result = generator.publish(output_path)
         print(f"   ✅ 更新完成")
         print(f"   输出路径: {output_path}")
@@ -247,7 +247,7 @@ def update_industry_chain_clock():
     try:
         generator = IndustryChainClockProGenerator(data_dir=DATA_DIR)
         generator.load_data()
-        output_path = os.path.join(DOCS_DIR, 'industry-chain-clock', 'index.html')
+        output_path = os.path.join(DOCS_DIR, 'industry_chain_clock', 'index.html')
         result = generator.publish(output_path)
         print(f"   ✅ 更新完成")
         print(f"   输出路径: {output_path}")
