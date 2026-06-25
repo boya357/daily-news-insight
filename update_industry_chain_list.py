@@ -300,10 +300,8 @@ def main():
             )
         report_cards.append(card)
     
-    # 4. 插入到模板中
-    final_html = PAGE_TEMPLATE.format(
-        report_cards='\n'.join(report_cards)
-    )
+    # 4. 插入到模板中（用replace而不是format，避免CSS中的大括号被误解析）
+    final_html = PAGE_TEMPLATE.replace('{report_cards}', '\n'.join(report_cards))
     
     # 5. 写入文件
     output_path = f'{industry_dir}/latest.html'
