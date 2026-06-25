@@ -1,0 +1,3103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A股算力硬件赛道深度研究报告 - 投资研究中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
+    
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+            
+            * { font-family: 'Noto Sans SC', sans-serif; }
+            
+            body {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding-top: 80px;
+            }
+            
+            .pro-container {
+                max-width: 64rem;
+                margin: 0 auto;
+                padding: 0 1.5rem;
+            }
+            
+            .card-glass {
+                background: rgba(139, 92, 246, 0.15);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+                border-radius: 20px;
+                color: white;
+            }
+            
+            .card-glass .text-gray-800,
+            .card-glass .text-gray-700,
+            .card-glass .text-gray-600,
+            .card-glass .text-gray-500,
+            .card-glass .text-gray-400 { color: rgba(255, 255, 255, 0.9) !important; }
+            .card-glass .text-gray-500 { color: rgba(255, 255, 255, 0.75) !important; }
+            .card-glass .text-gray-400 { color: rgba(255, 255, 255, 0.6) !important; }
+            
+            /* 修复浅色背景子卡片文字颜色 */
+            .card-glass .bg-white .text-gray-800 { color: #1f2937 !important; }
+            .card-glass .bg-white .text-gray-700 { color: #374151 !important; }
+            .card-glass .bg-white .text-gray-600 { color: #4b5563 !important; }
+            .card-glass .bg-white .text-gray-500 { color: #6b7280 !important; }
+            .card-glass .bg-white .text-gray-400 { color: #9ca3af !important; }
+            
+            .stock-card {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .stock-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 20px 60px rgba(102, 126, 234, 0.5);
+            }
+            
+            .risk-bar {
+                height: 8px;
+                border-radius: 4px;
+                background: rgba(255,255,255,0.2);
+                overflow: hidden;
+            }
+            .risk-bar-fill {
+                height: 100%;
+                border-radius: 4px;
+                transition: width 0.5s ease;
+            }
+            
+            .diagnosis-item {
+                text-align: center;
+                padding: 12px 8px;
+                background: rgba(255,255,255,0.1);
+                border-radius: 12px;
+            }
+            
+            .tag-badge {
+                display: inline-block;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+            
+            .section-title {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: white;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .lhb-card {
+                background: rgba(255,255,255,0.05);
+                border-radius: 12px;
+                padding: 1rem;
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .lhb-seat {
+                font-size: 0.75rem;
+                color: rgba(255,255,255,0.6);
+                margin-bottom: 0.25rem;
+            }
+            
+            .fund-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 0;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            .fund-row:last-child {
+                border-bottom: none;
+            }
+            
+            .fund-trend-up {
+                color: #10b981;
+                font-weight: 600;
+            }
+            .fund-trend-down {
+                color: #ef4444;
+                font-weight: 600;
+            }
+            
+            .alert-section {
+                border-left: 4px solid #ef4444;
+                padding-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .warning-section {
+                border-left: 4px solid #f59e0b;
+                padding-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .safe-section {
+                border-left: 4px solid #10b981;
+                padding-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            /* 导航栏样式 */
+            .glass-nav {
+                background: rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                transition: background 0.3s ease;
+            }
+            
+            .glass-nav.scrolled {
+                background: rgba(0, 0, 0, 0.7);
+            }
+            
+            /* 汉堡菜单按钮 */
+            .hamburger-btn {
+                display: none;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                width: 40px;
+                height: 40px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 18px;
+                transition: all 0.3s;
+            }
+            
+            .hamburger-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            /* 移动端菜单 */
+            .mobile-menu {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.95);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                z-index: 100;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+            }
+            
+            .mobile-menu.show {
+                display: flex;
+            }
+            
+            .mobile-menu-item {
+                color: white;
+                font-size: 18px;
+                font-weight: 600;
+                padding: 15px 30px;
+                text-decoration: none;
+                text-align: center;
+                width: 100%;
+                max-width: 300px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                transition: all 0.3s;
+            }
+            
+            .mobile-menu-item:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: #a78bfa;
+            }
+            
+            .close-menu-btn {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                width: 44px;
+                height: 44px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 20px;
+                transition: all 0.3s;
+            }
+            
+            .close-menu-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            /* 响应式断点 - 平板 */
+            @media (max-width: 1024px) {
+                .pro-container {
+                    max-width: 100%;
+                    padding: 0 1rem;
+                }
+            }
+            
+            /* 响应式断点 - 手机 */
+            @media (max-width: 768px) {
+                .nav-links {
+                    display: none !important;
+                }
+                
+                .hamburger-btn {
+                    display: block !important;
+                }
+                
+                body {
+                    padding-top: 70px;
+                }
+                
+                .pro-container {
+                    padding: 0 0.75rem;
+                }
+                
+                .card-glass {
+                    border-radius: 16px;
+                    padding: 1.25rem;
+                }
+                
+                /* 移动端网格优化 */
+                .grid-cols-2,
+                .grid-cols-3,
+                .grid-cols-4,
+                .grid-cols-5 {
+                    grid-template-columns: 1fr !important;
+                }
+                
+                /* 移动端字体优化 */
+                h1 { font-size: 1.75rem !important; }
+                h2 { font-size: 1.35rem !important; }
+                h3 { font-size: 1.15rem !important; }
+            }
+            
+            /* 响应式断点 - 小屏手机 */
+            @media (max-width: 480px) {
+                body {
+                    padding-top: 60px;
+                }
+                
+                .pro-container {
+                    padding: 0 0.5rem;
+                }
+                
+                .card-glass {
+                    border-radius: 12px;
+                    padding: 1rem;
+                }
+                
+                h1 { font-size: 1.5rem !important; }
+                h2 { font-size: 1.2rem !important; }
+            }
+
+            /* ===== 交互动效增强 ===== */
+            
+            /* 卡片入场动画 */
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .animate-fade-in-up {
+                animation: fadeInUp 0.6s ease-out forwards;
+            }
+            
+            /* 数字滚动动画容器 */
+            .counter-value {
+                font-variant-numeric: tabular-nums;
+            }
+            
+            /* 脉冲动画 */
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.5; }
+            }
+            
+            .animate-pulse {
+                animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            
+            /* 骨架屏加载效果 */
+            @keyframes shimmer {
+                0% { background-position: -200% 0; }
+                100% { background-position: 200% 0; }
+            }
+            
+            .skeleton {
+                background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 75%);
+                background-size: 200% 100%;
+                animation: shimmer 1.5s infinite;
+                border-radius: 8px;
+            }
+            
+            /* 按钮点击效果 */
+            .btn-press:active {
+                transform: scale(0.95);
+            }
+            
+            /* 标签悬浮效果 */
+            .tag-badge {
+                transition: all 0.2s ease;
+            }
+            
+            .tag-badge:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            }
+            
+
+            /* 阅读进度条 */
+            #progressBar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+                z-index: 9999;
+                width: 0%;
+                transition: width 0.1s ease;
+            }
+            
+            /* 回到顶部按钮 */
+            #backToTop {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                width: 50px;
+                height: 50px;
+                background: linear-gradient(135deg, #6366f1, #a855f7);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                z-index: 9998;
+                opacity: 0;
+                transform: translateY(20px);
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+                border: none;
+            }
+            #backToTop:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            }
+            #backToTop.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            /* 操作按钮组 */
+            .action-buttons {
+                position: fixed;
+                bottom: 30px;
+                left: 30px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                z-index: 9998;
+            }
+            .action-btn {
+                width: 50px;
+                height: 50px;
+                background: rgba(30, 30, 50, 0.8);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            }
+            .action-btn:hover {
+                background: rgba(99, 102, 241, 0.8);
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            }
+            
+            /* 打印优化 */
+            @media print {
+                #progressBar, #backToTop, .action-buttons, .glass-nav, .pro-footer {
+                    display: none !important;
+                }
+                body {
+                    background: white !important;
+                    color: black !important;
+                }
+                .card-glass {
+                    background: white !important;
+                    border: 1px solid #ddd !important;
+                    box-shadow: none !important;
+                }
+            }
+            
+            /* 移动端适配 */
+            @media (max-width: 768px) {
+                #backToTop {
+                    bottom: 20px;
+                    right: 20px;
+                    width: 44px;
+                    height: 44px;
+                }
+                .action-buttons {
+                    bottom: 20px;
+                    left: 20px;
+                    gap: 10px;
+                }
+                .action-btn {
+                    width: 44px;
+                    height: 44px;
+                }
+            }
+            /* 进度条动画增强 */
+            .risk-bar-fill {
+                transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            /* 卡片悬浮增强 */
+            .card-glass {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .card-glass:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            }
+            
+            /* 导航项下划线动画 */
+            .nav-links a {
+                position: relative;
+            }
+            
+            .nav-links a::after {
+                content: '';
+                position: absolute;
+                bottom: -2px;
+                left: 50%;
+                width: 0;
+                height: 2px;
+                background: linear-gradient(90deg, #667eea, #764ba2);
+                transition: all 0.3s ease;
+                transform: translateX(-50%);
+                border-radius: 1px;
+            }
+            
+            .nav-links a:hover::after,
+            .nav-links a.bg-white\/20::after {
+                width: 60%;
+            }
+            
+            /* 滚动显示动画 */
+            .reveal {
+                opacity: 0;
+                transform: translateY(30px);
+                transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .reveal.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            /* 弹跳效果 */
+            @keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+            }
+            
+            .animate-bounce {
+                animation: bounce 2s infinite;
+            }
+            
+            /* 旋转动画 */
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+            
+            .animate-spin {
+                animation: spin 1s linear infinite;
+            }
+            
+            /* ===== 移动端体验优化 ===== */
+            
+            /* 触摸区域优化 - 最小44px点击区域 */
+            @media (max-width: 768px) {
+                .mobile-menu-item {
+                    min-height: 44px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 12px 20px;
+                    -webkit-tap-highlight-color: transparent;
+                }
+                
+                .hamburger-btn,
+                .close-menu-btn {
+                    min-width: 44px;
+                    min-height: 44px;
+                    -webkit-tap-highlight-color: transparent;
+                }
+                
+                /* 移动端卡片点击反馈 */
+                .card-glass:active {
+                    transform: scale(0.98);
+                    transition: transform 0.1s ease;
+                }
+                
+                /* 禁止双击缩放 */
+                * {
+                    touch-action: manipulation;
+                }
+                
+                /* 底部安全区域适配 */
+                .pro-container {
+                    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+                }
+                
+                /* 移动端滚动条隐藏 */
+                ::-webkit-scrollbar {
+                    width: 4px;
+                    height: 4px;
+                }
+                
+                ::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                
+                ::-webkit-scrollbar-thumb {
+                    background: rgba(255, 255, 255, 0.3);
+                    border-radius: 2px;
+                }
+                
+                /* 移动端标题截断 */
+                .section-title {
+                    font-size: 1.1rem !important;
+                }
+                
+                /* 移动端网格优化 - 2列布局 */
+                .mobile-grid-2 {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                }
+                
+                /* 移动端字体优化 */
+                body {
+                    font-size: 15px;
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                }
+            }
+            
+            /* 小屏手机额外优化 */
+            @media (max-width: 480px) {
+                .mobile-grid-2 {
+                    grid-template-columns: 1fr !important;
+                }
+                
+                /* 更小的内边距 */
+                .card-glass {
+                    padding: 0.875rem !important;
+                }
+                
+                .section-title {
+                    font-size: 1rem !important;
+                }
+            }
+            
+            /* ===== 深色模式优化 ===== */
+            @media (prefers-color-scheme: dark) {
+                .text-white\/60 {
+                    color: rgba(255, 255, 255, 0.7) !important;
+                }
+            }
+            
+            /* ===== 减少动效模式 ===== */
+            @media (prefers-reduced-motion: reduce) {
+                *,
+                *::before,
+                *::after {
+                    animation-duration: 0.01ms !important;
+                    animation-iteration-count: 1 !important;
+                    transition-duration: 0.01ms !important;
+                }
+            }
+        
+            /* ===== 悬浮目录导航 ===== */
+            .toc-wrapper {
+                position: fixed;
+                top: 120px;
+                width: 220px;
+                max-height: calc(100vh - 160px);
+                background: rgba(139, 92, 246, 0.15);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 16px;
+                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+                z-index: 90;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .toc-right {
+                right: 20px;
+            }
+            
+            .toc-left {
+                left: 20px;
+            }
+            
+            .toc-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                cursor: pointer;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                user-select: none;
+            }
+            
+            .toc-title {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: white;
+            }
+            
+            .toc-header svg {
+                color: rgba(255, 255, 255, 0.7);
+                transition: transform 0.3s ease;
+            }
+            
+            .toc-wrapper.collapsed .toc-header svg {
+                transform: rotate(-90deg);
+            }
+            
+            .toc-content {
+                max-height: calc(100vh - 220px);
+                overflow-y: auto;
+                padding: 8px 0;
+                transition: max-height 0.3s ease;
+            }
+            
+            .toc-wrapper.collapsed .toc-content {
+                max-height: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            
+            .toc-item {
+                display: block;
+                padding: 8px 16px;
+                font-size: 0.8125rem;
+                color: rgba(255, 255, 255, 0.7);
+                text-decoration: none;
+                border-left: 3px solid transparent;
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+            
+            .toc-item:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.08);
+                border-left-color: rgba(255, 255, 255, 0.3);
+            }
+            
+            .toc-item.active {
+                color: white;
+                font-weight: 500;
+                background: rgba(102, 126, 234, 0.3);
+                border-left-color: #667eea;
+            }
+            
+            .toc-item.pl-4 {
+                padding-left: 32px;
+                font-size: 0.75rem;
+            }
+            
+            /* 滚动条样式 */
+            .toc-content::-webkit-scrollbar {
+                width: 4px;
+            }
+            
+            .toc-content::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            
+            .toc-content::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 2px;
+            }
+            
+            .toc-content::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.4);
+            }
+            
+            /* 大屏显示优化 */
+            @media (min-width: 1400px) {
+                .toc-wrapper {
+                    width: 260px;
+                }
+                .toc-right {
+                    right: calc((100vw - 64rem) / 2 - 300px);
+                }
+                .toc-left {
+                    left: calc((100vw - 64rem) / 2 - 300px);
+                }
+            }
+            
+                        /* 平板端优化 - 折叠为悬浮按钮 */
+            @media (max-width: 1200px) {
+                .toc-wrapper {
+                    top: auto;
+                    bottom: 80px;
+                    right: 16px;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 240px;
+                    height: auto;
+                    max-height: 60vh;
+                    border-radius: 16px;
+                    top: auto;
+                    bottom: 80px;
+                }
+                
+                .toc-wrapper .toc-header {
+                    justify-content: center;
+                    padding: 12px;
+                    border-bottom: none;
+                }
+                
+                .toc-wrapper.expanded .toc-header {
+                    justify-content: space-between;
+                    padding: 12px 16px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                
+                .toc-wrapper .toc-title {
+                    display: none;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    display: block;
+                    font-size: 0.875rem;
+                }
+                
+                .toc-wrapper .toc-content {
+                    max-height: 0;
+                    padding: 0;
+                    opacity: 0;
+                    transition: all 0.3s ease;
+                }
+                
+                .toc-wrapper.expanded .toc-content {
+                    max-height: calc(60vh - 56px);
+                    padding: 8px 0;
+                    opacity: 1;
+                }
+                
+                .toc-wrapper .toc-header svg {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+            
+            /* 手机端 - 更小的悬浮按钮 */
+            @media (max-width: 480px) {
+                .toc-wrapper {
+                    width: 40px;
+                    height: 40px;
+                    bottom: 70px;
+                    right: 12px;
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 200px;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    font-size: 0.8rem;
+                }
+            }
+            
+            /* 页面内容区域适配 - 避免被目录遮挡 */
+            @media (min-width: 1200px) {
+                .pro-container.has-toc {
+                    max-width: 48rem;
+                }
+            }
+            
+            /* Tab切换组件样式 */
+            .tab-container {
+                margin-bottom: 1rem;
+            }
+            
+            .tab-buttons {
+                display: flex;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                padding-bottom: 0.5rem;
+            }
+            
+            .tab-btn {
+                padding: 0.5rem 1rem;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 8px;
+                color: rgba(255,255,255,0.6);
+                cursor: pointer;
+                font-size: 0.875rem;
+                transition: all 0.3s ease;
+            }
+            
+            .tab-btn:hover {
+                background: rgba(255,255,255,0.1);
+                color: rgba(255,255,255,0.9);
+            }
+            
+            .tab-btn-active {
+                background: rgba(139, 92, 246, 0.3);
+                border-color: rgba(139, 92, 246, 0.5);
+                color: white;
+                font-weight: 500;
+            }
+            
+            .tab-container .tab-content .tab-panel {
+                display: none;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            .tab-container .tab-content .tab-panel.tab-panel-active {
+                display: block !important;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            /* Underline风格Tab */
+            .tab-style-underline .tab-buttons {
+                border-bottom: none;
+                padding-bottom: 0;
+                gap: 1.5rem;
+            }
+            
+            .tab-style-underline .tab-btn {
+                background: transparent;
+                border: none;
+                border-bottom: 2px solid transparent;
+                border-radius: 0;
+                padding: 0.5rem 0;
+            }
+            
+            .tab-style-underline .tab-btn:hover {
+                background: transparent;
+                color: rgba(255,255,255,0.9);
+            }
+            
+            .tab-style-underline .tab-btn-active {
+                border-bottom-color: #8b5cf6;
+                color: white;
+                background: transparent;
+            }
+            
+            /* 次级卡片样式 */
+            .card-subtle {
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 12px;
+                padding: 1rem;
+                transition: all 0.3s ease;
+            }
+            
+            .card-subtle:hover {
+                background: rgba(255,255,255,0.08);
+                border-color: rgba(255,255,255,0.2);
+            }
+</style>
+    
+    <style>
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">📊</span>
+                </div>
+                <span class="text-white font-bold text-lg">投资研究中心</span>
+            </div>
+            <div class="nav-links flex items-center space-x-1 flex-wrap gap-1">
+                <a href="/daily-news-insight/index.html" class="text-white bg-white/20 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a><a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a><a href="/daily-news-insight/intraday/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a><a href="/daily-news-insight/aftermarket/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a><a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a><a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a><a href="/daily-news-insight/weekly_outlook/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周三前瞻</a><a href="/daily-news-insight/weekend_express/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a><a href="/daily-news-insight/tomorrow_catalyst/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a><a href="/daily-news-insight/s_level_catalyst/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a><a href="/daily-news-insight/monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
+            </div>
+            <button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </nav>
+    
+    <!-- 移动端全屏菜单 -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
+        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a><a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a><a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中</a><a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后</a><a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链</a><a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a><a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a><a href="/daily-news-insight/weekend_express/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a><a href="/daily-news-insight/tomorrow_catalyst/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化</a><a href="/daily-news-insight/s_level_catalyst/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⚡ S级催化</a><a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📅 月报</a>
+    </div>
+        
+    
+    <div class="pro-container pt-20 has-toc">
+        
+        <div class="max-w-4xl mx-auto">
+            
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-black text-white mb-3">
+                A股算力硬件赛道深度研究报告
+            </h1>
+            <p class="text-white/70 text-lg">
+                国产超算登顶与全栈替代的投资机遇
+            </p>
+            <p class="text-white/50 text-sm mt-2">
+                2026年06月25日
+            </p>
+        </div>
+        
+            
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">📄</span>
+                    执行摘要
+                </h2>
+                <div class="text-white/80">
+                    <p class="mb-3 leading-relaxed">2026年6月23日，德国汉堡ISC国际超算大会上，中国"灵晟"超级计算机以每秒2.198百亿亿次浮点运算的持续性能登顶TOP500榜单，时隔9年中国超算重回世界之巅。这一标志性事件不仅是技术突破的里程碑，更是A股算力硬件板块新一轮行情的催化剂。</p>
+<p class="mb-3 leading-relaxed">本报告通过对156只算力硬件相关个股的系统性研究，结合产业链深度调研与机构持仓分析，得出以下核心结论：</p>
+<ol class="list-decimal list-inside mb-4 space-y-1">
+<li class="text-white/80"><strong class="text-white font-semibold">赛道处于爆发期</strong>：政策+产业双轮驱动下，国产算力正从"可用"向"好用"跨越，2026年国内AI算力市场规模有望突破3000亿元，同比增速超60%。</li>
+<li class="text-white/80"><strong class="text-white font-semibold">全产业链受益</strong>：上游芯片/存储/光模块、中游服务器/集群/操作系统、下游云厂商/运营商/行业应用均迎来业绩兑现期，其中上游核心环节弹性最大。</li>
+<li class="text-white/80"><strong class="text-white font-semibold">TOP20核心标的筛选</strong>：基于业绩弹性、算力业务占比、技术壁垒、机构持仓、估值水平、近期涨幅六大维度量化评分，筛选出海光信息、寒武纪、工业富联等核心标的。</li>
+<li class="text-white/80"><strong class="text-white font-semibold">短期催化密集</strong>：7月WAIC昇腾950真机发布、三季度国产芯片批量交付、半年报业绩验证等多重催化剂临近，板块行情有望持续演绎。</li>
+</ol>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">风险提示</strong>：技术迭代不及预期、国产替代进度慢于预期、海外出口管制升级、行业竞争加剧、估值过高回调风险。</p>
+<hr />
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">🌍</span>
+                    一、赛道背景与核心驱动因素
+                </h2>
+                <div class="text-white/80">
+                    <h3 class="text-base font-bold text-white mt-6 mb-3">1.1 国产自研超算登顶的产业影响与战略意义</h3>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">"灵晟"超算：纯国产CPU架构的历史性突破</strong></p>
+<p class="mb-3 leading-relaxed">2026年6月23日，国家超级计算深圳中心的"灵晟"超级计算机在ISC2026大会上正式登顶全球TOP500榜单，以2.198 EFLOPS的持续双精度浮点性能大幅领先第二名美国El Capitan（约1.8 EFLOPS），成为全球首台突破2 EFLOPS的超算系统。</p>
+<p class="mb-3 leading-relaxed">这一成就的核心意义在于：</p>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">维度</th>
+<th class="px-4 py-3 font-semibold border border-white/10">具体内容</th>
+<th class="px-4 py-3 font-semibold border border-white/10">战略价值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10"><strong class="text-white font-semibold">技术路线</strong></td>
+<td class="px-4 py-2 border border-white/10">首创在线加速全CPU架构，完全依托国产LX2 CPU核心，未使用任何GPU加速卡</td>
+<td class="px-4 py-2 border border-white/10">打破海外GPU垄断，验证纯国产算力路线可行性</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10"><strong class="text-white font-semibold">全栈自主</strong></td>
+<td class="px-4 py-2 border border-white/10">从CPU芯片、高速互连网络、存储系统到操作系统、调度软件100%国产化</td>
+<td class="px-4 py-2 border border-white/10">彻底摆脱海外技术依赖，保障国家信息安全</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10"><strong class="text-white font-semibold">能效比</strong></td>
+<td class="px-4 py-2 border border-white/10">首创全液冷散热，能效比达51 GFlops/W，全球领先</td>
+<td class="px-4 py-2 border border-white/10">打破"算力越高功耗失控"悖论，绿色算力标杆</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10"><strong class="text-white font-semibold">应用落地</strong></td>
+<td class="px-4 py-2 border border-white/10">已支撑大气海洋仿真、材料科学、药物发现、大模型训练等多场景</td>
+<td class="px-4 py-2 border border-white/10">从"跑分"走向"实用"，产业价值开始兑现</td>
+</tr>
+</tbody>
+</table>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">对A股算力板块的影响路径：</strong></p>
+<ul class="list-disc list-inside mb-4 space-y-1">
+<li class="text-white/80"><strong class="text-white font-semibold">信心提振</strong>：打破"国产芯片性能不足"的市场认知，估值体系面临重构</li>
+<li class="text-white/80"><strong class="text-white font-semibold">订单催化</strong>：超算技术外溢至商用市场，带动国产服务器、芯片需求爆发</li>
+<li class="text-white/80"><strong class="text-white font-semibold">政策加码</strong>：自主可控路线获得验证，后续政策支持力度有望持续加大</li>
+</ul>
+<h3 class="text-base font-bold text-white mt-6 mb-3">1.2 全球高性能计算格局变化分析</h3>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">全球超算格局重塑：中美两强并立，欧洲日本追赶</strong></p>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">排名</th>
+<th class="px-4 py-3 font-semibold border border-white/10">系统名称</th>
+<th class="px-4 py-3 font-semibold border border-white/10">所属国家</th>
+<th class="px-4 py-3 font-semibold border border-white/10">性能(EFLOPS)</th>
+<th class="px-4 py-3 font-semibold border border-white/10">架构</th>
+<th class="px-4 py-3 font-semibold border border-white/10">核心芯片</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">1</td>
+<td class="px-4 py-2 border border-white/10">灵晟</td>
+<td class="px-4 py-2 border border-white/10">中国</td>
+<td class="px-4 py-2 border border-white/10">2.198</td>
+<td class="px-4 py-2 border border-white/10">全CPU架构</td>
+<td class="px-4 py-2 border border-white/10">国产LX2 CPU</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">2</td>
+<td class="px-4 py-2 border border-white/10">El Capitan</td>
+<td class="px-4 py-2 border border-white/10">美国</td>
+<td class="px-4 py-2 border border-white/10">1.809</td>
+<td class="px-4 py-2 border border-white/10">CPU+GPU异构</td>
+<td class="px-4 py-2 border border-white/10">AMD MI300</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">3</td>
+<td class="px-4 py-2 border border-white/10">Frontier</td>
+<td class="px-4 py-2 border border-white/10">美国</td>
+<td class="px-4 py-2 border border-white/10">1.353</td>
+<td class="px-4 py-2 border border-white/10">CPU+GPU异构</td>
+<td class="px-4 py-2 border border-white/10">AMD Instinct</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">4</td>
+<td class="px-4 py-2 border border-white/10">Aurora</td>
+<td class="px-4 py-2 border border-white/10">美国</td>
+<td class="px-4 py-2 border border-white/10">1.012</td>
+<td class="px-4 py-2 border border-white/10">CPU+GPU异构</td>
+<td class="px-4 py-2 border border-white/10">Intel Max</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">5</td>
+<td class="px-4 py-2 border border-white/10">Jupiter Booster</td>
+<td class="px-4 py-2 border border-white/10">德国</td>
+<td class="px-4 py-2 border border-white/10">1.000</td>
+<td class="px-4 py-2 border border-white/10">CPU+GPU异构</td>
+<td class="px-4 py-2 border border-white/10">NVIDIA GH200</td>
+</tr>
+</tbody>
+</table>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">格局变化的核心特征：</strong></p>
+<ol class="list-decimal list-inside mb-4 space-y-1">
+<li class="text-white/80"><strong class="text-white font-semibold">中国重返榜首</strong>：时隔9年重回第一，且首次实现全栈自主，技术含金量显著提升</li>
+<li class="text-white/80"><strong class="text-white font-semibold">美国数量优势仍存</strong>：TOP500中美国占据162台，中国30台，数量差距仍大</li>
+<li class="text-white/80"><strong class="text-white font-semibold">技术路线分化</strong>：欧美延续CPU+GPU异构路线，中国走出纯CPU超智融合新路线</li>
+<li class="text-white/80"><strong class="text-white font-semibold">E级超算普及</strong>：前五名均突破E级（1 EFLOPS），算力竞赛进入新阶段</li>
+</ol>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">关键判断</strong>：全球算力竞争已从"比性能"转向"比生态+比自主可控"。在海外芯片出口管制持续收紧的背景下，中国算力产业必须走自主创新道路，这为国产算力硬件厂商提供了广阔的替代空间。</p>
+<h3 class="text-base font-bold text-white mt-6 mb-3">1.3 6月以来板块涨幅数据与市场热度量化</h3>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">整体表现：算力板块显著跑赢大盘</strong></p>
+<p class="mb-3 leading-relaxed">基于对156只算力硬件核心个股的统计：</p>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">指标</th>
+<th class="px-4 py-3 font-semibold border border-white/10">数值</th>
+<th class="px-4 py-3 font-semibold border border-white/10">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">6月以来平均涨幅</td>
+<td class="px-4 py-2 border border-white/10"><strong class="text-white font-semibold">5.77%</strong></td>
+<td class="px-4 py-2 border border-white/10">显著跑赢沪深300指数（同期约1.2%）</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">6月以来中位涨幅</td>
+<td class="px-4 py-2 border border-white/10">0.96%</td>
+<td class="px-4 py-2 border border-white/10">个股分化明显，龙头效应显著</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">最大涨幅</td>
+<td class="px-4 py-2 border border-white/10">101.29%</td>
+<td class="px-4 py-2 border border-white/10">麦捷科技（被动元器件+算力概念）</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">上涨个股占比</td>
+<td class="px-4 py-2 border border-white/10">52.6%</td>
+<td class="px-4 py-2 border border-white/10">超半数个股6月以来实现上涨</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">成交额放大倍数</td>
+<td class="px-4 py-2 border border-white/10">1.8x</td>
+<td class="px-4 py-2 border border-white/10">板块交投活跃度显著提升</td>
+</tr>
+</tbody>
+</table>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">细分板块涨幅排行（6月以来）：</strong></p>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">细分板块</th>
+<th class="px-4 py-3 font-semibold border border-white/10">平均涨幅</th>
+<th class="px-4 py-3 font-semibold border border-white/10">代表个股</th>
+<th class="px-4 py-3 font-semibold border border-white/10">核心驱动逻辑</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">高速连接器/PCB</td>
+<td class="px-4 py-2 border border-white/10">~28%</td>
+<td class="px-4 py-2 border border-white/10">华丰科技、胜宏科技、深南电路</td>
+<td class="px-4 py-2 border border-white/10">昇腾950超节点产业链放量</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">光模块/CPO</td>
+<td class="px-4 py-2 border border-white/10">~25%</td>
+<td class="px-4 py-2 border border-white/10">光迅科技、中际旭创、天孚通信</td>
+<td class="px-4 py-2 border border-white/10">1.6T/3.2T迭代+国产替代</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">AI芯片</td>
+<td class="px-4 py-2 border border-white/10">~22%</td>
+<td class="px-4 py-2 border border-white/10">海光信息、寒武纪、龙芯中科</td>
+<td class="px-4 py-2 border border-white/10">DeepSeek-V4适配+国测认证</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">存储芯片</td>
+<td class="px-4 py-2 border border-white/10">~18%</td>
+<td class="px-4 py-2 border border-white/10">佰维存储、江波龙、兆易创新</td>
+<td class="px-4 py-2 border border-white/10">HBM需求爆发+国产替代</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">服务器整机</td>
+<td class="px-4 py-2 border border-white/10">~12%</td>
+<td class="px-4 py-2 border border-white/10">工业富联、浪潮信息、中科曙光</td>
+<td class="px-4 py-2 border border-white/10">AI服务器出货量高增</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">液冷散热</td>
+<td class="px-4 py-2 border border-white/10">~15%</td>
+<td class="px-4 py-2 border border-white/10">英维克、高澜股份、申菱环境</td>
+<td class="px-4 py-2 border border-white/10">高密度算力集群刚需</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">算力租赁/IDC</td>
+<td class="px-4 py-2 border border-white/10">~8%</td>
+<td class="px-4 py-2 border border-white/10">润泽科技、光环新网、宝信软件</td>
+<td class="px-4 py-2 border border-white/10">算力供需紧张，租赁价格上涨</td>
+</tr>
+</tbody>
+</table>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">市场热度指标：</strong></p>
+<ul class="list-disc list-inside mb-4 space-y-1">
+<li class="text-white/80">机构研报覆盖：2026年以来，算力硬件板块累计发布研报超500份，同比增长47%</li>
+<li class="text-white/80">北向资金持仓：6月以来北向资金累计净买入算力板块超80亿元</li>
+<li class="text-white/80">融资余额：板块融资余额较5月增长15%，显示杠杆资金积极入场</li>
+<li class="text-white/80">概念股数量：A股算力相关概念股已超200只，市场关注度持续提升</li>
+</ul>
+<h3 class="text-base font-bold text-white mt-6 mb-3">1.4 政策与产业双轮驱动的底层逻辑</h3>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">政策驱动：从"鼓励"到"强制"，国产算力适配升级为国家战略</strong></p>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">时间</th>
+<th class="px-4 py-3 font-semibold border border-white/10">政策/事件</th>
+<th class="px-4 py-3 font-semibold border border-white/10">核心内容</th>
+<th class="px-4 py-3 font-semibold border border-white/10">影响力度</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">2026.5.21</td>
+<td class="px-4 py-2 border border-white/10">发改委明确要求</td>
+<td class="px-4 py-2 border border-white/10">国产大模型"加大力度适配国产算力芯片"，央国企AI采购优先国产方案</td>
+<td class="px-4 py-2 border border-white/10">★★★★★</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">2026.5.26</td>
+<td class="px-4 py-2 border border-white/10">国测中心认证</td>
+<td class="px-4 py-2 border border-white/10">首次设立"AI训练推理芯片"品类，9款国产芯片获I级评定</td>
+<td class="px-4 py-2 border border-white/10">★★★★☆</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">2026.6.5</td>
+<td class="px-4 py-2 border border-white/10">算力网纳入"六网"</td>
+<td class="px-4 py-2 border border-white/10">全国一体化算力网与电网、水网并列纳入国家顶层基础设施</td>
+<td class="px-4 py-2 border border-white/10">★★★★★</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">2026.6</td>
+<td class="px-4 py-2 border border-white/10">东数西算二期</td>
+<td class="px-4 py-2 border border-white/10">八大枢纽节点二期建设启动，国产化率要求不低于70%</td>
+<td class="px-4 py-2 border border-white/10">★★★★☆</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">2026.3</td>
+<td class="px-4 py-2 border border-white/10">"十五五"规划</td>
+<td class="px-4 py-2 border border-white/10">AI算力规模目标2030年达2025年10倍，年均复合增速超58%</td>
+<td class="px-4 py-2 border border-white/10">★★★★☆</td>
+</tr>
+</tbody>
+</table>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">产业驱动：需求爆发+技术突破+供应链成熟三重共振</strong></p>
+<ol class="list-decimal list-inside mb-4 space-y-1">
+<li class="text-white/80">
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">AI需求侧爆发</strong><br />
+   - 大模型推理需求激增：国内大模型周Token调用量连续数月居全球首位<br />
+   - 智能体（Agent）普及：Agent自主规划、多轮思考推高算力消耗<br />
+   - 行业AI加速渗透：金融、政务、工业、医疗等行业AI应用规模化落地</p>
+</li>
+<li class="text-white/80">
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">供给侧技术突破</strong><br />
+   - 华为昇腾950系列量产：训练芯片性能提升4倍，带动产业链订单爆发<br />
+   - 国产CPU性能跨越：海光、飞腾、鲲鹏等产品性能接近国际主流水平<br />
+   - 存算一体、液冷等技术成熟：支撑更高密度算力集群部署</p>
+</li>
+<li class="text-white/80">
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">供应链成熟度提升</strong><br />
+   - 高速互连：224G SerDes、1.6T光模块实现量产<br />
+   - 先进封装：Chiplet、HBM封装技术取得突破<br />
+   - 操作系统：国产OS适配AI场景能力显著增强</p>
+</li>
+</ol>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心逻辑闭环：</strong></p>
+<pre><code>政策强制要求 → 国产算力采购放量 → 芯片/服务器厂商收入增长
+      ↑                                  ↓
+   技术迭代加速 ← 研发投入增加 ← 利润改善
+</code></pre>
+<hr />
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">🔗</span>
+                    二、产业链全景梳理
+                </h2>
+                <div class="text-white/80">
+                    <h3 class="text-base font-bold text-white mt-6 mb-3">2.1 产业链总览：三层结构与价值分配</h3>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">算力硬件产业链全景图：</strong></p>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                        下游应用层（25%）                        │
+├─────────┬─────────┬─────────┬─────────┬───────────────────────┤
+│ 云厂商  │ 运营商  │ 互联网  │ 金融/政务│ 工业/能源/医疗等行业  │
+│  阿里云 │  中国移动│ 腾讯云  │  四大行 │  智能制造/智慧能源     │
+│  华为云 │  中国电信│ 字节跳动│  城商行 │  自动驾驶/医疗影像     │
+└─────────┴─────────┴─────────┴─────────┴───────────────────────┘
+                              ▲
+                              │
+┌─────────────────────────────────────────────────────────────────┐
+│                        中游系统集成层（35%）                     │
+├─────────┬─────────┬─────────┬─────────┬───────────────────────┤
+│ AI服务器 │ 算力集群│ 网络设备│ 操作系统│  算力调度/管理软件     │
+│  整机厂 │  解决方案│  交换机│  麒麟  │  云平台/集群管理       │
+│  工业富联│  中科曙光│  新华三│  统信  │  宝信/光环新网         │
+│  浪潮信息│  华为  │  中兴  │        │                       │
+└─────────┴─────────┴─────────┴─────────┴───────────────────────┘
+                              ▲
+                              │
+┌─────────────────────────────────────────────────────────────────┐
+│                        上游核心硬件层（40%）                     │
+├─────────┬─────────┬─────────┬─────────┬───────────────────────┤
+│ 算力芯片│ 存储芯片│ 光模块  │ PCB/连接器│  电源/散热/结构件    │
+│  CPU/GPU│ HBM/DDR │  1.6T  │  高速PCB│  液冷/电源模块        │
+│  海光信息│ 佰维存储│ 中际旭创│  沪电股份│  英维克/高澜股份     │
+│  寒武纪 │  江波龙│  光迅科技│  深南电路│                       │
+└─────────┴─────────┴─────────┴─────────┴───────────────────────┘
+</code></pre>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">价值分配特征：</strong><br />
+- <strong class="text-white font-semibold">上游硬件</strong>：技术壁垒最高，盈利能力最强，毛利率普遍在40%-70%，价值占比约40%<br />
+- <strong class="text-white font-semibold">中游集成</strong>：规模效应显著，毛利率约15%-30%，价值占比约35%<br />
+- <strong class="text-white font-semibold">下游应用</strong>：场景分散，差异化定价，毛利率约30%-60%，价值占比约25%</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">国产替代进度分层：</strong><br />
+- <strong class="text-white font-semibold">已基本实现替代</strong>：服务器整机、PCB板、结构件、低端光模块<br />
+- <strong class="text-white font-semibold">加速替代中</strong>：中高端CPU、推理芯片、高速连接器、操作系统<br />
+- <strong class="text-white font-semibold">待突破环节</strong>：高端GPU、HBM存储、EDA工具、高端模拟芯片</p>
+<h3 class="text-base font-bold text-white mt-6 mb-3">2.2 上游：算力芯片、存储芯片、服务器零部件、光模块</h3>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">2.2.1 算力芯片：国产替代核心主战场</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">市场格局：</strong><br />
+- 全球市场：NVIDIA主导训练端（约80%份额），Intel/AMD主导CPU端<br />
+- 国内市场：华为昇腾+海光DCU占据国产AI加速芯片约70%份额，寒武纪、摩尔线程、沐曦等快速追赶</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">主要国产算力芯片厂商对比：</strong></p>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">公司</th>
+<th class="px-4 py-3 font-semibold border border-white/10">核心产品</th>
+<th class="px-4 py-3 font-semibold border border-white/10">定位</th>
+<th class="px-4 py-3 font-semibold border border-white/10">2026年预计出货</th>
+<th class="px-4 py-3 font-semibold border border-white/10">技术路线</th>
+<th class="px-4 py-3 font-semibold border border-white/10">生态成熟度</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">华为昇腾</td>
+<td class="px-4 py-2 border border-white/10">昇腾950/910</td>
+<td class="px-4 py-2 border border-white/10">训练+推理</td>
+<td class="px-4 py-2 border border-white/10">~75万片</td>
+<td class="px-4 py-2 border border-white/10">达芬奇架构</td>
+<td class="px-4 py-2 border border-white/10">★★★★☆</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">海光信息</td>
+<td class="px-4 py-2 border border-white/10">海光DCU系列</td>
+<td class="px-4 py-2 border border-white/10">训练+推理</td>
+<td class="px-4 py-2 border border-white/10">~40万片</td>
+<td class="px-4 py-2 border border-white/10">x86兼容</td>
+<td class="px-4 py-2 border border-white/10">★★★★☆</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">寒武纪</td>
+<td class="px-4 py-2 border border-white/10">思元590/370</td>
+<td class="px-4 py-2 border border-white/10">训练+推理</td>
+<td class="px-4 py-2 border border-white/10">~25万片</td>
+<td class="px-4 py-2 border border-white/10">自研架构</td>
+<td class="px-4 py-2 border border-white/10">★★★☆☆</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">摩尔线程</td>
+<td class="px-4 py-2 border border-white/10">MTT S80</td>
+<td class="px-4 py-2 border border-white/10">渲染+推理</td>
+<td class="px-4 py-2 border border-white/10">~15万片</td>
+<td class="px-4 py-2 border border-white/10">MUSA架构</td>
+<td class="px-4 py-2 border border-white/10">★★☆☆☆</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">沐曦</td>
+<td class="px-4 py-2 border border-white/10">MXC系列</td>
+<td class="px-4 py-2 border border-white/10">通用计算</td>
+<td class="px-4 py-2 border border-white/10">~10万片</td>
+<td class="px-4 py-2 border border-white/10">GPU架构</td>
+<td class="px-4 py-2 border border-white/10">★★☆☆☆</td>
+</tr>
+</tbody>
+</table>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心判断</strong>：2026年国产AI芯片市场规模预计超500亿元，同比增长120%。华为昇腾凭借完整的生态布局和政府/央国企渠道优势，将继续领跑；海光信息依托x86兼容性优势，在互联网和金融领域渗透加速；寒武纪等创新型企业在细分场景寻求突破。</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">2.2.2 存储芯片：HBM成为新增长极</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">存储市场结构（2026E）：</strong><br />
+- 传统DRAM/NAND：增速放缓，约5%-10%<br />
+- HBM（高带宽内存）：增速超80%，AI服务器核心配套</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">HBM产业链关键环节：</strong><br />
+- <strong class="text-white font-semibold">存储芯片设计</strong>：三星、海力士、美光垄断，国产替代刚起步（长鑫、长江存储在研）<br />
+- <strong class="text-white font-semibold">先进封装</strong>：台积电CoWoS、国内长电/通富/华天技术跟进<br />
+- <strong class="text-white font-semibold">国产替代空间</strong>：HBM3/HBM4几乎全靠进口，国产替代空间巨大</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">A股核心标的：</strong><br />
+- 存储模组：佰维存储、江波龙、德明利<br />
+- 存储控制：澜起科技、聚辰股份<br />
+- 存储封测：长电科技、通富微电、华天科技</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">2.2.3 光模块：1.6T/3.2T迭代加速</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">行业周期：</strong><br />
+- 2024-2025年：800G光模块放量<br />
+- 2026年：1.6T光模块开始规模化部署<br />
+- 2027-2028年：3.2T光模块+CPO有望成为主流</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">国产光模块厂商地位：</strong><br />
+- 全球前十大光模块厂商中，中国占据6席<br />
+- 中际旭创、新易盛、光迅科技等在高端光模块领域具备全球竞争力<br />
+- 上游光芯片磷化铟、硅光技术仍有差距，但突破加速</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">A股核心标的：</strong><br />
+- 光模块整机：中际旭创、新易盛、光迅科技、天孚通信<br />
+- 光芯片：源杰科技、仕佳光子、长光华芯<br />
+- CPO相关：华工科技、光迅科技、天孚通信</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">2.2.4 PCB与连接器：高速化升级趋势明确</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心变化：</strong><br />
+- AI服务器PCB价值量是传统服务器的3-5倍<br />
+- 高速连接器速率从112G向224G升级，价值量翻倍<br />
+- 材料升级：高频高速材料（M7、M8系列）、ABF载板需求爆发</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">A股核心标的：</strong><br />
+- PCB：沪电股份、深南电路、胜宏科技、兴森科技<br />
+- 连接器：华丰科技、中航光电、航天电器、瑞可达<br />
+- 载板：兴森科技、深南电路</p>
+<h3 class="text-base font-bold text-white mt-6 mb-3">2.3 中游：服务器整机、AI算力集群、网络设备、操作系统</h3>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">2.3.1 AI服务器整机：量价齐升，代工厂受益</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">市场规模：</strong><br />
+- 2026年全球AI服务器出货量预计超300万台，同比增长约50%<br />
+- 中国市场AI服务器出货量约80万台，同比增长约65%<br />
+- 单台AI服务器均价约15-30万美元，显著高于传统服务器</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">竞争格局：</strong><br />
+- 海外：戴尔、HPE、超微主导<br />
+- 国内：浪潮信息、华为、新华三、联想位居前列<br />
+- 代工：工业富联（富士康）是全球最大AI服务器代工厂，市占率约40%</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">国产服务器厂商对比：</strong></p>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">公司</th>
+<th class="px-4 py-3 font-semibold border border-white/10">2026年AI服务器出货预期</th>
+<th class="px-4 py-3 font-semibold border border-white/10">核心优势</th>
+<th class="px-4 py-3 font-semibold border border-white/10">国产芯片配套</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">浪潮信息</td>
+<td class="px-4 py-2 border border-white/10">~25万台</td>
+<td class="px-4 py-2 border border-white/10">渠道优势、市占率第一</td>
+<td class="px-4 py-2 border border-white/10">英特尔+NVIDIA+国产</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">华为（昇腾）</td>
+<td class="px-4 py-2 border border-white/10">~30万台（含整机+板卡）</td>
+<td class="px-4 py-2 border border-white/10">芯片+整机全栈能力</td>
+<td class="px-4 py-2 border border-white/10">全自研昇腾/鲲鹏</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">新华三</td>
+<td class="px-4 py-2 border border-white/10">~10万台</td>
+<td class="px-4 py-2 border border-white/10">政企渠道深厚</td>
+<td class="px-4 py-2 border border-white/10">多芯片平台</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">中科曙光</td>
+<td class="px-4 py-2 border border-white/10">~8万台</td>
+<td class="px-4 py-2 border border-white/10">超算背景、海光绑定</td>
+<td class="px-4 py-2 border border-white/10">海光深度绑定</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">神州数码</td>
+<td class="px-4 py-2 border border-white/10">~6万台</td>
+<td class="px-4 py-2 border border-white/10">鲲鹏+昇腾双认证</td>
+<td class="px-4 py-2 border border-white/10">华为生态核心伙伴</td>
+</tr>
+</tbody>
+</table>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">2.3.2 AI算力集群与超算中心</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">建设模式：</strong><br />
+- 国家超算中心：政府主导，以科学计算为主，逐步向AI智算转型<br />
+- 运营商智算中心：中国移动/电信/联通均布局全国算力网络<br />
+- 第三方智算中心：云厂商、IDC企业建设，对外提供算力租赁服务</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心参与者：</strong><br />
+- 算力集群解决方案：中科曙光、浪潮信息、华为、紫光股份<br />
+- 算力运营/租赁：润泽科技、光环新网、优刻得、首都在线<br />
+- 算力调度平台：宝信软件、东方国信、润建股份</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">2.3.3 网络设备与操作系统</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">网络设备：</strong><br />
+- AI集群对网络带宽、延迟要求极高，InfiniBand和RoCE技术路线并行<br />
+- 国产交换机厂商：新华三、锐捷网络、中兴通讯<br />
+- 高速网卡：恒为科技、紫光股份</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">操作系统：</strong><br />
+- 服务器OS：麒麟软件（中国软件）、统信软件（诚迈科技）<br />
+- AI框架：昇思MindSpore（华为）、飞桨（百度）<br />
+- 云操作系统：阿里云、华为云、紫光股份</p>
+<h3 class="text-base font-bold text-white mt-6 mb-3">2.4 下游：云厂商、互联网公司、运营商、行业应用</h3>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">2.4.1 互联网与云厂商：算力采购主力</h4>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">厂商</th>
+<th class="px-4 py-3 font-semibold border border-white/10">2026年算力资本开支预期</th>
+<th class="px-4 py-3 font-semibold border border-white/10">主要采购方向</th>
+<th class="px-4 py-3 font-semibold border border-white/10">国产化率目标</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">阿里云</td>
+<td class="px-4 py-2 border border-white/10">~1200亿元</td>
+<td class="px-4 py-2 border border-white/10">GPU服务器、自研CPU</td>
+<td class="px-4 py-2 border border-white/10">约30%</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">腾讯云</td>
+<td class="px-4 py-2 border border-white/10">~800亿元</td>
+<td class="px-4 py-2 border border-white/10">AI训练集群、推理芯片</td>
+<td class="px-4 py-2 border border-white/10">约25%</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">字节跳动</td>
+<td class="px-4 py-2 border border-white/10">~1000亿元</td>
+<td class="px-4 py-2 border border-white/10">大模型训练算力</td>
+<td class="px-4 py-2 border border-white/10">约20%</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">百度智能云</td>
+<td class="px-4 py-2 border border-white/10">~500亿元</td>
+<td class="px-4 py-2 border border-white/10">文心大模型配套算力</td>
+<td class="px-4 py-2 border border-white/10">约35%</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">华为云</td>
+<td class="px-4 py-2 border border-white/10">~1500亿元</td>
+<td class="px-4 py-2 border border-white/10">全栈自研算力体系</td>
+<td class="px-4 py-2 border border-white/10">100%</td>
+</tr>
+</tbody>
+</table>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心趋势</strong>：云厂商算力采购正从"海外芯片为主"向"国产化多元化"转变，华为昇腾、海光等国产芯片采购比例持续提升。</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">2.4.2 运营商：算力网络建设主力军</h4>
+<p class="mb-3 leading-relaxed">三大运营商均将算力网络作为核心战略：<br />
+- 中国移动："算力网络"战略，2026年算力相关投资超600亿元<br />
+- 中国电信："云网融合"战略，智算节点覆盖全国<br />
+- 中国联通："5G+算力网络"，聚焦工业互联网场景</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">采购特点</strong>：运营商采购对国产化要求高，是国产算力设备的核心客户群体。</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">2.4.3 行业应用：AI+千行百业</h4>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">行业</th>
+<th class="px-4 py-3 font-semibold border border-white/10">算力需求特点</th>
+<th class="px-4 py-3 font-semibold border border-white/10">代表客户</th>
+<th class="px-4 py-3 font-semibold border border-white/10">渗透率</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">金融</td>
+<td class="px-4 py-2 border border-white/10">低延迟、高安全、国产化要求高</td>
+<td class="px-4 py-2 border border-white/10">银行、券商、保险</td>
+<td class="px-4 py-2 border border-white/10">~40%</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">政务</td>
+<td class="px-4 py-2 border border-white/10">数据安全、自主可控、信创要求</td>
+<td class="px-4 py-2 border border-white/10">各级政府部门</td>
+<td class="px-4 py-2 border border-white/10">~35%</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">制造</td>
+<td class="px-4 py-2 border border-white/10">工业仿真、质检、数字孪生</td>
+<td class="px-4 py-2 border border-white/10">大型制造业集团</td>
+<td class="px-4 py-2 border border-white/10">~20%</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">能源</td>
+<td class="px-4 py-2 border border-white/10">勘探仿真、电网优化、碳中和</td>
+<td class="px-4 py-2 border border-white/10">国家能源集团、国家电网</td>
+<td class="px-4 py-2 border border-white/10">~15%</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">医疗</td>
+<td class="px-4 py-2 border border-white/10">影像诊断、药物研发、基因测序</td>
+<td class="px-4 py-2 border border-white/10">三甲医院、药企</td>
+<td class="px-4 py-2 border border-white/10">~10%</td>
+</tr>
+</tbody>
+</table>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心判断</strong>：行业AI应用正从"试点"走向"规模化落地"，2026年将成为行业算力需求爆发的元年，驱动算力硬件采购从互联网向全行业扩散。</p>
+<h3 class="text-base font-bold text-white mt-6 mb-3">2.5 国产替代关键环节与突破进度分析</h3>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">国产替代全景图：</strong></p>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">产业链环节</th>
+<th class="px-4 py-3 font-semibold border border-white/10">国产化率</th>
+<th class="px-4 py-3 font-semibold border border-white/10">替代进度</th>
+<th class="px-4 py-3 font-semibold border border-white/10">核心瓶颈</th>
+<th class="px-4 py-3 font-semibold border border-white/10">突破时间预期</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">AI服务器整机</td>
+<td class="px-4 py-2 border border-white/10">~60%</td>
+<td class="px-4 py-2 border border-white/10">★★★★☆</td>
+<td class="px-4 py-2 border border-white/10">—</td>
+<td class="px-4 py-2 border border-white/10">已基本实现</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">服务器CPU</td>
+<td class="px-4 py-2 border border-white/10">~15%</td>
+<td class="px-4 py-2 border border-white/10">★★☆☆☆</td>
+<td class="px-4 py-2 border border-white/10">架构授权、生态</td>
+<td class="px-4 py-2 border border-white/10">2027-2028</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">训练GPU</td>
+<td class="px-4 py-2 border border-white/10">~10%</td>
+<td class="px-4 py-2 border border-white/10">★☆☆☆☆</td>
+<td class="px-4 py-2 border border-white/10">性能差距、生态</td>
+<td class="px-4 py-2 border border-white/10">2028-2030</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">推理AI芯片</td>
+<td class="px-4 py-2 border border-white/10">~30%</td>
+<td class="px-4 py-2 border border-white/10">★★★☆☆</td>
+<td class="px-4 py-2 border border-white/10">软件生态</td>
+<td class="px-4 py-2 border border-white/10">2027年</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">HBM存储</td>
+<td class="px-4 py-2 border border-white/10">&lt;5%</td>
+<td class="px-4 py-2 border border-white/10">★☆☆☆☆</td>
+<td class="px-4 py-2 border border-white/10">工艺、专利</td>
+<td class="px-4 py-2 border border-white/10">2029-2030</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">高端光模块</td>
+<td class="px-4 py-2 border border-white/10">~50%</td>
+<td class="px-4 py-2 border border-white/10">★★★☆☆</td>
+<td class="px-4 py-2 border border-white/10">高端光芯片</td>
+<td class="px-4 py-2 border border-white/10">2027年</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">高速PCB</td>
+<td class="px-4 py-2 border border-white/10">~70%</td>
+<td class="px-4 py-2 border border-white/10">★★★★☆</td>
+<td class="px-4 py-2 border border-white/10">高端材料</td>
+<td class="px-4 py-2 border border-white/10">已基本突破</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">高速连接器</td>
+<td class="px-4 py-2 border border-white/10">~40%</td>
+<td class="px-4 py-2 border border-white/10">★★★☆☆</td>
+<td class="px-4 py-2 border border-white/10">精密制造</td>
+<td class="px-4 py-2 border border-white/10">2026-2027</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">服务器操作系统</td>
+<td class="px-4 py-2 border border-white/10">~40%</td>
+<td class="px-4 py-2 border border-white/10">★★★☆☆</td>
+<td class="px-4 py-2 border border-white/10">应用生态</td>
+<td class="px-4 py-2 border border-white/10">2027年</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">EDA工具</td>
+<td class="px-4 py-2 border border-white/10">~10%</td>
+<td class="px-4 py-2 border border-white/10">★☆☆☆☆</td>
+<td class="px-4 py-2 border border-white/10">全流程工具链</td>
+<td class="px-4 py-2 border border-white/10">2030年+</td>
+</tr>
+</tbody>
+</table>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">三大关键突破方向：</strong></p>
+<ol class="list-decimal list-inside mb-4 space-y-1">
+<li class="text-white/80"><strong class="text-white font-semibold">AI芯片</strong>：昇腾950量产标志着国产训练芯片进入可用阶段，DeepSeek-V4等大模型完成多厂商适配，生态壁垒正在突破</li>
+<li class="text-white/80"><strong class="text-white font-semibold">高速互连</strong>：224G SerDes、1.6T光模块实现量产，CPO技术稳步推进，网络瓶颈逐步缓解</li>
+<li class="text-white/80"><strong class="text-white font-semibold">先进封装</strong>：Chiplet、HBM堆叠封装技术突破，长电科技、通富微电等进入全球先进封装第一梯队</li>
+</ol>
+<hr />
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">📄</span>
+                    三、核心受益标的深度分析与多维度排序
+                </h2>
+                <div class="text-white/80">
+                    <h3 class="text-base font-bold text-white mt-6 mb-3">3.1 评分体系说明</h3>
+<p class="mb-3 leading-relaxed">本报告从六大维度对156只算力硬件相关个股进行量化评分，筛选TOP20核心标的：</p>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">评分维度</th>
+<th class="px-4 py-3 font-semibold border border-white/10">权重</th>
+<th class="px-4 py-3 font-semibold border border-white/10">核心指标</th>
+<th class="px-4 py-3 font-semibold border border-white/10">数据来源</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">业绩弹性</td>
+<td class="px-4 py-2 border border-white/10">30%</td>
+<td class="px-4 py-2 border border-white/10">2026年预测净利润增速、营收增速、ROE</td>
+<td class="px-4 py-2 border border-white/10">机构一致预期、财报</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">算力业务占比</td>
+<td class="px-4 py-2 border border-white/10">20%</td>
+<td class="px-4 py-2 border border-white/10">算力相关收入占比、业务相关性</td>
+<td class="px-4 py-2 border border-white/10">公司公告、产业链调研</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">技术壁垒</td>
+<td class="px-4 py-2 border border-white/10">15%</td>
+<td class="px-4 py-2 border border-white/10">市值（代理指标）、专利数量、行业地位</td>
+<td class="px-4 py-2 border border-white/10">公开数据</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">机构持仓</td>
+<td class="px-4 py-2 border border-white/10">15%</td>
+<td class="px-4 py-2 border border-white/10">机构研报覆盖数、基金持仓比例</td>
+<td class="px-4 py-2 border border-white/10">机构研报、持仓数据</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">估值水平</td>
+<td class="px-4 py-2 border border-white/10">10%</td>
+<td class="px-4 py-2 border border-white/10">PE、PEG、PB</td>
+<td class="px-4 py-2 border border-white/10">机构一致预期、最新收盘价</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">近期涨幅</td>
+<td class="px-4 py-2 border border-white/10">10%</td>
+<td class="px-4 py-2 border border-white/10">6月以来涨幅、成交额</td>
+<td class="px-4 py-2 border border-white/10">行情数据</td>
+</tr>
+</tbody>
+</table>
+<h3 class="text-base font-bold text-white mt-6 mb-3">3.2 TOP20核心标的综合排名</h3>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">排名</th>
+<th class="px-4 py-3 font-semibold border border-white/10">股票名称</th>
+<th class="px-4 py-3 font-semibold border border-white/10">代码</th>
+<th class="px-4 py-3 font-semibold border border-white/10">综合得分</th>
+<th class="px-4 py-3 font-semibold border border-white/10">6月涨幅</th>
+<th class="px-4 py-3 font-semibold border border-white/10">总市值(亿)</th>
+<th class="px-4 py-3 font-semibold border border-white/10">2026E PE</th>
+<th class="px-4 py-3 font-semibold border border-white/10">核心标签</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">1</td>
+<td class="px-4 py-2 border border-white/10">海光信息</td>
+<td class="px-4 py-2 border border-white/10">688041</td>
+<td class="px-4 py-2 border border-white/10">0.557</td>
+<td class="px-4 py-2 border border-white/10">22.4%</td>
+<td class="px-4 py-2 border border-white/10">783.5</td>
+<td class="px-4 py-2 border border-white/10">113.7</td>
+<td class="px-4 py-2 border border-white/10">CPU+DCU双轮驱动，国产x86龙头</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">2</td>
+<td class="px-4 py-2 border border-white/10">工业富联</td>
+<td class="px-4 py-2 border border-white/10">601138</td>
+<td class="px-4 py-2 border border-white/10">0.553</td>
+<td class="px-4 py-2 border border-white/10">4.1%</td>
+<td class="px-4 py-2 border border-white/10">1523.6</td>
+<td class="px-4 py-2 border border-white/10">-</td>
+<td class="px-4 py-2 border border-white/10">全球AI服务器代工龙头</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">3</td>
+<td class="px-4 py-2 border border-white/10">寒武纪</td>
+<td class="px-4 py-2 border border-white/10">688256</td>
+<td class="px-4 py-2 border border-white/10">0.514</td>
+<td class="px-4 py-2 border border-white/10">17.4%</td>
+<td class="px-4 py-2 border border-white/10">912.9</td>
+<td class="px-4 py-2 border border-white/10">128.4</td>
+<td class="px-4 py-2 border border-white/10">国产AI芯片旗帜，思元系列放量</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">4</td>
+<td class="px-4 py-2 border border-white/10">中国长城</td>
+<td class="px-4 py-2 border border-white/10">000066</td>
+<td class="px-4 py-2 border border-white/10">0.470</td>
+<td class="px-4 py-2 border border-white/10">2.8%</td>
+<td class="px-4 py-2 border border-white/10">61.3</td>
+<td class="px-4 py-2 border border-white/10">224.2</td>
+<td class="px-4 py-2 border border-white/10">信创+鲲鹏+昇腾，国产整机龙头</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">5</td>
+<td class="px-4 py-2 border border-white/10">立讯精密</td>
+<td class="px-4 py-2 border border-white/10">002475</td>
+<td class="px-4 py-2 border border-white/10">0.439</td>
+<td class="px-4 py-2 border border-white/10">6.1%</td>
+<td class="px-4 py-2 border border-white/10">549.2</td>
+<td class="px-4 py-2 border border-white/10">18.4</td>
+<td class="px-4 py-2 border border-white/10">AI服务器+消费电子，精密制造龙头</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">6</td>
+<td class="px-4 py-2 border border-white/10">紫光股份</td>
+<td class="px-4 py-2 border border-white/10">000938</td>
+<td class="px-4 py-2 border border-white/10">0.404</td>
+<td class="px-4 py-2 border border-white/10">-0.6%</td>
+<td class="px-4 py-2 border border-white/10">79.1</td>
+<td class="px-4 py-2 border border-white/10">30.5</td>
+<td class="px-4 py-2 border border-white/10">新华三+紫光计算机，全栈算力</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">7</td>
+<td class="px-4 py-2 border border-white/10">中科曙光</td>
+<td class="px-4 py-2 border border-white/10">603019</td>
+<td class="px-4 py-2 border border-white/10">0.390</td>
+<td class="px-4 py-2 border border-white/10">4.1%</td>
+<td class="px-4 py-2 border border-white/10">130.1</td>
+<td class="px-4 py-2 border border-white/10">42.5</td>
+<td class="px-4 py-2 border border-white/10">超算龙头，深度绑定海光</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">8</td>
+<td class="px-4 py-2 border border-white/10">浪潮信息</td>
+<td class="px-4 py-2 border border-white/10">000977</td>
+<td class="px-4 py-2 border border-white/10">0.385</td>
+<td class="px-4 py-2 border border-white/10">1.0%</td>
+<td class="px-4 py-2 border border-white/10">95.2</td>
+<td class="px-4 py-2 border border-white/10">27.6</td>
+<td class="px-4 py-2 border border-white/10">国内AI服务器市占率第一</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">9</td>
+<td class="px-4 py-2 border border-white/10">烽火通信</td>
+<td class="px-4 py-2 border border-white/10">600498</td>
+<td class="px-4 py-2 border border-white/10">0.383</td>
+<td class="px-4 py-2 border border-white/10">73.0%</td>
+<td class="px-4 py-2 border border-white/10">111.7</td>
+<td class="px-4 py-2 border border-white/10">43.3</td>
+<td class="px-4 py-2 border border-white/10">光通信+算力设备双轮驱动</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">10</td>
+<td class="px-4 py-2 border border-white/10">智微智能</td>
+<td class="px-4 py-2 border border-white/10">001339</td>
+<td class="px-4 py-2 border border-white/10">0.365</td>
+<td class="px-4 py-2 border border-white/10">29.0%</td>
+<td class="px-4 py-2 border border-white/10">34.6</td>
+<td class="px-4 py-2 border border-white/10">38.2</td>
+<td class="px-4 py-2 border border-white/10">AI服务器+网络设备新锐</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">11</td>
+<td class="px-4 py-2 border border-white/10">华丰科技</td>
+<td class="px-4 py-2 border border-white/10">688629</td>
+<td class="px-4 py-2 border border-white/10">0.362</td>
+<td class="px-4 py-2 border border-white/10">13.6%</td>
+<td class="px-4 py-2 border border-white/10">69.7</td>
+<td class="px-4 py-2 border border-white/10">-</td>
+<td class="px-4 py-2 border border-white/10">高速连接器龙头，华为核心供应商</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">12</td>
+<td class="px-4 py-2 border border-white/10">胜宏科技</td>
+<td class="px-4 py-2 border border-white/10">300476</td>
+<td class="px-4 py-2 border border-white/10">0.358</td>
+<td class="px-4 py-2 border border-white/10">0.3%</td>
+<td class="px-4 py-2 border border-white/10">337.5</td>
+<td class="px-4 py-2 border border-white/10">-</td>
+<td class="px-4 py-2 border border-white/10">AI服务器PCB核心供应商</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">13</td>
+<td class="px-4 py-2 border border-white/10">中兴通讯</td>
+<td class="px-4 py-2 border border-white/10">000063</td>
+<td class="px-4 py-2 border border-white/10">0.355</td>
+<td class="px-4 py-2 border border-white/10">6.6%</td>
+<td class="px-4 py-2 border border-white/10">-</td>
+<td class="px-4 py-2 border border-white/10">40.0</td>
+<td class="px-4 py-2 border border-white/10">5G+算力双龙头，服务器增长快</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">14</td>
+<td class="px-4 py-2 border border-white/10">芯原股份</td>
+<td class="px-4 py-2 border border-white/10">688521</td>
+<td class="px-4 py-2 border border-white/10">0.351</td>
+<td class="px-4 py-2 border border-white/10">32.4%</td>
+<td class="px-4 py-2 border border-white/10">158.2</td>
+<td class="px-4 py-2 border border-white/10">-</td>
+<td class="px-4 py-2 border border-white/10">IP核龙头，Chiplet核心标的</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">15</td>
+<td class="px-4 py-2 border border-white/10">华润微</td>
+<td class="px-4 py-2 border border-white/10">688396</td>
+<td class="px-4 py-2 border border-white/10">0.347</td>
+<td class="px-4 py-2 border border-white/10">29.1%</td>
+<td class="px-4 py-2 border border-white/10">112.4</td>
+<td class="px-4 py-2 border border-white/10">-</td>
+<td class="px-4 py-2 border border-white/10">功率半导体+模拟芯片龙头</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">16</td>
+<td class="px-4 py-2 border border-white/10">佰维存储</td>
+<td class="px-4 py-2 border border-white/10">688525</td>
+<td class="px-4 py-2 border border-white/10">0.342</td>
+<td class="px-4 py-2 border border-white/10">36.7%</td>
+<td class="px-4 py-2 border border-white/10">196.6</td>
+<td class="px-4 py-2 border border-white/10">49.8</td>
+<td class="px-4 py-2 border border-white/10">存储模组龙头，HBM布局领先</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">17</td>
+<td class="px-4 py-2 border border-white/10">光迅科技</td>
+<td class="px-4 py-2 border border-white/10">002281</td>
+<td class="px-4 py-2 border border-white/10">0.339</td>
+<td class="px-4 py-2 border border-white/10">30.4%</td>
+<td class="px-4 py-2 border border-white/10">220.4</td>
+<td class="px-4 py-2 border border-white/10">212.8</td>
+<td class="px-4 py-2 border border-white/10">光模块+光芯片全产业链布局</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">18</td>
+<td class="px-4 py-2 border border-white/10">华工科技</td>
+<td class="px-4 py-2 border border-white/10">000988</td>
+<td class="px-4 py-2 border border-white/10">0.335</td>
+<td class="px-4 py-2 border border-white/10">17.3%</td>
+<td class="px-4 py-2 border border-white/10">168.8</td>
+<td class="px-4 py-2 border border-white/10">99.3</td>
+<td class="px-4 py-2 border border-white/10">光模块+激光设备，华为核心伙伴</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">19</td>
+<td class="px-4 py-2 border border-white/10">顺络电子</td>
+<td class="px-4 py-2 border border-white/10">002138</td>
+<td class="px-4 py-2 border border-white/10">0.331</td>
+<td class="px-4 py-2 border border-white/10">45.8%</td>
+<td class="px-4 py-2 border border-white/10">54.7</td>
+<td class="px-4 py-2 border border-white/10">56.6</td>
+<td class="px-4 py-2 border border-white/10">被动元器件龙头，AI服务器拉动</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">20</td>
+<td class="px-4 py-2 border border-white/10">长电科技</td>
+<td class="px-4 py-2 border border-white/10">600584</td>
+<td class="px-4 py-2 border border-white/10">0.328</td>
+<td class="px-4 py-2 border border-white/10">8.5%</td>
+<td class="px-4 py-2 border border-white/10">485.3</td>
+<td class="px-4 py-2 border border-white/10">-</td>
+<td class="px-4 py-2 border border-white/10">先进封装龙头，HBM/Chiplet受益</td>
+</tr>
+</tbody>
+</table>
+<h3 class="text-base font-bold text-white mt-6 mb-3">3.3 TOP10标的深度分析</h3>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">3.3.1 海光信息（688041.SH）</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心业务与算力相关收入占比：</strong><br />
+- 主营业务：高端处理器（CPU+DCU）研发、设计和销售<br />
+- 算力相关收入占比：~100%，全部为算力芯片业务<br />
+- 产品结构：CPU约占70%，DCU（GPU）约占30%</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心竞争力与技术壁垒：</strong><br />
+- x86架构授权，生态兼容性国内最强<br />
+- DCU产品性能接近国际主流水平，支持主流AI框架<br />
+- 与中科曙光深度绑定，渠道优势明显<br />
+- 研发团队实力雄厚，核心技术人员来自AMD等国际大厂</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">近期涨幅与估值水平：</strong><br />
+- 6月以来涨幅：22.4%<br />
+- 2026年预测PE：113.7x<br />
+- PEG：2.0x<br />
+- 估值处于历史中高位，但考虑到高增速，估值相对合理</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">机构调研情况：</strong><br />
+- 2026年以来机构研报数：31份，覆盖机构26家<br />
+- 主要关注问题：DCU出货量、新架构性能、国产替代进度<br />
+- 机构一致预期：2026年净利润同比增长50%+</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">投资逻辑与潜在弹性：</strong><br />
+- 短期：国产AI服务器放量，DCU订单超预期<br />
+- 中期：新一代CPU/DCU迭代，性能追平国际主流<br />
+- 长期：信创+AI双轮驱动，市占率持续提升<br />
+- 潜在弹性：★★★★☆（DCU业务超预期增长）</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心风险点：</strong><br />
+- 技术迭代不及预期，产品性能落后<br />
+- x86授权风险，海外技术封锁升级<br />
+- 行业竞争加剧，价格战导致毛利率下滑</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">3.3.2 工业富联（601138.SH）</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心业务与算力相关收入占比：</strong><br />
+- 主营业务：云计算、通信及移动网络设备、工业互联网<br />
+- 算力相关收入占比：~45%，云计算业务为核心<br />
+- AI服务器全球市占率：~40%，稳居全球第一</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心竞争力与技术壁垒：</strong><br />
+- 规模效应：全球最大代工厂，成本优势显著<br />
+- 客户资源：绑定英伟达、微软、谷歌等顶级客户<br />
+- 技术能力：液冷、高速互连、整机设计能力领先<br />
+- 供应链管理：全球化供应链布局，交付能力强</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">近期涨幅与估值水平：</strong><br />
+- 6月以来涨幅：4.1%<br />
+- 当前PE：约20x（TTM）<br />
+- 估值处于历史中低位，相对低估</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">机构调研情况：</strong><br />
+- 2026年以来机构研报数：31份，覆盖机构19家<br />
+- 主要关注问题：AI服务器出货量、毛利率变化、客户订单情况<br />
+- 机构一致预期：2026年云计算业务收入增长30%+</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">投资逻辑与潜在弹性：</strong><br />
+- 短期：AI服务器订单饱满，产能持续爬坡<br />
+- 中期：从代工向ODM升级，附加值提升<br />
+- 长期：AI算力需求持续高增，龙头充分受益<br />
+- 潜在弹性：★★★☆☆（确定性高，弹性适中）</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心风险点：</strong><br />
+- AI服务器需求不及预期<br />
+- 大客户订单波动<br />
+- 原材料价格上涨，毛利率承压<br />
+- 行业竞争加剧，价格战风险</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">3.3.3 寒武纪（688256.SH）</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心业务与算力相关收入占比：</strong><br />
+- 主营业务：云端智能芯片、边缘智能芯片、加速卡<br />
+- 算力相关收入占比：~100%，纯AI芯片标的<br />
+- 产品矩阵：思元370（推理）、思元590（训练）等</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心竞争力与技术壁垒：</strong><br />
+- 国内少数掌握高端AI芯片全栈技术的公司<br />
+- 思元系列产品性能持续提升，支持主流AI框架<br />
+- 研发投入强度大，技术迭代速度快<br />
+- 党政、金融、能源等行业客户资源丰富</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">近期涨幅与估值水平：</strong><br />
+- 6月以来涨幅：17.4%<br />
+- 2026年预测PE：128.4x<br />
+- PEG：0.28x（增速极快，PEG极低）<br />
+- 估值较高，但高增速支撑估值</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">机构调研情况：</strong><br />
+- 2026年以来机构研报数：17份，覆盖机构12家<br />
+- 主要关注问题：思元590量产进度、客户拓展情况、大模型适配进展<br />
+- 机构一致预期：2026年净利润增长130%+</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">投资逻辑与潜在弹性：</strong><br />
+- 短期：国测认证通过，政企采购订单放量<br />
+- 中期：思元590大规模落地，训练端突破<br />
+- 长期：国产AI芯片核心标的，进口替代空间巨大<br />
+- 潜在弹性：★★★★★（技术突破+国产替代双击）</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心风险点：</strong><br />
+- 技术迭代不及预期，与海外差距扩大<br />
+- 客户集中度较高，订单波动大<br />
+- 持续亏损，现金流压力<br />
+- 行业竞争加剧，价格战风险</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">3.3.4 中国长城（000066.SZ）</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心业务与算力相关收入占比：</strong><br />
+- 主营业务：网络安全与信息化、高新电子<br />
+- 算力相关收入占比：~60%，主要为国产服务器/PC整机<br />
+- 鲲鹏+飞腾+昇腾全生态布局</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心竞争力与技术壁垒：</strong><br />
+- 信创领域龙头，党政市占率领先<br />
+- 飞腾CPU核心股东，深度绑定国产CPU生态<br />
+- 央企背景，资源获取能力强<br />
+- 完整的整机研发、生产、服务体系</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">近期涨幅与估值水平：</strong><br />
+- 6月以来涨幅：2.8%<br />
+- 2026年预测PE：224.2x（基数低，增速快）<br />
+- 估值偏高，需关注业绩兑现</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">机构调研情况：</strong><br />
+- 2026年以来机构研报数：6份，覆盖机构5家<br />
+- 主要关注问题：信创订单、飞腾CPU出货、服务器业务增长</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">投资逻辑与潜在弹性：</strong><br />
+- 短期：信创招标重启，订单集中释放<br />
+- 中期：AI算力需求爆发，国产服务器受益<br />
+- 长期：自主可控长期战略，成长空间广阔<br />
+- 潜在弹性：★★★★☆（信创+AI双催化）</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心风险点：</strong><br />
+- 信创招标进度不及预期<br />
+- 政府财政压力导致订单延后<br />
+- 行业竞争加剧，毛利率下滑</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">3.3.5 立讯精密（002475.SZ）</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心业务与算力相关收入占比：</strong><br />
+- 主营业务：消费电子、汽车电子、企业级产品<br />
+- 算力相关收入占比：~25%，服务器/交换机零部件+整机<br />
+- AI服务器相关业务快速增长</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心竞争力与技术壁垒：</strong><br />
+- 精密制造能力全球领先<br />
+- 客户资源优质，绑定苹果、英伟达等顶级客户<br />
+- 垂直整合能力强，从零部件到整机全覆盖<br />
+- 管理能力优秀，执行力强</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">近期涨幅与估值水平：</strong><br />
+- 6月以来涨幅：6.1%<br />
+- 2026年预测PE：18.4x<br />
+- PEG：0.68x，估值吸引力强</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">机构调研情况：</strong><br />
+- 2026年以来机构研报数：19份，覆盖机构14家<br />
+- 主要关注问题：AI服务器业务进展、汽车电子增速、消费电子复苏</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">投资逻辑与潜在弹性：</strong><br />
+- 短期：AI服务器零部件+整机组装订单快速增长<br />
+- 中期：汽车电子贡献新增长极<br />
+- 长期：从消费电子向AI/汽车多赛道延伸，打开成长空间<br />
+- 潜在弹性：★★★☆☆（确定性高，估值低）</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心风险点：</strong><br />
+- 消费电子需求不及预期<br />
+- AI服务器业务进展慢于预期<br />
+- 汽车电子拓展不及预期</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">3.3.6 紫光股份（000938.SZ）</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心业务与算力相关收入占比：</strong><br />
+- 主营业务：ICT基础设施及服务<br />
+- 算力相关收入占比：~80%，覆盖服务器、交换机、存储等<br />
+- 新华三是核心资产，国内ICT市场龙头</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心竞争力与技术壁垒：</strong><br />
+- 全栈ICT产品能力：服务器、交换机、路由器、存储<br />
+- 政企渠道深厚，市占率领先<br />
+- 研发实力强，高端路由器、交换机技术领先<br />
+- 多芯片平台适配能力</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">近期涨幅与估值水平：</strong><br />
+- 6月以来涨幅：-0.6%<br />
+- 2026年预测PE：30.5x<br />
+- PEG：1.18x，估值合理</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">机构调研情况：</strong><br />
+- 2026年以来机构研报数：20份，覆盖机构16家<br />
+- 主要关注问题：AI服务器出货、新华三增长、运营商市场拓展</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">投资逻辑与潜在弹性：</strong><br />
+- 短期：运营商算力网络建设带动交换机、服务器需求<br />
+- 中期：AI服务器放量，份额提升<br />
+- 长期：全栈ICT能力受益算力基础设施建设<br />
+- 潜在弹性：★★★☆☆（稳健增长，估值合理）</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心风险点：</strong><br />
+- 服务器行业竞争加剧<br />
+- 运营商资本开支不及预期<br />
+- 新华三整合风险</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">3.3.7 中科曙光（603019.SH）</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心业务与算力相关收入占比：</strong><br />
+- 主营业务：高端计算机、存储、云计算、大数据<br />
+- 算力相关收入占比：~90%，纯正算力标的<br />
+- 国内超算龙头，深度绑定海光信息</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心竞争力与技术壁垒：</strong><br />
+- 超算领域技术积累深厚，市占率领先<br />
+- 与海光深度绑定，供应链稳定<br />
+- 全栈解决方案能力：从硬件到软件到运维<br />
+- 国家级项目经验丰富</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">近期涨幅与估值水平：</strong><br />
+- 6月以来涨幅：4.1%<br />
+- 2026年预测PE：42.5x<br />
+- PEG：1.54x，估值略高</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">机构调研情况：</strong><br />
+- 2026年以来机构研报数：22份，覆盖机构18家<br />
+- 主要关注问题：AI服务器出货、海光合作、算力运营进展</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">投资逻辑与潜在弹性：</strong><br />
+- 短期：AI服务器需求爆发，海光芯片供应稳定<br />
+- 中期：算力运营业务快速增长，模式升级<br />
+- 长期：超算+智算+边缘算全场景覆盖<br />
+- 潜在弹性：★★★☆☆（稳健增长，技术实力强）</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心风险点：</strong><br />
+- 海光芯片供应波动<br />
+- 行业竞争加剧<br />
+- 新业务拓展不及预期</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">3.3.8 浪潮信息（000977.SZ）</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心业务与算力相关收入占比：</strong><br />
+- 主营业务：服务器及部件、云服务、AI解决方案<br />
+- 算力相关收入占比：~95%，纯服务器标的<br />
+- 国内AI服务器市占率第一</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心竞争力与技术壁垒：</strong><br />
+- 国内服务器市占率第一，品牌效应显著<br />
+- 全产品线覆盖，从通用到AI到边缘<br />
+- 研发实力强，液冷、整机柜等技术领先<br />
+- 客户资源丰富，覆盖互联网、运营商、政企</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">近期涨幅与估值水平：</strong><br />
+- 6月以来涨幅：1.0%<br />
+- 2026年预测PE：27.6x<br />
+- PEG：1.0x，估值合理</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">机构调研情况：</strong><br />
+- 2026年以来机构研报数：20份，覆盖机构17家<br />
+- 主要关注问题：AI服务器出货量、毛利率变化、国产替代进展</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">投资逻辑与潜在弹性：</strong><br />
+- 短期：AI服务器需求高增，出货量快速提升<br />
+- 中期：产品结构升级，高端AI服务器占比提升<br />
+- 长期：全球服务器市场份额持续提升<br />
+- 潜在弹性：★★★☆☆（行业β为主，弹性中等）</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心风险点：</strong><br />
+- AI服务器需求不及预期<br />
+- 上游芯片供应波动<br />
+- 行业价格战，毛利率承压<br />
+- 海外市场拓展不及预期</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">3.3.9 烽火通信（600498.SH）</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心业务与算力相关收入占比：</strong><br />
+- 主营业务：通信系统设备、光纤及线缆、数据网络产品<br />
+- 算力相关收入占比：~35%，服务器、交换机等业务快速增长<br />
+- 光通信+算力双轮驱动</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心竞争力与技术壁垒：</strong><br />
+- 光通信技术积累深厚，国家队背景<br />
+- 运营商渠道资源丰富<br />
+- 算力业务起步晚但增速快<br />
+- 央企背景，资源优势明显</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">近期涨幅与估值水平：</strong><br />
+- 6月以来涨幅：73.0%（板块内涨幅居前）<br />
+- 2026年预测PE：43.3x<br />
+- 涨幅较大，短期估值偏高</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">机构调研情况：</strong><br />
+- 2026年以来机构研报数：7份，覆盖机构7家<br />
+- 主要关注问题：算力业务进展、运营商订单、光通信复苏</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">投资逻辑与潜在弹性：</strong><br />
+- 短期：运营商算力网络建设带动订单增长<br />
+- 中期：ICT融合，从光通信向算力延伸<br />
+- 长期："算力网络"战略核心受益者<br />
+- 潜在弹性：★★★★☆（低基数+高增速）</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心风险点：</strong><br />
+- 算力业务进展不及预期<br />
+- 运营商资本开支波动<br />
+- 前期涨幅较大，回调风险</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">3.3.10 智微智能（001339.SZ）</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心业务与算力相关收入占比：</strong><br />
+- 主营业务：网络设备、服务器、物联网设备<br />
+- 算力相关收入占比：~50%，AI服务器、网络设备<br />
+- 华为昇腾生态合作伙伴</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心竞争力与技术壁垒：</strong><br />
+- 灵活的研发和制造能力<br />
+- 华为生态深度绑定<br />
+- 细分领域快速响应能力<br />
+- 管理团队优秀</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">近期涨幅与估值水平：</strong><br />
+- 6月以来涨幅：29.0%<br />
+- 2026年预测PE：38.2x<br />
+- PEG：0.55x，估值相对合理</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">机构调研情况：</strong><br />
+- 2026年以来机构研报数：7份，覆盖机构5家<br />
+- 主要关注问题：AI服务器进展、华为合作情况、订单情况</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">投资逻辑与潜在弹性：</strong><br />
+- 短期：华为昇腾产业链爆发，订单超预期<br />
+- 中期：从网络设备向AI服务器延伸，品类拓展<br />
+- 长期：国产算力产业链核心受益标的<br />
+- 潜在弹性：★★★★☆（小市值+高增速）</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心风险点：</strong><br />
+- 客户集中度较高<br />
+- 行业竞争加剧<br />
+- 技术迭代不及预期</p>
+<h3 class="text-base font-bold text-white mt-6 mb-3">3.4 机构重点覆盖标的汇总</h3>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">机构关注度排名</th>
+<th class="px-4 py-3 font-semibold border border-white/10">公司名称</th>
+<th class="px-4 py-3 font-semibold border border-white/10">2026年以来研报数</th>
+<th class="px-4 py-3 font-semibold border border-white/10">覆盖机构数</th>
+<th class="px-4 py-3 font-semibold border border-white/10">核心关注方向</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">1</td>
+<td class="px-4 py-2 border border-white/10">海光信息</td>
+<td class="px-4 py-2 border border-white/10">31</td>
+<td class="px-4 py-2 border border-white/10">26</td>
+<td class="px-4 py-2 border border-white/10">DCU放量、国产替代</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">2</td>
+<td class="px-4 py-2 border border-white/10">工业富联</td>
+<td class="px-4 py-2 border border-white/10">31</td>
+<td class="px-4 py-2 border border-white/10">19</td>
+<td class="px-4 py-2 border border-white/10">AI服务器出货量</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">3</td>
+<td class="px-4 py-2 border border-white/10">中科曙光</td>
+<td class="px-4 py-2 border border-white/10">22</td>
+<td class="px-4 py-2 border border-white/10">18</td>
+<td class="px-4 py-2 border border-white/10">超算+AI双轮驱动</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">4</td>
+<td class="px-4 py-2 border border-white/10">华勤技术</td>
+<td class="px-4 py-2 border border-white/10">22</td>
+<td class="px-4 py-2 border border-white/10">15</td>
+<td class="px-4 py-2 border border-white/10">服务器ODM增长</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">5</td>
+<td class="px-4 py-2 border border-white/10">紫光股份</td>
+<td class="px-4 py-2 border border-white/10">20</td>
+<td class="px-4 py-2 border border-white/10">16</td>
+<td class="px-4 py-2 border border-white/10">ICT全栈能力</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">6</td>
+<td class="px-4 py-2 border border-white/10">浪潮信息</td>
+<td class="px-4 py-2 border border-white/10">20</td>
+<td class="px-4 py-2 border border-white/10">17</td>
+<td class="px-4 py-2 border border-white/10">AI服务器龙头</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">7</td>
+<td class="px-4 py-2 border border-white/10">胜宏科技</td>
+<td class="px-4 py-2 border border-white/10">20</td>
+<td class="px-4 py-2 border border-white/10">12</td>
+<td class="px-4 py-2 border border-white/10">AI服务器PCB</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">8</td>
+<td class="px-4 py-2 border border-white/10">芯原股份</td>
+<td class="px-4 py-2 border border-white/10">19</td>
+<td class="px-4 py-2 border border-white/10">14</td>
+<td class="px-4 py-2 border border-white/10">IP核+Chiplet</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">9</td>
+<td class="px-4 py-2 border border-white/10">深信服</td>
+<td class="px-4 py-2 border border-white/10">19</td>
+<td class="px-4 py-2 border border-white/10">16</td>
+<td class="px-4 py-2 border border-white/10">安全+云计算</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">10</td>
+<td class="px-4 py-2 border border-white/10">立讯精密</td>
+<td class="px-4 py-2 border border-white/10">19</td>
+<td class="px-4 py-2 border border-white/10">14</td>
+<td class="px-4 py-2 border border-white/10">AI服务器+汽车电子</td>
+</tr>
+</tbody>
+</table>
+<hr />
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">📊</span>
+                    四、机构调研全维度梳理
+                </h2>
+                <div class="text-white/80">
+                    <h3 class="text-base font-bold text-white mt-6 mb-3">4.1 调研机构类型分布</h3>
+<p class="mb-3 leading-relaxed">根据对算力硬件板块67家重点公司2026年以来机构调研情况的统计：</p>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">机构类型</th>
+<th class="px-4 py-3 font-semibold border border-white/10">调研次数占比</th>
+<th class="px-4 py-3 font-semibold border border-white/10">代表机构</th>
+<th class="px-4 py-3 font-semibold border border-white/10">调研关注点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">公募基金</td>
+<td class="px-4 py-2 border border-white/10">35%</td>
+<td class="px-4 py-2 border border-white/10">易方达、华夏、广发、南方等</td>
+<td class="px-4 py-2 border border-white/10">业绩增速、竞争格局、长期空间</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">私募基金</td>
+<td class="px-4 py-2 border border-white/10">28%</td>
+<td class="px-4 py-2 border border-white/10">高毅、景林、淡水泉、睿郡等</td>
+<td class="px-4 py-2 border border-white/10">业绩弹性、催化事件、交易机会</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">外资机构</td>
+<td class="px-4 py-2 border border-white/10">12%</td>
+<td class="px-4 py-2 border border-white/10">淡马锡、贝莱德、摩根士丹利等</td>
+<td class="px-4 py-2 border border-white/10">长期竞争力、治理结构、ESG</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">券商研究所</td>
+<td class="px-4 py-2 border border-white/10">15%</td>
+<td class="px-4 py-2 border border-white/10">中信、华泰、国君、海通等</td>
+<td class="px-4 py-2 border border-white/10">行业趋势、公司基本面</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">保险资管</td>
+<td class="px-4 py-2 border border-white/10">7%</td>
+<td class="px-4 py-2 border border-white/10">平安资管、国寿资产、泰康资产等</td>
+<td class="px-4 py-2 border border-white/10">确定性、分红、估值安全边际</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">其他</td>
+<td class="px-4 py-2 border border-white/10">3%</td>
+<td class="px-4 py-2 border border-white/10">信托、财务公司、产业资本</td>
+<td class="px-4 py-2 border border-white/10">战略投资机会</td>
+</tr>
+</tbody>
+</table>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心特征：</strong><br />
+- 公募和私募是调研主力，占比超60%，显示机构对算力板块高度关注<br />
+- 外资机构调研频次提升，表明外资对中国算力产业兴趣增加<br />
+- 保险资管等长线资金开始布局，显示板块投资价值获长期资金认可</p>
+<h3 class="text-base font-bold text-white mt-6 mb-3">4.2 机构重点关注的核心问题与上市公司回复要点</h3>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">TOP5机构关注问题：</strong></p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">问题一：AI相关业务的增长情况与未来展望</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">机构提问频率：★★★★★</strong></p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">上市公司回复要点汇总：</strong><br />
+- 海光信息：DCU产品2026年出货量有望同比增长150%以上，互联网客户占比持续提升<br />
+- 工业富联：AI服务器订单排产至三季度，全年出货量指引上调30%<br />
+- 寒武纪：思元590已实现规模量产，新一代产品研发进展顺利<br />
+- 浪潮信息：AI服务器收入占比已超40%，预计2026年AI业务增速超60%</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">问题二：国产替代的进展与空间</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">机构提问频率：★★★★☆</strong></p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">上市公司回复要点汇总：</strong><br />
+- 华为昇腾生态：目前已有100+家伙伴完成适配，性能达到主流方案的85%以上<br />
+- 海光信息：金融、能源等关键行业替代加速，部分客户国产化率已达50%<br />
+- 运营商：2026年服务器集采中国产芯片占比要求不低于30%，后续有望提升至50%<br />
+- 核心瓶颈：软件生态、性能差距、客户认知，均在逐步改善</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">问题三：毛利率变化趋势与盈利质量</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">机构提问频率：★★★★☆</strong></p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">上市公司回复要点汇总：</strong><br />
+- 上游芯片厂商：毛利率维持高位（50%-70%），规模效应下有望提升<br />
+- 服务器厂商：AI服务器毛利率高于传统服务器（高5-10个百分点），但价格竞争加剧<br />
+- 光模块厂商：高端产品毛利率较高，1.6T产品毛利率有望达40%+<br />
+- 普遍观点：2026年上半年毛利率维持稳定，下半年或面临价格压力</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">问题四：供应链安全与原材料保障</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">机构提问频率：★★★☆☆</strong></p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">上市公司回复要点汇总：</strong><br />
+- 芯片供应：国产芯片供应能力持续提升，部分客户已开始双供应商策略<br />
+- 高端芯片：海外芯片仍存在供应不确定性，交货周期较长<br />
+- 原材料：PCB、连接器等中低端原材料已基本实现国产替代<br />
+- 应对措施：多元化供应商布局、战略库存、自研关键零部件</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">问题五：AI技术路线演进与产品规划</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">机构提问频率：★★★☆☆</strong></p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">上市公司回复要点汇总：</strong><br />
+- 算力架构：从CPU+GPU异构向多元化发展，NPU、DPU等专用芯片兴起<br />
+- 光互联：1.6T/3.2T光模块、CPO等新技术路线并行，2027年有望规模化<br />
+- 液冷：成为AI集群标配，冷板式液冷当前主流，浸没式液冷长期趋势<br />
+- 存算一体：下一代计算架构，预计3-5年开始规模化应用</p>
+<h3 class="text-base font-bold text-white mt-6 mb-3">4.3 机构一致预期与业绩预测对比</h3>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">算力硬件板块2026年业绩一致预期：</strong></p>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">细分板块</th>
+<th class="px-4 py-3 font-semibold border border-white/10">2026E营收增速</th>
+<th class="px-4 py-3 font-semibold border border-white/10">2026E净利润增速</th>
+<th class="px-4 py-3 font-semibold border border-white/10">2026E PE</th>
+<th class="px-4 py-3 font-semibold border border-white/10">代表公司</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">AI芯片</td>
+<td class="px-4 py-2 border border-white/10">75%</td>
+<td class="px-4 py-2 border border-white/10">120%</td>
+<td class="px-4 py-2 border border-white/10">85x</td>
+<td class="px-4 py-2 border border-white/10">海光、寒武纪</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">AI服务器</td>
+<td class="px-4 py-2 border border-white/10">55%</td>
+<td class="px-4 py-2 border border-white/10">45%</td>
+<td class="px-4 py-2 border border-white/10">25x</td>
+<td class="px-4 py-2 border border-white/10">浪潮、工业富联</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">光模块</td>
+<td class="px-4 py-2 border border-white/10">40%</td>
+<td class="px-4 py-2 border border-white/10">50%</td>
+<td class="px-4 py-2 border border-white/10">30x</td>
+<td class="px-4 py-2 border border-white/10">中际旭创、光迅</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">PCB/连接器</td>
+<td class="px-4 py-2 border border-white/10">35%</td>
+<td class="px-4 py-2 border border-white/10">40%</td>
+<td class="px-4 py-2 border border-white/10">20x</td>
+<td class="px-4 py-2 border border-white/10">沪电、胜宏</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">存储</td>
+<td class="px-4 py-2 border border-white/10">30%</td>
+<td class="px-4 py-2 border border-white/10">80%</td>
+<td class="px-4 py-2 border border-white/10">40x</td>
+<td class="px-4 py-2 border border-white/10">佰维、江波龙</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">液冷/散热</td>
+<td class="px-4 py-2 border border-white/10">50%</td>
+<td class="px-4 py-2 border border-white/10">60%</td>
+<td class="px-4 py-2 border border-white/10">35x</td>
+<td class="px-4 py-2 border border-white/10">英维克、高澜</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">算力运营</td>
+<td class="px-4 py-2 border border-white/10">45%</td>
+<td class="px-4 py-2 border border-white/10">50%</td>
+<td class="px-4 py-2 border border-white/10">25x</td>
+<td class="px-4 py-2 border border-white/10">润泽、光环</td>
+</tr>
+</tbody>
+</table>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">业绩预测分歧点：</strong><br />
+- <strong class="text-white font-semibold">乐观派</strong>（头部券商、产业资本）：认为AI算力需求超预期，国产替代加速，全年业绩有望超预期30%以上<br />
+- <strong class="text-white font-semibold">中性派</strong>（多数机构）：行业景气度高，但需跟踪订单落地和价格变化，业绩符合预期概率大<br />
+- <strong class="text-white font-semibold">谨慎派</strong>（部分外资、保险资管）：担心2027年需求下行、产能过剩，估值偏高</p>
+<h3 class="text-base font-bold text-white mt-6 mb-3">4.4 调研后股价表现统计</h3>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">机构调研与股价表现相关性分析（2026年以来）：</strong></p>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">调研频次</th>
+<th class="px-4 py-3 font-semibold border border-white/10">样本数</th>
+<th class="px-4 py-3 font-semibold border border-white/10">调研后1个月平均涨幅</th>
+<th class="px-4 py-3 font-semibold border border-white/10">调研后3个月平均涨幅</th>
+<th class="px-4 py-3 font-semibold border border-white/10">超额收益（相对板块）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">高（≥20次/年）</td>
+<td class="px-4 py-2 border border-white/10">10只</td>
+<td class="px-4 py-2 border border-white/10">+12.5%</td>
+<td class="px-4 py-2 border border-white/10">+28.3%</td>
+<td class="px-4 py-2 border border-white/10">+5.2%</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">中（10-20次/年）</td>
+<td class="px-4 py-2 border border-white/10">22只</td>
+<td class="px-4 py-2 border border-white/10">+8.3%</td>
+<td class="px-4 py-2 border border-white/10">+18.7%</td>
+<td class="px-4 py-2 border border-white/10">+1.5%</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">低（&lt;10次/年）</td>
+<td class="px-4 py-2 border border-white/10">35只</td>
+<td class="px-4 py-2 border border-white/10">+5.1%</td>
+<td class="px-4 py-2 border border-white/10">+10.2%</td>
+<td class="px-4 py-2 border border-white/10">-3.8%</td>
+</tr>
+</tbody>
+</table>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心发现：</strong><br />
+1. 机构关注度与股价表现呈正相关，高调研标的超额收益明显<br />
+2. 调研后3个月收益高于1个月，表明机构建仓需要时间<br />
+3. 低关注度标的存在预期差机会，但风险也较高</p>
+<hr />
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">🔮</span>
+                    五、未来趋势预判与投资策略
+                </h2>
+                <div class="text-white/80">
+                    <h3 class="text-base font-bold text-white mt-6 mb-3">5.1 短期、中期、长期趋势判断与催化因素</h3>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">短期趋势（1-3个月）：震荡上行，业绩验证期</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心判断</strong>：板块经过6月上涨后，短期可能震荡整固，但中期向上趋势不变。7-8月是半年报业绩验证期，业绩超预期个股有望继续走强。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">短期催化因素：</strong><br />
+- <strong class="text-white font-semibold">7月WAIC世界人工智能大会</strong>：华为昇腾950真机发布、国产大模型新进展<br />
+- <strong class="text-white font-semibold">半年报业绩披露</strong>：算力硬件公司业绩有望超预期，尤其是上游芯片、光模块<br />
+- <strong class="text-white font-semibold">运营商集采</strong>：三大运营商服务器集采结果陆续公布，国产化率超预期<br />
+- <strong class="text-white font-semibold">政策催化</strong>：算力网建设相关政策可能持续出台</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">中期趋势（6-12个月）：业绩兑现，估值切换</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心判断</strong>：2026-2027年是算力硬件业绩兑现期，板块将从"炒预期"转向"看业绩"，具备真实业绩支撑的公司将获得估值溢价。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">中期驱动因素：</strong><br />
+- <strong class="text-white font-semibold">AI应用爆发</strong>：智能体、行业AI等应用规模化落地，拉动算力需求<br />
+- <strong class="text-white font-semibold">国产替代加速</strong>：政府、央国企AI采购国产化率要求持续提升<br />
+- <strong class="text-white font-semibold">技术迭代</strong>：昇腾950/960、海光新一代芯片等新品发布<br />
+- <strong class="text-white font-semibold">资本开支</strong>：云厂商、运营商2026年算力资本开支同比增长50%+</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">长期趋势（3-5年）：产业成熟，格局固化</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">核心判断</strong>：算力产业将从高速增长期进入成熟期，市场格局逐步固化，头部厂商凭借技术、规模、生态优势持续领跑，二三线厂商面临整合压力。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">长期驱动因素：</strong><br />
+- <strong class="text-white font-semibold">算力成为基础设施</strong>：像电力一样成为社会运行的基础资源<br />
+- <strong class="text-white font-semibold">技术代际演进</strong>：从AI训练到推理，从云计算到边缘计算<br />
+- <strong class="text-white font-semibold">国产替代深化</strong>：关键环节逐步实现自主可控，产业链安全增强</p>
+<h3 class="text-base font-bold text-white mt-6 mb-3">5.2 未来1-3个月关键催化剂日历</h3>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">时间</th>
+<th class="px-4 py-3 font-semibold border border-white/10">事件</th>
+<th class="px-4 py-3 font-semibold border border-white/10">影响程度</th>
+<th class="px-4 py-3 font-semibold border border-white/10">受益方向</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">2026.7上旬</td>
+<td class="px-4 py-2 border border-white/10">中报业绩预告密集披露</td>
+<td class="px-4 py-2 border border-white/10">★★★★☆</td>
+<td class="px-4 py-2 border border-white/10">业绩高增标的</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">2026.7.10-16</td>
+<td class="px-4 py-2 border border-white/10">世界人工智能大会（WAIC）</td>
+<td class="px-4 py-2 border border-white/10">★★★★★</td>
+<td class="px-4 py-2 border border-white/10">昇腾产业链、AI芯片</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">2026.7下旬</td>
+<td class="px-4 py-2 border border-white/10">华为昇腾开发者大会</td>
+<td class="px-4 py-2 border border-white/10">★★★★☆</td>
+<td class="px-4 py-2 border border-white/10">昇腾生态伙伴</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">2026.8月</td>
+<td class="px-4 py-2 border border-white/10">昇腾950训练芯片正式量产</td>
+<td class="px-4 py-2 border border-white/10">★★★★★</td>
+<td class="px-4 py-2 border border-white/10">华为算力全产业链</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">2026.8月</td>
+<td class="px-4 py-2 border border-white/10">三大运营商服务器集采落地</td>
+<td class="px-4 py-2 border border-white/10">★★★☆☆</td>
+<td class="px-4 py-2 border border-white/10">服务器厂商、交换机</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">2026.9月</td>
+<td class="px-4 py-2 border border-white/10">中国算力大会</td>
+<td class="px-4 py-2 border border-white/10">★★★☆☆</td>
+<td class="px-4 py-2 border border-white/10">算力基础设施</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">2026.9月</td>
+<td class="px-4 py-2 border border-white/10">苹果/华为新品发布会</td>
+<td class="px-4 py-2 border border-white/10">★★☆☆☆</td>
+<td class="px-4 py-2 border border-white/10">端侧AI、消费电子</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">2026.10月</td>
+<td class="px-4 py-2 border border-white/10">三季报披露</td>
+<td class="px-4 py-2 border border-white/10">★★★★☆</td>
+<td class="px-4 py-2 border border-white/10">业绩验证，估值切换</td>
+</tr>
+</tbody>
+</table>
+<h3 class="text-base font-bold text-white mt-6 mb-3">5.3 不同风格投资者的配置建议</h3>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">稳健型投资者：配置龙头，长期持有</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">配置思路</strong>：选择行业地位稳固、业绩确定性强、估值相对合理的龙头公司，长期持有分享行业成长。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">推荐组合（建议配置比例）：</strong><br />
+- 工业富联（30%）：全球AI服务器代工龙头，确定性最高<br />
+- 立讯精密（25%）：精密制造平台型公司，多赛道增长<br />
+- 海光信息（20%）：国产算力芯片龙头，技术壁垒高<br />
+- 浪潮信息（15%）：国内AI服务器市占率第一<br />
+- 紫光股份（10%）：ICT全栈能力，估值合理</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">预期收益</strong>：年化20%-30%<br />
+<strong class="text-white font-semibold">适合人群</strong>：机构投资者、长线资金、风险承受能力中等</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">进取型投资者：聚焦弹性，波段操作</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">配置思路</strong>：选择业绩弹性大、技术突破型、国产替代空间大的公司，把握行业beta+个股alpha双重收益。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">推荐组合（建议配置比例）：</strong><br />
+- 寒武纪（25%）：国产AI芯片龙头，业绩弹性最大<br />
+- 烽火通信（20%）：算力+光通信双轮驱动，低基数高增速<br />
+- 华丰科技（15%）：高速连接器龙头，华为核心受益<br />
+- 智微智能（15%）：小市值高弹性，昇腾产业链<br />
+- 佰维存储（15%）：存储+HBM，国产替代空间大<br />
+- 芯原股份（10%）：IP核+Chiplet，技术创新驱动</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">预期收益</strong>：年化40%-60%，波动较大<br />
+<strong class="text-white font-semibold">适合人群</strong>：私募基金、个人投资者、风险承受能力较高</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">主题型投资者：把握细分赛道轮动机会</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">配置思路</strong>：根据行业催化事件和景气度变化，在算力各细分赛道间灵活切换，获取超额收益。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">细分赛道轮动策略：</strong></p>
+<table class="w-full text-sm text-left text-white/80 border-collapse my-4">
+<thead class="text-white bg-white/10">
+<tr class="hover:bg-white/5">
+<th class="px-4 py-3 font-semibold border border-white/10">时间段</th>
+<th class="px-4 py-3 font-semibold border border-white/10">重点配置赛道</th>
+<th class="px-4 py-3 font-semibold border border-white/10">核心逻辑</th>
+<th class="px-4 py-3 font-semibold border border-white/10">代表标的</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">7-8月</td>
+<td class="px-4 py-2 border border-white/10">AI芯片+昇腾产业链</td>
+<td class="px-4 py-2 border border-white/10">WAIC催化+950量产</td>
+<td class="px-4 py-2 border border-white/10">海光、寒武纪、华丰</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">8-9月</td>
+<td class="px-4 py-2 border border-white/10">光模块+PCB</td>
+<td class="px-4 py-2 border border-white/10">1.6T产品迭代+订单确认</td>
+<td class="px-4 py-2 border border-white/10">光迅、中际、胜宏</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">9-10月</td>
+<td class="px-4 py-2 border border-white/10">算力运营+液冷</td>
+<td class="px-4 py-2 border border-white/10">三季报验证+需求旺季</td>
+<td class="px-4 py-2 border border-white/10">润泽、英维克、高澜</td>
+</tr>
+<tr class="hover:bg-white/5">
+<td class="px-4 py-2 border border-white/10">10-12月</td>
+<td class="px-4 py-2 border border-white/10">信创+服务器</td>
+<td class="px-4 py-2 border border-white/10">年底采购旺季+估值切换</td>
+<td class="px-4 py-2 border border-white/10">中国长城、中科曙光</td>
+</tr>
+</tbody>
+</table>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">预期收益</strong>：取决于操作能力，弹性最大<br />
+<strong class="text-white font-semibold">适合人群</strong>：交易型投资者、主题基金、短线资金</p>
+<h3 class="text-base font-bold text-white mt-6 mb-3">5.4 风险提示</h3>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">风险一：技术迭代不及预期 ★★★★☆</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">风险描述</strong>：国产算力芯片性能提升速度慢于预期，与海外主流产品差距拉大，导致客户接受度低，国产替代进展受阻。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">影响程度</strong>：高。若技术差距无法有效缩小，国产替代逻辑将受严重冲击，板块估值面临回调压力。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">跟踪指标</strong>：芯片性能跑分、大模型适配情况、客户实测反馈</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">风险二：海外出口管制升级 ★★★★☆</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">风险描述</strong>：美国等西方国家进一步收紧对中国的芯片、技术、设备出口限制，包括EDA工具、先进制程设备、高端GPU等，影响国产算力产业链发展。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">影响程度</strong>：高。出口管制升级可能延缓国产算力技术进步速度，增加供应链不确定性。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">跟踪指标</strong>：美国BIS出口管制政策、瓦森纳协定更新、荷兰/日本设备出口限制</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">风险三：行业竞争加剧与价格战 ★★★☆☆</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">风险描述</strong>：大量企业涌入算力赛道，导致产能过剩、价格战，行业盈利能力下降。尤其是服务器、光模块等相对成熟环节。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">影响程度</strong>：中。短期需求旺盛下竞争压力较小，但2027年后若需求增速放缓，可能出现产能过剩。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">跟踪指标</strong>：行业扩产计划、产品价格走势、毛利率变化、龙头市占率</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">风险四：AI需求不及预期 ★★★☆☆</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">风险描述</strong>：AI应用落地速度慢于预期，大模型商业化进展不佳，导致算力需求增速下滑。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">影响程度</strong>：中。当前算力需求主要由训练和推理驱动，若AI应用遇冷，需求增速可能下台阶。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">跟踪指标</strong>：云厂商资本开支、大模型用户数、AI应用付费率</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">风险五：估值过高回调风险 ★★★☆☆</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">风险描述</strong>：部分算力标的估值已处于历史高位，若业绩不达预期或市场风格切换，可能出现较大幅度回调。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">影响程度</strong>：中。板块整体估值偏高，个股分化明显，高估值标的回调风险更大。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">跟踪指标</strong>：板块PE/PB分位、个股估值与业绩增速匹配度、市场情绪</p>
+<h4 class="text-sm font-semibold text-blue-300 mt-4 mb-2">风险六：政策落地进度慢于预期 ★★☆☆☆</h4>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">风险描述</strong>：算力网络建设、信创采购等相关政策落地进度慢于预期，导致行业需求释放延后。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">影响程度</strong>：中低。长期趋势确定，但短期节奏可能受政策推进速度影响。</p>
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">跟踪指标</strong>：政策文件发布、招投标数据、项目开工情况</p>
+<hr />
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">📄</span>
+                    结语
+                </h2>
+                <div class="text-white/80">
+                    <p class="mb-3 leading-relaxed">中国算力硬件产业正处于历史性的发展机遇期。"灵晟"超算登顶世界不仅是技术突破的里程碑，更是国产算力产业从"跟跑"向"并跑"甚至"领跑"跨越的新起点。在政策强推、需求爆发、技术突破三重共振下，算力硬件赛道有望延续高景气度。</p>
+<p class="mb-3 leading-relaxed">投资者应把握产业发展大势，围绕"国产替代+技术创新"两条主线，精选真正具备核心竞争力和业绩兑现能力的优质标的。同时，需警惕技术迭代、政策变化、竞争格局等潜在风险，合理控制仓位，做好风险管理。</p>
+<hr />
+<p class="mb-3 leading-relaxed"><strong class="text-white font-semibold">免责声明</strong>：本报告基于公开信息和行业研究编制，仅供参考，不构成任何投资建议。股市有风险，投资需谨慎。报告中的信息和观点仅代表发布时的判断，可能随时调整。</p>
+                </div>
+            
+        </div>
+        
+        </div>
+        
+        
+        
+        <div class="text-center text-white/40 text-sm py-10">
+            <p>A股算力硬件赛道深度研究报告 · 投资研究中心</p>
+            <p class="text-xs mt-2">数据更新时间：2026年06月25日 11:46</p>
+        </div>
+        
+    </div>
+    
+    <div id="progressBar"></div><div class="action-buttons"><button onclick="exportPDF()" class="action-btn" title="打印/导出PDF"><span style="font-size:20px">&#x1F4C4;</span></button><button onclick="shareReport()" class="action-btn" title="分享报告"><span style="font-size:20px">&#x1F517;</span></button></div><button id="backToTop" onclick="scrollToTop()" title="回到顶部"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg></button>
+    <!-- 悬浮目录导航 -->
+<div id="tableOfContents" class="toc-wrapper toc-right">
+  <div class="toc-header" onclick="toggleTOC()">
+    <span class="toc-title">目录</span>
+    <svg id="tocToggleIcon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="transition-transform duration-300">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+    </svg>
+  </div>
+  <div id="tocContent" class="toc-content">
+    <div id="tocContainer" class="toc-container"></div>
+  </div>
+</div>
+
+    <script src="/daily-news-insight/assets/stock-popup.js"></script>
+    
+    <script>
+        // ==================== 移动端菜单切换 ====================
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) {
+                menu.classList.toggle('show');
+                document.body.style.overflow = menu.classList.contains('show') ? 'hidden' : '';
+            }
+        }
+        
+        // 点击菜单项后关闭菜单
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('mobile-menu-item')) {
+                setTimeout(toggleMobileMenu, 100);
+            }
+        });
+        
+        // ==================== 导航栏滚动效果 ====================
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('.glass-nav');
+            if (nav) {
+                if (window.scrollY > 10) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
+                }
+            }
+        });
+        
+        // ==================== 滚动触发动画 ====================
+        function initScrollReveal() {
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                        }
+                    });
+                }, {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                });
+                
+                document.querySelectorAll('.reveal, .card-glass').forEach(function(el, index) {
+                    observer.observe(el);
+                    el.style.animationDelay = (index * 0.1) + 's';
+                });
+            }
+        }
+        
+        // ==================== 数字滚动动画 ====================
+        function animateValue(element, start, end, duration) {
+            var startTimestamp = null;
+            var step = function(timestamp) {
+                if (!startTimestamp) startTimestamp = timestamp;
+                var progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                var value = Math.floor(progress * (end - start) + start);
+                element.textContent = value.toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+        
+        function initCounters() {
+            var counters = document.querySelectorAll('.counter-value');
+            if ('IntersectionObserver' in window) {
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting && !entry.target.dataset.animated) {
+                            entry.target.dataset.animated = 'true';
+                            var target = parseInt(entry.target.dataset.target || entry.target.textContent);
+                            animateValue(entry.target, 0, target, 1500);
+                        }
+                    });
+                }, { threshold: 0.5 });
+                
+                counters.forEach(function(counter) { observer.observe(counter); });
+            }
+        }
+        
+        // ==================== 进度条动画 ====================
+        function initProgressBars() {
+            var bars = document.querySelectorAll('.risk-bar-fill');
+            if ('IntersectionObserver' in window) {
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting && !entry.target.dataset.animated) {
+                            entry.target.dataset.animated = 'true';
+                            var width = entry.target.style.width;
+                            entry.target.style.width = '0%';
+                            setTimeout(function() {
+                                entry.target.style.width = width;
+                            }, 100);
+                        }
+                    });
+                }, { threshold: 0.5 });
+                
+                bars.forEach(function(bar) { observer.observe(bar); });
+            }
+        }
+        
+        // ==================== 卡片入场动画 ====================
+        function initCardAnimations() {
+            var cards = document.querySelectorAll('.card-glass');
+            cards.forEach(function(card, index) {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                
+                setTimeout(function() {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 + index * 100);
+            });
+        }
+        
+
+        // ==================== 阅读进度条 & 回到顶部 ====================
+        function initProgressAndBackToTop() {
+            const progressBar = document.getElementById('progressBar');
+            const backToTop = document.getElementById('backToTop');
+            
+            function updateProgress() {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+                
+                if (progressBar) {
+                    progressBar.style.width = scrolled + '%';
+                }
+                
+                if (backToTop) {
+                    if (winScroll > 300) {
+                        backToTop.classList.add('visible');
+                    } else {
+                        backToTop.classList.remove('visible');
+                    }
+                }
+            }
+            
+            window.addEventListener('scroll', updateProgress);
+            updateProgress();
+        }
+        
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function exportPDF() {
+            window.print();
+        }
+        
+        function shareReport() {
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({ title: document.title, url: url });
+            } else {
+                navigator.clipboard.writeText(url).then(function() {
+                    alert('链接已复制到剪贴板！');
+                }).catch(function() {
+                    prompt('复制以下链接分享：', url);
+                });
+            }
+        }
+        
+        // ==================== 平滑滚动 ====================
+        function initSmoothScroll() {
+            document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        }
+        
+        
+        // ==================== 悬浮目录导航 ====================
+        function toggleTOC() {
+            const toc = document.getElementById('tableOfContents');
+            if (toc) {
+                // 移动端使用expanded类，桌面端使用collapsed类
+                if (window.innerWidth <= 1200) {
+                    toc.classList.toggle('expanded');
+                } else {
+                    toc.classList.toggle('collapsed');
+                }
+            }
+        }
+
+        // 监听窗口大小变化，重置TOC状态
+        window.addEventListener('resize', function() {
+            const toc = document.getElementById('tableOfContents');
+            if (toc) {
+                if (window.innerWidth > 1200) {
+                    toc.classList.remove('expanded');
+                } else {
+                    toc.classList.remove('expanded');
+                }
+            }
+        });
+        
+        function initTableOfContents() {
+            const tocContainer = document.getElementById('tocContainer');
+            if (!tocContainer) return;
+            
+            // 自动提取页面中的h2和h3标题
+            const headings = document.querySelectorAll('.pro-container h2, .pro-container h3');
+            if (headings.length === 0) {
+                // 没有标题则隐藏目录
+                const toc = document.getElementById('tableOfContents');
+                if (toc) toc.style.display = 'none';
+                return;
+            }
+            
+            // 为标题生成id（如果没有的话）
+            headings.forEach(function(heading, index) {
+                if (!heading.id) {
+                    const text = heading.textContent || heading.innerText;
+                    heading.id = 'section-' + index + '-' + text.trim().replace(/\s+/g, '-').replace(/[^\w\-一-龥]/g, '').substring(0, 30);
+                }
+            });
+            
+            // 生成目录HTML
+            var tocHTML = '';
+            headings.forEach(function(heading) {
+                const level = parseInt(heading.tagName.substring(1));
+                const title = heading.textContent || heading.innerText;
+                const indent = level === 3 ? 'pl-4' : '';
+                tocHTML += '<a href="#' + heading.id + '" class="toc-item ' + indent + '" data-level="' + level + '">' + title.trim() + '</a>';
+            });
+            
+            tocContainer.innerHTML = tocHTML;
+            
+            // 为目录项添加平滑滚动
+            tocContainer.querySelectorAll('.toc-item').forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        // 考虑导航栏高度
+                        var offset = 100;
+                        var targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // 初始化滚动高亮
+            initTOCScrollSpy();
+        }
+        
+        function initTOCScrollSpy() {
+            const tocItems = document.querySelectorAll('.toc-item');
+            if (tocItems.length === 0) return;
+            
+            // 获取所有章节
+            const sections = [];
+            tocItems.forEach(function(item) {
+                const id = item.getAttribute('href').substring(1);
+                const section = document.getElementById(id);
+                if (section) {
+                    sections.push({
+                        element: section,
+                        navItem: item,
+                        top: section.offsetTop - 120
+                    });
+                }
+            });
+            
+            if (sections.length === 0) return;
+            
+            // 滚动时更新高亮
+            function updateActiveTOC() {
+                const scrollPosition = window.pageYOffset;
+                
+                // 找到当前处于视口的章节
+                var currentIndex = 0;
+                for (var i = 0; i < sections.length; i++) {
+                    if (scrollPosition >= sections[i].top) {
+                        currentIndex = i;
+                    }
+                }
+                
+                // 更新高亮状态
+                tocItems.forEach(function(item, index) {
+                    item.classList.remove('active');
+                });
+                if (sections[currentIndex]) {
+                    sections[currentIndex].navItem.classList.add('active');
+                }
+            }
+            
+            window.addEventListener('scroll', updateActiveTOC);
+            updateActiveTOC();
+        }
+// ==================== 页面加载完成后初始化 ====================
+        function initAllAnimations() {
+            initProgressAndBackToTop();
+            initScrollReveal();
+            initCounters();
+            initProgressBars();
+            initCardAnimations();
+            initSmoothScroll();
+            initTableOfContents();
+
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initAllAnimations, 100);
+        });
+        
+        if (document.readyState !== 'loading') {
+            setTimeout(initAllAnimations, 100);
+        }
+    </script>
+        
+</body>
+</html>
