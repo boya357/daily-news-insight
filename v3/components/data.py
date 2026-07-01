@@ -187,49 +187,76 @@ class StockTags(Component):
     
     def render(self) -> str:
         from .icons import icon_svg
-        
+        import html as _html
+
+        # ========== 深色主题配色（全站统一）==========
         if self.variant == "gradient":
-            tag_style = '''
-                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-                color: white;
-                box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
-            '''
+            tag_bg = "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)"
+            tag_color = "white"
+            tag_border = "rgba(255,255,255,.15)"
+            text_color = "#94a3b8"
+            icon_color = "#94a3b8"
+            divider = "rgba(255,255,255,.1)"
         else:
-            tag_style = '''
-                background: linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%);
-                color: #4f46e5;
-                border: 1px solid rgba(79, 70, 229, 0.15);
-            '''
-        
-        tags_html = ""
+            tag_bg = "linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%)"
+            tag_color = "#c4b5fd"
+            tag_border = "rgba(124,58,237,.35)"
+            text_color = "#94a3b8"
+            icon_color = "#94a3b8"
+            divider = "rgba(255,255,255,.1)"
+
+        def _fmt(s):
+            if isinstance(s, dict):
+                code = str(s.get("code", "")).strip()
+                name = str(s.get("name", "")).strip()
+                impact = s.get("impact")
+                impact = str(impact).strip() if impact else ""
+                if code and (code == name or not code[:1].isdigit()):
+                    code = ""
+                if code and code[:1].isdigit() and name and name != code:
+                    d = _html.escape(name) + '<span style="opacity:.65;font-weight:400;margin-left:4px;">' + _html.escape(code) + '</span>'
+                elif name:
+                    d = _html.escape(name)
+                elif code:
+                    d = _html.escape(code)
+                else:
+                    d = _html.escape(str(s))
+                tip = ' title="' + _html.escape(impact) + '"' if impact else ""
+                return "<span" + tip + ">" + d + "</span>"
+            elif isinstance(s, (list, tuple)):
+                return _html.escape(" / ".join(str(x) for x in s))
+            else:
+                return _html.escape(str(s))
+
+        tag_parts = []
         for stock in self.stocks:
-            tags_html += f'''
-            <span style="display: inline-block; padding: 6px 14px; 
-                        border-radius: 20px; font-size: 13px; font-weight: 500;
-                        margin: 4px 6px 4px 0;
-                        transition: all 0.2s ease;
-                        {tag_style}"
-                 onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(79, 70, 229, 0.25)';"
-                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(79, 70, 229, 0.1)';">
-                {stock}
-            </span>
-            '''
-        
-        return f'''
-        <div style="padding-top: 16px; border-top: 1px solid #f3f4f6; margin-top: 16px;">
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <div style="width: 16px; height: 16px; margin-right: 6px;">
-                    {icon_svg("stock", 16, "#6b7280")}
-                </div>
-                <span style="font-size: 13px; color: #6b7280; font-weight: 500;">
-                    {self.label}
-                </span>
-            </div>
-            <div style="display: flex; flex-wrap: wrap;">
-                {tags_html}
-            </div>
-        </div>
-        '''
+            inner = _fmt(stock)
+            tag_parts.append(
+                '<span style="display:inline-block;padding:5px 12px;border-radius:16px;'
+                'font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;'
+                'background:' + tag_bg + ';color:' + tag_color + ';border:1px solid ' + tag_border + ';" '
+                'onmouseover="this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 6px 16px rgba(79,70,229,.4)\';this.style.borderColor=\'rgba(255,255,255,.3)\';" '
+                'onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'0 2px 8px rgba(79,70,229,.3)\';this.style.borderColor=\'' + tag_border + '\';">'
+                + inner + '</span>'
+            )
+        tags_html = "".join(tag_parts)
+
+        return (
+            '<div style="padding-top:16px;border-top:1px solid ' + divider + ';margin-top:16px;">'
+            '<div style="display:flex;align-items:center;margin-bottom:10px;">'
+            '<div style="width:16px;height:16px;margin-right:6px;">'
+            + icon_svg("stock", 16, icon_color) +
+            '</div>'
+            '<span style="font-size:13px;color:' + text_color + ';font-weight:500;">'
+            + _html.escape(self.label) +
+            '</span>'
+            '</div>'
+            '<div style="display:flex;flex-wrap:wrap;">'
+            + tags_html +
+            '</div>'
+            '</div>'
+        )
+
 
 
 class MetricsRow(Component):
