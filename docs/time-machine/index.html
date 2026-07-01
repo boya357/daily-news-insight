@@ -3,875 +3,1558 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数据时光机 - 市场洞察中心</title>
+    <title>数据时光机 - 投资研究中心</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-        
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            z-index: 2147483647 !important;
-        }
-        
-        .glass-nav * {
-            position: relative;
-            z-index: 2147483647 !important;
-        }
-        
-        .nav-item.active {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-        
-        .mobile-menu {
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-        }
-        
-        .mobile-menu.show {
-            transform: translateX(0);
-        }
-        
-        .card-glass {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 1rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-        
-        .main-content {
-            padding-top: 100px;
-            padding-bottom: 60px;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            border: 1px solid #f0f0f0;
-        }
-        
-        .stock-card {
-            background: white;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            border-left: 4px solid #667eea;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-        
-        .stock-card.risk-high {
-            border-left-color: #ef4444;
-        }
-        
-        .stock-card.risk-medium {
-            border-left-color: #f59e0b;
-        }
-        
-        .stock-card.risk-low {
-            border-left-color: #10b981;
-        }
-        
-        .date-selector {
-            background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 0.75rem;
-            padding: 0.75rem 1rem;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .date-selector:hover {
-            border-color: #667eea;
-        }
-        
-        .date-selector:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .tag {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        
-        .tag-green {
-            background: #dcfce7;
-            color: #166534;
-        }
-        
-        .tag-red {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        
-        .tag-blue {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .tag-purple {
-            background: #f3e8ff;
-            color: #6b21a8;
-        }
-        
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @media (max-width: 768px) {
-            .main-content {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
+    
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+            
+            * { font-family: 'Noto Sans SC', sans-serif; }
+            
+            body {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
                 padding-top: 80px;
             }
+            
+            .pro-container {
+                max-width: 64rem;
+                margin: 0 auto;
+                padding: 0 1.5rem;
+            }
+            
+            .card-glass {
+                background: rgba(139, 92, 246, 0.15);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+                border-radius: 20px;
+                color: white;
+            }
+            
+            .card-glass .text-gray-800,
+            .card-glass .text-gray-700,
+            .card-glass .text-gray-600,
+            .card-glass .text-gray-500,
+            .card-glass .text-gray-400 { color: rgba(255, 255, 255, 0.9) !important; }
+            .card-glass .text-gray-500 { color: rgba(255, 255, 255, 0.75) !important; }
+            .card-glass .text-gray-400 { color: rgba(255, 255, 255, 0.6) !important; }
+            
+            /* 修复浅色背景子卡片文字颜色 */
+            .card-glass .bg-white .text-gray-800 { color: #1f2937 !important; }
+            .card-glass .bg-white .text-gray-700 { color: #374151 !important; }
+            .card-glass .bg-white .text-gray-600 { color: #4b5563 !important; }
+            .card-glass .bg-white .text-gray-500 { color: #6b7280 !important; }
+            .card-glass .bg-white .text-gray-400 { color: #9ca3af !important; }
+            
+            .stock-card {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .stock-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 20px 60px rgba(102, 126, 234, 0.5);
+            }
+            
+            .risk-bar {
+                height: 8px;
+                border-radius: 4px;
+                background: rgba(255,255,255,0.2);
+                overflow: hidden;
+            }
+            .risk-bar-fill {
+                height: 100%;
+                border-radius: 4px;
+                transition: width 0.5s ease;
+            }
+            
+            .diagnosis-item {
+                text-align: center;
+                padding: 12px 8px;
+                background: rgba(255,255,255,0.1);
+                border-radius: 12px;
+            }
+            
+            .tag-badge {
+                display: inline-block;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+            
+            .section-title {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: white;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .lhb-card {
+                background: rgba(255,255,255,0.05);
+                border-radius: 12px;
+                padding: 1rem;
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .lhb-seat {
+                font-size: 0.75rem;
+                color: rgba(255,255,255,0.6);
+                margin-bottom: 0.25rem;
+            }
+            
+            .fund-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 0;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            .fund-row:last-child {
+                border-bottom: none;
+            }
+            
+            .fund-trend-up {
+                color: #10b981;
+                font-weight: 600;
+            }
+            .fund-trend-down {
+                color: #ef4444;
+                font-weight: 600;
+            }
+            
+            .alert-section {
+                border-left: 4px solid #ef4444;
+                padding-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .warning-section {
+                border-left: 4px solid #f59e0b;
+                padding-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .safe-section {
+                border-left: 4px solid #10b981;
+                padding-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            /* 导航栏样式 */
+            .glass-nav {
+                background: rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                transition: background 0.3s ease;
+            }
+            
+            .glass-nav.scrolled {
+                background: rgba(0, 0, 0, 0.7);
+            }
+            
+            /* 汉堡菜单按钮 */
+            .hamburger-btn {
+                display: none;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                width: 40px;
+                height: 40px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 18px;
+                transition: all 0.3s;
+            }
+            
+            .hamburger-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            /* 移动端菜单 */
+            .mobile-menu {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.95);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                z-index: 100;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+            }
+            
+            .mobile-menu.show {
+                display: flex;
+            }
+            
+            .mobile-menu-item {
+                color: white;
+                font-size: 18px;
+                font-weight: 600;
+                padding: 15px 30px;
+                text-decoration: none;
+                text-align: center;
+                width: 100%;
+                max-width: 300px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                transition: all 0.3s;
+            }
+            
+            .mobile-menu-item:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: #a78bfa;
+            }
+            
+            .close-menu-btn {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                width: 44px;
+                height: 44px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 20px;
+                transition: all 0.3s;
+            }
+            
+            .close-menu-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            /* 响应式断点 - 平板 */
+            @media (max-width: 1024px) {
+                .pro-container {
+                    max-width: 100%;
+                    padding: 0 1rem;
+                }
+            }
+            
+            /* 响应式断点 - 手机 */
+            @media (max-width: 768px) {
+                .nav-links {
+                    display: none !important;
+                }
+                
+                .hamburger-btn {
+                    display: block !important;
+                }
+                
+                body {
+                    padding-top: 70px;
+                }
+                
+                .pro-container {
+                    padding: 0 0.75rem;
+                }
+                
+                .card-glass {
+                    border-radius: 16px;
+                    padding: 1.25rem;
+                }
+                
+                /* 移动端网格优化 */
+                .grid-cols-2,
+                .grid-cols-3,
+                .grid-cols-4,
+                .grid-cols-5 {
+                    grid-template-columns: 1fr !important;
+                }
+                
+                /* 移动端字体优化 */
+                h1 { font-size: 1.75rem !important; }
+                h2 { font-size: 1.35rem !important; }
+                h3 { font-size: 1.15rem !important; }
+            }
+            
+            /* 响应式断点 - 小屏手机 */
+            @media (max-width: 480px) {
+                body {
+                    padding-top: 60px;
+                }
+                
+                .pro-container {
+                    padding: 0 0.5rem;
+                }
+                
+                .card-glass {
+                    border-radius: 12px;
+                    padding: 1rem;
+                }
+                
+                h1 { font-size: 1.5rem !important; }
+                h2 { font-size: 1.2rem !important; }
+            }
+
+            /* ===== 交互动效增强 ===== */
+            
+            /* 卡片入场动画 */
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .animate-fade-in-up {
+                animation: fadeInUp 0.6s ease-out forwards;
+            }
+            
+            /* 数字滚动动画容器 */
+            .counter-value {
+                font-variant-numeric: tabular-nums;
+            }
+            
+            /* 脉冲动画 */
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.5; }
+            }
+            
+            .animate-pulse {
+                animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            
+            /* 骨架屏加载效果 */
+            @keyframes shimmer {
+                0% { background-position: -200% 0; }
+                100% { background-position: 200% 0; }
+            }
+            
+            .skeleton {
+                background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 75%);
+                background-size: 200% 100%;
+                animation: shimmer 1.5s infinite;
+                border-radius: 8px;
+            }
+            
+            /* 按钮点击效果 */
+            .btn-press:active {
+                transform: scale(0.95);
+            }
+            
+            /* 标签悬浮效果 */
+            .tag-badge {
+                transition: all 0.2s ease;
+            }
+            
+            .tag-badge:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            }
+            
+
+            /* 阅读进度条 */
+            #progressBar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+                z-index: 9999;
+                width: 0%;
+                transition: width 0.1s ease;
+            }
+            
+            /* 回到顶部按钮 */
+            #backToTop {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                width: 50px;
+                height: 50px;
+                background: linear-gradient(135deg, #6366f1, #a855f7);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                z-index: 9998;
+                opacity: 0;
+                transform: translateY(20px);
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+                border: none;
+            }
+            #backToTop:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            }
+            #backToTop.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            /* 操作按钮组 */
+            .action-buttons {
+                position: fixed;
+                bottom: 30px;
+                left: 30px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                z-index: 9998;
+            }
+            .action-btn {
+                width: 50px;
+                height: 50px;
+                background: rgba(30, 30, 50, 0.8);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            }
+            .action-btn:hover {
+                background: rgba(99, 102, 241, 0.8);
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            }
+            
+            /* 打印优化 */
+            @media print {
+                #progressBar, #backToTop, .action-buttons, .glass-nav, .pro-footer {
+                    display: none !important;
+                }
+                body {
+                    background: white !important;
+                    color: black !important;
+                }
+                .card-glass {
+                    background: white !important;
+                    border: 1px solid #ddd !important;
+                    box-shadow: none !important;
+                }
+            }
+            
+            /* 移动端适配 */
+            @media (max-width: 768px) {
+                #backToTop {
+                    bottom: 20px;
+                    right: 20px;
+                    width: 44px;
+                    height: 44px;
+                }
+                .action-buttons {
+                    bottom: 20px;
+                    left: 20px;
+                    gap: 10px;
+                }
+                .action-btn {
+                    width: 44px;
+                    height: 44px;
+                }
+            }
+            /* 进度条动画增强 */
+            .risk-bar-fill {
+                transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            /* 卡片悬浮增强 */
+            .card-glass {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .card-glass:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            }
+            
+            /* 导航项下划线动画 */
+            .nav-links a {
+                position: relative;
+            }
+            
+            .nav-links a::after {
+                content: '';
+                position: absolute;
+                bottom: -2px;
+                left: 50%;
+                width: 0;
+                height: 2px;
+                background: linear-gradient(90deg, #667eea, #764ba2);
+                transition: all 0.3s ease;
+                transform: translateX(-50%);
+                border-radius: 1px;
+            }
+            
+            .nav-links a:hover::after,
+            .nav-links a.bg-white\/20::after {
+                width: 60%;
+            }
+            
+            /* 滚动显示动画 */
+            .reveal {
+                opacity: 0;
+                transform: translateY(30px);
+                transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .reveal.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            /* 弹跳效果 */
+            @keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+            }
+            
+            .animate-bounce {
+                animation: bounce 2s infinite;
+            }
+            
+            /* 旋转动画 */
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+            
+            .animate-spin {
+                animation: spin 1s linear infinite;
+            }
+            
+            /* ===== 移动端体验优化 ===== */
+            
+            /* 触摸区域优化 - 最小44px点击区域 */
+            @media (max-width: 768px) {
+                .mobile-menu-item {
+                    min-height: 44px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 12px 20px;
+                    -webkit-tap-highlight-color: transparent;
+                }
+                
+                .hamburger-btn,
+                .close-menu-btn {
+                    min-width: 44px;
+                    min-height: 44px;
+                    -webkit-tap-highlight-color: transparent;
+                }
+                
+                /* 移动端卡片点击反馈 */
+                .card-glass:active {
+                    transform: scale(0.98);
+                    transition: transform 0.1s ease;
+                }
+                
+                /* 禁止双击缩放 */
+                * {
+                    touch-action: manipulation;
+                }
+                
+                /* 底部安全区域适配 */
+                .pro-container {
+                    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+                }
+                
+                /* 移动端滚动条隐藏 */
+                ::-webkit-scrollbar {
+                    width: 4px;
+                    height: 4px;
+                }
+                
+                ::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                
+                ::-webkit-scrollbar-thumb {
+                    background: rgba(255, 255, 255, 0.3);
+                    border-radius: 2px;
+                }
+                
+                /* 移动端标题截断 */
+                .section-title {
+                    font-size: 1.1rem !important;
+                }
+                
+                /* 移动端网格优化 - 2列布局 */
+                .mobile-grid-2 {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                }
+                
+                /* 移动端字体优化 */
+                body {
+                    font-size: 15px;
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                }
+            }
+            
+            /* 小屏手机额外优化 */
+            @media (max-width: 480px) {
+                .mobile-grid-2 {
+                    grid-template-columns: 1fr !important;
+                }
+                
+                /* 更小的内边距 */
+                .card-glass {
+                    padding: 0.875rem !important;
+                }
+                
+                .section-title {
+                    font-size: 1rem !important;
+                }
+            }
+            
+            /* ===== 深色模式优化 ===== */
+            @media (prefers-color-scheme: dark) {
+                .text-white\/60 {
+                    color: rgba(255, 255, 255, 0.7) !important;
+                }
+            }
+            
+            /* ===== 减少动效模式 ===== */
+            @media (prefers-reduced-motion: reduce) {
+                *,
+                *::before,
+                *::after {
+                    animation-duration: 0.01ms !important;
+                    animation-iteration-count: 1 !important;
+                    transition-duration: 0.01ms !important;
+                }
+            }
+        
+            /* ===== 悬浮目录导航 ===== */
+            .toc-wrapper {
+                position: fixed;
+                top: 120px;
+                width: 220px;
+                max-height: calc(100vh - 160px);
+                background: rgba(139, 92, 246, 0.15);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 16px;
+                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+                z-index: 90;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .toc-right {
+                right: 20px;
+            }
+            
+            .toc-left {
+                left: 20px;
+            }
+            
+            .toc-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                cursor: pointer;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                user-select: none;
+            }
+            
+            .toc-title {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: white;
+            }
+            
+            .toc-header svg {
+                color: rgba(255, 255, 255, 0.7);
+                transition: transform 0.3s ease;
+            }
+            
+            .toc-wrapper.collapsed .toc-header svg {
+                transform: rotate(-90deg);
+            }
+            
+            .toc-content {
+                max-height: calc(100vh - 220px);
+                overflow-y: auto;
+                padding: 8px 0;
+                transition: max-height 0.3s ease;
+            }
+            
+            .toc-wrapper.collapsed .toc-content {
+                max-height: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            
+            .toc-item {
+                display: block;
+                padding: 8px 16px;
+                font-size: 0.8125rem;
+                color: rgba(255, 255, 255, 0.7);
+                text-decoration: none;
+                border-left: 3px solid transparent;
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+            
+            .toc-item:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.08);
+                border-left-color: rgba(255, 255, 255, 0.3);
+            }
+            
+            .toc-item.active {
+                color: white;
+                font-weight: 500;
+                background: rgba(102, 126, 234, 0.3);
+                border-left-color: #667eea;
+            }
+            
+            .toc-item.pl-4 {
+                padding-left: 32px;
+                font-size: 0.75rem;
+            }
+            
+            /* 滚动条样式 */
+            .toc-content::-webkit-scrollbar {
+                width: 4px;
+            }
+            
+            .toc-content::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            
+            .toc-content::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 2px;
+            }
+            
+            .toc-content::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.4);
+            }
+            
+            /* 大屏显示优化 */
+            @media (min-width: 1400px) {
+                .toc-wrapper {
+                    width: 260px;
+                }
+                .toc-right {
+                    right: calc((100vw - 64rem) / 2 - 300px);
+                }
+                .toc-left {
+                    left: calc((100vw - 64rem) / 2 - 300px);
+                }
+            }
+            
+                        /* 平板端优化 - 折叠为悬浮按钮 */
+            @media (max-width: 1200px) {
+                .toc-wrapper {
+                    top: auto;
+                    bottom: 80px;
+                    right: 16px;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 240px;
+                    height: auto;
+                    max-height: 60vh;
+                    border-radius: 16px;
+                    top: auto;
+                    bottom: 80px;
+                }
+                
+                .toc-wrapper .toc-header {
+                    justify-content: center;
+                    padding: 12px;
+                    border-bottom: none;
+                }
+                
+                .toc-wrapper.expanded .toc-header {
+                    justify-content: space-between;
+                    padding: 12px 16px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                
+                .toc-wrapper .toc-title {
+                    display: none;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    display: block;
+                    font-size: 0.875rem;
+                }
+                
+                .toc-wrapper .toc-content {
+                    max-height: 0;
+                    padding: 0;
+                    opacity: 0;
+                    transition: all 0.3s ease;
+                }
+                
+                .toc-wrapper.expanded .toc-content {
+                    max-height: calc(60vh - 56px);
+                    padding: 8px 0;
+                    opacity: 1;
+                }
+                
+                .toc-wrapper .toc-header svg {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+            
+            /* 手机端 - 更小的悬浮按钮 */
+            @media (max-width: 480px) {
+                .toc-wrapper {
+                    width: 40px;
+                    height: 40px;
+                    bottom: 70px;
+                    right: 12px;
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 200px;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    font-size: 0.8rem;
+                }
+            }
+            
+            /* 页面内容区域适配 - 避免被目录遮挡 */
+            @media (min-width: 1200px) {
+                .pro-container.has-toc {
+                    max-width: 48rem;
+                }
+            }
+            
+            /* Tab切换组件样式 */
+            .tab-container {
+                margin-bottom: 1rem;
+            }
+            
+            .tab-buttons {
+                display: flex;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                padding-bottom: 0.5rem;
+            }
+            
+            .tab-btn {
+                padding: 0.5rem 1rem;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 8px;
+                color: rgba(255,255,255,0.6);
+                cursor: pointer;
+                font-size: 0.875rem;
+                transition: all 0.3s ease;
+            }
+            
+            .tab-btn:hover {
+                background: rgba(255,255,255,0.1);
+                color: rgba(255,255,255,0.9);
+            }
+            
+            .tab-btn-active {
+                background: rgba(139, 92, 246, 0.3);
+                border-color: rgba(139, 92, 246, 0.5);
+                color: white;
+                font-weight: 500;
+            }
+            
+            .tab-container .tab-content .tab-panel {
+                display: none;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            .tab-container .tab-content .tab-panel.tab-panel-active {
+                display: block !important;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            /* Underline风格Tab */
+            .tab-style-underline .tab-buttons {
+                border-bottom: none;
+                padding-bottom: 0;
+                gap: 1.5rem;
+            }
+            
+            .tab-style-underline .tab-btn {
+                background: transparent;
+                border: none;
+                border-bottom: 2px solid transparent;
+                border-radius: 0;
+                padding: 0.5rem 0;
+            }
+            
+            .tab-style-underline .tab-btn:hover {
+                background: transparent;
+                color: rgba(255,255,255,0.9);
+            }
+            
+            .tab-style-underline .tab-btn-active {
+                border-bottom-color: #8b5cf6;
+                color: white;
+                background: transparent;
+            }
+            
+            /* 次级卡片样式 */
+            .card-subtle {
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 12px;
+                padding: 1rem;
+                transition: all 0.3s ease;
+            }
+            
+            .card-subtle:hover {
+                background: rgba(255,255,255,0.08);
+                border-color: rgba(255,255,255,0.2);
+            }
+</style>
+    
+    <style>
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
     </style>
 </head>
 <body>
-    <nav class="glass-nav fixed top-0 left-0 right-0 z-50">
-            <div class="max-w-6xl mx-auto px-6 py-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                            <i class="fas fa-chart-area text-white text-lg"></i>
-                        </div>
-                        <span class="text-xl font-bold text-white">市场洞察中心</span>
-                    </div>
-                    <div class="hidden md:flex items-center gap-1">
-                        <a href="../index.html" class="nav-item  px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-all text-sm flex items-center gap-2">
-                            <i class="fas fa-home"></i>
-                            首页
-                        </a>
-                        <a href="../持仓智能预警仪表盘/index.html" class="nav-item  px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-all text-sm flex items-center gap-2">
-                            <i class="fas fa-chart-line"></i>
-                            持仓仪表盘
-                        </a>
-                        <a href="../智能选题助手/index.html" class="nav-item  px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-all text-sm flex items-center gap-2">
-                            <i class="fas fa-lightbulb"></i>
-                            智能选题
-                        </a>
-                        <a href="../产业链时钟/index.html" class="nav-item  px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-all text-sm flex items-center gap-2">
-                            <i class="fas fa-clock"></i>
-                            产业链时钟
-                        </a>
-                        <a href="../s_level_catalyst/latest.html" class="nav-item  px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-all text-sm flex items-center gap-2">
-                            <i class="fas fa-bolt"></i>
-                            S级催化
-                        </a>
-                        <a href="../预判验证/index.html" class="nav-item  px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-all text-sm flex items-center gap-2">
-                            <i class="fas fa-target"></i>
-                            预判验证
-                        </a>
-                        <a href="../数据时光机/index.html" class="nav-item  px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-all text-sm flex items-center gap-2">
-                            <i class="fas fa-history"></i>
-                            time-machine
-                        </a>
-                        <a href="../daily/latest.html" class="nav-item  px-4 py-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-all text-sm flex items-center gap-2">
-                            <i class="fas fa-newspaper"></i>
-                            每日报告
-                        </a>
-                    </div>
-                    <button id="mobileMenuBtn" class="md:hidden text-white text-xl">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                </div>
-            </div>
-        </nav>
-        
-        <!-- 移动端菜单 -->
-        <div id="mobileMenu" class="mobile-menu fixed inset-0 z-40 bg-gradient-to-br from-slate-900/95 to-indigo-900/95 backdrop-blur-xl hidden">
-            <div class="flex flex-col items-center justify-center h-full gap-4">
-                <a href="../index.html" class="text-2xl text-white/80 hover:text-white transition-colors ">首页</a>
-                <a href="../持仓智能预警仪表盘/index.html" class="text-2xl text-white/80 hover:text-white transition-colors ">持仓仪表盘</a>
-                <a href="../智能选题助手/index.html" class="text-2xl text-white/80 hover:text-white transition-colors ">智能选题</a>
-                <a href="../产业链时钟/index.html" class="text-2xl text-white/80 hover:text-white transition-colors ">产业链时钟</a>
-                <a href="../s_level_catalyst/latest.html" class="text-2xl text-white/80 hover:text-white transition-colors ">S级催化</a>
-                <a href="../预判验证/index.html" class="text-2xl text-white/80 hover:text-white transition-colors ">预判验证</a>
-                <a href="../数据时光机/index.html" class="text-2xl text-white/80 hover:text-white transition-colors ">time-machine</a>
-                <a href="../daily/latest.html" class="text-2xl text-white/80 hover:text-white transition-colors ">每日报告</a>
-            </div>
-        </div>
     
-    <div class="main-content max-w-6xl mx-auto px-6">
-        <!-- 标题区域 -->
-        <div class="text-center mb-8 fade-in">
-            <h1 class="text-4xl font-bold text-white mb-3">
-                <i class="fas fa-history mr-3"></i>数据时光机
-            </h1>
-            <p class="text-white/80 text-lg">穿越时间，回看历史数据快照</p>
-        </div>
-        
-        <!-- 日期选择器 -->
-        <div class="card-glass p-6 mb-6 fade-in">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-4 flex-wrap">
-                    <label class="font-semibold text-gray-700">选择日期：</label>
-                    <select id="dateSelector" class="date-selector min-w-[200px]">
-                        <option value="2026-07-01" selected>2026-07-01</option><option value="2026-06-30" >2026-06-30</option><option value="2026-06-29" >2026-06-29</option><option value="2026-06-27" >2026-06-27</option><option value="2026-06-26" >2026-06-26</option><option value="2026-06-25" >2026-06-25</option><option value="2026-06-24" >2026-06-24</option><option value="2026-06-23" >2026-06-23</option><option value="2026-06-22" >2026-06-22</option><option value="2026-06-20" >2026-06-20</option><option value="2026-06-19" >2026-06-19</option><option value="2026-06-18" >2026-06-18</option><option value="2026-06-17" >2026-06-17</option><option value="2026-06-16" >2026-06-16</option><option value="2026-06-15" >2026-06-15</option><option value="2026-06-14" >2026-06-14</option><option value="2026-06-12" >2026-06-12</option><option value="2026-06-11" >2026-06-11</option><option value="2026-06-10" >2026-06-10</option><option value="2026-06-09" >2026-06-09</option><option value="2026-06-08" >2026-06-08</option>
-                    </select>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" id="compareToggle" class="w-5 h-5 accent-indigo-600">
-                        <span class="text-sm text-gray-600">对比前一日</span>
-                    </label>
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">📊</span>
                 </div>
-                <div class="flex items-center gap-2 text-sm text-gray-500">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span>共 21 个历史快照</span>
-                </div>
+                <span class="text-white font-bold text-lg">投资研究中心</span>
             </div>
+            <div class="nav-links flex items-center space-x-1 flex-wrap gap-1">
+                <a href="/daily-news-insight/index.html" class="text-white bg-white/20 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a><a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a><a href="/daily-news-insight/intraday/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a><a href="/daily-news-insight/aftermarket/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a><a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a><a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a><a href="/daily-news-insight/weekly_outlook/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周三前瞻</a><a href="/daily-news-insight/weekend_express/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a><a href="/daily-news-insight/tomorrow_catalyst/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a><a href="/daily-news-insight/s_level_catalyst/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a><a href="/daily-news-insight/monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
+            </div>
+            <button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
         </div>
+    </nav>
+    
+    <!-- 移动端全屏菜单 -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
+        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a><a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a><a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中</a><a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后</a><a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链</a><a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a><a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a><a href="/daily-news-insight/weekend_express/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a><a href="/daily-news-insight/tomorrow_catalyst/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化</a><a href="/daily-news-insight/s_level_catalyst/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⚡ S级催化</a><a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📅 月报</a>
+    </div>
         
-        <!-- 持仓快照区域 -->
-        <div class="card-glass p-6 mb-6 fade-in" id="portfolioSection">
-            <h2 class="section-title">
-                <i class="fas fa-wallet text-indigo-500"></i>
-                持仓快照
-            </h2>
-            <div id="portfolioCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    
+    <div class="pro-container pt-20 has-toc">
+        
+            
+        <div class="mb-6">
+            <h2 class="section-title"><span class="text-2xl mr-3">📅</span>📅 选择日期</h2>
+            <div class="flex gap-2 overflow-x-auto pb-2">
                 
-                <div class="stock-card risk-low">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="font-bold text-gray-800">英维克</span>
-                        <span class="tag tag-red">
-                            -23.67%
-                        </span>
-                    </div>
-                    <div class="text-2xl font-bold text-gray-900 mb-2">
-                        ¥79.56
-                    </div>
-                    <div class="text-sm text-gray-500 space-y-1">
-                        <div class="flex justify-between">
-                            <span>成本价</span>
-                            <span>¥104.23</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>止损价</span>
-                            <span>¥98.00</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>风险等级</span>
-                            <span class="text-red-500">未知</span>
-                        </div>
-                    </div>
-                </div>
+            <button class="px-4 py-2 rounded-xl border text-sm font-medium transition-all bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-transparent" 
+                    onclick="selectDate('weekly_review_data')">
+                <div>weekly_review_data</div>
+                <div class="text-xs opacity-70"></div>
+            </button>
             
-                <div class="stock-card risk-low">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="font-bold text-gray-800">铜冠铜箔</span>
-                        <span class="tag tag-green">
-                            +89.39%
-                        </span>
-                    </div>
-                    <div class="text-2xl font-bold text-gray-900 mb-2">
-                        ¥165.07
-                    </div>
-                    <div class="text-sm text-gray-500 space-y-1">
-                        <div class="flex justify-between">
-                            <span>成本价</span>
-                            <span>¥87.16</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>止损价</span>
-                            <span>¥78.44</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>风险等级</span>
-                            <span class="text-green-600">未知</span>
-                        </div>
-                    </div>
-                </div>
+            <button class="px-4 py-2 rounded-xl border text-sm font-medium transition-all bg-white/5 text-white/70 border-white/10 hover:bg-white/10" 
+                    onclick="selectDate('topics')">
+                <div>topics</div>
+                <div class="text-xs opacity-70"></div>
+            </button>
             
-                <div class="stock-card risk-low">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="font-bold text-gray-800">雅克科技</span>
-                        <span class="tag tag-green">
-                            +106.34%
-                        </span>
-                    </div>
-                    <div class="text-2xl font-bold text-gray-900 mb-2">
-                        ¥224.50
-                    </div>
-                    <div class="text-sm text-gray-500 space-y-1">
-                        <div class="flex justify-between">
-                            <span>成本价</span>
-                            <span>¥108.80</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>止损价</span>
-                            <span>¥87.04</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>风险等级</span>
-                            <span class="text-green-600">未知</span>
-                        </div>
-                    </div>
-                </div>
+            <button class="px-4 py-2 rounded-xl border text-sm font-medium transition-all bg-white/5 text-white/70 border-white/10 hover:bg-white/10" 
+                    onclick="selectDate('topic_details')">
+                <div>topic_details</div>
+                <div class="text-xs opacity-70"></div>
+            </button>
             
-                <div class="stock-card risk-low">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="font-bold text-gray-800">*ST建艺</span>
-                        <span class="tag tag-red">
-                            -14.13%
-                        </span>
-                    </div>
-                    <div class="text-2xl font-bold text-gray-900 mb-2">
-                        ¥11.55
-                    </div>
-                    <div class="text-sm text-gray-500 space-y-1">
-                        <div class="flex justify-between">
-                            <span>成本价</span>
-                            <span>¥13.45</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>止损价</span>
-                            <span>¥12.50</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>风险等级</span>
-                            <span class="text-red-500">未知</span>
-                        </div>
-                    </div>
-                </div>
+            <button class="px-4 py-2 rounded-xl border text-sm font-medium transition-all bg-white/5 text-white/70 border-white/10 hover:bg-white/10" 
+                    onclick="selectDate('today_reports')">
+                <div>today_reports</div>
+                <div class="text-xs opacity-70"></div>
+            </button>
+            
+            <button class="px-4 py-2 rounded-xl border text-sm font-medium transition-all bg-white/5 text-white/70 border-white/10 hover:bg-white/10" 
+                    onclick="selectDate('rating_rules')">
+                <div>rating_rules</div>
+                <div class="text-xs opacity-70"></div>
+            </button>
+            
+            <button class="px-4 py-2 rounded-xl border text-sm font-medium transition-all bg-white/5 text-white/70 border-white/10 hover:bg-white/10" 
+                    onclick="selectDate('predictions')">
+                <div>predictions</div>
+                <div class="text-xs opacity-70"></div>
+            </button>
+            
+            <button class="px-4 py-2 rounded-xl border text-sm font-medium transition-all bg-white/5 text-white/70 border-white/10 hover:bg-white/10" 
+                    onclick="selectDate('portfolio')">
+                <div>portfolio</div>
+                <div class="text-xs opacity-70"></div>
+            </button>
             
             </div>
         </div>
         
-        <!-- 市场快照区域 -->
-        <div class="card-glass p-6 mb-6 fade-in" id="marketSection">
-            <h2 class="section-title">
-                <i class="fas fa-chart-bar text-blue-500"></i>
-                市场快照
-            </h2>
-            <div id="marketCards" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            
+        <div class="card-glass p-6 mb-6 ">
+            
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                    <div class="text-sm text-white/60 mb-1">📊 组合总收益</div>
+                    <div class="text-4xl font-black text-green-400">+0.00%</div>
+                    <div class="text-sm text-white/60 mt-1">总资产: ¥0</div>
+                </div>
                 
-                <div class="stat-card text-center">
-                    <div class="text-sm text-gray-500 mb-1">上证指数</div>
-                    <div class="text-xl font-bold text-gray-900 mb-1">4094.40</div>
-                    <div class="text-green-600 font-semibold text-sm">
-                        +0.01%
+                <div class="flex items-center gap-6">
+                    <div class="text-center">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-xl font-black shadow-lg">
+                            0
+                        </div>
+                        <div class="text-xs text-white/60 mt-2">健康分</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="text-center p-2 bg-white/5 rounded-lg">
+                            <div class="text-lg font-bold text-white">0</div>
+                            <div class="text-xs text-white/60">持仓</div>
+                        </div>
+                        <div class="text-center p-2 bg-white/5 rounded-lg">
+                            <div class="text-lg font-bold text-green-400">0</div>
+                            <div class="text-xs text-white/60">盈利</div>
+                        </div>
+                        <div class="text-center p-2 bg-white/5 rounded-lg">
+                            <div class="text-lg font-bold text-red-400">0</div>
+                            <div class="text-xs text-white/60">亏损</div>
+                        </div>
                     </div>
                 </div>
-            
-                <div class="stat-card text-center">
-                    <div class="text-sm text-gray-500 mb-1">深证成指</div>
-                    <div class="text-xl font-bold text-gray-900 mb-1">16205.56</div>
-                    <div class="text-green-600 font-semibold text-sm">
-                        +0.02%
-                    </div>
-                </div>
-            
-                <div class="stat-card text-center">
-                    <div class="text-sm text-gray-500 mb-1">创业板指</div>
-                    <div class="text-xl font-bold text-gray-900 mb-1">4342.71</div>
-                    <div class="text-green-600 font-semibold text-sm">
-                        +0.03%
-                    </div>
-                </div>
-            
-                <div class="stat-card text-center">
-                    <div class="text-sm text-gray-500 mb-1">科创50</div>
-                    <div class="text-xl font-bold text-gray-900 mb-1">2207.86</div>
-                    <div class="text-green-600 font-semibold text-sm">
-                        +0.04%
-                    </div>
-                </div>
-            
             </div>
+        
         </div>
         
-        <!-- 市场情绪区域 -->
-        <div class="card-glass p-6 mb-6 fade-in" id="sentimentSection">
-            <h2 class="section-title">
-                <i class="fas fa-heartbeat text-red-500"></i>
-                市场情绪
-            </h2>
-            <div id="sentimentContent">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="stat-card text-center">
-                    <div class="text-sm text-gray-500 mb-2">恐惧贪婪指数</div>
-                    <div class="text-3xl font-bold text-green-600 mb-1">72</div>
-                    <div class="text-xs text-gray-400">贪婪</div>
-                </div>
             
-                <div class="stat-card text-center">
-                    <div class="text-sm text-gray-500 mb-2">成交额</div>
-                    <div class="text-xl font-bold text-gray-900 mb-1">34400亿</div>
-                    <div class="text-xs text-gray-400">两市合计</div>
-                </div>
+        <div class="card-glass p-6 mb-6 ">
             
-                <div class="stat-card text-center">
-                    <div class="text-sm text-gray-500 mb-2">涨跌家数</div>
-                    <div class="text-lg font-bold mb-1">
-                        <span class="text-red-500">4100</span>
-                        /
-                        <span class="text-green-600">1400</span>
-                    </div>
-                    <div class="text-xs text-gray-400">上涨/下跌</div>
-                </div>
+            <h2 class="section-title"><span class="text-2xl mr-3">📈</span>📈 持仓明细</h2>
             
-                <div class="stat-card text-center">
-                    <div class="text-sm text-gray-500 mb-2">涨跌比</div>
-                    <div class="text-2xl font-bold text-blue-600 mb-1">2.93</div>
-                    <div class="text-xs text-gray-400">全市场</div>
+            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold">
+                            英维
+                        </div>
+                        <div>
+                            <div class="text-white font-semibold">英维克</div>
+                            <div class="text-xs text-white/50">002837</div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <div class="grid grid-cols-3 gap-4 mt-3 pt-3 border-t border-white/10">
+                    <div>
+                        <div class="text-xs text-white/50 mb-1">现价</div>
+                        <div class="text-white font-semibold">¥82.57</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-white/50 mb-1">今日涨跌</div>
+                        <div class="font-semibold text-green-400">+0.00%</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-white/50 mb-1">累计收益</div>
+                        <div class="font-semibold text-green-400">+0.00%</div>
+                    </div>
                 </div>
             </div>
+            
+            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold">
+                            铜冠
+                        </div>
+                        <div>
+                            <div class="text-white font-semibold">铜冠铜箔</div>
+                            <div class="text-xs text-white/50">301217</div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <div class="grid grid-cols-3 gap-4 mt-3 pt-3 border-t border-white/10">
+                    <div>
+                        <div class="text-xs text-white/50 mb-1">现价</div>
+                        <div class="text-white font-semibold">¥170.30</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-white/50 mb-1">今日涨跌</div>
+                        <div class="font-semibold text-green-400">+0.00%</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-white/50 mb-1">累计收益</div>
+                        <div class="font-semibold text-green-400">+0.00%</div>
+                    </div>
+                </div>
             </div>
-        </div>
-
-        <!-- 热门板块区域 -->
-        <div class="card-glass p-6 mb-6 fade-in" id="hotSectorsSection">
-            <h2 class="section-title">
-                <i class="fas fa-fire text-orange-500"></i>
-                热门板块
-            </h2>
-            <div id="hotSectorsCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                
-                    <div class="stock-card" style="border-left: 4px solid;">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-bold text-gray-800">AI算力</span>
-                            <span class="text-green-600 font-semibold text-sm">
-                                +4.20%
-                            </span>
+            
+            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold">
+                            雅克
                         </div>
-                        <div class="text-sm text-gray-500 space-y-1">
-                            <div class="flex justify-between">
-                                <span>龙头</span>
-                                <span class="text-gray-700">寒武纪</span>
-                            </div>
-                            <div class="text-xs text-gray-400 mt-1">
-                                
-                            </div>
+                        <div>
+                            <div class="text-white font-semibold">雅克科技</div>
+                            <div class="text-xs text-white/50">002409</div>
                         </div>
                     </div>
+                    
+                </div>
                 
-                    <div class="stock-card" style="border-left: 4px solid;">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-bold text-gray-800">存储芯片</span>
-                            <span class="text-green-600 font-semibold text-sm">
-                                +3.50%
-                            </span>
-                        </div>
-                        <div class="text-sm text-gray-500 space-y-1">
-                            <div class="flex justify-between">
-                                <span>龙头</span>
-                                <span class="text-gray-700">雅克科技</span>
-                            </div>
-                            <div class="text-xs text-gray-400 mt-1">
-                                
-                            </div>
-                        </div>
+                <div class="grid grid-cols-3 gap-4 mt-3 pt-3 border-t border-white/10">
+                    <div>
+                        <div class="text-xs text-white/50 mb-1">现价</div>
+                        <div class="text-white font-semibold">¥188.60</div>
                     </div>
-                
-                    <div class="stock-card" style="border-left: 4px solid;">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-bold text-gray-800">人形机器人</span>
-                            <span class="text-green-600 font-semibold text-sm">
-                                +2.80%
-                            </span>
-                        </div>
-                        <div class="text-sm text-gray-500 space-y-1">
-                            <div class="flex justify-between">
-                                <span>龙头</span>
-                                <span class="text-gray-700">三花智控</span>
-                            </div>
-                            <div class="text-xs text-gray-400 mt-1">
-                                
-                            </div>
-                        </div>
+                    <div>
+                        <div class="text-xs text-white/50 mb-1">今日涨跌</div>
+                        <div class="font-semibold text-green-400">+0.00%</div>
                     </div>
-                
-                    <div class="stock-card" style="border-left: 4px solid;">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-bold text-gray-800">先进封装</span>
-                            <span class="text-green-600 font-semibold text-sm">
-                                +2.10%
-                            </span>
-                        </div>
-                        <div class="text-sm text-gray-500 space-y-1">
-                            <div class="flex justify-between">
-                                <span>龙头</span>
-                                <span class="text-gray-700">长电科技</span>
-                            </div>
-                            <div class="text-xs text-gray-400 mt-1">
-                                
-                            </div>
-                        </div>
+                    <div>
+                        <div class="text-xs text-white/50 mb-1">累计收益</div>
+                        <div class="font-semibold text-green-400">+0.00%</div>
                     </div>
-                
-                    <div class="stock-card" style="border-left: 4px solid;">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-bold text-gray-800">光模块</span>
-                            <span class="text-green-600 font-semibold text-sm">
-                                +1.90%
-                            </span>
-                        </div>
-                        <div class="text-sm text-gray-500 space-y-1">
-                            <div class="flex justify-between">
-                                <span>龙头</span>
-                                <span class="text-gray-700">中际旭创</span>
-                            </div>
-                            <div class="text-xs text-gray-400 mt-1">
-                                
-                            </div>
-                        </div>
-                    </div>
-                
+                </div>
             </div>
-        </div>
-
-        <!-- 冷门板块区域 -->
-        <div class="card-glass p-6 mb-6 fade-in" id="coldSectorsSection">
-            <h2 class="section-title">
-                <i class="fas fa-snowflake text-blue-400"></i>
-                冷门板块
-            </h2>
-            <div id="coldSectorsCards" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                
-                    <div class="stock-card" style="border-left: 4px solid #60a5fa;">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-bold text-gray-800">煤炭</span>
-                            <span class="text-red-500 font-semibold text-sm">
-                                -1.20%
-                            </span>
+            
+            <div class="p-4 bg-white/5 rounded-xl border border-white/10 mb-3 last:mb-0 hover:bg-white/10 transition-colors">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold">
+                            *S
                         </div>
-                        <div class="text-sm text-gray-500 space-y-1">
-                            <div class="flex justify-between">
-                                <span>龙头</span>
-                                <span class="text-gray-700">中国神华</span>
-                            </div>
-                            
+                        <div>
+                            <div class="text-white font-semibold">*ST建艺</div>
+                            <div class="text-xs text-white/50">002789</div>
                         </div>
                     </div>
+                    
+                </div>
                 
-                    <div class="stock-card" style="border-left: 4px solid #60a5fa;">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-bold text-gray-800">石油石化</span>
-                            <span class="text-red-500 font-semibold text-sm">
-                                -0.80%
-                            </span>
-                        </div>
-                        <div class="text-sm text-gray-500 space-y-1">
-                            <div class="flex justify-between">
-                                <span>龙头</span>
-                                <span class="text-gray-700">中国石油</span>
-                            </div>
-                            
-                        </div>
+                <div class="grid grid-cols-3 gap-4 mt-3 pt-3 border-t border-white/10">
+                    <div>
+                        <div class="text-xs text-white/50 mb-1">现价</div>
+                        <div class="text-white font-semibold">¥11.50</div>
                     </div>
-                
-                    <div class="stock-card" style="border-left: 4px solid #60a5fa;">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-bold text-gray-800">银行</span>
-                            <span class="text-green-600 font-semibold text-sm">
-                                +0.30%
-                            </span>
-                        </div>
-                        <div class="text-sm text-gray-500 space-y-1">
-                            <div class="flex justify-between">
-                                <span>龙头</span>
-                                <span class="text-gray-700">工商银行</span>
-                            </div>
-                            
-                        </div>
+                    <div>
+                        <div class="text-xs text-white/50 mb-1">今日涨跌</div>
+                        <div class="font-semibold text-green-400">+0.00%</div>
                     </div>
-                
+                    <div>
+                        <div class="text-xs text-white/50 mb-1">累计收益</div>
+                        <div class="font-semibold text-green-400">+0.00%</div>
+                    </div>
+                </div>
             </div>
+            
+        
         </div>
+        
+            
+            
+            <script>
+                function selectDate(date) {
+                    // 实际项目中这里会有AJAX加载或页面跳转
+                    console.log('选择日期:', date);
+                    alert('时间旅行到 ' + date + '！\n(完整功能需后端支持)');
+                }
+            </script>
+        
+        
+        
+        <div class="text-center text-white/40 text-sm py-10">
+            <p>数据时光机 · 回溯历史 · 见证成长</p>
+            
+        </div>
+        
     </div>
     
+    <div id="progressBar"></div><div class="action-buttons"><button onclick="exportPDF()" class="action-btn" title="打印/导出PDF"><span style="font-size:20px">&#x1F4C4;</span></button><button onclick="shareReport()" class="action-btn" title="分享报告"><span style="font-size:20px">&#x1F517;</span></button></div><button id="backToTop" onclick="scrollToTop()" title="回到顶部"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg></button>
+    <!-- 悬浮目录导航 -->
+<div id="tableOfContents" class="toc-wrapper toc-right">
+  <div class="toc-header" onclick="toggleTOC()">
+    <span class="toc-title">目录</span>
+    <svg id="tocToggleIcon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="transition-transform duration-300">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+    </svg>
+  </div>
+  <div id="tocContent" class="toc-content">
+    <div id="tocContainer" class="toc-container"></div>
+  </div>
+</div>
+
+    <script src="/daily-news-insight/assets/stock-popup.js"></script>
+    
     <script>
-        // 移动端菜单
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const mobileMenu = document.getElementById('mobileMenu');
+        // ==================== 移动端菜单切换 ====================
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) {
+                menu.classList.toggle('show');
+                document.body.style.overflow = menu.classList.contains('show') ? 'hidden' : '';
+            }
+        }
         
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('show');
+        // 点击菜单项后关闭菜单
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('mobile-menu-item')) {
+                setTimeout(toggleMobileMenu, 100);
+            }
         });
         
-        // 日期切换功能
-        const dateSelector = document.getElementById('dateSelector');
-        
-        dateSelector.addEventListener('change', function() {
-            currentDate = this.value;
-            loadAllData();
+        // ==================== 导航栏滚动效果 ====================
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('.glass-nav');
+            if (nav) {
+                if (window.scrollY > 10) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
+                }
+            }
         });
-
-        // 对比开关
-        const compareToggle = document.getElementById('compareToggle');
-        if (compareToggle) {
-            compareToggle.addEventListener('change', function() {
-                compareMode = this.checked;
-                loadAllData();
+        
+        // ==================== 滚动触发动画 ====================
+        function initScrollReveal() {
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                        }
+                    });
+                }, {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                });
+                
+                document.querySelectorAll('.reveal, .card-glass').forEach(function(el, index) {
+                    observer.observe(el);
+                    el.style.animationDelay = (index * 0.1) + 's';
+                });
+            }
+        }
+        
+        // ==================== 数字滚动动画 ====================
+        function animateValue(element, start, end, duration) {
+            var startTimestamp = null;
+            var step = function(timestamp) {
+                if (!startTimestamp) startTimestamp = timestamp;
+                var progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                var value = Math.floor(progress * (end - start) + start);
+                element.textContent = value.toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+        
+        function initCounters() {
+            var counters = document.querySelectorAll('.counter-value');
+            if ('IntersectionObserver' in window) {
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting && !entry.target.dataset.animated) {
+                            entry.target.dataset.animated = 'true';
+                            var target = parseInt(entry.target.dataset.target || entry.target.textContent);
+                            animateValue(entry.target, 0, target, 1500);
+                        }
+                    });
+                }, { threshold: 0.5 });
+                
+                counters.forEach(function(counter) { observer.observe(counter); });
+            }
+        }
+        
+        // ==================== 进度条动画 ====================
+        function initProgressBars() {
+            var bars = document.querySelectorAll('.risk-bar-fill');
+            if ('IntersectionObserver' in window) {
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting && !entry.target.dataset.animated) {
+                            entry.target.dataset.animated = 'true';
+                            var width = entry.target.style.width;
+                            entry.target.style.width = '0%';
+                            setTimeout(function() {
+                                entry.target.style.width = width;
+                            }, 100);
+                        }
+                    });
+                }, { threshold: 0.5 });
+                
+                bars.forEach(function(bar) { observer.observe(bar); });
+            }
+        }
+        
+        // ==================== 卡片入场动画 ====================
+        function initCardAnimations() {
+            var cards = document.querySelectorAll('.card-glass');
+            cards.forEach(function(card, index) {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                
+                setTimeout(function() {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 + index * 100);
             });
         }
         
-        // 全局状态
-        let currentDate = '';
-        let compareMode = false;
 
-        // 获取前一日日期
-        function getPrevDate(dateStr) {
-            const date = new Date(dateStr);
-            date.setDate(date.getDate() - 1);
-            return date.toISOString().split('T')[0];
-        }
-        
-        function loadAllData() {
-            // 加载当日持仓数据
-            fetch(`../../data/history/${currentDate}.json`)
-                .then(response => response.json())
-                .then(data => {
-                    renderPortfolioData(data, null);
-                })
-                .catch(error => {
-                    console.error('加载持仓数据失败:', error);
-                    document.getElementById('portfolioCards').innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">暂无持仓数据</p>';
-                });
-
-            // 加载当日市场数据
-            fetch(`../../data/history/market/${currentDate}.json`)
-                .then(response => response.json())
-                .then(data => {
-                    renderMarketData(data, null);
-                    renderSentimentData(data, null);
-                    if (typeof renderHotSectors === 'function') renderHotSectors(data, null);
-                    if (typeof renderColdSectors === 'function') renderColdSectors(data, null);
-                })
-                .catch(error => {
-                    console.error('加载市场数据失败:', error);
-                    document.getElementById('marketCards').innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">暂无市场数据</p>';
-                    document.getElementById('sentimentContent').innerHTML = '<p class="text-gray-500 text-center py-4">暂无情绪数据</p>';
-                    const hotEl = document.getElementById('hotSectorsCards');
-                    if (hotEl) hotEl.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">暂无板块数据</p>';
-                    const coldEl = document.getElementById('coldSectorsCards');
-                    if (coldEl) coldEl.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">暂无板块数据</p>';
-                });
-
-            // 如果是对比模式，加载前一日数据
-            if (compareMode) {
-                const prevDate = getPrevDate(currentDate);
+        // ==================== 阅读进度条 & 回到顶部 ====================
+        function initProgressAndBackToTop() {
+            const progressBar = document.getElementById('progressBar');
+            const backToTop = document.getElementById('backToTop');
+            
+            function updateProgress() {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
                 
-                fetch(`../../data/history/${prevDate}.json`)
-                    .then(response => response.json())
-                    .then(prevData => {
-                        fetch(`../../data/history/${currentDate}.json`)
-                            .then(response => response.json())
-                            .then(currData => {
-                                renderPortfolioData(currData, prevData);
-                            });
-                    })
-                    .catch(error => {
-                        console.warn('前一日持仓数据不可用:', error);
-                    });
-
-                fetch(`../../data/history/market/${prevDate}.json`)
-                    .then(response => response.json())
-                    .then(prevData => {
-                        fetch(`../../data/history/market/${currentDate}.json`)
-                            .then(response => response.json())
-                            .then(currData => {
-                                renderMarketData(currData, prevData);
-                                renderSentimentData(currData, prevData);
-                                if (typeof renderHotSectors === 'function') renderHotSectors(currData, prevData);
-                                if (typeof renderColdSectors === 'function') renderColdSectors(currData, prevData);
-                            });
-                    })
-                    .catch(error => {
-                        console.warn('前一日市场数据不可用:', error);
-                    });
-            }
-        }
-        
-        function renderPortfolioData(data, prevData) {
-            const stocks = data.stocks || [];
-            const container = document.getElementById('portfolioCards');
-
-            // 构建前一日数据映射
-            const prevMap = {};
-            if (prevData && prevData.stocks) {
-                prevData.stocks.forEach(s => prevMap[s.code] = s);
+                if (progressBar) {
+                    progressBar.style.width = scrolled + '%';
+                }
+                
+                if (backToTop) {
+                    if (winScroll > 300) {
+                        backToTop.classList.add('visible');
+                    } else {
+                        backToTop.classList.remove('visible');
+                    }
+                }
             }
             
-            if (stocks.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">暂无持仓数据</p>';
+            window.addEventListener('scroll', updateProgress);
+            updateProgress();
+        }
+        
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function exportPDF() {
+            window.print();
+        }
+        
+        function shareReport() {
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({ title: document.title, url: url });
+            } else {
+                navigator.clipboard.writeText(url).then(function() {
+                    alert('链接已复制到剪贴板！');
+                }).catch(function() {
+                    prompt('复制以下链接分享：', url);
+                });
+            }
+        }
+        
+        // ==================== 平滑滚动 ====================
+        function initSmoothScroll() {
+            document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        }
+        
+        
+        // ==================== 悬浮目录导航 ====================
+        function toggleTOC() {
+            const toc = document.getElementById('tableOfContents');
+            if (toc) {
+                // 移动端使用expanded类，桌面端使用collapsed类
+                if (window.innerWidth <= 1200) {
+                    toc.classList.toggle('expanded');
+                } else {
+                    toc.classList.toggle('collapsed');
+                }
+            }
+        }
+
+        // 监听窗口大小变化，重置TOC状态
+        window.addEventListener('resize', function() {
+            const toc = document.getElementById('tableOfContents');
+            if (toc) {
+                if (window.innerWidth > 1200) {
+                    toc.classList.remove('expanded');
+                } else {
+                    toc.classList.remove('expanded');
+                }
+            }
+        });
+        
+        function initTableOfContents() {
+            const tocContainer = document.getElementById('tocContainer');
+            if (!tocContainer) return;
+            
+            // 自动提取页面中的h2和h3标题
+            const headings = document.querySelectorAll('.pro-container h2, .pro-container h3');
+            if (headings.length === 0) {
+                // 没有标题则隐藏目录
+                const toc = document.getElementById('tableOfContents');
+                if (toc) toc.style.display = 'none';
                 return;
             }
             
-            let html = '';
-            stocks.forEach(stock => {
-                const changePct = ((stock.current_price - stock.cost_price) / stock.cost_price * 100).toFixed(2);
-                const isProfit = stock.current_price >= stock.cost_price;
-                const changeClass = isProfit ? 'text-green-600' : 'text-red-500';
-                const changeIcon = isProfit ? 'fa-arrow-up' : 'fa-arrow-down';
-                
-                let riskClass = 'risk-low';
-                if (stock.risk_level === 'high') riskClass = 'risk-high';
-                else if (stock.risk_level === 'medium') riskClass = 'risk-medium';
-                
-                html += `
-                    <div class="stock-card ${riskClass}">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-bold text-gray-800">${stock.name}</span>
-                            <span class="tag ${isProfit ? 'tag-green' : 'tag-red'}">
-                                <i class="fas ${changeIcon} mr-1"></i>${changePct}%
-                            </span>
-                        </div>
-                        <div class="text-2xl font-bold text-gray-900 mb-2">
-                            ¥${stock.current_price.toFixed(2)}
-                        </div>
-                        <div class="text-sm text-gray-500 space-y-1">
-                            <div class="flex justify-between">
-                                <span>成本价</span>
-                                <span>¥${stock.cost_price.toFixed(2)}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>止损价</span>
-                                <span>¥${stock.stop_loss_price.toFixed(2)}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>风险等级</span>
-                                <span class="${changeClass}">${stock.risk_level === 'high' ? '高风险' : stock.risk_level === 'medium' ? '中风险' : '低风险'}</span>
-                            </div>
-                            ${prevMap[stock.code] ? `
-                            <div class="flex justify-between text-xs pt-1 border-t border-gray-100 mt-1">
-                                <span class="text-gray-400">日涨跌</span>
-                                <span class="${((stock.current_price - prevMap[stock.code].current_price) / prevMap[stock.code].current_price) >= 0 ? 'text-green-500' : 'text-red-500'}">${((stock.current_price - prevMap[stock.code].current_price) / prevMap[stock.code].current_price * 100) >= 0 ? '+' : ''}${((stock.current_price - prevMap[stock.code].current_price) / prevMap[stock.code].current_price * 100).toFixed(2)}%</span>
-                            </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
+            // 为标题生成id（如果没有的话）
+            headings.forEach(function(heading, index) {
+                if (!heading.id) {
+                    const text = heading.textContent || heading.innerText;
+                    heading.id = 'section-' + index + '-' + text.trim().replace(/\s+/g, '-').replace(/[^\w\-一-龥]/g, '').substring(0, 30);
+                }
             });
             
-            container.innerHTML = html;
-        }
-        
-        function renderMarketData(data, prevData) {
-            const indices = data.indices || [];
-            const container = document.getElementById('marketCards');
-            
-            if (indices.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">暂无市场数据</p>';
-                return;
-            }
-            
-            let html = '';
-            indices.forEach(idx => {
-                const isUp = idx.up;
-                const changeClass = isUp ? 'text-green-600' : 'text-red-500';
-                const bgClass = isUp ? 'bg-green-50' : 'bg-red-50';
-                
-                html += `
-                    <div class="stat-card text-center">
-                        <div class="text-sm text-gray-500 mb-1">${idx.name}</div>
-                        <div class="text-xl font-bold text-gray-900 mb-1">${idx.price.toFixed(2)}</div>
-                        <div class="${changeClass} font-semibold text-sm">
-                            ${isUp ? '+' : ''}${idx.change_pct.toFixed(2)}%
-                        </div>
-                    </div>
-                `;
+            // 生成目录HTML
+            var tocHTML = '';
+            headings.forEach(function(heading) {
+                const level = parseInt(heading.tagName.substring(1));
+                const title = heading.textContent || heading.innerText;
+                const indent = level === 3 ? 'pl-4' : '';
+                tocHTML += '<a href="#' + heading.id + '" class="toc-item ' + indent + '" data-level="' + level + '">' + title.trim() + '</a>';
             });
             
-            container.innerHTML = html;
+            tocContainer.innerHTML = tocHTML;
+            
+            // 为目录项添加平滑滚动
+            tocContainer.querySelectorAll('.toc-item').forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        // 考虑导航栏高度
+                        var offset = 100;
+                        var targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // 初始化滚动高亮
+            initTOCScrollSpy();
         }
         
-        function renderSentimentData(data, prevData) {
-            const sentiment = data.sentiment || {};
-            const marketData = data.market_data || {};
-            const container = document.getElementById('sentimentContent');
+        function initTOCScrollSpy() {
+            const tocItems = document.querySelectorAll('.toc-item');
+            if (tocItems.length === 0) return;
             
-            let html = '<div class="grid grid-cols-2 md:grid-cols-4 gap-4">';
+            // 获取所有章节
+            const sections = [];
+            tocItems.forEach(function(item) {
+                const id = item.getAttribute('href').substring(1);
+                const section = document.getElementById(id);
+                if (section) {
+                    sections.push({
+                        element: section,
+                        navItem: item,
+                        top: section.offsetTop - 120
+                    });
+                }
+            });
             
-            if (sentiment.fear_greed !== undefined) {
-                const fg = sentiment.fear_greed;
-                let fgLevel = '中性';
-                let fgColor = 'text-yellow-600';
-                if (fg > 70) { fgLevel = '贪婪'; fgColor = 'text-green-600'; }
-                else if (fg > 50) { fgLevel = '乐观'; fgColor = 'text-blue-600'; }
-                else if (fg < 30) { fgLevel = '恐惧'; fgColor = 'text-red-600'; }
-                else if (fg < 40) { fgLevel = '恐慌'; fgColor = 'text-orange-600'; }
+            if (sections.length === 0) return;
+            
+            // 滚动时更新高亮
+            function updateActiveTOC() {
+                const scrollPosition = window.pageYOffset;
                 
-                html += `
-                    <div class="stat-card text-center">
-                        <div class="text-sm text-gray-500 mb-2">恐惧贪婪指数</div>
-                        <div class="text-3xl font-bold ${fgColor} mb-1">${fg}</div>
-                        <div class="text-xs text-gray-400">${fgLevel}</div>
-                    </div>
-                `;
+                // 找到当前处于视口的章节
+                var currentIndex = 0;
+                for (var i = 0; i < sections.length; i++) {
+                    if (scrollPosition >= sections[i].top) {
+                        currentIndex = i;
+                    }
+                }
+                
+                // 更新高亮状态
+                tocItems.forEach(function(item, index) {
+                    item.classList.remove('active');
+                });
+                if (sections[currentIndex]) {
+                    sections[currentIndex].navItem.classList.add('active');
+                }
             }
             
-            if (market_data.turnover) {
-                html += `
-                    <div class="stat-card text-center">
-                        <div class="text-sm text-gray-500 mb-2">成交额</div>
-                        <div class="text-xl font-bold text-gray-900 mb-1">${market_data.turnover}</div>
-                        <div class="text-xs text-gray-400">两市合计</div>
-                    </div>
-                `;
-            }
-            
-            if (market_data.up_count !== undefined && market_data.down_count !== undefined) {
-                html += `
-                    <div class="stat-card text-center">
-                        <div class="text-sm text-gray-500 mb-2">涨跌家数</div>
-                        <div class="text-lg font-bold mb-1">
-                            <span class="text-red-500">${market_data.up_count}</span>
-                            /
-                            <span class="text-green-600">${market_data.down_count}</span>
-                        </div>
-                        <div class="text-xs text-gray-400">上涨/下跌</div>
-                    </div>
-                `;
-            }
-            
-            if (sentiment.advance_decline_ratio !== undefined) {
-                html += `
-                    <div class="stat-card text-center">
-                        <div class="text-sm text-gray-500 mb-2">涨跌比</div>
-                        <div class="text-2xl font-bold text-blue-600 mb-1">${sentiment.advance_decline_ratio}</div>
-                        <div class="text-xs text-gray-400">全市场</div>
-                    </div>
-                `;
-            }
-            
-            html += '</div>';
-            container.innerHTML = html;
+            window.addEventListener('scroll', updateActiveTOC);
+            updateActiveTOC();
+        }
+// ==================== 页面加载完成后初始化 ====================
+        function initAllAnimations() {
+            initProgressAndBackToTop();
+            initScrollReveal();
+            initCounters();
+            initProgressBars();
+            initCardAnimations();
+            initSmoothScroll();
+            initTableOfContents();
+
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initAllAnimations, 100);
+        });
+        
+        if (document.readyState !== 'loading') {
+            setTimeout(initAllAnimations, 100);
         }
     </script>
+        
 </body>
 </html>
