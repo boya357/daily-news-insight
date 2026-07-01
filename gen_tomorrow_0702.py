@@ -170,5 +170,5 @@ gen.add_risk_warning([
 ])
 
 # ========== 发布 ==========
-result = gen.publish()
+result = gen.publish(filename="20260702_明日催化剂.html")
 print("发布结果:", result)
