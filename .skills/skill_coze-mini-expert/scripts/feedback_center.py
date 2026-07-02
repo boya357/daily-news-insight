@@ -8,12 +8,12 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
-import core_feedback_center_373e5505
-from core_feedback_center_373e5505 import *
+import core_feedback_center_0a6d7d4b
+from core_feedback_center_0a6d7d4b import *
 
 if __name__ == "__main__":
     try:
-        core_feedback_center_373e5505._skill_entry_point()
+        core_feedback_center_0a6d7d4b._skill_entry_point()
     except Exception as e:
         print(f"Skill Execution Error: {e}")
         sys.exit(1)
