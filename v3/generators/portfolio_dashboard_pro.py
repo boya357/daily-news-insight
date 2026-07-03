@@ -1,6 +1,11 @@
 """
 持仓智能预警仪表盘生成器 - Pro深色版 V3.5
 基于V3系统架构，深色玻璃态主题，专业投资监控
+V5.0升级（2026-07-03 L1-1/L1-3/L1-5）：
+- 引入global-dark.css全局深色主题
+- 每只持仓股强制风险因素/止损条件/减仓信号模块
+- 报告末尾自动匹配历史教训（止损/破位/ST等相关教训）
+- 数据来源标注
 """
 import sys
 import os
@@ -11,6 +16,17 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.report import Report
 from components.pro import NavBar, Footer, get_pro_theme_css
 from components.base import get_animation_css, get_animation_js
+from generators.pro_base import (
+    source_tag, CONF_HIGH, CONF_MEDIUM, CONF_LOW,
+)
+from lessons_learner import LessonsLearner
+
+
+_GLOBAL_DARK_CSS_TAG = '<link rel="stylesheet" href="/daily-news-insight/assets/global-dark.css">'
+
+
+def _src(source="综合", confidence=CONF_MEDIUM, verified=False, rumor=False):
+    return source_tag(source=source, confidence=confidence, verified=verified, rumor=rumor)
 
 
 class PortfolioDashboardProGenerator:
@@ -543,10 +559,11 @@ class PortfolioDashboardProGenerator:
         return html
     
     def add_stock_cards(self) -> str:
-        """添加所有股票卡片"""
+        """添加所有股票卡片（V5.0：每只卡后强制附带风险/止损/减仓模块）"""
         html = ''
         for stock in self.stocks:
             html += self._generate_stock_card(stock)
+            html += self._stock_risk_block(stock)
         return html
     
     def _safe_float(self, val, default=0.0):
@@ -804,6 +821,143 @@ class PortfolioDashboardProGenerator:
         '''
         return html
     
+    def _stock_risk_block(self, s: dict) -> str:
+        """V5.0 L1-3：单只持仓股风险/止损/减仓信号模块"""
+        name = s.get('name', '')
+        stop = s.get('stop_loss') or s.get('stop_price') or ""
+        # 按持仓状态生成减仓/止损信号
+        dist = s.get('distance_to_stop_loss', 0)
+        pct = dist * 100 if isinstance(dist, (int, float)) else 0
+        if pct <= -5:
+            falsify = [
+                f"{name}跌破止损价{stop}且次日不能站回",
+                f"{name}连续3日放量下跌且主力净流出超3亿",
+                "板块系统性杀跌，情绪退潮",
+            ]
+            bear = [
+                f"{name}已深度破位，主力出货迹象明显",
+                "利空出尽未必是底，抄底资金被埋风险大",
+                "弱势行情下逆势补仓只会扩大亏损",
+            ]
+        elif pct < 5:
+            falsify = [
+                f"{name}跌破{stop}硬止损位，无条件离场",
+                f"{name}跌破20日均线并放量",
+            ]
+            bear = [
+                "高波动区域，止损位近在咫尺",
+                "若板块走弱，易引发连锁止损抛压",
+            ]
+        else:
+            falsify = [
+                f"{name}跌破10日均线且单日放量跌超5%",
+                "出现跌停或高位放量长上影线",
+                "主营逻辑/核心催化被证伪",
+            ]
+            bear = [
+                "浮盈较大，机构兑现风险上升",
+                "高位震荡易引发获利盘集中出逃",
+                "利好兑现即出货",
+            ]
+        falsify_html = ''.join([
+            f'<li class="flex gap-2 mb-1"><span class="text-red-400 flex-shrink-0">✗</span><span class="text-white/70 text-sm">{x}</span></li>'
+            for x in falsify
+        ])
+        bear_html = ''.join([
+            f'<li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">{x}</span></li>'
+            for x in bear
+        ])
+        stop_html = ""
+        if stop:
+            stop_html = f'''
+            <div class="bg-red-500/10 border border-red-500/30 rounded-lg px-2 py-1.5 mb-2">
+                <span class="text-red-400 text-[11px] font-bold">⛔ 止损价：</span>
+                <span class="text-white font-bold text-sm">{stop}</span>
+                <span class="text-white/50 text-[10px] ml-1">跌破无条件离场</span>
+            </div>
+            '''
+        # 减仓信号（基于当前价/成本推断）
+        reduce_signals = s.get('reduce_signals') or [
+            f"反弹至压力位放量滞涨 → 减1/3锁利",
+            f"单日冲高回落且量能异常放大 → 减1/3",
+            f"板块高潮次日（龙头开板）→ 减1/3",
+        ]
+        reduce_html = ''.join([
+            f'<li class="flex gap-2 mb-1"><span class="text-orange-400 flex-shrink-0">↓</span><span class="text-white/70 text-sm">{x}</span></li>'
+            for x in reduce_signals
+        ])
+        return f'''
+        <div class="bg-gradient-to-r from-red-900/20 via-red-500/10 to-transparent border-l-4 border-red-500/60 rounded-r-lg p-3 mt-3">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-sm">🔴</span>
+                <span class="text-red-400 text-[13px] font-bold">{name} · 风险/止损/减仓</span>
+                <span class="ml-auto text-[10px] text-white/40 bg-white/5 px-1.5 py-0.5 rounded">V5.0 必选项</span>
+            </div>
+            {stop_html}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div>
+                    <div class="text-[11px] text-red-400/80 font-bold mb-1">❌ 证伪/止损信号</div>
+                    <ul class="list-none p-0 m-0">{falsify_html}</ul>
+                </div>
+                <div>
+                    <div class="text-[11px] text-orange-400/80 font-bold mb-1">↓ 减仓信号</div>
+                    <ul class="list-none p-0 m-0">{reduce_html}</ul>
+                </div>
+            </div>
+            <div class="mt-2">
+                <div class="text-[11px] text-yellow-400/80 font-bold mb-1">⚠️ 空方逻辑</div>
+                <ul class="list-none p-0 m-0">{bear_html}</ul>
+            </div>
+        </div>
+        '''
+
+    def _lessons_section(self) -> str:
+        """V5.0 L1-5：匹配相关历史教训"""
+        kws = ["持仓", "止损", "破位", "减仓", "白卡", "虚构数据"]
+        for s in self.stocks:
+            n = s.get('name', '')
+            if 'ST' in n or '建艺' in n:
+                kws.extend(['ST', '退市'])
+            if '英维克' in n:
+                kws.extend(['液冷', '算力'])
+            if '铜冠' in n:
+                kws.extend(['存储', '铜箔'])
+            if '雅克' in n:
+                kws.extend(['HBM', '半导体', '跌停'])
+        try:
+            learner = LessonsLearner()
+            matches = learner.match(kws, top_k=3)
+        except Exception as e:
+            print(f"[Warn] lessons match failed: {e}")
+            return ""
+        if not matches:
+            return ""
+        cards = ""
+        for l in matches:
+            tags = ' '.join([
+                f'<span class="bg-white/5 text-white/50 text-[10px] px-1.5 py-0.5 rounded">{t}</span>'
+                for t in l.get('tags', [])
+            ])
+            cards += f'''
+            <div class="bg-white/[0.03] border border-white/10 rounded-lg p-3">
+                <div class="flex items-start justify-between gap-2 mb-1">
+                    <div class="text-white/90 font-semibold text-sm">📌 {l.get('title','')}</div>
+                    <span class="text-[10px] text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded flex-shrink-0">相关度 {l.get('score',0):.0%}</span>
+                </div>
+                <p class="text-white/60 text-xs leading-relaxed">{l.get('summary','')}</p>
+                <div class="flex flex-wrap gap-1 mt-2">{tags}</div>
+            </div>
+            '''
+        return f'''
+        <div class="card-glass p-6 mb-6">
+            <h2 class="section-title"><span style="font-size:24px;">📚</span>历史教训回顾</h2>
+            <p class="text-white/50 text-xs mb-3">基于当前持仓自动匹配相关历史错误教训，避免重蹈覆辙</p>
+            <div class="grid grid-cols-1 md:grid-cols-{min(3, max(1, len(matches)))} gap-2">
+                {cards}
+            </div>
+        </div>
+        '''
+
     def add_risk_alert_panel(self) -> str:
         """添加风险预警面板"""
         # 高风险标的
@@ -1056,6 +1210,8 @@ class PortfolioDashboardProGenerator:
         content_html += self.add_risk_alert_panel()
         content_html += self.add_industry_analysis()
         content_html += self.add_fund_flow_monitor()
+        # V5.0 L1-5：历史教训回顾
+        content_html += self._lessons_section()
         
         # Pro主题CSS
         theme_css = get_pro_theme_css()
@@ -1203,6 +1359,7 @@ class PortfolioDashboardProGenerator:
     <title>持仓智能预警仪表盘 - 投资研究中心</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    {_GLOBAL_DARK_CSS_TAG}
     {theme_css}
     {animation_css}
     {floating_css}
@@ -1236,7 +1393,12 @@ class PortfolioDashboardProGenerator:
         """发布到生产路径"""
         try:
             html = self.generate()
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            # 兜底注入 global-dark.css
+            if 'global-dark.css' not in html:
+                inject = _GLOBAL_DARK_CSS_TAG
+                if '</head>' in html:
+                    html = html.replace('</head>', inject + '</head>', 1)
+            os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
             with open(output_path, 'w', encoding='utf-8') as f:
                 f.write(html)
             return {

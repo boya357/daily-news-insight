@@ -3,6 +3,10 @@ S级催化扫描生成器 - Pro版
 基于ReportProGenerator基类重构，深色玻璃态风格
 深度挖掘S级别重大催化事件，把握超级题材机会
 V3.5升级：集成Tab切换、卡片组、数据网格通用组件
+V5.0升级（2026-07-03 L1-1/L1-3/L1-5）：
+- 所有核心数据标注来源+置信度
+- 每个S级题材强制包含"🔴 证伪条件/空方逻辑"模块
+- 报告末尾自动匹配历史教训
 """
 import sys
 import os
@@ -11,6 +15,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from generators.report_pro_base import ReportProGenerator
+from generators.pro_base import CONF_HIGH, CONF_MEDIUM, CONF_LOW, source_tag as _src, unverified as _unv
 
 
 class SLevelCatalystProGenerator(ReportProGenerator):
@@ -55,6 +60,7 @@ class SLevelCatalystProGenerator(ReportProGenerator):
                 本期扫描发现 <span class="text-red-400 font-bold">{s_plus_count + s_count + a_plus_count}</span> 个重点催化事件，其中S+级{s_plus_count}个、S级{s_count}个、A+级{a_plus_count}个，
                 其中 <span class="text-yellow-400 font-semibold">{top_topic}</span> 方向确定性最高，
                 建议重点关注。
+                {self.cite(source="综合研究", confidence=CONF_MEDIUM)}
             </p>
         </div>
         {grid_html}
@@ -161,7 +167,10 @@ class SLevelCatalystProGenerator(ReportProGenerator):
                     </div>
                     <span class="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">{score}分</span>
                 </div>
-                <p class="text-white/70 text-sm leading-relaxed mb-3">{core_logic}</p>
+                <p class="text-white/70 text-sm leading-relaxed mb-3">
+                    {core_logic}
+                    {self.cite(source=topic.get('source', '综合研究'), confidence=topic.get('confidence', CONF_MEDIUM), verified=topic.get('verified', False), rumor=topic.get('rumor', False))}
+                </p>
                 <div class="mb-2">
                     <div class="text-xs text-white/40 mb-1">核心催化剂</div>
                     <div class="flex flex-wrap gap-1.5">{cat_tags}</div>
@@ -186,10 +195,26 @@ class SLevelCatalystProGenerator(ReportProGenerator):
                         <span class="text-white/70">{time_window}</span>
                     </div>
                     <div class="text-xs">
-                        <span class="text-white/40">风险：</span>
+                        <span class="text-white/40">常规风险：</span>
                         <span class="text-red-400/70">{risk}</span>
                     </div>
                 </div>
+                {self._risk_section(
+                    title=f"🔴 {name} · 证伪条件/空方逻辑",
+                    falsify_signals=topic.get('falsify_signals', [
+                        f"{name}核心龙头放量跌破20日均线且2日不能收回",
+                        f"{name}核心催化（政策/业绩/订单）被官方澄清或证伪",
+                        "板块单日跌幅>5%且主力净流出超百亿",
+                    ]),
+                    stop_loss=topic.get('stop_loss', f"板块龙头买入后回撤超8%无条件止损"),
+                    bear_logic=topic.get('bear_logic', [
+                        f"{name}已被充分预期，利好兑现即出货（Buy the rumor, sell the news）",
+                        "机构/北向资金连续净流出，筹码松动",
+                        "大盘系统性风险（如外盘暴跌、流动性收紧）拖累",
+                        "题材轮动过快，高标A杀情绪退潮",
+                    ]),
+                    contrarian_view=topic.get('contrarian_view', ""),
+                )}
                 '''
                 
                 cards.append({
@@ -419,14 +444,28 @@ class SLevelCatalystProGenerator(ReportProGenerator):
         cards_html = self.create_card_group(cards=strategies, cols=3, card_style='glass')
         self.add_section("投资策略建议", cards_html, "📈")
     
-    def build_standard_report(self):
-        """构建标准版本的S级催化扫描"""
+    def build_standard_report(self, keywords: list = None):
+        """构建标准版本的S级催化扫描（V5.0：自动注入教训回顾+数据来源统计）"""
         self.add_scan_summary()
         self.add_s_level_topics()
         self.add_a_plus_catalysts()
         self.add_catalysts_calendar()
         self.add_industry_chain_analysis()
         self.add_investment_strategy()
+        
+        # V5.0 L1-5：历史教训自动匹配
+        ctx_keywords = keywords or ["S级催化", "题材", "连板", "涨停", "高位股", "情绪退潮"]
+        ctx_keywords.extend([t.get("name", "") for t in (self.topics or [])])
+        lessons_html = self.build_lessons_section(keywords=ctx_keywords, top_k=3)
+        if lessons_html:
+            wrap = f'<div class="card-glass p-6 mb-6">{lessons_html}</div>'
+            self.add_section("🧠 系统复盘", wrap, "📚")
+        
+        # V5.0 L1-1：数据来源统计
+        src_html = self._source_summary_section()
+        if src_html:
+            self.add_section("📡 数据溯源", src_html, "📡")
+        
         self.add_risk_warning()
         
         return self
