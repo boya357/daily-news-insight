@@ -11,7 +11,7 @@
 ## 调用
 
 ```bash
-python3 ./scripts/stock_query.py call quote --param code=sh600519
+python3 ./bin/_cli_wrapper.py call quote --param code=sh600519
 ```
 
 ## 入参
@@ -47,13 +47,13 @@ python3 ./scripts/stock_query.py call quote --param code=sh600519
 
 ```bash
 # A股
-python3 ./scripts/stock_query.py call quote --param code=sh600519
+python3 ./bin/_cli_wrapper.py call quote --param code=sh600519
 # 港股
-python3 ./scripts/stock_query.py call quote --param code=hk00700
+python3 ./bin/_cli_wrapper.py call quote --param code=hk00700
 # 美股
-python3 ./scripts/stock_query.py call quote --param code=usAAPL
+python3 ./bin/_cli_wrapper.py call quote --param code=usAAPL
 # 上证指数
-python3 ./scripts/stock_query.py call quote --param code=sh000001
+python3 ./bin/_cli_wrapper.py call quote --param code=sh000001
 # 强制用新浪
-python3 ./scripts/stock_query.py call quote --param code=sh600519 --param source=sina
+python3 ./bin/_cli_wrapper.py call quote --param code=sh600519 --param source=sina
 ```

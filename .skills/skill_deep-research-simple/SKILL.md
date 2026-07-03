@@ -100,13 +100,17 @@ Every major claim in the final report must map back to an evidence block in this
 ## 📝 Report Engineering Standards
 
 ### 1. Structural Logic & Opening
-#### Executive Summary
+#### Executive Summary（摘要）
 Every report must open with a 300-500 word summary that satisfies **all** of the following requirements:
 
 1. **Directly answers the core question.** No "this report will explore..." preamble.
 2. **States key findings with supporting numbers.** Concrete figures, not hedged language.
 3. **Delivers the bottom-line judgment.** One sentence a decision-maker would quote.
-4. **Uses a layered, modular structure.** Parallel entities across parallel attributes must be rendered as tables or tight lists — never prose.
+
+**Readability rules:**
+- Split into **2–5 short paragraphs** with clear logical progression (e.g., context → findings → judgment → implications). Never output as a single block.
+- Parallel entities across parallel attributes must be rendered as tables or tight lists — never prose.
+- Use **bold** to highlight key numbers or conclusions so readers can scan quickly.
 
 **Success criterion:** a reader who only reads this section gets 80% of the report's value.
 
@@ -147,6 +151,8 @@ Every report must open with a 300-500 word summary that satisfies **all** of the
     - **Citation position rule**: The citation tag must sit **immediately before the sentence-ending punctuation**, with no space between the closing `)` and the punctuation. Citations belong to the sentence they support — never let one float between two sentences as a "drop-in" reference.
         - ✅ `亚马逊1994年由Jeff Bezos创立 [(Wikipedia)](https://...)。1997年以$18/股上市 [(SEC S-1)](https://...)。`
         - ❌ `亚马逊1994年由Jeff Bezos创立。 [(Wikipedia)](https://...) 1997年以$18/股上市。` — citation is orphaned between two sentences; reader cannot tell which claim it supports.
+  -  **URL verbatim fidelity** — every citation URL must be copied character-for-character from the source (search result payload, Skill payload, or fetched page). Never add/remove trailing slashes, never "normalize" or "complete" a URL. If the source says `https://example.com/docs`, write exactly that — not `https://example.com/docs/`
+
 - **Bolding Strategy**:
     - Bold **important keywords, critical numbers, major conclusions, and key insights**.
     - **Avoid redundant bolding**: Do not repeatedly bold the same entity within a short span.

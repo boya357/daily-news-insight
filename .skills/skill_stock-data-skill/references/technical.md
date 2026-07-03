@@ -11,7 +11,7 @@
 ## 调用
 
 ```bash
-python3 ./scripts/stock_query.py call technical --param code=sh600519
+python3 ./bin/_cli_wrapper.py call technical --param code=sh600519
 ```
 
 ## 入参
@@ -43,11 +43,11 @@ python3 ./scripts/stock_query.py call technical --param code=sh600519
 
 ```bash
 # 获取全部技术指标
-python3 ./scripts/stock_query.py call technical --param code=sh600519
+python3 ./bin/_cli_wrapper.py call technical --param code=sh600519
 # 仅获取MACD
-python3 ./scripts/stock_query.py call technical --param code=sh600519 --param group=macd
+python3 ./bin/_cli_wrapper.py call technical --param code=sh600519 --param group=macd
 # 指定日期范围
-python3 ./scripts/stock_query.py call technical --param code=sh600519 --param group=kdj --param start=2024-01-01 --param end=2024-06-30
+python3 ./bin/_cli_wrapper.py call technical --param code=sh600519 --param group=kdj --param start=2024-01-01 --param end=2024-06-30
 # 批量查询
-python3 ./scripts/stock_query.py call technical --param code=sh600519,sz000858 --param group=rsi
+python3 ./bin/_cli_wrapper.py call technical --param code=sh600519,sz000858 --param group=rsi
 ```

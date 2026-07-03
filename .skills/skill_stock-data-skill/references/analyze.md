@@ -11,7 +11,7 @@ K 线数据来自东财/腾讯（自动切换），技术指标由 CLI 内置计
 ## 调用
 
 ```bash
-python3 ./scripts/stock_query.py call analyze --param code=sh600519
+python3 ./bin/_cli_wrapper.py call analyze --param code=sh600519
 ```
 
 ## 入参
@@ -63,11 +63,11 @@ python3 ./scripts/stock_query.py call analyze --param code=sh600519
 
 ```bash
 # 默认120天分析
-python3 ./scripts/stock_query.py call analyze --param code=sh600519
+python3 ./bin/_cli_wrapper.py call analyze --param code=sh600519
 
 # 用250天数据做长期分析
-python3 ./scripts/stock_query.py call analyze --param code=sh600519 --param days=250
+python3 ./bin/_cli_wrapper.py call analyze --param code=sh600519 --param days=250
 
 # 港股技术分析
-python3 ./scripts/stock_query.py call analyze --param code=hk00700
+python3 ./bin/_cli_wrapper.py call analyze --param code=hk00700
 ```

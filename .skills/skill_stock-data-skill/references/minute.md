@@ -11,7 +11,7 @@
 ## 调用
 
 ```bash
-python3 ./scripts/stock_query.py call minute --param code=sh600519
+python3 ./bin/_cli_wrapper.py call minute --param code=sh600519
 ```
 
 ## 入参
@@ -43,6 +43,6 @@ python3 ./scripts/stock_query.py call minute --param code=sh600519
 ## 示例
 
 ```bash
-python3 ./scripts/stock_query.py call minute --param code=sh600519
-python3 ./scripts/stock_query.py call minute --param code=hk00700
+python3 ./bin/_cli_wrapper.py call minute --param code=sh600519
+python3 ./bin/_cli_wrapper.py call minute --param code=hk00700
 ```

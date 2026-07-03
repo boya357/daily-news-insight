@@ -5,7 +5,7 @@ description: 多数据源股票行情查询与分析，支持A股/港股/美股/
 
 # 实时股票数据 Skill
 
-通过腾讯行情/新浪财经/腾讯自选股获取A股、港股、美股、指数的实时行情、历史数据、财务报表、技术指标及市场数据。所有调用走 `python3 scripts/stock_query.py`（内部转发到 `scripts/stock-cli`），agent 不需要知道 HTTP 细节。
+通过腾讯行情/新浪财经/腾讯自选股获取A股、港股、美股、指数的实时行情、历史数据、财务报表、技术指标及市场数据。所有调用走 `python3 bin/_cli_wrapper.py`（内部转发到 `bin/stock-cli`），agent 不需要知道 HTTP 细节。
 
 > **网关说明**：所有请求通过 data-provider 网关（`COZE_DATA_GATEWAY_URL`）转发到上游数据源，用于计费和鉴权。
 
@@ -15,7 +15,6 @@ description: 多数据源股票行情查询与分析，支持A股/港股/美股/
 - 获取历史K线数据（日/周/月/分钟级，支持前复权/后复权）
 - 按名称或拼音搜索股票代码
 - 查看当日分时走势
-- 查看个股资金流向（大单/中单/小单分级）
 - 技术面分析（MA/MACD/RSI/支撑压力位/缺口/综合信号）
 - 查询财务报表（利润表/资产负债表/现金流量表）
 - 查询技术指标（MA/MACD/KDJ/RSI/BOLL等）
@@ -34,48 +33,50 @@ description: 多数据源股票行情查询与分析，支持A股/港股/美股/
 
 ```bash
 # 列出所有可用 operation
-python3 ./scripts/stock_query.py list
+python3 ./bin/_cli_wrapper.py list
 
 # 查看某个 op 的入参 schema
-python3 ./scripts/stock_query.py schema quote
+python3 ./bin/_cli_wrapper.py schema quote
 
 # 查询贵州茅台实时行情
-python3 ./scripts/stock_query.py call quote --param code=sh600519
+python3 ./bin/_cli_wrapper.py call quote --param code=sh600519
 
 # 搜索股票
-python3 ./scripts/stock_query.py call search --param keyword=茅台
+python3 ./bin/_cli_wrapper.py call search --param keyword=茅台
 
 # 技术分析
-python3 ./scripts/stock_query.py call analyze --param code=sh600519
+python3 ./bin/_cli_wrapper.py call analyze --param code=sh600519
 
 # 查询财务报表
-python3 ./scripts/stock_query.py call finance --param code=sh600519
+python3 ./bin/_cli_wrapper.py call finance --param code=sh600519
 
 # 查询技术指标
-python3 ./scripts/stock_query.py call technical --param code=sh600519
+python3 ./bin/_cli_wrapper.py call technical --param code=sh600519
 
 # 查询ETF详情
-python3 ./scripts/stock_query.py call etf --param code=sh510300
+python3 ./bin/_cli_wrapper.py call etf --param code=sh510300
 
 # 查询龙虎榜
-python3 ./scripts/stock_query.py call lhb --param code=sh600519
+python3 ./bin/_cli_wrapper.py call lhb --param code=sh600519
 
 # 查看热搜
-python3 ./scripts/stock_query.py call hot --param type=stock
+python3 ./bin/_cli_wrapper.py call hot --param type=stock
 ```
 
-> 本地联调时也可以直接运行 `./scripts/stock-cli list`（macOS 本地编译版），但 **coze claw 部署必须走 `python3 scripts/stock_query.py`**。
+> 本地联调时也可以直接运行 local-dev 构建的 `./bin/stock-cli-local list`，但 **coze claw 部署必须走 `python3 bin/_cli_wrapper.py`**。Coze 托管凭证环境变量只在 Python 执行上下文注入，由 wrapper 透传给 Go CLI。
 
 ## 环境变量
 
 | 变量 | 必填 | 默认 | 说明 |
 |------|------|------|------|
-| `DATA_PROVIDER_API_KEY` | ✅ | — | data-provider 网关鉴权密钥（`dp_xxx` 格式） |
+| `COZE_DATA_PROVIDER_API_KEY_NEW_7639319066594918410` | Coze 生产必填 | — | Coze 托管凭证运行时注入的 data-provider 网关鉴权密钥；凭证名称/变量名配置为 `DATA_PROVIDER_API_KEY_NEW` |
 | `COZE_DATA_GATEWAY_URL` | ❌ | `https://data.coze.cn` | 网关地址，通常无需修改 |
 | `COZE_DATA_PROVIDER` | ❌ | `stock` | 网关路由 provider 名称 |
 | `COZE_DATA_TIMEOUT_SEC` | ❌ | `15` | 请求超时（秒） |
 
-> `DATA_PROVIDER_API_KEY` 由 coze claw 环境自动注入。本地联调时需手动设置。
+> 本地联调二进制必须使用 `-ldflags "-X code.byted.org/stone/data-provider/pkg/dataproxy.BuildMode=local"` 构建，读取 `DATA_PROVIDER_API_KEY`。Coze 生产二进制不加该 ldflags，读取 `COZE_DATA_PROVIDER_API_KEY_NEW_7639319066594918410`。
+
+Coze 凭证配置要求：凭证名称 `DATA_PROVIDER_API_KEY_NEW`，变量名 `DATA_PROVIDER_API_KEY_NEW`，Header API Key 类型，域名 `data.coze.cn`，请求头位置 `Authorization: Bearer <key>`。
 
 ## 支持市场
 
@@ -171,7 +172,7 @@ python3 ./scripts/stock_query.py call hot --param type=stock
 ## 错误处理范式
 
 ```bash
-output=$(python3 ./scripts/stock_query.py call quote --param code=sh600519 2>err.log)
+output=$(python3 ./bin/_cli_wrapper.py call quote --param code=sh600519 2>err.log)
 case $? in
   0) echo "$output" | jq . ;;
   3|4) echo "上游错误"; cat err.log ;;
@@ -223,7 +224,8 @@ esac
   "description": "Stock data multi-upstream proxy"
 }
 ```
-- ❌ 不要修改 `scripts/stock-cli` 的源码（源码在 `tools/stock-cli/`）
-- ❌ 不要修改 `scripts/stock_query.py`：该脚本是 coze claw env 注入的唯一桥接入口，任何修改都可能导致凭证注入失败
+- ❌ 不要修改 `bin/stock-cli` 的源码（源码在 `tools/stock-cli/`）
+- ❌ 不要修改 `bin/_cli_wrapper.py`：该脚本是 coze claw env 注入的唯一桥接入口，任何修改都可能导致凭证注入失败
 - ❌ 不要修改 `bin/_gateway_proxy.py`（如存在）：该脚本是 skill 网关计费集成的唯一入口
-- ❌ 不要在 coze claw 部署时直接运行 `./scripts/stock-cli`（会读不到托管密钥），必须走 `python3 scripts/stock_query.py`
+- ❌ 不要把生产二进制编成本地模式（`BuildMode=local` 仅限本机联调）
+- ❌ 不要在 coze claw 部署时直接运行 `./bin/stock-cli`（会读不到托管密钥），必须走 `python3 bin/_cli_wrapper.py`

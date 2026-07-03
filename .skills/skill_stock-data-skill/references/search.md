@@ -11,7 +11,7 @@
 ## 调用
 
 ```bash
-python3 ./scripts/stock_query.py call search --param keyword=茅台
+python3 ./bin/_cli_wrapper.py call search --param keyword=茅台
 ```
 
 ## 入参
@@ -42,14 +42,14 @@ python3 ./scripts/stock_query.py call search --param keyword=茅台
 
 ```bash
 # 按名称搜索
-python3 ./scripts/stock_query.py call search --param keyword=茅台
+python3 ./bin/_cli_wrapper.py call search --param keyword=茅台
 
 # 按拼音搜索
-python3 ./scripts/stock_query.py call search --param keyword=gzmt
+python3 ./bin/_cli_wrapper.py call search --param keyword=gzmt
 
 # 按代码搜索
-python3 ./scripts/stock_query.py call search --param keyword=600519
+python3 ./bin/_cli_wrapper.py call search --param keyword=600519
 
 # 搜索美股
-python3 ./scripts/stock_query.py call search --param keyword=apple
+python3 ./bin/_cli_wrapper.py call search --param keyword=apple
 ```

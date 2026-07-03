@@ -11,9 +11,9 @@
 ## 调用
 
 ```bash
-python3 ./scripts/stock_query.py call shareholder --param code=sh600519
-python3 ./scripts/stock_query.py call dividend --param code=sh600519
-python3 ./scripts/stock_query.py call chip --param code=sh600519
+python3 ./bin/_cli_wrapper.py call shareholder --param code=sh600519
+python3 ./bin/_cli_wrapper.py call dividend --param code=sh600519
+python3 ./bin/_cli_wrapper.py call chip --param code=sh600519
 ```
 
 ## 入参
@@ -84,13 +84,13 @@ python3 ./scripts/stock_query.py call chip --param code=sh600519
 
 ```bash
 # A股十大股东
-python3 ./scripts/stock_query.py call shareholder --param code=sh600519
+python3 ./bin/_cli_wrapper.py call shareholder --param code=sh600519
 # 港股股东
-python3 ./scripts/stock_query.py call shareholder --param code=hk00700
+python3 ./bin/_cli_wrapper.py call shareholder --param code=hk00700
 # 最近3年分红
-python3 ./scripts/stock_query.py call dividend --param code=sh600519 --param years=3
+python3 ./bin/_cli_wrapper.py call dividend --param code=sh600519 --param years=3
 # 全部历史分红
-python3 ./scripts/stock_query.py call dividend --param code=sh600519 --param all=true
+python3 ./bin/_cli_wrapper.py call dividend --param code=sh600519 --param all=true
 # 筹码分布(指定日期范围)
-python3 ./scripts/stock_query.py call chip --param code=sh600519 --param start=2024-01-01 --param end=2024-06-30
+python3 ./bin/_cli_wrapper.py call chip --param code=sh600519 --param start=2024-01-01 --param end=2024-06-30
 ```

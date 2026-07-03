@@ -11,9 +11,9 @@
 ## 调用
 
 ```bash
-python3 ./scripts/stock_query.py call etf --param code=sh510300
-python3 ./scripts/stock_query.py call etf-holdings --param code=sh510300
-python3 ./scripts/stock_query.py call etf-nav --param code=sh510300
+python3 ./bin/_cli_wrapper.py call etf --param code=sh510300
+python3 ./bin/_cli_wrapper.py call etf-holdings --param code=sh510300
+python3 ./bin/_cli_wrapper.py call etf-nav --param code=sh510300
 ```
 
 ## 入参
@@ -76,11 +76,11 @@ python3 ./scripts/stock_query.py call etf-nav --param code=sh510300
 
 ```bash
 # 沪深300ETF 基本信息
-python3 ./scripts/stock_query.py call etf --param code=sh510300
+python3 ./bin/_cli_wrapper.py call etf --param code=sh510300
 # ETF 持仓明细
-python3 ./scripts/stock_query.py call etf-holdings --param code=sh510300
+python3 ./bin/_cli_wrapper.py call etf-holdings --param code=sh510300
 # ETF 净值(指定日期范围)
-python3 ./scripts/stock_query.py call etf-nav --param code=sh510300 --param start=2024-01-01 --param end=2024-06-30
+python3 ./bin/_cli_wrapper.py call etf-nav --param code=sh510300 --param start=2024-01-01 --param end=2024-06-30
 # 批量查询
-python3 ./scripts/stock_query.py call etf --param code=sh510300,sz159919
+python3 ./bin/_cli_wrapper.py call etf --param code=sh510300,sz159919
 ```

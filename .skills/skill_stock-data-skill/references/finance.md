@@ -11,7 +11,7 @@
 ## 调用
 
 ```bash
-python3 ./scripts/stock_query.py call finance --param code=sh600519
+python3 ./bin/_cli_wrapper.py call finance --param code=sh600519
 ```
 
 ## 入参
@@ -42,13 +42,13 @@ python3 ./scripts/stock_query.py call finance --param code=sh600519
 
 ```bash
 # A股利润表(最近1期)
-python3 ./scripts/stock_query.py call finance --param code=sh600519
+python3 ./bin/_cli_wrapper.py call finance --param code=sh600519
 # A股资产负债表(最近5期)
-python3 ./scripts/stock_query.py call finance --param code=sh600519 --param type=zcfz --param num=5
+python3 ./bin/_cli_wrapper.py call finance --param code=sh600519 --param type=zcfz --param num=5
 # 港股现金流量表
-python3 ./scripts/stock_query.py call finance --param code=hk00700 --param type=xjll
+python3 ./bin/_cli_wrapper.py call finance --param code=hk00700 --param type=xjll
 # 美股利润表
-python3 ./scripts/stock_query.py call finance --param code=usAAPL --param type=income
+python3 ./bin/_cli_wrapper.py call finance --param code=usAAPL --param type=income
 # 批量查询
-python3 ./scripts/stock_query.py call finance --param code=sh600519,sz000858
+python3 ./bin/_cli_wrapper.py call finance --param code=sh600519,sz000858
 ```

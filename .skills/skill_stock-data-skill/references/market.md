@@ -11,11 +11,11 @@
 ## 调用
 
 ```bash
-python3 ./scripts/stock_query.py call hot --param type=stock
-python3 ./scripts/stock_query.py call board
-python3 ./scripts/stock_query.py call calendar --param date=2024-06-01
-python3 ./scripts/stock_query.py call ipo --param market=hs
-python3 ./scripts/stock_query.py call suspension --param market=hs
+python3 ./bin/_cli_wrapper.py call hot --param type=stock
+python3 ./bin/_cli_wrapper.py call board
+python3 ./bin/_cli_wrapper.py call calendar --param date=2024-06-01
+python3 ./bin/_cli_wrapper.py call ipo --param market=hs
+python3 ./bin/_cli_wrapper.py call suspension --param market=hs
 ```
 
 ## 入参
@@ -114,17 +114,17 @@ python3 ./scripts/stock_query.py call suspension --param market=hs
 
 ```bash
 # 热门个股排行(前10)
-python3 ./scripts/stock_query.py call hot --param type=stock --param limit=10
+python3 ./bin/_cli_wrapper.py call hot --param type=stock --param limit=10
 # 热门板块
-python3 ./scripts/stock_query.py call hot --param type=board
+python3 ./bin/_cli_wrapper.py call hot --param type=board
 # 板块列表
-python3 ./scripts/stock_query.py call board
+python3 ./bin/_cli_wrapper.py call board
 # 指定板块成分股
-python3 ./scripts/stock_query.py call board --param code=BK0477
+python3 ./bin/_cli_wrapper.py call board --param code=BK0477
 # 今日财经日历(中国经济数据)
-python3 ./scripts/stock_query.py call calendar --param country=1 --param indicator=1
+python3 ./bin/_cli_wrapper.py call calendar --param country=1 --param indicator=1
 # 沪深新股申购
-python3 ./scripts/stock_query.py call ipo --param market=hs
+python3 ./bin/_cli_wrapper.py call ipo --param market=hs
 # 港股停复牌
-python3 ./scripts/stock_query.py call suspension --param market=hk
+python3 ./bin/_cli_wrapper.py call suspension --param market=hk
 ```

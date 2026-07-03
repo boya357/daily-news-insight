@@ -11,7 +11,7 @@
 ## 调用
 
 ```bash
-python3 ./scripts/stock_query.py call kline --param code=sh600519 --param period=day --param count=60
+python3 ./bin/_cli_wrapper.py call kline --param code=sh600519 --param period=day --param count=60
 ```
 
 ## 入参
@@ -47,17 +47,17 @@ python3 ./scripts/stock_query.py call kline --param code=sh600519 --param period
 
 ```bash
 # 日线，最近60天
-python3 ./scripts/stock_query.py call kline --param code=sh600519 --param count=60
+python3 ./bin/_cli_wrapper.py call kline --param code=sh600519 --param count=60
 
 # 周线
-python3 ./scripts/stock_query.py call kline --param code=sh600519 --param period=week --param count=52
+python3 ./bin/_cli_wrapper.py call kline --param code=sh600519 --param period=week --param count=52
 
 # 5分钟线
-python3 ./scripts/stock_query.py call kline --param code=sh600519 --param period=5min --param count=100
+python3 ./bin/_cli_wrapper.py call kline --param code=sh600519 --param period=5min --param count=100
 
 # 后复权
-python3 ./scripts/stock_query.py call kline --param code=sh600519 --param fq=hfq
+python3 ./bin/_cli_wrapper.py call kline --param code=sh600519 --param fq=hfq
 
 # 指定日期范围
-python3 ./scripts/stock_query.py call kline --param code=sh600519 --param begin=20260101 --param end=20260513
+python3 ./bin/_cli_wrapper.py call kline --param code=sh600519 --param begin=20260101 --param end=20260513
 ```

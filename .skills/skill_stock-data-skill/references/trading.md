@@ -11,12 +11,12 @@
 ## 调用
 
 ```bash
-python3 ./scripts/stock_query.py call asfund --param code=sh600519
-python3 ./scripts/stock_query.py call hkfund --param code=hk00700
-python3 ./scripts/stock_query.py call usfund --param code=usAAPL
-python3 ./scripts/stock_query.py call lhb --param code=sh600519
-python3 ./scripts/stock_query.py call blocktrade --param code=sh600519
-python3 ./scripts/stock_query.py call margintrade --param code=sh600519
+python3 ./bin/_cli_wrapper.py call asfund --param code=sh600519
+python3 ./bin/_cli_wrapper.py call hkfund --param code=hk00700
+python3 ./bin/_cli_wrapper.py call usfund --param code=usAAPL
+python3 ./bin/_cli_wrapper.py call lhb --param code=sh600519
+python3 ./bin/_cli_wrapper.py call blocktrade --param code=sh600519
+python3 ./bin/_cli_wrapper.py call margintrade --param code=sh600519
 ```
 
 ## 入参
@@ -137,17 +137,17 @@ python3 ./scripts/stock_query.py call margintrade --param code=sh600519
 
 ```bash
 # A股资金流向
-python3 ./scripts/stock_query.py call asfund --param code=sh600519
+python3 ./bin/_cli_wrapper.py call asfund --param code=sh600519
 # A股资金流向(指定日期)
-python3 ./scripts/stock_query.py call asfund --param code=sh600519 --param date=2024-06-01
+python3 ./bin/_cli_wrapper.py call asfund --param code=sh600519 --param date=2024-06-01
 # 港股资金流向
-python3 ./scripts/stock_query.py call hkfund --param code=hk00700
+python3 ./bin/_cli_wrapper.py call hkfund --param code=hk00700
 # 美股卖空数据
-python3 ./scripts/stock_query.py call usfund --param code=usAAPL
+python3 ./bin/_cli_wrapper.py call usfund --param code=usAAPL
 # 龙虎榜
-python3 ./scripts/stock_query.py call lhb --param code=sh600519
+python3 ./bin/_cli_wrapper.py call lhb --param code=sh600519
 # 大宗交易
-python3 ./scripts/stock_query.py call blocktrade --param code=sh600519
+python3 ./bin/_cli_wrapper.py call blocktrade --param code=sh600519
 # 融资融券
-python3 ./scripts/stock_query.py call margintrade --param code=sh600519
+python3 ./bin/_cli_wrapper.py call margintrade --param code=sh600519
 ```
