@@ -294,19 +294,13 @@ def update_one(dirname):
     (d/"index.html").write_text(idx, encoding='utf-8')
 
     if is_highfreq:
+        # 高频目录：latest.html 直达最新报告副本
         shutil.copy2(newest, d/"latest.html")
+        mode = "高频(最新直达)"
     else:
-        history_cards = [build_card(newest, is_latest=True)]
-        for f in files[1:]:
-            history_cards.append(build_card(f, is_latest=False))
-        combo = COMBO_TPL
-        for k, v in {"__TITLE__":title,"__TOTAL__":str(total),"__LATEST_DATE__":latest_date,
-                     "__LATEST_NAME__":newest.stem,"__LATEST_HREF__":newest.name,
-                     "__REPORT_CARDS__":'\n'.join(history_cards),
-                     "__GEN_TIME__":gen_time,"__NAV__":nav_html}.items():
-            combo = combo.replace(k, v)
-        (d/"latest.html").write_text(combo, encoding='utf-8')
-    mode = "高频(拷贝)" if is_highfreq else "低频(组合页)"
+        # 低频目录：latest.html = index.html 纯卡片网格列表页（无iframe无内嵌）
+        (d/"latest.html").write_text(idx, encoding='utf-8')
+        mode = "低频(卡片列表)"
     print(f"  ✅ {dirname} [{mode}]: {newest.name[:50]} ({fmt_size(newest.stat().st_size)}), {total}份")
     return True
 
