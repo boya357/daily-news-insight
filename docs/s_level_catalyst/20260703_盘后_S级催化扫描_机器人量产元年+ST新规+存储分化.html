@@ -1,0 +1,2169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S级催化扫描 - 投资研究中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/daily-news-insight/assets/global-dark.css">
+    <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
+    
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+            
+            * { font-family: 'Noto Sans SC', sans-serif; }
+            
+            body {
+                background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%) !important;
+                min-height: 100vh;
+                padding-top: 80px;
+                color: rgba(255,255,255,0.95);
+            }
+            
+            .pro-container {
+                max-width: 64rem;
+                margin: 0 auto;
+                padding: 0 1.5rem;
+            }
+            
+            .card-glass {
+                background: rgba(255, 255, 255, 0.07) !important;
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.12) !important;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+                border-radius: 20px;
+                color: rgba(255,255,255,0.95) !important;
+            }
+            
+            .card-glass .text-gray-800,
+            .card-glass .text-gray-700,
+            .card-glass .text-gray-600,
+            .card-glass .text-gray-500,
+            .card-glass .text-gray-400 { color: rgba(255, 255, 255, 0.9) !important; }
+            .card-glass .text-gray-500 { color: rgba(255, 255, 255, 0.75) !important; }
+            .card-glass .text-gray-400 { color: rgba(255, 255, 255, 0.6) !important; }
+            
+            /* 修复浅色背景子卡片文字颜色 */
+            .card-glass .bg-white .text-gray-800 { color: #1f2937 !important; }
+            .card-glass .bg-white .text-gray-700 { color: #374151 !important; }
+            .card-glass .bg-white .text-gray-600 { color: #4b5563 !important; }
+            .card-glass .bg-white .text-gray-500 { color: #6b7280 !important; }
+            .card-glass .bg-white .text-gray-400 { color: #9ca3af !important; }
+            
+            .stock-card {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .stock-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 20px 60px rgba(102, 126, 234, 0.5);
+            }
+            
+            .risk-bar {
+                height: 8px;
+                border-radius: 4px;
+                background: rgba(255,255,255,0.2);
+                overflow: hidden;
+            }
+            .risk-bar-fill {
+                height: 100%;
+                border-radius: 4px;
+                transition: width 0.5s ease;
+            }
+            
+            .diagnosis-item {
+                text-align: center;
+                padding: 12px 8px;
+                background: rgba(255,255,255,0.1);
+                border-radius: 12px;
+            }
+            
+            .tag-badge {
+                display: inline-block;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+            
+            .section-title {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: white;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .lhb-card {
+                background: rgba(255,255,255,0.05);
+                border-radius: 12px;
+                padding: 1rem;
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .lhb-seat {
+                font-size: 0.75rem;
+                color: rgba(255,255,255,0.6);
+                margin-bottom: 0.25rem;
+            }
+            
+            .fund-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 0;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            .fund-row:last-child {
+                border-bottom: none;
+            }
+            
+            .fund-trend-up {
+                color: #10b981;
+                font-weight: 600;
+            }
+            .fund-trend-down {
+                color: #ef4444;
+                font-weight: 600;
+            }
+            
+            .alert-section {
+                border-left: 4px solid #ef4444;
+                padding-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .warning-section {
+                border-left: 4px solid #f59e0b;
+                padding-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .safe-section {
+                border-left: 4px solid #10b981;
+                padding-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            /* 导航栏样式 */
+            .glass-nav {
+                background: rgba(15, 12, 41, 0.75) !important;
+                backdrop-filter: blur(30px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                transition: background 0.3s ease;
+            }
+            
+            .glass-nav.scrolled {
+                background: rgba(0, 0, 0, 0.7);
+            }
+            
+            /* 汉堡菜单按钮 */
+            .hamburger-btn {
+                display: none;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                width: 40px;
+                height: 40px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 18px;
+                transition: all 0.3s;
+            }
+            
+            .hamburger-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            /* 移动端菜单 */
+            .mobile-menu {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.95);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                z-index: 100;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+            }
+            
+            .mobile-menu.show {
+                display: flex;
+            }
+            
+            .mobile-menu-item {
+                color: white;
+                font-size: 18px;
+                font-weight: 600;
+                padding: 15px 30px;
+                text-decoration: none;
+                text-align: center;
+                width: 100%;
+                max-width: 300px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                transition: all 0.3s;
+            }
+            
+            .mobile-menu-item:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: #a78bfa;
+            }
+            
+            .close-menu-btn {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                width: 44px;
+                height: 44px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 20px;
+                transition: all 0.3s;
+            }
+            
+            .close-menu-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            /* 响应式断点 - 平板 */
+            @media (max-width: 1024px) {
+                .pro-container {
+                    max-width: 100%;
+                    padding: 0 1rem;
+                }
+            }
+            
+            /* 响应式断点 - 手机 */
+            @media (max-width: 768px) {
+                .nav-links {
+                    display: none !important;
+                }
+                
+                .hamburger-btn {
+                    display: block !important;
+                }
+                
+                body {
+                    padding-top: 70px;
+                }
+                
+                .pro-container {
+                    padding: 0 0.75rem;
+                }
+                
+                .card-glass {
+                    border-radius: 16px;
+                    padding: 1.25rem;
+                }
+                
+                /* 移动端网格优化 */
+                .grid-cols-2,
+                .grid-cols-3,
+                .grid-cols-4,
+                .grid-cols-5 {
+                    grid-template-columns: 1fr !important;
+                }
+                
+                /* 移动端字体优化 */
+                h1 { font-size: 1.75rem !important; }
+                h2 { font-size: 1.35rem !important; }
+                h3 { font-size: 1.15rem !important; }
+            }
+            
+            /* 响应式断点 - 小屏手机 */
+            @media (max-width: 480px) {
+                body {
+                    padding-top: 60px;
+                }
+                
+                .pro-container {
+                    padding: 0 0.5rem;
+                }
+                
+                .card-glass {
+                    border-radius: 12px;
+                    padding: 1rem;
+                }
+                
+                h1 { font-size: 1.5rem !important; }
+                h2 { font-size: 1.2rem !important; }
+            }
+
+            /* ===== 交互动效增强 ===== */
+            
+            /* 卡片入场动画 */
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .animate-fade-in-up {
+                animation: fadeInUp 0.6s ease-out forwards;
+            }
+            
+            /* 数字滚动动画容器 */
+            .counter-value {
+                font-variant-numeric: tabular-nums;
+            }
+            
+            /* 脉冲动画 */
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.5; }
+            }
+            
+            .animate-pulse {
+                animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            
+            /* 骨架屏加载效果 */
+            @keyframes shimmer {
+                0% { background-position: -200% 0; }
+                100% { background-position: 200% 0; }
+            }
+            
+            .skeleton {
+                background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 75%);
+                background-size: 200% 100%;
+                animation: shimmer 1.5s infinite;
+                border-radius: 8px;
+            }
+            
+            /* 按钮点击效果 */
+            .btn-press:active {
+                transform: scale(0.95);
+            }
+            
+            /* 标签悬浮效果 */
+            .tag-badge {
+                transition: all 0.2s ease;
+            }
+            
+            .tag-badge:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            }
+            
+
+            /* 阅读进度条 */
+            #progressBar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+                z-index: 9999;
+                width: 0%;
+                transition: width 0.1s ease;
+            }
+            
+            /* 回到顶部按钮 */
+            #backToTop {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                width: 50px;
+                height: 50px;
+                background: linear-gradient(135deg, #6366f1, #a855f7);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                z-index: 9998;
+                opacity: 0;
+                transform: translateY(20px);
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+                border: none;
+            }
+            #backToTop:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            }
+            #backToTop.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            /* 操作按钮组 */
+            .action-buttons {
+                position: fixed;
+                bottom: 30px;
+                left: 30px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                z-index: 9998;
+            }
+            .action-btn {
+                width: 50px;
+                height: 50px;
+                background: rgba(30, 30, 50, 0.8);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            }
+            .action-btn:hover {
+                background: rgba(99, 102, 241, 0.8);
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            }
+            
+            /* 打印优化 */
+            @media print {
+                #progressBar, #backToTop, .action-buttons, .glass-nav, .pro-footer {
+                    display: none !important;
+                }
+                body {
+                    background: white !important;
+                    color: black !important;
+                }
+                .card-glass {
+                    background: white !important;
+                    border: 1px solid #ddd !important;
+                    box-shadow: none !important;
+                }
+            }
+            
+            /* 移动端适配 */
+            @media (max-width: 768px) {
+                #backToTop {
+                    bottom: 20px;
+                    right: 20px;
+                    width: 44px;
+                    height: 44px;
+                }
+                .action-buttons {
+                    bottom: 20px;
+                    left: 20px;
+                    gap: 10px;
+                }
+                .action-btn {
+                    width: 44px;
+                    height: 44px;
+                }
+            }
+            /* 进度条动画增强 */
+            .risk-bar-fill {
+                transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            /* 卡片悬浮增强 */
+            .card-glass {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .card-glass:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            }
+            
+            /* 导航项下划线动画 */
+            .nav-links a {
+                position: relative;
+            }
+            
+            .nav-links a::after {
+                content: '';
+                position: absolute;
+                bottom: -2px;
+                left: 50%;
+                width: 0;
+                height: 2px;
+                background: linear-gradient(90deg, #667eea, #764ba2);
+                transition: all 0.3s ease;
+                transform: translateX(-50%);
+                border-radius: 1px;
+            }
+            
+            .nav-links a:hover::after,
+            .nav-links a.bg-white\/20::after {
+                width: 60%;
+            }
+            
+            /* 滚动显示动画 */
+            .reveal {
+                opacity: 0;
+                transform: translateY(30px);
+                transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .reveal.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            /* 弹跳效果 */
+            @keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+            }
+            
+            .animate-bounce {
+                animation: bounce 2s infinite;
+            }
+            
+            /* 旋转动画 */
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+            
+            .animate-spin {
+                animation: spin 1s linear infinite;
+            }
+            
+            /* ===== 移动端体验优化 ===== */
+            
+            /* 触摸区域优化 - 最小44px点击区域 */
+            @media (max-width: 768px) {
+                .mobile-menu-item {
+                    min-height: 44px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 12px 20px;
+                    -webkit-tap-highlight-color: transparent;
+                }
+                
+                .hamburger-btn,
+                .close-menu-btn {
+                    min-width: 44px;
+                    min-height: 44px;
+                    -webkit-tap-highlight-color: transparent;
+                }
+                
+                /* 移动端卡片点击反馈 */
+                .card-glass:active {
+                    transform: scale(0.98);
+                    transition: transform 0.1s ease;
+                }
+                
+                /* 禁止双击缩放 */
+                * {
+                    touch-action: manipulation;
+                }
+                
+                /* 底部安全区域适配 */
+                .pro-container {
+                    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+                }
+                
+                /* 移动端滚动条隐藏 */
+                ::-webkit-scrollbar {
+                    width: 4px;
+                    height: 4px;
+                }
+                
+                ::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                
+                ::-webkit-scrollbar-thumb {
+                    background: rgba(255, 255, 255, 0.3);
+                    border-radius: 2px;
+                }
+                
+                /* 移动端标题截断 */
+                .section-title {
+                    font-size: 1.1rem !important;
+                }
+                
+                /* 移动端网格优化 - 2列布局 */
+                .mobile-grid-2 {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                }
+                
+                /* 移动端字体优化 */
+                body {
+                    font-size: 15px;
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                }
+            }
+            
+            /* 小屏手机额外优化 */
+            @media (max-width: 480px) {
+                .mobile-grid-2 {
+                    grid-template-columns: 1fr !important;
+                }
+                
+                /* 更小的内边距 */
+                .card-glass {
+                    padding: 0.875rem !important;
+                }
+                
+                .section-title {
+                    font-size: 1rem !important;
+                }
+            }
+            
+            /* ===== 深色模式优化 ===== */
+            @media (prefers-color-scheme: dark) {
+                .text-white\/60 {
+                    color: rgba(255, 255, 255, 0.7) !important;
+                }
+            }
+            
+            /* ===== 减少动效模式 ===== */
+            @media (prefers-reduced-motion: reduce) {
+                *,
+                *::before,
+                *::after {
+                    animation-duration: 0.01ms !important;
+                    animation-iteration-count: 1 !important;
+                    transition-duration: 0.01ms !important;
+                }
+            }
+        
+            /* ===== 悬浮目录导航 ===== */
+            .toc-wrapper {
+                position: fixed;
+                top: 120px;
+                width: 220px;
+                max-height: calc(100vh - 160px);
+                background: rgba(139, 92, 246, 0.15);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 16px;
+                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+                z-index: 90;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .toc-right {
+                right: 20px;
+            }
+            
+            .toc-left {
+                left: 20px;
+            }
+            
+            .toc-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                cursor: pointer;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                user-select: none;
+            }
+            
+            .toc-title {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: white;
+            }
+            
+            .toc-header svg {
+                color: rgba(255, 255, 255, 0.7);
+                transition: transform 0.3s ease;
+            }
+            
+            .toc-wrapper.collapsed .toc-header svg {
+                transform: rotate(-90deg);
+            }
+            
+            .toc-content {
+                max-height: calc(100vh - 220px);
+                overflow-y: auto;
+                padding: 8px 0;
+                transition: max-height 0.3s ease;
+            }
+            
+            .toc-wrapper.collapsed .toc-content {
+                max-height: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            
+            .toc-item {
+                display: block;
+                padding: 8px 16px;
+                font-size: 0.8125rem;
+                color: rgba(255, 255, 255, 0.7);
+                text-decoration: none;
+                border-left: 3px solid transparent;
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+            
+            .toc-item:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.08);
+                border-left-color: rgba(255, 255, 255, 0.3);
+            }
+            
+            .toc-item.active {
+                color: white;
+                font-weight: 500;
+                background: rgba(102, 126, 234, 0.3);
+                border-left-color: #667eea;
+            }
+            
+            .toc-item.pl-4 {
+                padding-left: 32px;
+                font-size: 0.75rem;
+            }
+            
+            /* 滚动条样式 */
+            .toc-content::-webkit-scrollbar {
+                width: 4px;
+            }
+            
+            .toc-content::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            
+            .toc-content::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 2px;
+            }
+            
+            .toc-content::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.4);
+            }
+            
+            /* 大屏显示优化 */
+            @media (min-width: 1400px) {
+                .toc-wrapper {
+                    width: 260px;
+                }
+                .toc-right {
+                    right: calc((100vw - 64rem) / 2 - 300px);
+                }
+                .toc-left {
+                    left: calc((100vw - 64rem) / 2 - 300px);
+                }
+            }
+            
+                        /* 平板端优化 - 折叠为悬浮按钮 */
+            @media (max-width: 1200px) {
+                .toc-wrapper {
+                    top: auto;
+                    bottom: 80px;
+                    right: 16px;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 240px;
+                    height: auto;
+                    max-height: 60vh;
+                    border-radius: 16px;
+                    top: auto;
+                    bottom: 80px;
+                }
+                
+                .toc-wrapper .toc-header {
+                    justify-content: center;
+                    padding: 12px;
+                    border-bottom: none;
+                }
+                
+                .toc-wrapper.expanded .toc-header {
+                    justify-content: space-between;
+                    padding: 12px 16px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                
+                .toc-wrapper .toc-title {
+                    display: none;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    display: block;
+                    font-size: 0.875rem;
+                }
+                
+                .toc-wrapper .toc-content {
+                    max-height: 0;
+                    padding: 0;
+                    opacity: 0;
+                    transition: all 0.3s ease;
+                }
+                
+                .toc-wrapper.expanded .toc-content {
+                    max-height: calc(60vh - 56px);
+                    padding: 8px 0;
+                    opacity: 1;
+                }
+                
+                .toc-wrapper .toc-header svg {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+            
+            /* 手机端 - 更小的悬浮按钮 */
+            @media (max-width: 480px) {
+                .toc-wrapper {
+                    width: 40px;
+                    height: 40px;
+                    bottom: 70px;
+                    right: 12px;
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 200px;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    font-size: 0.8rem;
+                }
+            }
+            
+            /* 页面内容区域适配 - 避免被目录遮挡 */
+            @media (min-width: 1200px) {
+                .pro-container.has-toc {
+                    max-width: 48rem;
+                }
+            }
+            
+            /* Tab切换组件样式 */
+            .tab-container {
+                margin-bottom: 1rem;
+            }
+            
+            .tab-buttons {
+                display: flex;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                padding-bottom: 0.5rem;
+            }
+            
+            .tab-btn {
+                padding: 0.5rem 1rem;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 8px;
+                color: rgba(255,255,255,0.6);
+                cursor: pointer;
+                font-size: 0.875rem;
+                transition: all 0.3s ease;
+            }
+            
+            .tab-btn:hover {
+                background: rgba(255,255,255,0.1);
+                color: rgba(255,255,255,0.9);
+            }
+            
+            .tab-btn-active {
+                background: rgba(139, 92, 246, 0.3);
+                border-color: rgba(139, 92, 246, 0.5);
+                color: white;
+                font-weight: 500;
+            }
+            
+            .tab-container .tab-content .tab-panel {
+                display: none;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            .tab-container .tab-content .tab-panel.tab-panel-active {
+                display: block !important;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            /* Underline风格Tab */
+            .tab-style-underline .tab-buttons {
+                border-bottom: none;
+                padding-bottom: 0;
+                gap: 1.5rem;
+            }
+            
+            .tab-style-underline .tab-btn {
+                background: transparent;
+                border: none;
+                border-bottom: 2px solid transparent;
+                border-radius: 0;
+                padding: 0.5rem 0;
+            }
+            
+            .tab-style-underline .tab-btn:hover {
+                background: transparent;
+                color: rgba(255,255,255,0.9);
+            }
+            
+            .tab-style-underline .tab-btn-active {
+                border-bottom-color: #8b5cf6;
+                color: white;
+                background: transparent;
+            }
+            
+            /* 次级卡片样式 */
+            .card-subtle {
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 12px;
+                padding: 1rem;
+                transition: all 0.3s ease;
+            }
+            
+            .card-subtle:hover {
+                background: rgba(255,255,255,0.08);
+                border-color: rgba(255,255,255,0.2);
+            }
+</style>
+    
+    <style>
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">📊</span>
+                </div>
+                <span class="text-white font-bold text-lg">投资研究中心</span>
+            </div>
+            <div class="nav-links flex items-center space-x-1 flex-wrap gap-1">
+                <a href="/daily-news-insight/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a><a href="/daily-news-insight/daily/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a><a href="/daily-news-insight/intraday/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a><a href="/daily-news-insight/aftermarket/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a><a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a><a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a><a href="/daily-news-insight/weekly_outlook/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周三前瞻</a><a href="/daily-news-insight/weekend_express/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a><a href="/daily-news-insight/tomorrow_catalyst/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a><a href="/daily-news-insight/s_level_catalyst/latest.html" class="text-white bg-white/20 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a><a href="/daily-news-insight/monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
+            </div>
+            <button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </nav>
+    
+    <!-- 移动端全屏菜单 -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
+        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a><a href="/daily-news-insight/daily/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a><a href="/daily-news-insight/intraday/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中</a><a href="/daily-news-insight/aftermarket/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后</a><a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链</a><a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a><a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a><a href="/daily-news-insight/weekend_express/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a><a href="/daily-news-insight/tomorrow_catalyst/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化</a><a href="/daily-news-insight/s_level_catalyst/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⚡ S级催化</a><a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📅 月报</a>
+    </div>
+        
+    
+    <div class="pro-container pt-20 has-toc">
+        
+        <div class="max-w-4xl mx-auto">
+            
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-black text-white mb-3">
+                S级催化扫描
+            </h1>
+            <p class="text-white/70 text-lg">
+                2026.07.03 · 盘后S级催化扫描
+            </p>
+            <p class="text-white/50 text-sm mt-2">
+                2026-07-03
+            </p>
+        </div>
+        
+            
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">🚀</span>
+                    扫描总览
+                </h2>
+                <div class="text-white/80">
+                    
+        <div class="bg-gradient-to-r from-red-500/25 via-orange-500/20 to-yellow-500/15 border border-red-500/30 rounded-xl p-5 mb-4">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="text-2xl">🚀</span>
+                <span class="text-white font-bold">S级催化扫描总览</span>
+                <span class="ml-auto bg-red-500/30 text-red-400 text-xs font-bold px-2 py-0.5 rounded-full border border-red-500/50">
+                    S级
+                </span>
+            </div>
+            <p class="text-white/80 leading-relaxed text-sm">
+                本期扫描发现 <span class="text-red-400 font-bold">6</span> 个重点催化事件，其中S+级1个、S级3个、A+级2个，
+                其中 <span class="text-yellow-400 font-semibold">人形机器人量产元年</span> 方向确定性最高，
+                建议重点关注。
+                <span class="inline-flex items-center gap-1 text-[11px] text-white/50 bg-white/5 border border-white/10 rounded px-1.5 py-0.5 ml-1 align-middle">来源: <span class="text-white/70">综合研究</span> | 置信度: <span class="text-white/70">中</span>🟡</span>
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="card-glass p-4">
+                    <div class="flex flex-col items-center text-center">
+                        <span class="text-2xl mb-2">🚀</span>
+                        <div class="text-xs text-white/50 mb-1">S+级催化</div>
+                        <div class="text-xl font-bold text-white">1个</div>
+                        <div class="text-xs text-white/40 mt-1"><span class="text-red-400">最高等级</span></div>
+                    </div>
+                </div><div class="card-glass p-4">
+                    <div class="flex flex-col items-center text-center">
+                        <span class="text-2xl mb-2">⚡</span>
+                        <div class="text-xs text-white/50 mb-1">S级催化</div>
+                        <div class="text-xl font-bold text-white">3个</div>
+                        <div class="text-xs text-white/40 mt-1"><span class="text-orange-400">强烈推荐</span></div>
+                    </div>
+                </div><div class="card-glass p-4">
+                    <div class="flex flex-col items-center text-center">
+                        <span class="text-2xl mb-2">💎</span>
+                        <div class="text-xs text-white/50 mb-1">A+级催化</div>
+                        <div class="text-xl font-bold text-white">2个</div>
+                        <div class="text-xs text-white/40 mt-1"><span class="text-yellow-400">值得关注</span></div>
+                    </div>
+                </div><div class="card-glass p-4">
+                    <div class="flex flex-col items-center text-center">
+                        <span class="text-2xl mb-2">🎯</span>
+                        <div class="text-xs text-white/50 mb-1">最确定方向</div>
+                        <div class="text-xl font-bold text-white">人形机器人量产元年</div>
+                        <div class="text-xs text-white/40 mt-1"><span class="text-green-400">综合评分最高</span></div>
+                    </div>
+                </div>
+        </div>
+        
+        
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">💎</span>
+                    S级题材深度分析
+                </h2>
+                <div class="text-white/80">
+                    
+            <div class="mb-6">
+                <h3 class="text-lg font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">
+                    S+级题材
+                </h3>
+                
+        <div class="grid grid-cols-1 gap-4">
+            
+                    <div class="card-glass rounded-xl p-4 h-full">
+                        
+                        <div class="text-sm text-white/70 leading-relaxed">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl font-bold text-white/90">#1</span>
+                        <span class="text-white font-bold">人形机器人量产元年启动·宇树IPO获批点燃全链涨停潮</span>
+                    </div>
+                    <span class="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">96分</span>
+                </div>
+                <p class="text-white/70 text-sm leading-relaxed mb-3">
+                    三重催化共振引爆全场：①宇树科技104天闪电过会，证监会同意注册（拟募资42亿，发行前估值420亿）；②马斯克晒弗里蒙特Optimus产线合影，Gen3已启动量产；③优必选U1消费级全尺寸人形机器人订单超1.3万台（11.98万元起）。7/3人形机器人指数+5.21%、减速器+7.27%、宇树机器人指数+7.82%，板块成交2170亿超40股涨停，主力净流入170亿。摩根士丹利上调2026中国人形机器人出货至5万台、2030年44.6万台。人形机器人从概念期正式进入量产兑现期，核心零部件（减速器/丝杠/轴承/电机/传感器）进入业绩兑现窗口。
+                    <span class="inline-flex items-center gap-1 text-[11px] text-white/50 bg-white/5 border border-white/10 rounded px-1.5 py-0.5 ml-1 align-middle">来源: <span class="text-white/70">证监会公告/财联社/和讯/摩根士丹利研报</span> | 置信度: <span class="text-white/70">高</span>🔴</span>
+                </p>
+                <div class="mb-2">
+                    <div class="text-xs text-white/40 mb-1">核心催化剂</div>
+                    <div class="flex flex-wrap gap-1.5"><span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ 宇树IPO获批</span> <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ Optimus产线公开</span> <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ 优必选订单破1.3万</span> <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ MS上调出货预测</span> <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ 核心零部件国产化率破75%</span></div>
+                </div>
+                <div class="space-y-2">
+                    <div>
+                        <div class="text-xs text-white/40 mb-1">龙头标的</div>
+                        <div class="flex flex-wrap gap-1"><span class="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded">绿的谐波-谐波减速器</span> <span class="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded">三花智控-执行器</span> <span class="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded">拓普集团-执行器总成</span></div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-white/40 mb-1">中坚标的</div>
+                        <div class="flex flex-wrap gap-1"><span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded">双环传动-RV减速器</span> <span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded">埃斯顿-整机+伺服</span> <span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded">贝斯特-行星滚柱丝杠</span> <span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded">丰光精密-微型谐波+灵巧手</span> <span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded">长盛轴承-自润滑轴承</span></div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-white/40 mb-1">弹性标的</div>
+                        <div class="flex flex-wrap gap-1"><span class="bg-yellow-500/20 text-yellow-400 text-xs px-2 py-1 rounded">雷赛智能-伺服驱动</span> <span class="bg-yellow-500/20 text-yellow-400 text-xs px-2 py-1 rounded">奥比中光-3D视觉</span> <span class="bg-yellow-500/20 text-yellow-400 text-xs px-2 py-1 rounded">凯龙高科-丝杠转型</span> <span class="bg-yellow-500/20 text-yellow-400 text-xs px-2 py-1 rounded">兆丰股份-轮毂+关节</span></div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
+                    <div class="text-xs">
+                        <span class="text-white/40">时间窗口：</span>
+                        <span class="text-white/70">1-3个月主升浪</span>
+                    </div>
+                    <div class="text-xs">
+                        <span class="text-white/40">常规风险：</span>
+                        <span class="text-red-400/70">IPO申购期抽血+宇树发行价过高拖累可比估值</span>
+                    </div>
+                </div>
+                
+        <div class="bg-gradient-to-r from-red-900/20 via-red-500/10 to-transparent border-l-4 border-red-500/60 rounded-r-xl p-4 mt-3">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="text-lg">🔴</span>
+                <span class="text-red-400 font-bold">🔴 人形机器人量产元年启动·宇树IPO获批点燃全链涨停潮 · 证伪条件/空方逻辑</span>
+                <span class="ml-auto text-[10px] text-white/40 bg-white/5 px-2 py-0.5 rounded">V5.0 必选项</span>
+            </div>
+            
+            <div class="bg-yellow-500/5 border border-yellow-500/20 rounded-lg px-3 py-2 mb-3">
+                <div class="text-yellow-400 text-xs font-bold mb-1">💡 反方观点</div>
+                <p class="text-white/70 text-sm leading-relaxed">⚠️需警惕：板块单日涨幅过大、40余股涨停属于情绪高潮，通常高潮后1-2日有分歧回踩，追高风险大；部分跨界股（无实际订单）借题炒作，后续中报验证期会被证伪。</p>
+            </div>
+            
+            
+            <div class="bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2 mb-3">
+                <span class="text-red-400 text-xs font-bold">⛔ 硬止损位：</span>
+                <span class="text-white font-bold text-sm">龙头买入后回撤超8%无条件止损；跟风股回撤超12%止损</span>
+                <span class="text-white/50 text-xs ml-1">（跌破无条件离场）</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                    <div class="text-xs text-red-400/80 font-bold mb-1">❌ 证伪信号（出现即离场）</div>
+                    <ul class="list-none p-0 m-0"><li class="flex gap-2 mb-1"><span class="text-red-400 flex-shrink-0">✗</span><span class="text-white/70 text-sm">宇树发行价低于预期或上市首日破发，压制板块估值</span></li><li class="flex gap-2 mb-1"><span class="text-red-400 flex-shrink-0">✗</span><span class="text-white/70 text-sm">Optimus 9月量产进度不及1000台/周指引</span></li><li class="flex gap-2 mb-1"><span class="text-red-400 flex-shrink-0">✗</span><span class="text-white/70 text-sm">绿的谐波/三花智控等核心龙头放量跌破10日线且2日不收回</span></li><li class="flex gap-2 mb-1"><span class="text-red-400 flex-shrink-0">✗</span><span class="text-white/70 text-sm">板块单日跌幅>5%且主力净流出超百亿</span></li></ul>
+                </div>
+                <div>
+                    <div class="text-xs text-yellow-400/80 font-bold mb-1">⚠️ 空方核心逻辑</div>
+                    <ul class="list-none p-0 m-0"><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">Buy the rumor sell the news：IPO获批为已知利好落地，利好兑现即出货</span></li><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">当前人形机器人业务对绝大多数零部件公司收入贡献<5%，估值已透支2028年业绩</span></li><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">特斯拉/宇树供应链验证周期长，二三线供应商实际订单大概率不及预期</span></li><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">中报披露期（7月中下旬），没有真实业绩的纯题材股将被证伪</span></li><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">7/6 ST新规+解禁高峰可能压制整体风险偏好</span></li></ul>
+                </div>
+            </div>
+        </div>
+        
+                </div>
+                    </div>
+                
+        </div>
+        
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-lg font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">
+                    S级题材
+                </h3>
+                
+        <div class="grid grid-cols-1 gap-4">
+            
+                    <div class="card-glass rounded-xl p-4 h-full">
+                        
+                        <div class="text-sm text-white/70 leading-relaxed">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl font-bold text-white/90">#1</span>
+                        <span class="text-white font-bold">存储芯片外部分化·美股连续暴跌 vs 韩股V型反弹</span>
+                    </div>
+                    <span class="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">82分</span>
+                </div>
+                <p class="text-white/70 text-sm leading-relaxed mb-3">
+                    存储赛道出现罕见冰火两重天：①隔夜美股7/2晚费城半导体指数再跌5.44%（两日累计-11%），闪迪-14%/科磊-11.5%/美光-5.5%/AMD-4.3%/台积电ADR-2.3%/英伟达-1.4%，导火索是Anthropic联手三星自研AI芯片+Meta出售闲置算力引发算力过剩恐慌；②但7/3亚太市场强烈反弹，三星电子+8%/SK海力士+12%/铠侠+9%/KOSPI+5.76%，因三星Q3 DRAM拟涨价20%、铠侠CEO明确表示未观察到数据中心需求减弱。TrendForce预计Q3 DRAM合约价季增13-18%，LPDDR/HBM持续短缺至2027年。A股存储板块今日分化：江波龙+3.14%、德明利涨停，但兆易创新-2.45%、长电科技-5.31%、雅克科技-6.11%。整体看，存储长周期逻辑未破（AI需求+产能紧张），但短期美股情绪冲击+中报兑现压力未消，高估值标的仍需消化。
+                    <span class="inline-flex items-center gap-1 text-[11px] text-white/50 bg-white/5 border border-white/10 rounded px-1.5 py-0.5 ml-1 align-middle">来源: <span class="text-white/70">ZDNet Korea/科创板日报/TrendForce/华尔街见闻</span> | 置信度: <span class="text-white/70">高</span>🔴</span>
+                </p>
+                <div class="mb-2">
+                    <div class="text-xs text-white/40 mb-1">核心催化剂</div>
+                    <div class="flex flex-wrap gap-1.5"><span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ 三星Q3 DRAM+20%</span> <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ 铠侠需求未减</span> <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ 美光两日-15%</span> <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ Anthropic自研芯片</span> <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ Burry做空美光</span></div>
+                </div>
+                <div class="space-y-2">
+                    <div>
+                        <div class="text-xs text-white/40 mb-1">龙头标的</div>
+                        <div class="flex flex-wrap gap-1"><span class="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded">兆易创新（NOR/利基DRAM涨价）</span> <span class="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded">长鑫存储（拟上市）</span> <span class="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded">江波龙（企业级SSD）</span></div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-white/40 mb-1">中坚标的</div>
+                        <div class="flex flex-wrap gap-1"><span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded">雅克科技（前驱体/HBM材料）</span> <span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded">铜冠铜箔（HVLP铜箔）</span> <span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded">深南电路（FC-BGA载板）</span></div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-white/40 mb-1">弹性标的</div>
+                        <div class="flex flex-wrap gap-1"><span class="bg-yellow-500/20 text-yellow-400 text-xs px-2 py-1 rounded">德明利（消费SSD）</span> <span class="bg-yellow-500/20 text-yellow-400 text-xs px-2 py-1 rounded">北京君正（车规DRAM）</span> <span class="bg-yellow-500/20 text-yellow-400 text-xs px-2 py-1 rounded">香农芯创（分销）</span></div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
+                    <div class="text-xs">
+                        <span class="text-white/40">时间窗口：</span>
+                        <span class="text-white/70">1-2周震荡后再看方向</span>
+                    </div>
+                    <div class="text-xs">
+                        <span class="text-white/40">常规风险：</span>
+                        <span class="text-red-400/70">美股芯片继续暴跌/中报业绩不及预期/涨价不及20%目标</span>
+                    </div>
+                </div>
+                
+        <div class="bg-gradient-to-r from-red-900/20 via-red-500/10 to-transparent border-l-4 border-red-500/60 rounded-r-xl p-4 mt-3">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="text-lg">🔴</span>
+                <span class="text-red-400 font-bold">🔴 存储芯片外部分化·美股连续暴跌 vs 韩股V型反弹 · 证伪条件/空方逻辑</span>
+                <span class="ml-auto text-[10px] text-white/40 bg-white/5 px-2 py-0.5 rounded">V5.0 必选项</span>
+            </div>
+            
+            <div class="bg-yellow-500/5 border border-yellow-500/20 rounded-lg px-3 py-2 mb-3">
+                <div class="text-yellow-400 text-xs font-bold mb-1">💡 反方观点</div>
+                <p class="text-white/70 text-sm leading-relaxed">🔔关键分歧点：美股存储暴跌是估值修复（涨幅过大+大空头Burry做空），不是基本面崩塌——美光Q3营收同比+346%、毛利率84.6%创历史新高、签16份长协锁价；LTA长协比例持续扩大，2027年前价格难大跌。但A股存储标的PE普遍>100倍，短期波动会很大。</p>
+            </div>
+            
+            
+            <div class="bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2 mb-3">
+                <span class="text-red-400 text-xs font-bold">⛔ 硬止损位：</span>
+                <span class="text-white font-bold text-sm">持仓存储材料股跌破20日线减半，破30日线清仓</span>
+                <span class="text-white/50 text-xs ml-1">（跌破无条件离场）</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                    <div class="text-xs text-red-400/80 font-bold mb-1">❌ 证伪信号（出现即离场）</div>
+                    <ul class="list-none p-0 m-0"><li class="flex gap-2 mb-1"><span class="text-red-400 flex-shrink-0">✗</span><span class="text-white/70 text-sm">三星Q3 DRAM实际涨价<10%（未达20%目标）</span></li><li class="flex gap-2 mb-1"><span class="text-red-400 flex-shrink-0">✗</span><span class="text-white/70 text-sm">美光/海力士下季度业绩指引低于市场预期</span></li><li class="flex gap-2 mb-1"><span class="text-red-400 flex-shrink-0">✗</span><span class="text-white/70 text-sm">A股存储龙头放量跌破60日均线</span></li></ul>
+                </div>
+                <div>
+                    <div class="text-xs text-yellow-400/80 font-bold mb-1">⚠️ 空方核心逻辑</div>
+                    <ul class="list-none p-0 m-0"><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">美股芯片股两连崩可能引发全球科技股重估，高估值A股存储首当其冲</span></li><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">Burry做空美光信号不容忽视，历史上Burry多次精准预判泡沫</span></li><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">Anthropic/OpenAI/Meta自研ASIC芯片将冲击GPU/通用存储需求预期</span></li><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">铜冠铜箔PE 1932倍、雅克科技PE 94倍，估值已price in 2027年业绩</span></li><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">消费电子需求疲软，DDR2/DDR4涨价是供给收缩而非真实需求拉动，可持续性存疑</span></li></ul>
+                </div>
+            </div>
+        </div>
+        
+                </div>
+                    </div>
+                
+                    <div class="card-glass rounded-xl p-4 h-full">
+                        
+                        <div class="text-sm text-white/70 leading-relaxed">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl font-bold text-white/90">#2</span>
+                        <span class="text-white font-bold">7/6交易新规落地·ST涨跌幅扩至10%+盘后交易扩围</span>
+                    </div>
+                    <span class="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">80分</span>
+                </div>
+                <p class="text-white/70 text-sm leading-relaxed mb-3">
+                    4月24日沪深北交易所发布的新《交易规则》将于7月6日（下周一）正式实施，三大核心变化：①主板ST/*ST涨跌幅从±5%调整至±10%（科创板/创业板ST仍20%不变），157只主板ST股单日波动翻倍；②盘后固定价格交易从科创板/创业板扩展至全部A股+ETF，交易时间15:05-15:30按收盘价成交；③沪深基金收盘最后3分钟改集合竞价不可撤单。影响：①风险警示股分化加剧——有基本面改善预期的ST修复速度翻倍（5%→10%），垃圾ST退市加速（单日跌停翻倍、破面值速度加快）；②普通投资者增加盘后操作窗口，上班族可收盘后冷静交易；③ST板块此前的'5%封板游资炒作'模式将被打破，连板妖股难度翻倍。对于持仓*ST建艺，今日（7/3）为涨跌幅5%时代的最后交易日，7/6起单日波动翻倍。
+                    <span class="inline-flex items-center gap-1 text-[11px] text-white/50 bg-white/5 border border-white/10 rounded px-1.5 py-0.5 ml-1 align-middle">来源: <span class="text-white/70">沪深北交易所公告/证券时报/每日经济新闻</span> | 置信度: <span class="text-white/70">高</span>🔴</span>
+                </p>
+                <div class="mb-2">
+                    <div class="text-xs text-white/40 mb-1">核心催化剂</div>
+                    <div class="flex flex-wrap gap-1.5"><span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ 7/6新规落地</span> <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ ST涨跌幅10%</span> <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ 盘后交易全A股</span> <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ 基金尾盘集合竞价</span></div>
+                </div>
+                <div class="space-y-2">
+                    <div>
+                        <div class="text-xs text-white/40 mb-1">龙头标的</div>
+                        <div class="flex flex-wrap gap-1"><span class="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded">优质摘帽预期ST</span></div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-white/40 mb-1">中坚标的</div>
+                        <div class="flex flex-wrap gap-1"><span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded">重组/重整ST</span></div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-white/40 mb-1">弹性标的</div>
+                        <div class="flex flex-wrap gap-1"></div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
+                    <div class="text-xs">
+                        <span class="text-white/40">时间窗口：</span>
+                        <span class="text-white/70">7/6当天冲击，1-2周消化</span>
+                    </div>
+                    <div class="text-xs">
+                        <span class="text-white/40">常规风险：</span>
+                        <span class="text-red-400/70">*ST建艺等高风险ST股单日跌停翻倍，退市风险放大</span>
+                    </div>
+                </div>
+                
+        <div class="bg-gradient-to-r from-red-900/20 via-red-500/10 to-transparent border-l-4 border-red-500/60 rounded-r-xl p-4 mt-3">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="text-lg">🔴</span>
+                <span class="text-red-400 font-bold">🔴 7/6交易新规落地·ST涨跌幅扩至10%+盘后交易扩围 · 证伪条件/空方逻辑</span>
+                <span class="ml-auto text-[10px] text-white/40 bg-white/5 px-2 py-0.5 rounded">V5.0 必选项</span>
+            </div>
+            
+            <div class="bg-yellow-500/5 border border-yellow-500/20 rounded-lg px-3 py-2 mb-3">
+                <div class="text-yellow-400 text-xs font-bold mb-1">💡 反方观点</div>
+                <p class="text-white/70 text-sm leading-relaxed">⚠️市场误读纠偏：此次ST涨跌幅放宽并非'放松监管'或'ST利好'，实质是加速出清——烂公司单日跌10%更快退市，好公司摘帽修复更快。ST板块'5CM打板'的游资模式将终结，没有基本面支撑的纯炒作ST风险急剧放大。</p>
+            </div>
+            
+            
+            <div class="bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2 mb-3">
+                <span class="text-red-400 text-xs font-bold">⛔ 硬止损位：</span>
+                <span class="text-white font-bold text-sm">所有ST股严格止损，*ST建艺7/6前必须清仓</span>
+                <span class="text-white/50 text-xs ml-1">（跌破无条件离场）</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                    <div class="text-xs text-red-400/80 font-bold mb-1">❌ 证伪信号（出现即离场）</div>
+                    <ul class="list-none p-0 m-0"><li class="flex gap-2 mb-1"><span class="text-red-400 flex-shrink-0">✗</span><span class="text-white/70 text-sm">新规首周ST板块出现批量20cm+地天板/天地板极端波动</span></li><li class="flex gap-2 mb-1"><span class="text-red-400 flex-shrink-0">✗</span><span class="text-white/70 text-sm">面值退市股数量超预期增加</span></li></ul>
+                </div>
+                <div>
+                    <div class="text-xs text-yellow-400/80 font-bold mb-1">⚠️ 空方核心逻辑</div>
+                    <ul class="list-none p-0 m-0"><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">持仓*ST建艺负债率94.38%、Q1亏损5311万、刚被起诉5301万，属于典型垃圾ST，10%跌停将加速破面值</span></li><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">ST板块整体流动性差，新规下可能出现无量连续跌停</span></li><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">新规首日可能出现集中抛售踩踏</span></li></ul>
+                </div>
+            </div>
+        </div>
+        
+                </div>
+                    </div>
+                
+                    <div class="card-glass rounded-xl p-4 h-full">
+                        
+                        <div class="text-sm text-white/70 leading-relaxed">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl font-bold text-white/90">#3</span>
+                        <span class="text-white font-bold">资金高低切换·半导体连续流出，机器人/黄金/军工接棒</span>
+                    </div>
+                    <span class="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">75分</span>
+                </div>
+                <p class="text-white/70 text-sm leading-relaxed mb-3">
+                    7/3 A股呈现典型缩量修复+高低切换格局：上证+0.37%/深成+0.64%/创业板+0.07%/科创50-0.59%，两市成交3.18万亿（较昨日缩量2681亿，6月18日以来最低）；全市场3804涨/1628跌，160+涨停/24跌停。资金从高位半导体（主力净流出194.77亿，全市场最大）、电子化学品（-66亿）、光学光电子（-96亿）撤离，转向汽车零部件（+69亿）、人形机器人（+244亿）、军工（+50亿）、黄金（+避险）。净卖出前三：京东方A-51.58亿、兆易创新-30.61亿、中际旭创-19.67亿；净买入前三：三花智控+21.88亿、东山精密+15.62亿、立讯精密+14.24亿。核心结论：市场从'科技独大'进入均衡轮动，中报业绩验证期（7月中旬）前，高位科技股面临消化压力，低位业绩确定性方向（机器人零部件/黄金/军工/创新药）更受资金青睐。
+                    <span class="inline-flex items-center gap-1 text-[11px] text-white/50 bg-white/5 border border-white/10 rounded px-1.5 py-0.5 ml-1 align-middle">来源: <span class="text-white/70">东方财富/证券时报数据宝/龙虎榜</span> | 置信度: <span class="text-white/70">高</span>🔴</span>
+                </p>
+                <div class="mb-2">
+                    <div class="text-xs text-white/40 mb-1">核心催化剂</div>
+                    <div class="flex flex-wrap gap-1.5"><span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ 缩量3.18万亿</span> <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ 半导体流出195亿</span> <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ 机器人流入244亿</span> <span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full border border-purple-500/30">⚡ 中报窗口临近</span></div>
+                </div>
+                <div class="space-y-2">
+                    <div>
+                        <div class="text-xs text-white/40 mb-1">龙头标的</div>
+                        <div class="flex flex-wrap gap-1"><span class="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded">三花智控（机器人执行器）</span> <span class="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded">中国船舶（军工）</span></div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-white/40 mb-1">中坚标的</div>
+                        <div class="flex flex-wrap gap-1"><span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded">赤峰黄金/招金黄金（贵金属）</span> <span class="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded">埃斯顿/绿的谐波（机器人）</span></div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-white/40 mb-1">弹性标的</div>
+                        <div class="flex flex-wrap gap-1"><span class="bg-yellow-500/20 text-yellow-400 text-xs px-2 py-1 rounded">创新药/CRO防御方向</span></div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
+                    <div class="text-xs">
+                        <span class="text-white/40">时间窗口：</span>
+                        <span class="text-white/70">7月中报前持续轮动</span>
+                    </div>
+                    <div class="text-xs">
+                        <span class="text-white/40">常规风险：</span>
+                        <span class="text-red-400/70">量能持续萎缩至3万亿以下，反弹缺乏增量资金支撑</span>
+                    </div>
+                </div>
+                
+        <div class="bg-gradient-to-r from-red-900/20 via-red-500/10 to-transparent border-l-4 border-red-500/60 rounded-r-xl p-4 mt-3">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="text-lg">🔴</span>
+                <span class="text-red-400 font-bold">🔴 资金高低切换·半导体连续流出，机器人/黄金/军工接棒 · 证伪条件/空方逻辑</span>
+                <span class="ml-auto text-[10px] text-white/40 bg-white/5 px-2 py-0.5 rounded">V5.0 必选项</span>
+            </div>
+            
+            <div class="bg-yellow-500/5 border border-yellow-500/20 rounded-lg px-3 py-2 mb-3">
+                <div class="text-yellow-400 text-xs font-bold mb-1">💡 反方观点</div>
+                <p class="text-white/70 text-sm leading-relaxed">🔔半导体流出不代表行情结束：国产半导体设备/材料有内资承接，跌幅相对有限；但需要警惕的是纯概念股、无业绩支撑的标的。真正有订单、有涨价、有业绩兑现的细分龙头（如电子特气/CMP抛光液/先进封装）在急跌后仍是核心配置。</p>
+            </div>
+            
+            
+            <div class="bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2 mb-3">
+                <span class="text-red-400 text-xs font-bold">⛔ 硬止损位：</span>
+                <span class="text-white font-bold text-sm">高位科技股破20日线减半、破60日线清仓；低位新主线（机器人/军工）破10日线减仓</span>
+                <span class="text-white/50 text-xs ml-1">（跌破无条件离场）</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                    <div class="text-xs text-red-400/80 font-bold mb-1">❌ 证伪信号（出现即离场）</div>
+                    <ul class="list-none p-0 m-0"><li class="flex gap-2 mb-1"><span class="text-red-400 flex-shrink-0">✗</span><span class="text-white/70 text-sm">两市成交连续3日<3万亿，反弹无量</span></li><li class="flex gap-2 mb-1"><span class="text-red-400 flex-shrink-0">✗</span><span class="text-white/70 text-sm">半导体板块单日主力净流出持续>150亿</span></li><li class="flex gap-2 mb-1"><span class="text-red-400 flex-shrink-0">✗</span><span class="text-white/70 text-sm">机器人板块高潮后龙头连续2日跌停，情绪退潮</span></li></ul>
+                </div>
+                <div>
+                    <div class="text-xs text-yellow-400/80 font-bold mb-1">⚠️ 空方核心逻辑</div>
+                    <ul class="list-none p-0 m-0"><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">成交缩至3.18万亿是6月18日以来最低，没有增量资金的反弹难持续，4050-4080区间压力大</span></li><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">两融余额3万亿（历史99.4%分位）处于极值，杠杆资金一旦撤退将引发踩踏</span></li><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">中报期高位科技股业绩兑现压力大，估值>100倍PE的标的一旦不及预期将补跌</span></li><li class="flex gap-2 mb-1"><span class="text-yellow-400 flex-shrink-0">◌</span><span class="text-white/70 text-sm">美股7/2晚休市（独立日），下周一美股开盘补跌风险仍在</span></li></ul>
+                </div>
+            </div>
+        </div>
+        
+                </div>
+                    </div>
+                
+        </div>
+        
+            </div>
+            
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">💎</span>
+                    A+级催化事件
+                </h2>
+                <div class="text-white/80">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="card-glass rounded-xl p-4"><div class="flex items-start justify-between mb-3"><div class="flex items-center gap-2"><span class="text-yellow-400 font-bold">A+</span><span class="text-white font-bold"></span></div><span class="text-sm font-bold text-yellow-400">0分</span></div><p class="text-white/70 text-sm leading-relaxed mb-3"></p><div class="mb-2"><div class="text-xs text-white/40 mb-1">核心催化</div><div class="flex flex-wrap gap-1.5"></div></div><div class="mb-2"><div class="text-xs text-white/40 mb-1">相关标的</div><div class="flex flex-wrap gap-1"></div></div><div class="text-xs text-white/40 mt-2">时间窗口：<span class="text-white/70"></span></div></div><div class="card-glass rounded-xl p-4"><div class="flex items-start justify-between mb-3"><div class="flex items-center gap-2"><span class="text-yellow-400 font-bold">A+</span><span class="text-white font-bold"></span></div><span class="text-sm font-bold text-yellow-400">0分</span></div><p class="text-white/70 text-sm leading-relaxed mb-3"></p><div class="mb-2"><div class="text-xs text-white/40 mb-1">核心催化</div><div class="flex flex-wrap gap-1.5"></div></div><div class="mb-2"><div class="text-xs text-white/40 mb-1">相关标的</div><div class="flex flex-wrap gap-1"></div></div><div class="text-xs text-white/40 mt-2">时间窗口：<span class="text-white/70"></span></div></div></div>
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">📅</span>
+                    S级催化日历
+                </h2>
+                <div class="text-white/80">
+                    <div class="space-y-2">
+            <div class="flex items-center gap-4 bg-white/5 rounded-lg px-4 py-3 border border-yellow-500/30/30">
+                <div class="w-16 text-center flex-shrink-0">
+                    <div class="text-white font-bold text-sm">7/6（周一）</div>
+                </div>
+                <div class="w-px h-8 bg-white/10"></div>
+                <div class="flex-1">
+                    <div class="text-white/90 text-sm font-medium">A股交易新规实施（ST涨跌幅10%/盘后交易扩围/基金尾盘集合竞价）</div>
+                    <div class="text-xs text-white/40 mt-0.5"></div>
+                </div>
+                <span class="bg-yellow-500/20 text-yellow-400 text-xs font-medium px-2 py-1 rounded-full">
+                    
+                </span>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-white/5 rounded-lg px-4 py-3 border border-yellow-500/30/30">
+                <div class="w-16 text-center flex-shrink-0">
+                    <div class="text-white font-bold text-sm">7/10-13</div>
+                </div>
+                <div class="w-px h-8 bg-white/10"></div>
+                <div class="flex-1">
+                    <div class="text-white/90 text-sm font-medium">长征十号乙首飞（海上网系回收）</div>
+                    <div class="text-xs text-white/40 mt-0.5"></div>
+                </div>
+                <span class="bg-yellow-500/20 text-yellow-400 text-xs font-medium px-2 py-1 rounded-full">
+                    
+                </span>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-white/5 rounded-lg px-4 py-3 border border-yellow-500/30/30">
+                <div class="w-16 text-center flex-shrink-0">
+                    <div class="text-white font-bold text-sm">7月中旬</div>
+                </div>
+                <div class="w-px h-8 bg-white/10"></div>
+                <div class="flex-1">
+                    <div class="text-white/90 text-sm font-medium">中报业绩预告密集披露期启动</div>
+                    <div class="text-xs text-white/40 mt-0.5"></div>
+                </div>
+                <span class="bg-yellow-500/20 text-yellow-400 text-xs font-medium px-2 py-1 rounded-full">
+                    
+                </span>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-white/5 rounded-lg px-4 py-3 border border-yellow-500/30/30">
+                <div class="w-16 text-center flex-shrink-0">
+                    <div class="text-white font-bold text-sm">7/16</div>
+                </div>
+                <div class="w-px h-8 bg-white/10"></div>
+                <div class="flex-1">
+                    <div class="text-white/90 text-sm font-medium">韩国央行利率决议（CPI创30月新高，关注加息信号）</div>
+                    <div class="text-xs text-white/40 mt-0.5"></div>
+                </div>
+                <span class="bg-yellow-500/20 text-yellow-400 text-xs font-medium px-2 py-1 rounded-full">
+                    
+                </span>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-white/5 rounded-lg px-4 py-3 border border-yellow-500/30/30">
+                <div class="w-16 text-center flex-shrink-0">
+                    <div class="text-white font-bold text-sm">7/下旬</div>
+                </div>
+                <div class="w-px h-8 bg-white/10"></div>
+                <div class="flex-1">
+                    <div class="text-white/90 text-sm font-medium">英伟达/台积电Q2财报、美股科技股进入业绩期</div>
+                    <div class="text-xs text-white/40 mt-0.5"></div>
+                </div>
+                <span class="bg-yellow-500/20 text-yellow-400 text-xs font-medium px-2 py-1 rounded-full">
+                    
+                </span>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-white/5 rounded-lg px-4 py-3 border border-yellow-500/30/30">
+                <div class="w-16 text-center flex-shrink-0">
+                    <div class="text-white font-bold text-sm">7/22</div>
+                </div>
+                <div class="w-px h-8 bg-white/10"></div>
+                <div class="flex-1">
+                    <div class="text-white/90 text-sm font-medium">三星Galaxy Z Fold8/Flip8折叠屏发布（存储需求验证）</div>
+                    <div class="text-xs text-white/40 mt-0.5"></div>
+                </div>
+                <span class="bg-yellow-500/20 text-yellow-400 text-xs font-medium px-2 py-1 rounded-full">
+                    
+                </span>
+            </div>
+            </div>
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">⚠️</span>
+                    🔥 持仓诊断（双重验证）
+                </h2>
+                <div class="text-white/80">
+                    
+<div class="card-glass p-6 mb-6 border border-red-500/30">
+  <div class="flex items-center gap-2 mb-4">
+    <span class="text-2xl">⚠️</span>
+    <span class="text-xl font-bold text-red-400">持仓4股专项诊断（7/3收盘）</span>
+    <span class="ml-auto text-xs text-white/50">来源：东方财富/新浪/富途 置信度：高</span>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <!-- 雅克科技 -->
+    <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-red-400 font-bold text-lg">🔴 雅克科技 002409</span>
+        </div>
+        <span class="text-red-400 font-black text-2xl">199.50</span>
+      </div>
+      <div class="text-xs text-white/60 mb-2">今收199.50 <span class="text-red-400">-6.11%</span>（昨收212.48）｜最高209.99/最低195.88/成交93.69亿/换手14.55%｜PE(TTM)94.33</div>
+      <div class="text-sm text-white/80 leading-relaxed space-y-1">
+        <div><span class="text-yellow-400">⚡ 两日累跌-15.5%（7/2跌停-10%+7/3-6.11%），200元关口险守。</span>主力净流出5.43亿（氟化工板块第二），全天成交93.69亿仍处天量，机构继续兑现。</div>
+        <div><span class="text-white/90">🔍 双重验证：</span>①7/2风险提示公告为<span class="text-yellow-400">深交所模板性监管函</span>（常规异动提示），非实质性利空；②两日下跌主因是费半两日累跌-11%、半导体板块系统性回调，公司HBM前驱体/电子特气基本面未变。</div>
+        <div><span class="text-green-400">📊 估值锚：</span>PE(TTM)94.33倍位于历史85%分位（52周区间52-246元），PB 11.94倍；200元为心理+整数关口，下方支撑195元（今日低点）、188元（20日线）、170元（前期平台）。</div>
+        <div><span class="text-red-400">🎯 操作建议：</span>底仓1/2保留观察200-210企稳（已减仓前提下），<span class="text-red-400 font-bold">反弹至210-215必须减1/3锁利</span>，<span class="text-red-400 font-bold">跌破195减至1/4以下</span>，破188元（20日线）清仓底仓。<span class="text-white/50 text-xs">注：龙虎榜机构净卖5.43亿/93.69亿=5.8%，接近5%阈值，已构成显著看空信号。</span></div>
+      </div>
+    </div>
+
+    <!-- 英维克 -->
+    <div class="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-orange-400 font-bold text-lg">🔴 英维克 002837</span>
+        </div>
+        <span class="text-orange-400 font-black text-2xl">71.43</span>
+      </div>
+      <div class="text-xs text-white/60 mb-2">今收71.43 <span class="text-white/70">+0.04%</span>（十字星）｜最高74.41/最低70.50/成交31.41亿/换手3.83%｜PE 195倍</div>
+      <div class="text-sm text-white/80 leading-relaxed space-y-1">
+        <div><span class="text-yellow-400">⚡ 深度破止损-31.5%，今日盘中给出73-75减仓窗口（最高74.41元）。</span>收盘十字星，缩量至31.41亿（昨37.9亿），多空暂时平衡但均线仍空头排列。</div>
+        <div><span class="text-white/90">🔍 资金面：</span>今日主力净流入+3650万（近5日累计净流出14.86亿，较此前21.25亿有所收敛）；融资余额43.57亿，5日减少2.71亿（杠杆资金继续撤退）；大宗交易8.3万股/592.87万元，机构对机构平价成交，无明显信号。</div>
+        <div><span class="text-green-400">📊 技术锚：</span>70元为前低/心理关口，69.80为7/2最低点，破70打开新下跌空间；反弹阻力73-75（今日冲高回落位）、78-80（缺口+10日线）。</div>
+        <div><span class="text-red-400">🎯 操作建议：</span><span class="text-red-400 font-bold">下周一7/6若反弹至73-75必须坚决清仓≥1/2</span>（用户已计划清仓），<span class="text-red-400 font-bold">破70元无条件离场</span>，严禁补仓摊低成本。深度套牢筹码不要再存幻想。</div>
+      </div>
+    </div>
+
+    <!-- 铜冠铜箔 -->
+    <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-yellow-400 font-bold text-lg">🟡 铜冠铜箔 301217</span>
+        </div>
+        <span class="text-yellow-400 font-black text-2xl">154.63</span>
+      </div>
+      <div class="text-xs text-white/60 mb-2">今收154.63 <span class="text-red-400">-2.08%</span>｜最高164.56/最低150.00/成交67.03亿/波幅9.38%｜PE 1932倍</div>
+      <div class="text-sm text-white/80 leading-relaxed space-y-1">
+        <div><span class="text-yellow-400">⚡ 盘中一度击穿155移动止盈线至150，午后反弹收154.63。</span>160-165减仓窗口今日打开（最高164.56），若未执行减仓则下周一需果断。</div>
+        <div><span class="text-white/90">🔍 资金面：</span>跟随存储板块调整，但表现相对抗跌（板块-2.52%，铜冠-2.08%）；HVLP铜箔是HBM/AI服务器刚需，三星Q3 DRAM涨价+20%利好上游铜箔需求。</div>
+        <div><span class="text-green-400">📊 估值锚：</span>PE 1932倍严重透支（扣非EPS仅0.08元），PB 23.78倍；支撑位150元（今日低点）、145元（20日线）、130元（前期平台）。浮盈仍有+77.4%（成本87.16）。</div>
+        <div><span class="text-red-400">🎯 操作建议：</span><span class="text-red-400 font-bold">反弹至160-165减1/3锁利</span>（窗口已出现一次，别错过第二次），<span class="text-red-400 font-bold">移动止盈线下移至150元</span>（破150必须减仓至1/2），破145（20日线）清至1/3以下。三星涨价是利好但不追高。</div>
+      </div>
+    </div>
+
+    <!-- *ST建艺 -->
+    <div class="bg-red-500/20 border-2 border-red-500 rounded-xl p-4 animate-pulse">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-red-500 font-bold text-lg">🚨 *ST建艺 002789</span>
+          <span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">最后交易日</span>
+        </div>
+        <span class="text-red-400 font-black text-2xl">11.74</span>
+      </div>
+      <div class="text-xs text-white/60 mb-2">今收11.74 <span class="text-red-400">-0.42%</span>｜成交3780万元/换手极低｜负债率94.38%｜Q1扣非净亏5351万</div>
+      <div class="text-sm text-white/80 leading-relaxed space-y-1">
+        <div><span class="text-red-400 font-bold">🚨🚨🚨 今日（7/3）是ST涨跌幅5%时代的最后交易日！</span>7/6（周一）起主板ST涨跌幅翻倍至±10%。</div>
+        <div><span class="text-white/90">🔍 双重验证：</span>①7/1公司公告重大诉讼（被起诉5301万）；②7/2-7/3连续2日下跌、ST板块59家涨停时该股逆市下跌（7/2-1.75%/7/3-0.42%），资金明显用脚投票；③负债率94.38%、Q1亏损、毛利率仅2.55%，基本面极度恶化。</div>
+        <div><span class="text-red-400">🎯 操作建议：</span><span class="text-red-500 font-black text-lg">如果7/3收盘前未清仓，7/6（下周一）集合竞价必须不计成本挂跌停价清仓！！！</span>10%跌停单日可至10.57元，再一个10%跌停至9.51元，2个跌停即亏-20%，距1元面值退市仅剩10个跌停空间，<span class="text-red-400 font-bold">绝对不能抱有任何侥幸心理</span>。</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-sm text-yellow-200">
+    <span class="font-bold">📌 7/6周一开盘核心操作排序（按时间优先级）：</span>
+    <span class="text-white/90">①*ST建艺集合竞价清仓（最高优先级，不计成本）→ ②英维克反弹73-75清仓≥1/2、破70无条件离场 → ③铜冠铜箔160-165减1/3、破150减半 → ④雅克科技反弹210-215减1/3、破195减至1/4。</span>
+  </div>
+</div>
+
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">🔗</span>
+                    🔗 核心产业链梳理
+                </h2>
+                <div class="text-white/80">
+                    
+<div class="mb-8">
+  <h4 class="text-base font-semibold text-white/90 mb-4">🤖 人形机器人产业链（S+主线）</h4>
+  <div class="space-y-3">
+    <div>
+      <div class="text-xs text-white/50 mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500"></span>上游：核心零部件（价值量最高，业绩弹性最大）</div>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-red-400 font-bold text-sm">谐波减速器</div><div class="text-xs text-white/60 mt-1">绿的谐波（特斯拉独家认证，2026目标8亿）、丰光精密（微型/灵巧手）</div></div>
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-red-400 font-bold text-sm">行星滚柱丝杠</div><div class="text-xs text-white/60 mt-1">贝斯特（C0级精度）、瑞迪智驱、凯龙高科（跨界）</div></div>
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-red-400 font-bold text-sm">无框力矩电机</div><div class="text-xs text-white/60 mt-1">步科股份、汇川技术、江苏雷利</div></div>
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-red-400 font-bold text-sm">六维力传感器</div><div class="text-xs text-white/60 mt-1">柯力传感、宇立仪器、汉威科技（国产化率<30%）</div></div>
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-red-400 font-bold text-sm">轴承/PEEK材料</div><div class="text-xs text-white/60 mt-1">长盛轴承、万达轴承、中研股份（PEEK）</div></div>
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-red-400 font-bold text-sm">3D视觉/灵巧手</div><div class="text-xs text-white/60 mt-1">奥比中光、因时机器人、豪森股份</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="text-xs text-white/50 mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-yellow-500"></span>中游：执行器总成/模组</div>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-yellow-400 font-bold text-sm">执行器总成</div><div class="text-xs text-white/60 mt-1">三花智控（特斯拉核心供应商，龙头）、拓普集团（直线+旋转执行器）</div></div>
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-yellow-400 font-bold text-sm">伺服系统</div><div class="text-xs text-white/60 mt-1">埃斯顿（4天3板）、雷赛智能、鸣志电器</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="text-xs text-white/50 mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span>下游：整机厂商</div>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-green-400 font-bold text-sm">宇树科技（IPO）</div><div class="text-xs text-white/60 mt-1">2025年出货5500台全球第一，营收17亿，扣非5.9亿，估值420亿</div></div>
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-green-400 font-bold text-sm">特斯拉Optimus</div><div class="text-xs text-white/60 mt-1">弗里蒙特产线公开，2026目标2.5万台，9月1000台/周</div></div>
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-green-400 font-bold text-sm">优必选/智元</div><div class="text-xs text-white/60 mt-1">优必选U1订单1.3万台（11.98万起），智元1.5万台量产</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mb-8">
+  <h4 class="text-base font-semibold text-white/90 mb-4">💾 存储芯片产业链（S级·分化震荡）</h4>
+  <div class="space-y-3">
+    <div>
+      <div class="text-xs text-white/50 mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500"></span>上游：材料/设备（持仓相关）</div>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-orange-400 font-bold text-sm">HBM前驱体</div><div class="text-xs text-white/60 mt-1">雅克科技（持仓，两日-15.5%）、南大光电（-9.68%）</div></div>
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-orange-400 font-bold text-sm">HVLP铜箔</div><div class="text-xs text-white/60 mt-1">铜冠铜箔（持仓，-2.08%相对抗跌）</div></div>
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-orange-400 font-bold text-sm">电子特气</div><div class="text-xs text-white/60 mt-1">华特气体（-9.27%）、金宏气体（-16.21%）、中船特气（-9.55%）</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="text-xs text-white/50 mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-yellow-500"></span>中游：存储原厂/封装</div>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-yellow-400 font-bold text-sm">海外原厂</div><div class="text-xs text-white/60 mt-1">三星（Q3+20%）/SK海力士（+12%）/美光（两日-15%，Burry做空）</div></div>
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-yellow-400 font-bold text-sm">国产原厂</div><div class="text-xs text-white/60 mt-1">长鑫存储（拟上市，H1净利500-570亿）、长江存储（产能翻倍）</div></div>
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-yellow-400 font-bold text-sm">模组/封装</div><div class="text-xs text-white/60 mt-1">江波龙（+3.14%）、德明利（涨停）、长电科技（-5.31%）</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="text-xs text-white/50 mb-2 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span>下游：AI服务器/消费电子</div>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-green-400 font-bold text-sm">AI服务器</div><div class="text-xs text-white/60 mt-1">HBM/LPDDR持续紧缺至2027，16份长协锁价</div></div>
+        <div class="bg-white/5 rounded-lg p-3 border border-white/10"><div class="text-green-400 font-bold text-sm">手机/PC</div><div class="text-xs text-white/60 mt-1">存储BOM占比升至40-64%，低端机利润被吞噬，魅族暂停手机业务</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">📈</span>
+                    📈 投资策略与下周操作
+                </h2>
+                <div class="text-white/80">
+                    
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div class="bg-gradient-to-br from-red-500/20 to-orange-500/10 border border-red-500/30 rounded-xl p-5">
+    <div class="text-red-400 font-bold text-lg mb-2">⚡ 进攻方向（短线1-2周）</div>
+    <div class="text-sm text-white/80 leading-relaxed space-y-1">
+      <div>• <span class="text-yellow-400 font-bold">人形机器人核心零部件</span>：绿的谐波/三花智控/贝斯特/丰光精密/长盛轴承，但周一忌追高，等分歧回踩5日线再介入</div>
+      <div>• <span class="text-yellow-400 font-bold">商业航天</span>：长征十号乙7/10-13首飞窗口，低位军工航天</div>
+      <div>• <span class="text-yellow-400 font-bold">黄金贵金属</span>：降息预期+避险，赤峰黄金/招金黄金/四川黄金</div>
+    </div>
+  </div>
+  <div class="bg-gradient-to-br from-yellow-500/20 to-amber-500/10 border border-yellow-500/30 rounded-xl p-5">
+    <div class="text-yellow-400 font-bold text-lg mb-2">🛡️ 防守策略（7月中报前）</div>
+    <div class="text-sm text-white/80 leading-relaxed space-y-1">
+      <div>• 持仓4股严格执行减仓/清仓计划（英维克/ST建艺必须清）</div>
+      <div>• 高位科技股（PE>100倍）降仓位至3成以下</div>
+      <div>• 控制总仓位≤5成，留足现金应对7/6新规冲击+美股补跌风险</div>
+      <div>• 中报业绩预告窗口（7月中旬），转向业绩确定性方向</div>
+    </div>
+  </div>
+  <div class="bg-gradient-to-br from-blue-500/20 to-cyan-500/10 border border-blue-500/30 rounded-xl p-5">
+    <div class="text-blue-400 font-bold text-lg mb-2">🎯 中线布局（中报后）</div>
+    <div class="text-sm text-white/80 leading-relaxed space-y-1">
+      <div>• 存储：等美股情绪企稳+中报业绩验证后重新加仓核心龙头（兆易创新/长鑫产业链）</div>
+      <div>• 半导体设备：急跌后关注北方华创/中微公司（订单排至明年上半年）</div>
+      <div>• CMP抛光液/电子特气：安集科技/鼎龙股份/华特气体（业绩确定性强）</div>
+    </div>
+  </div>
+</div>
+<div class="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+  <div class="text-red-400 font-bold mb-2">🚨 7/6（周一）风险预警</div>
+  <div class="text-sm text-white/80 space-y-1">
+    <div>1. <span class="text-red-400 font-bold">ST板块波动翻倍</span>：持仓*ST建艺集合竞价必须清仓，其他ST股也需全面排查风险；</div>
+    <div>2. <span class="text-red-400 font-bold">美股7/3晚休市（独立日）</span>，周一美股开盘可能补跌/反弹，关注费半走势对A股科技股映射；</div>
+    <div>3. <span class="text-red-400 font-bold">机器人板块高潮次日分歧</span>：40余股涨停通常次日有分化，龙头一字板可持有，跟风股注意止盈；</div>
+    <div>4. <span class="text-red-400 font-bold">量能萎缩警报</span>：若周一成交继续<3.1万亿，反弹高度有限，4050-4080是强压力区。</div>
+  </div>
+</div>
+
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">⚠️</span>
+                    特别风险提示
+                </h2>
+                <div class="text-white/80">
+                    
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+                    <div class="card-subtle rounded-xl p-4 h-full">
+                        <div class="text-sm font-medium text-white/90 mb-2 flex items-center gap-2">⚠️ 不确定性风险</div>
+                        <div class="text-sm text-white/70 leading-relaxed">S级催化事件具有高度不确定性，实际影响可能与预期存在较大差异</div>
+                    </div>
+                
+                    <div class="card-subtle rounded-xl p-4 h-full">
+                        <div class="text-sm font-medium text-white/90 mb-2 flex items-center gap-2">📉 高波动风险</div>
+                        <div class="text-sm text-white/70 leading-relaxed">题材炒作往往伴随高波动，注意追高风险和情绪退潮风险</div>
+                    </div>
+                
+                    <div class="card-subtle rounded-xl p-4 h-full">
+                        <div class="text-sm font-medium text-white/90 mb-2 flex items-center gap-2">📊 基本面风险</div>
+                        <div class="text-sm text-white/70 leading-relaxed">建议结合基本面和技术面综合判断，切勿盲目跟风</div>
+                    </div>
+                
+                    <div class="card-subtle rounded-xl p-4 h-full">
+                        <div class="text-sm font-medium text-white/90 mb-2 flex items-center gap-2">📜 合规提示</div>
+                        <div class="text-sm text-white/70 leading-relaxed">本内容仅做信息整理，不构成任何投资建议</div>
+                    </div>
+                
+        </div>
+        
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">📚</span>
+                    🧠 系统复盘·历史教训
+                </h2>
+                <div class="text-white/80">
+                    <div class="card-glass p-6 mb-6">
+        <div class="mt-4">
+            <h3 class="text-sm font-bold text-white/90 mb-2 flex items-center gap-2">
+                <span>📚 历史教训回顾</span>
+                <span class="text-white/40 text-[11px] font-normal">（基于当日关键词自动匹配）</span>
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-2">
+                
+            <div class="bg-white/[0.03] border border-white/10 rounded-lg p-3">
+                <div class="flex items-start justify-between gap-2 mb-1">
+                    <div class="text-white/90 font-semibold text-sm">📌 推理能力不足，只会"补漏"而非"推导"</div>
+                    <span class="text-[10px] text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded flex-shrink-0">相关度 0%</span>
+                </div>
+                <p class="text-white/60 text-xs leading-relaxed">系统复盘只关注"遗漏了个股、遗漏了题材"  缺乏从题材到个股的逻辑推导能力  不会举一反三，不会深度分析</p>
+                
+            </div>
+            
+            </div>
+        </div>
+        </div>
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">📡</span>
+                    📡 数据溯源
+                </h2>
+                <div class="text-white/80">
+                    
+        <div class="mt-4 p-3 bg-white/[0.03] rounded-lg border border-white/5">
+            <div class="text-xs text-white/40 mb-2">📡 本报告数据来源（5个源 / 5次引用）</div>
+            <div class="flex flex-wrap gap-1.5"><span class="bg-white/5 text-white/70 text-xs px-2 py-1 rounded border border-white/10">综合研究 <span class="text-white/40">×1</span></span> <span class="bg-white/5 text-white/70 text-xs px-2 py-1 rounded border border-white/10">证监会公告/财联社/和讯/摩根士丹利研报 <span class="text-white/40">×1</span></span> <span class="bg-white/5 text-white/70 text-xs px-2 py-1 rounded border border-white/10">ZDNet Korea/科创板日报/TrendForce/华尔街见闻 <span class="text-white/40">×1</span></span> <span class="bg-white/5 text-white/70 text-xs px-2 py-1 rounded border border-white/10">沪深北交易所公告/证券时报/每日经济新闻 <span class="text-white/40">×1</span></span> <span class="bg-white/5 text-white/70 text-xs px-2 py-1 rounded border border-white/10">东方财富/证券时报数据宝/龙虎榜 <span class="text-white/40">×1</span></span></div>
+            
+        </div>
+        
+                </div>
+            
+        </div>
+        
+        </div>
+        
+        
+        
+        <div class="text-center text-white/40 text-sm py-10">
+            <p>S级催化扫描 · 投资研究中心</p>
+            <p class="text-xs mt-2">数据更新时间：2026年07月03日 20:32</p>
+        </div>
+        
+    </div>
+    
+    <div id="progressBar"></div><div class="action-buttons"><button onclick="exportPDF()" class="action-btn" title="打印/导出PDF"><span style="font-size:20px">&#x1F4C4;</span></button><button onclick="shareReport()" class="action-btn" title="分享报告"><span style="font-size:20px">&#x1F517;</span></button></div><button id="backToTop" onclick="scrollToTop()" title="回到顶部"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg></button>
+    <!-- 悬浮目录导航 -->
+<div id="tableOfContents" class="toc-wrapper toc-right">
+  <div class="toc-header" onclick="toggleTOC()">
+    <span class="toc-title">目录</span>
+    <svg id="tocToggleIcon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="transition-transform duration-300">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+    </svg>
+  </div>
+  <div id="tocContent" class="toc-content">
+    <div id="tocContainer" class="toc-container"></div>
+  </div>
+</div>
+
+    <script src="/daily-news-insight/assets/stock-popup.js"></script>
+    
+    <script>
+        // ==================== 移动端菜单切换 ====================
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) {
+                menu.classList.toggle('show');
+                document.body.style.overflow = menu.classList.contains('show') ? 'hidden' : '';
+            }
+        }
+        
+        // 点击菜单项后关闭菜单
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('mobile-menu-item')) {
+                setTimeout(toggleMobileMenu, 100);
+            }
+        });
+        
+        // ==================== 导航栏滚动效果 ====================
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('.glass-nav');
+            if (nav) {
+                if (window.scrollY > 10) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
+                }
+            }
+        });
+        
+        // ==================== 滚动触发动画 ====================
+        function initScrollReveal() {
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                        }
+                    });
+                }, {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                });
+                
+                document.querySelectorAll('.reveal, .card-glass').forEach(function(el, index) {
+                    observer.observe(el);
+                    el.style.animationDelay = (index * 0.1) + 's';
+                });
+            }
+        }
+        
+        // ==================== 数字滚动动画 ====================
+        function animateValue(element, start, end, duration) {
+            var startTimestamp = null;
+            var step = function(timestamp) {
+                if (!startTimestamp) startTimestamp = timestamp;
+                var progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                var value = Math.floor(progress * (end - start) + start);
+                element.textContent = value.toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+        
+        function initCounters() {
+            var counters = document.querySelectorAll('.counter-value');
+            if ('IntersectionObserver' in window) {
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting && !entry.target.dataset.animated) {
+                            entry.target.dataset.animated = 'true';
+                            var target = parseInt(entry.target.dataset.target || entry.target.textContent);
+                            animateValue(entry.target, 0, target, 1500);
+                        }
+                    });
+                }, { threshold: 0.5 });
+                
+                counters.forEach(function(counter) { observer.observe(counter); });
+            }
+        }
+        
+        // ==================== 进度条动画 ====================
+        function initProgressBars() {
+            var bars = document.querySelectorAll('.risk-bar-fill');
+            if ('IntersectionObserver' in window) {
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting && !entry.target.dataset.animated) {
+                            entry.target.dataset.animated = 'true';
+                            var width = entry.target.style.width;
+                            entry.target.style.width = '0%';
+                            setTimeout(function() {
+                                entry.target.style.width = width;
+                            }, 100);
+                        }
+                    });
+                }, { threshold: 0.5 });
+                
+                bars.forEach(function(bar) { observer.observe(bar); });
+            }
+        }
+        
+        // ==================== 卡片入场动画 ====================
+        function initCardAnimations() {
+            var cards = document.querySelectorAll('.card-glass');
+            cards.forEach(function(card, index) {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                
+                setTimeout(function() {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 + index * 100);
+            });
+        }
+        
+
+        // ==================== 阅读进度条 & 回到顶部 ====================
+        function initProgressAndBackToTop() {
+            const progressBar = document.getElementById('progressBar');
+            const backToTop = document.getElementById('backToTop');
+            
+            function updateProgress() {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+                
+                if (progressBar) {
+                    progressBar.style.width = scrolled + '%';
+                }
+                
+                if (backToTop) {
+                    if (winScroll > 300) {
+                        backToTop.classList.add('visible');
+                    } else {
+                        backToTop.classList.remove('visible');
+                    }
+                }
+            }
+            
+            window.addEventListener('scroll', updateProgress);
+            updateProgress();
+        }
+        
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function exportPDF() {
+            window.print();
+        }
+        
+        function shareReport() {
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({ title: document.title, url: url });
+            } else {
+                navigator.clipboard.writeText(url).then(function() {
+                    alert('链接已复制到剪贴板！');
+                }).catch(function() {
+                    prompt('复制以下链接分享：', url);
+                });
+            }
+        }
+        
+        // ==================== 平滑滚动 ====================
+        function initSmoothScroll() {
+            document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        }
+        
+        
+        // ==================== 悬浮目录导航 ====================
+        function toggleTOC() {
+            const toc = document.getElementById('tableOfContents');
+            if (toc) {
+                // 移动端使用expanded类，桌面端使用collapsed类
+                if (window.innerWidth <= 1200) {
+                    toc.classList.toggle('expanded');
+                } else {
+                    toc.classList.toggle('collapsed');
+                }
+            }
+        }
+
+        // 监听窗口大小变化，重置TOC状态
+        window.addEventListener('resize', function() {
+            const toc = document.getElementById('tableOfContents');
+            if (toc) {
+                if (window.innerWidth > 1200) {
+                    toc.classList.remove('expanded');
+                } else {
+                    toc.classList.remove('expanded');
+                }
+            }
+        });
+        
+        function initTableOfContents() {
+            const tocContainer = document.getElementById('tocContainer');
+            if (!tocContainer) return;
+            
+            // 自动提取页面中的h2和h3标题
+            const headings = document.querySelectorAll('.pro-container h2, .pro-container h3');
+            if (headings.length === 0) {
+                // 没有标题则隐藏目录
+                const toc = document.getElementById('tableOfContents');
+                if (toc) toc.style.display = 'none';
+                return;
+            }
+            
+            // 为标题生成id（如果没有的话）
+            headings.forEach(function(heading, index) {
+                if (!heading.id) {
+                    const text = heading.textContent || heading.innerText;
+                    heading.id = 'section-' + index + '-' + text.trim().replace(/\s+/g, '-').replace(/[^\w\-一-龥]/g, '').substring(0, 30);
+                }
+            });
+            
+            // 生成目录HTML
+            var tocHTML = '';
+            headings.forEach(function(heading) {
+                const level = parseInt(heading.tagName.substring(1));
+                const title = heading.textContent || heading.innerText;
+                const indent = level === 3 ? 'pl-4' : '';
+                tocHTML += '<a href="#' + heading.id + '" class="toc-item ' + indent + '" data-level="' + level + '">' + title.trim() + '</a>';
+            });
+            
+            tocContainer.innerHTML = tocHTML;
+            
+            // 为目录项添加平滑滚动
+            tocContainer.querySelectorAll('.toc-item').forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        // 考虑导航栏高度
+                        var offset = 100;
+                        var targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // 初始化滚动高亮
+            initTOCScrollSpy();
+        }
+        
+        function initTOCScrollSpy() {
+            const tocItems = document.querySelectorAll('.toc-item');
+            if (tocItems.length === 0) return;
+            
+            // 获取所有章节
+            const sections = [];
+            tocItems.forEach(function(item) {
+                const id = item.getAttribute('href').substring(1);
+                const section = document.getElementById(id);
+                if (section) {
+                    sections.push({
+                        element: section,
+                        navItem: item,
+                        top: section.offsetTop - 120
+                    });
+                }
+            });
+            
+            if (sections.length === 0) return;
+            
+            // 滚动时更新高亮
+            function updateActiveTOC() {
+                const scrollPosition = window.pageYOffset;
+                
+                // 找到当前处于视口的章节
+                var currentIndex = 0;
+                for (var i = 0; i < sections.length; i++) {
+                    if (scrollPosition >= sections[i].top) {
+                        currentIndex = i;
+                    }
+                }
+                
+                // 更新高亮状态
+                tocItems.forEach(function(item, index) {
+                    item.classList.remove('active');
+                });
+                if (sections[currentIndex]) {
+                    sections[currentIndex].navItem.classList.add('active');
+                }
+            }
+            
+            window.addEventListener('scroll', updateActiveTOC);
+            updateActiveTOC();
+        }
+// ==================== 页面加载完成后初始化 ====================
+        function initAllAnimations() {
+            initProgressAndBackToTop();
+            initScrollReveal();
+            initCounters();
+            initProgressBars();
+            initCardAnimations();
+            initSmoothScroll();
+            initTableOfContents();
+
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initAllAnimations, 100);
+        });
+        
+        if (document.readyState !== 'loading') {
+            setTimeout(initAllAnimations, 100);
+        }
+    </script>
+        
+</body>
+</html>
