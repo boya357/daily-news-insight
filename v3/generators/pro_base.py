@@ -133,6 +133,14 @@ class ProGenerator(ProPage):
                     'output_path': output_path
                 }
             
+            # 兜底注入 global-dark.css（防止子类绕过父类模板）
+            if 'global-dark.css' not in html:
+                inject_tag = '<link rel="stylesheet" href="/daily-news-insight/assets/global-dark.css">'
+                if '</head>' in html:
+                    html = html.replace('</head>', inject_tag + '</head>', 1)
+                elif '<head>' in html:
+                    html = html.replace('<head>', '<head>' + inject_tag, 1)
+            
             # 保存文件
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             with open(output_path, 'w', encoding='utf-8') as f:

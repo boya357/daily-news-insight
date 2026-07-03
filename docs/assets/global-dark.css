@@ -129,10 +129,6 @@ h1, h2, h3, h4, h5, h6,
     color: var(--text-primary) !important;
 }
 
-p, span, li, td, th, label, small, div {
-    color: inherit;
-}
-
 a { color: var(--text-link) !important; text-decoration: none; transition: color 0.2s; }
 a:hover { color: var(--text-link-hover) !important; }
 
@@ -409,4 +405,322 @@ blockquote {
 .today-report {
     background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.15)) !important;
     border: 1px solid rgba(167,139,250,0.3) !important;
+}
+
+/* ==========================================================================
+   v2.1 补充修复 (2026-07-03)
+   1. 覆盖浅粉/浅黄/浅绿/浅蓝/浅灰等近白色背景（S级报告持仓卡/催化深度区）
+   2. 修复Tailwind bg-white/5 bg-white/10等半透明白色在无Tailwind CDN时不生效
+   3. 修复深色文字（#1f2937/#374151/#6b7280/#991b1b/#dc2626等）在被深色背景替换后不可见
+   4. 题材助手彩色卡片保护：不强制覆盖分数颜色
+   ========================================================================== */
+
+/* --- 浅色渐变背景覆盖：持仓操作卡 / 催化分析卡 --- */
+[style*="background: linear-gradient(135deg, #fef2f2"],
+[style*="background: linear-gradient(135deg, #fffbeb"],
+[style*="background: linear-gradient(135deg, #f0fdf4"],
+[style*="background: linear-gradient(135deg, #f0f4ff"],
+[style*="background: linear-gradient(135deg, #dbeafe"],
+[style*="background: linear-gradient(135deg, #d1fae5"],
+[style*="background: linear-gradient(135deg, #fee2e2"],
+[style*="background: linear-gradient(135deg, #fef3c7"],
+[style*="background: linear-gradient(135deg, #dcfce7"],
+[style*="background: linear-gradient(135deg, #f5f3ff"],
+[style*="background: linear-gradient(135deg, #fef9c3"],
+[style*="background: linear-gradient(135deg, #fce7f3"],
+[style*="background: linear-gradient(135deg, #e0e7ff"],
+[style*="background: linear-gradient(135deg, #f3e8ff"],
+[style*="background: linear-gradient(135deg, #ecfccb"],
+[style*="background: linear-gradient(135deg, #cffafe"] {
+    background: var(--bg-card) !important;
+    background-color: rgba(255, 255, 255, 0.07) !important;
+    border: var(--border-card) !important;
+    color: var(--text-primary) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    box-shadow: var(--shadow-card) !important;
+}
+
+/* --- 浅灰/近白背景覆盖：#f9fafb #f3f4f6 #f5f5f5 #fafafa #f8fafc #f1f5f9 --- */
+[style*="background: #f9fafb"],
+[style*="background: #f3f4f6"],
+[style*="background: #f5f5f5"],
+[style*="background: #fafafa"],
+[style*="background: #f8fafc"],
+[style*="background: #f1f5f9"],
+[style*="background: #f4f4f5"],
+[style*="background: #e5e7eb"],
+[style*="background: #e2e8f0"],
+[style*="background: #fefefe"] {
+    background: var(--bg-card) !important;
+    background-color: rgba(255, 255, 255, 0.07) !important;
+    border: var(--border-card) !important;
+    color: var(--text-primary) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    box-shadow: var(--shadow-card) !important;
+}
+
+/* --- 内联浅色背景+白色inset阴影（浅色主题典型特征）覆盖 --- */
+[style*="rgba(255, 255, 255, 0.8) inset"],
+[style*="rgba(255,255,255,0.8) inset"] {
+    box-shadow: var(--shadow-card) !important;
+}
+
+/* --- 深色文字（深色背景替换后）必须转浅色 --- */
+[style*="color: #991b1b"],
+[style*="color: #7f1d1d"],
+[style*="color: #92400e"],
+[style*="color: #78350f"],
+[style*="color: #065f46"],
+[style*="color: #1e3a8a"],
+[style*="color: #312e81"],
+[style*="color: #4c1d95"],
+[style*="color: #581c87"],
+[style*="color: #6b7280"],
+[style*="color: #4b5563"],
+[style*="color: #9ca3af"] {
+    color: var(--text-secondary) !important;
+}
+
+/* --- Tailwind bg-white/N 半透明白色在无CDN环境下补内联样式 --- */
+.bg-white\/5, [class*="bg-white/5"] {
+    background: rgba(255,255,255,0.05) !important;
+}
+.bg-white\/10, [class*="bg-white/10"] {
+    background: rgba(255,255,255,0.1) !important;
+}
+.bg-white\/20, [class*="bg-white/20"] {
+    background: rgba(255,255,255,0.2) !important;
+}
+.text-white\/70, [class*="text-white/70"] {
+    color: rgba(255,255,255,0.7) !important;
+}
+.text-white\/50, [class*="text-white/50"] {
+    color: rgba(255,255,255,0.5) !important;
+}
+.backdrop-blur-sm {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* --- Badge深色版（覆盖 .badge-risk .badge-success .badge-info 浅色版） --- */
+.badge-risk {
+    background: rgba(239, 68, 68, 0.2) !important;
+    color: #fca5a5 !important;
+}
+.badge-success {
+    background: rgba(16, 185, 129, 0.2) !important;
+    color: #6ee7b7 !important;
+}
+.badge-info {
+    background: rgba(59, 130, 246, 0.2) !important;
+    color: #93c5fd !important;
+}
+.badge-warning {
+    background: rgba(245, 158, 11, 0.2) !important;
+    color: #fcd34d !important;
+}
+
+/* --- 表格悬停深色版 --- */
+.table-hover tbody tr:hover {
+    background: rgba(255,255,255,0.08) !important;
+}
+
+/* --- 表格行背景 --- */
+[style*="background: #f3f4f6"] tbody tr,
+[style*="background: #f3f4f6"] tr,
+[style*="background: #f9fafb"] tbody tr,
+[style*="background: #f9fafb"] tr {
+    background: transparent !important;
+}
+
+/* --- 题材助手/智能选题专用：保护彩色分数数字 --- */
+.topic-score, .score-big, .score-value,
+[class*="score"], [class*="Score"] {
+    color: var(--warning) !important;
+}
+/* 题材卡片（S/A/B级）保留原始彩色，但加深背景对比度 */
+.topic-card-S, .topic-s, [class*="topic-s-"], [class*="topic-S-"],
+[style*="background:"][style*="rgba(99, 102, 241"],
+[style*="background:"][style*="rgba(139, 92, 246"] {
+    color: var(--text-primary) !important;
+}
+
+/* --- 持仓操作指令专用卡片（深色高对比） --- */
+[style*="linear-gradient(135deg, #ef4444 0%, #dc2626"] + div,
+[style*="linear-gradient(135deg, #f59e0b 0%, #d97706"] + div,
+[style*="linear-gradient(135deg, #f59e0b 0%, #92400e"] + div,
+[style*="linear-gradient(135deg, #ef4444 0%, #991b1b"] + div,
+[style*="linear-gradient(135deg, #10b981 0%, #059669"] + div {
+    color: var(--text-primary) !important;
+}
+
+/* --- 催化深度分析SWOT/热度评估/情景推演卡片 --- */
+[style*="background: #f9fafb"] ~ div[style*="color:"],
+[style*="background: #f3f4f6"] ~ div[style*="color:"] {
+    color: var(--text-primary) !important;
+}
+
+/* ====== topic-picker 彩色分数/级别保护 ====== */
+/* 保留S/A/B级评分大号彩色数字 */
+.text-purple-400, .text-red-400, .text-orange-400, .text-yellow-400,
+.text-blue-400, .text-green-400, .text-pink-400, .text-indigo-400 {
+    /* allow Tailwind / inline colors to show; no !important override here */
+}
+/* 评分数字 */
+[class*="text-"][class*="-400"] { color: var(--tw-text-opacity, 1); }
+.text-yellow-600 { color: #fbbf24 !important; }  /* 金色分数 */
+.text-yellow-700 { color: #fcd34d !important; }
+.text-red-600    { color: #fca5a5 !important; }
+.text-green-600  { color: #6ee7b7 !important; }
+.text-blue-600   { color: #93c5fd !important; }
+.text-purple-600 { color: #c4b5fd !important; }
+.text-gray-800   { color: rgba(255,255,255,0.95) !important; }
+.text-gray-700   { color: rgba(255,255,255,0.88) !important; }
+.text-gray-500   { color: rgba(255,255,255,0.65) !important; }
+
+/* S/A/B 评级圆形标 */
+.rating-S { background: linear-gradient(135deg,#fbbf24,#f59e0b) !important; color:#fff !important; }
+.rating-A { background: linear-gradient(135deg,#a78bfa,#8b5cf6) !important; color:#fff !important; }
+.rating-B { background: linear-gradient(135deg,#60a5fa,#3b82f6) !important; color:#fff !important; }
+
+/* 题材浅色卡片 → 深色玻璃态 */
+.from-yellow-50, .to-amber-50,
+.bg-gradient-to-r.from-yellow-50.to-amber-50,
+[class*="from-yellow-50"], [class*="to-amber-50"] {
+    background: rgba(255,255,255,0.05) !important;
+    background-image: none !important;
+}
+.border-yellow-200 { border-color: rgba(251,191,36,0.3) !important; }
+.bg-yellow-100 { background: rgba(245,158,11,0.18) !important; }
+.text-yellow-700 { color: #fcd34d !important; }
+.bg-white\/60 { background: rgba(255,255,255,0.08) !important; }
+
+/* ============================================================
+ * UI信息层级强化 (2026-07-03)
+ * 目的：让核心结论/买卖信号/关键数据高对比度、醒目
+ * 作用范围：所有页面（已注入global-dark.css）
+ * ============================================================ */
+
+/* 标题层次强化：h1/h2/h3更醒目 */
+h1 { color: var(--text-primary) !important; font-weight: 800 !important; letter-spacing: -0.02em !important; }
+h2 { color: var(--text-primary) !important; font-weight: 700 !important; border-left: 3px solid var(--accent) !important; padding-left: 12px !important; margin-top: 2rem !important; }
+h3 { color: var(--accent-soft) !important; font-weight: 600 !important; }
+h4 { color: var(--text-primary) !important; font-weight: 600 !important; opacity: 0.9 !important; }
+
+/* <strong>/<b> 文字加强 */
+strong, b { color: var(--text-primary) !important; font-weight: 700 !important; }
+
+/* === 核心结论卡片：自动识别含有"核心结论/投资建议/操作建议/风险提示"关键词的卡片 === */
+:is(p, div, span, li):has-text("核心结论"),
+:is(p, div, span, li):has-text("投资建议"),
+:is(p, div, span, li):has-text("操作建议"),
+:is(p, div, span, li):has-text("关键判断") {
+    /* has()在部分旧浏览器不支持，作为渐进增强 */
+}
+/* 使用类名方式兼容 */
+.core-conclusion,
+[class*="conclusion" i],
+[class*="key-point" i],
+[class*="key-takeaway" i] {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1)) !important;
+    border-left: 4px solid var(--accent) !important;
+    border-radius: 12px !important;
+    padding: 16px 20px !important;
+    margin: 16px 0 !important;
+    color: var(--text-primary) !important;
+}
+
+/* === 买卖信号徽章高对比度 === */
+.signal-buy, .signal-sell, .signal-watch,
+/* 自动识别"买入/加仓/持有/卖出/减仓/观望"文本所在元素增强 */
+:is(span, div, a, strong):contains("买入"),
+:is(span, div, a, strong):contains("加仓"),
+:is(span, div, a, strong):contains("看多"),
+:is(span, div, a, strong):contains("卖出"),
+:is(span, div, a, strong):contains("减仓"),
+:is(span, div, a, strong):contains("看空"),
+:is(span, div, a, strong):contains("观望"),
+:is(span, div, a, strong):contains("关注") {
+    font-weight: 700 !important;
+}
+
+/* === 大数字（数据指标）强化 === */
+.data-xl, .metric-value,
+/* 百分比数字强化 */
+:is(span, div, p):has-text(/[+-]?\d+\.\d+%/) {
+    font-variant-numeric: tabular-nums !important;
+    font-weight: 700 !important;
+}
+/* 涨：红（中国惯例） */
+:is(span, strong, b, div):not(.text-green-400):not(.text-green-500):not([class*="green"])[style*="color: rgb(239, 68, 68)"],
+:is(span, strong, b, div)[style*="color:#ef4444"],
+:is(span, strong, b, div)[style*="color: #ef4444"],
+:is(span, strong, b, div)[class*="text-red"] {
+    color: #f87171 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 0 12px rgba(248, 113, 113, 0.3) !important;
+}
+/* 跌：绿 */
+:is(span, strong, b, div)[class*="text-green"] {
+    color: #34d399 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 0 12px rgba(52, 211, 153, 0.3) !important;
+}
+
+/* === S/A/B/C级催化标签强化 === */
+[class*="tag"]:has-text("S级"),
+[class*="badge"]:has-text("S级"),
+span[class*="level"]:has-text("S"),
+.tag-S, .level-S, .badge-s-level {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+    color: #1a1a2e !important;
+    font-weight: 800 !important;
+    padding: 4px 12px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.4) !important;
+}
+[class*="tag"]:has-text("A级"),
+.tag-A, .level-A {
+    background: linear-gradient(135deg, #818cf8, #6366f1) !important;
+    color: #fff !important;
+    font-weight: 700 !important;
+    padding: 3px 10px !important;
+    border-radius: 6px !important;
+}
+
+/* === 表格数据行强化可读性 === */
+table { color: var(--text-primary) !important; border-collapse: collapse !important; }
+th { background: rgba(255,255,255,0.08) !important; color: var(--text-primary) !important; font-weight: 600 !important; padding: 12px 14px !important; text-align: left !important; border-bottom: 1px solid rgba(255,255,255,0.1) !important; }
+td { padding: 10px 14px !important; border-bottom: 1px solid rgba(255,255,255,0.05) !important; color: var(--text-secondary) !important; }
+tr:hover td { background: rgba(255,255,255,0.04) !important; }
+
+/* === 段落文字基础可读性 === */
+p, li, span, td { color: var(--text-secondary) !important; line-height: 1.8 !important; }
+p strong, li strong, td strong { color: var(--text-primary) !important; }
+
+/* === 卡片hover效果 === */
+[class*="card-glass"], .glass-card, .bg-white\/5, .bg-white\/10,
+div[style*="background: rgba(255,255,255,0.05)"],
+div[style*="background-color: rgba(255, 255, 255, 0.05)"] {
+    transition: transform 0.2s, box-shadow 0.2s !important;
+}
+[class*="card-glass"]:hover, .glass-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3) !important;
+}
+
+/* === 链接样式 === */
+a { color: var(--accent-soft) !important; text-decoration: none !important; transition: color 0.15s !important; }
+a:hover { color: var(--accent) !important; text-decoration: underline !important; }
+
+/* === 引用块（blockquote/warning/important）=== */
+blockquote, [class*="warning"], [class*="alert"], [class*="danger"], [class*="important"], [class*="risk"] {
+    border-left: 4px solid var(--warning) !important;
+    background: rgba(245, 158, 11, 0.08) !important;
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
+    margin: 12px 0 !important;
+    color: var(--text-primary) !important;
 }

@@ -355,6 +355,7 @@ class PredictionCenterProGenerator(ProGenerator):
     <title>预判验证中心 - 投资研究中心</title>
     <script src="https://cdn.tailwindcss.com"></script>
     {theme_css}
+    <link rel="stylesheet" href="/daily-news-insight/assets/global-dark.css">
     <style>
         .line-clamp-2 {{
             display: -webkit-box;
@@ -382,8 +383,8 @@ class PredictionCenterProGenerator(ProGenerator):
                 <a href="/daily-news-insight/industry_chain/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a>
                 <a href="/daily-news-insight/weekly_review/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a>
                 <a href="/daily-news-insight/weekly_outlook/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周三前瞻</a>
-                <a href="/daily-news-insight/周末速递/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a>
-                <a href="/daily-news-insight/明日催化剂/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a>
+                <a href="/daily-news-insight/weekend_express/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a>
+                <a href="/daily-news-insight/tomorrow_catalyst/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a>
                 <a href="/daily-news-insight/s_level_catalyst/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a>
                 <a href="/daily-news-insight/monthly/latest.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
             </div>
@@ -401,8 +402,8 @@ class PredictionCenterProGenerator(ProGenerator):
         <a href="/daily-news-insight/industry_chain/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链总览</a>
         <a href="/daily-news-insight/weekly_review/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a>
         <a href="/daily-news-insight/weekly_outlook/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔮 周三前瞻</a>
-        <a href="/daily-news-insight/周末速递/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a>
-        <a href="/daily-news-insight/明日催化剂/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化剂</a>
+        <a href="/daily-news-insight/weekend_express/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a>
+        <a href="/daily-news-insight/tomorrow_catalyst/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化</a>
         <a href="/daily-news-insight/s_level_catalyst/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⭐ S级催化扫描</a>
         <a href="/daily-news-insight/monthly/latest.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🗓️ 月度总结</a>
     </div>
@@ -457,7 +458,7 @@ class PredictionCenterProGenerator(ProGenerator):
         """页面主要内容"""
         return self.generate()
     
-    def publish(self, output_path: str = "docs/prediction-center/index.html"):
+    def publish(self, output_path: str = "docs/prediction_verification/index.html"):
         """发布到生产路径"""
         return super().publish(output_path)
 

@@ -1973,6 +1973,7 @@ class V4BaseGenerator:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{self.page_title}</title>
+    <link rel="stylesheet" href="/daily-news-insight/assets/global-dark.css">
     <style>
         {theme_css}
         {components_css}
