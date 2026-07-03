@@ -33,10 +33,16 @@ class ProTheme:
 
 
 def get_v4_theme_css() -> str:
-    """获取V4主题全局CSS（白底深字版）
-    基于V3.5 Pro主题，替换颜色为白色卡片+深色文字
-    所有类名与V3.5完全一致，确保100%兼容
+    """获取V4主题全局CSS（深色玻璃态版）
+    2026-07-03 更新：全站统一深色玻璃态，白底深字已废弃
+    实际返回 get_pro_theme_css()
     """
+    # 全站统一深色，V4白底彻底废弃
+    return get_pro_theme_css()
+
+
+def _deprecated_v4_white_theme() -> str:
+    """[已废弃] 原V4白底样式，不再使用"""
     return '''
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
@@ -1117,9 +1123,10 @@ def get_pro_theme_css() -> str:
             * { font-family: 'Noto Sans SC', sans-serif; }
             
             body {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%) !important;
                 min-height: 100vh;
                 padding-top: 80px;
+                color: rgba(255,255,255,0.95);
             }
             
             .pro-container {
@@ -1129,13 +1136,13 @@ def get_pro_theme_css() -> str:
             }
             
             .card-glass {
-                background: rgba(139, 92, 246, 0.15);
+                background: rgba(255, 255, 255, 0.07) !important;
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
-                border: 1px solid rgba(255, 255, 255, 0.15);
-                box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+                border: 1px solid rgba(255, 255, 255, 0.12) !important;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
                 border-radius: 20px;
-                color: white;
+                color: rgba(255,255,255,0.95) !important;
             }
             
             .card-glass .text-gray-800,
@@ -1251,8 +1258,8 @@ def get_pro_theme_css() -> str:
             
             /* 导航栏样式 */
             .glass-nav {
-                background: rgba(0, 0, 0, 0.3);
-                backdrop-filter: blur(20px);
+                background: rgba(15, 12, 41, 0.75) !important;
+                backdrop-filter: blur(30px);
                 -webkit-backdrop-filter: blur(20px);
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
                 transition: background 0.3s ease;
@@ -3060,6 +3067,7 @@ class ProPage:
     <title>{self.title} - 投资研究中心</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/daily-news-insight/assets/global-dark.css">
     <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
     {theme_css}
     <style>

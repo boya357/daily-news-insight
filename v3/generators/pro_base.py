@@ -81,7 +81,7 @@ class ProGenerator(ProPage):
         return super().save(filepath)
     
     def validate(self) -> List[str]:
-        """验证生成的页面
+        """验证生成的页面（含白卡白字自动检测）
         
         Returns:
             错误列表，如果为空则表示验证通过
@@ -100,6 +100,10 @@ class ProGenerator(ProPage):
         # 检查是否有实际内容
         if len(html.strip()) < 1000:
             errors.append("页面内容过少")
+        
+        # === 白卡白字自动检测 (2026-07-03) ===
+        if 'global-dark.css' not in html:
+            errors.append("未引入 global-dark.css 全局深色主题")
         
         return errors
     
@@ -208,7 +212,7 @@ class V4Generator(ProGenerator):
     """
     
     def __init__(self, **kwargs):
-        # 默认使用light主题（V4白底深字）
+        # 默认使用dark主题（深色玻璃态）- 2026-07-03 全站统一深色
         if 'theme' not in kwargs:
-            kwargs['theme'] = 'light'
+            kwargs['theme'] = 'dark'
         super().__init__(**kwargs)
