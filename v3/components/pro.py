@@ -3026,7 +3026,13 @@ class ProPage:
     def __init__(self, title: str = "投资研究中心", active_page: str = "", 
                  footer_text: str = "", update_time: str = "",
                  show_toc: bool = False, toc_items: list = None,
-                 toc_position: str = "right", theme: str = "dark"):
+                 toc_position: str = "right", theme: str = "dark",
+                 og_description: str = "", og_image: str = "",
+                 tldr: list = None, operation_advice: str = "",
+                 quick_anchors: list = None,
+                 holding_stocks: list = None,
+                 risk_level: str = "", suggested_position: str = ""):
+        """V5.0 L2升级：新增OG/TL;DR/快速锚点/持仓高亮/风险仓位参数"""
         self.title = title
         self.active_page = active_page
         self.footer_text = footer_text
@@ -3034,15 +3040,25 @@ class ProPage:
         self.show_toc = show_toc
         self.toc_items = toc_items
         self.toc_position = toc_position
-        self.theme = theme  # 'dark'=V3.5深色玻璃态, 'light'=V4白底深字
+        self.theme = theme
+        # V5.0 L2
+        self.og_description = og_description
+        self.og_image = og_image or "/daily-news-insight/assets/default-og.png"
+        self.tldr = tldr or []
+        self.operation_advice = operation_advice
+        self.quick_anchors = quick_anchors or []
+        self.holding_stocks = holding_stocks or []
+        self.risk_level = risk_level
+        self.suggested_position = suggested_position
     
     def _content(self) -> str:
         """页面主要内容 - 子类重写此方法"""
         return ""
     
     def render(self) -> str:
-        """渲染完整HTML页面"""
-        # 根据主题选择CSS
+        """渲染完整HTML页面 (V5.0 L2升级版：TL;DR/锚点/OG/移动端)"""
+        import html as _html
+        import json as _json
         if self.theme == 'light':
             theme_css = get_v4_theme_css()
         else:
@@ -3052,50 +3068,162 @@ class ProPage:
         script = PageScript().render()
         floating = FloatingButtons().render()
         content = self._content()
-        
-        # 渲染目录（如果启用）
+
         toc_html = ""
         if self.show_toc:
             toc = TableOfContents(items=self.toc_items, position=self.toc_position)
             toc_html = toc.render()
-        
-        return f'''<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{self.title} - 投资研究中心</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <link rel="stylesheet" href="/daily-news-insight/assets/global-dark.css">
-    <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
-    {theme_css}
-    <style>
-        .line-clamp-2 {{
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }}
-    </style>
-</head>
-<body>
-    {nav}
-    
-    <div class="pro-container pt-20 {"has-toc" if self.show_toc and self.toc_position == "right" else ""}">
-        {content}
-        
-        {footer}
-    </div>
-    
-    {floating}
-    {toc_html}
-    <script src="/daily-news-insight/assets/stock-popup.js"></script>
-    {script}
-</body>
-</html>
-'''
-    
+
+        # ---- TL;DR ----
+        tldr_html = ""
+        if self.tldr:
+            items_html = ""
+            for i, point in enumerate(self.tldr[:3]):
+                items_html += '<li class="flex gap-2 mb-1.5 last:mb-0"><span class="tldr-num flex-shrink-0">' + str(i+1) + '</span><span class="text-white/90 text-[15px] leading-relaxed">' + str(point) + '</span></li>'
+            advice_html = ""
+            if self.operation_advice:
+                advice_html = '<div class="tldr-advice"><span class="tldr-advice-label">💡 今日操作：</span><span class="text-white font-semibold">' + self.operation_advice + '</span></div>'
+            risk_html = ""
+            if self.risk_level or self.suggested_position:
+                risk_html = '<div class="flex flex-wrap gap-2 mt-2 text-xs">'
+                if self.risk_level:
+                    risk_html += '<span class="bg-red-500/15 text-red-300 border border-red-500/30 px-2 py-1 rounded-full">⚠️ 风险：' + self.risk_level + '</span>'
+                if self.suggested_position:
+                    risk_html += '<span class="bg-blue-500/15 text-blue-300 border border-blue-500/30 px-2 py-1 rounded-full">📊 建议仓位：' + self.suggested_position + '</span>'
+                risk_html += '</div>'
+            tldr_html = (
+                '<div class="tldr-card" id="tldr">'
+                '<div class="tldr-header"><span class="tldr-badge">TL;DR</span>'
+                '<span class="text-white/70 text-sm">30秒看懂全文</span></div>'
+                '<ul class="tldr-list">' + items_html + '</ul>'
+                + advice_html + risk_html + '</div>'
+            )
+
+        # ---- Quick Anchors ----
+        quick_anchor_html = ""
+        if self.quick_anchors:
+            anchors = ""
+            for a in self.quick_anchors:
+                icon = a.get('icon', '#')
+                title = a.get('title', '')
+                aid = a.get('id', '')
+                anchors += '<a href="#' + aid + '" class="qa-item" title="' + title + '"><span class="qa-icon">' + icon + '</span><span class="qa-label">' + title + '</span></a>'
+            quick_anchor_html = '<div class="quick-anchors" id="quickAnchors">' + anchors + '</div>'
+
+        # ---- Mobile Bottom Nav ----
+        mobile_nav_items = [
+            ("/daily-news-insight/", "🏠", "首页", "首页"),
+            ("/daily-news-insight/daily/latest.html", "📰", "日报", "daily"),
+            ("/daily-news-insight/s_level_catalyst/latest.html", "🔥", "S级", "s_level_catalyst"),
+            ("/daily-news-insight/portfolio.html", "💼", "持仓", "portfolio"),
+            ("/daily-news-insight/toolbox.html", "🧰", "工具", "toolbox"),
+        ]
+        mobile_nav_html = '<div class="mobile-bottom-nav" id="mobileBottomNav">'
+        for href, icon, label, key in mobile_nav_items:
+            active = "active" if self.active_page == key else ""
+            mobile_nav_html += '<a href="' + href + '" class="mnav-item ' + active + '"><span class="mnav-icon">' + icon + '</span><span class="mnav-label">' + label + '</span></a>'
+        mobile_nav_html += '</div>'
+
+        # ---- OG Meta ----
+        og_desc = self.og_description or (self.tldr[0] if self.tldr else "投资研究中心 - 每日A股盘前/盘中/盘后智能分析")
+        og_desc_attr = _html.escape(og_desc[:180])
+        og_title_attr = _html.escape(self.title)
+        NL = chr(10)
+        og_block = (
+            NL + '    <meta name="description" content="' + og_desc_attr + '">'
+            + NL + '    <meta property="og:title" content="' + og_title_attr + '">'
+            + NL + '    <meta property="og:description" content="' + og_desc_attr + '">'
+            + NL + '    <meta property="og:image" content="' + self.og_image + '">'
+            + NL + '    <meta property="og:type" content="article">'
+            + NL + '    <meta property="og:locale" content="zh_CN">'
+            + NL + '    <meta name="twitter:card" content="summary_large_image">'
+            + NL + '    <meta name="twitter:title" content="' + og_title_attr + '">'
+            + NL + '    <meta name="twitter:description" content="' + og_desc_attr + '">'
+            + NL + '    <meta name="twitter:image" content="' + self.og_image + '">'
+        )
+        progress_bar_html = '<div id="progressBar" style="position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#6366f1,#a855f7,#ec4899);z-index:9999;width:0%;transition:width 0.1s ease;"></div>'
+
+        # ---- 持仓股金色高亮脚本 ----
+        holding_script = ""
+        if self.holding_stocks:
+            hs_data = _json.dumps([{"name": s.get("name",""), "code": s.get("code","")} for s in self.holding_stocks], ensure_ascii=False)
+            holding_script = (
+                NL + '    <script>'
+                + NL + '(function(){'
+                + NL + 'var HS = ' + hs_data + ';'
+                + NL + 'function markHoldings(){'
+                + NL + 'var root = document.getElementById("mainContent")||document.body;'
+                + NL + 'var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);'
+                + NL + 'var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);'
+                + NL + 'nodes.forEach(function(n){'
+                + NL + '  if(!n.parentNode) return;'
+                + NL + '  if(n.parentNode.classList && n.parentNode.classList.contains("holding-stock-tag")) return;'
+                + NL + '  var tag = n.parentNode.tagName; if(tag==="SCRIPT"||tag==="STYLE") return;'
+                + NL + '  var text = n.nodeValue; if(!text || text.length<2) return;'
+                + NL + '  var match = null;'
+                + NL + '  for(var i=0;i<HS.length;i++){ var name=HS[i].name; if(name && text.indexOf(name)>=0){match={idx:text.indexOf(name),s:HS[i]}; break;} }'
+                + NL + '  if(!match) return;'
+                + NL + '  var frag = document.createDocumentFragment();'
+                + NL + '  var before = text.substring(0, match.idx);'
+                + NL + '  var after = text.substring(match.idx + match.s.name.length);'
+                + NL + '  if(before) frag.appendChild(document.createTextNode(before));'
+                + NL + '  var span = document.createElement("span");'
+                + NL + '  span.className = "holding-stock-tag";'
+                + NL + '  if(match.s.code) span.setAttribute("data-code", match.s.code);'
+                + NL + '  span.textContent = match.s.name;'
+                + NL + '  frag.appendChild(span);'
+                + NL + '  if(after) frag.appendChild(document.createTextNode(after));'
+                + NL + '  n.parentNode.replaceChild(frag, n);'
+                + NL + '});'
+                + NL + '}'
+                + NL + 'if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", markHoldings);'
+                + NL + 'else setTimeout(markHoldings, 50);'
+                + NL + '})();'
+                + NL + '    </script>'
+            )
+
+        container_class = "pro-container pt-20 main-content-wrap"
+        if self.show_toc and self.toc_position == "right":
+            container_class += " has-toc"
+
+        Q = lambda s: s
+        P = []
+        P.append('<!DOCTYPE html>')
+        P.append('<html lang="zh-CN">')
+        P.append('<head>')
+        P.append('    <meta charset="UTF-8">')
+        P.append('    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">')
+        P.append('    <meta name="theme-color" content="#0f0c29">')
+        P.append('    <title>' + self.title + ' - 投资研究中心</title>')
+        P.append('    ' + og_block.strip())
+        P.append('    <script src="https://cdn.tailwindcss.com"></script>')
+        P.append('    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>')
+        P.append('    <link rel="stylesheet" href="/daily-news-insight/assets/global-dark.css">')
+        P.append('    <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">')
+        P.append('    ' + theme_css)
+        P.append('    <style>')
+        P.append('        .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }')
+        P.append('    </style>')
+        P.append('</head>')
+        P.append('<body>')
+        P.append('    ' + progress_bar_html)
+        P.append('    ' + nav)
+        P.append('    <div class="' + container_class + '" id="mainContent">')
+        P.append('        ' + tldr_html)
+        P.append('        ' + content)
+        P.append('        ' + footer)
+        P.append('    </div>')
+        P.append('    ' + quick_anchor_html)
+        P.append('    ' + floating)
+        P.append('    ' + toc_html)
+        P.append('    ' + mobile_nav_html)
+        P.append('    <script src="/daily-news-insight/assets/stock-popup.js"></script>')
+        P.append('    <script src="/daily-news-insight/assets/l2-toolbox.js"></script>')
+        P.append('    ' + script)
+        P.append('    ' + holding_script.strip())
+        P.append('</body>')
+        P.append('</html>')
+        return chr(10).join(P)
     def save(self, filepath: str) -> str:
         """保存到文件"""
         import os

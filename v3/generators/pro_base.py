@@ -89,7 +89,13 @@ class ProGenerator(ProPage):
                  data_dir: str = "data",
                  show_toc: bool = False,
                  toc_position: str = "right",
-                 theme: str = "dark"):
+                 theme: str = "dark",
+                 # V5.0 L2 参数透传
+                 tldr: list = None, operation_advice: str = "",
+                 quick_anchors: list = None,
+                 holding_stocks: list = None,
+                 og_description: str = "", og_image: str = "",
+                 risk_level: str = "", suggested_position: str = ""):
         super().__init__(
             title=title,
             active_page=active_page,
@@ -97,7 +103,13 @@ class ProGenerator(ProPage):
             update_time="",
             show_toc=show_toc,
             toc_position=toc_position,
-            theme=theme
+            theme=theme,
+            # V5.0 L2
+            tldr=tldr, operation_advice=operation_advice,
+            quick_anchors=quick_anchors,
+            holding_stocks=holding_stocks,
+            og_description=og_description, og_image=og_image,
+            risk_level=risk_level, suggested_position=suggested_position,
         )
         self.data_loader: DataLoader = get_data_loader(data_dir)
         self._data_loaded = False
@@ -126,6 +138,24 @@ class ProGenerator(ProPage):
         
         if not self.update_time:
             self.update_time = datetime.now().strftime('%Y年%m月%d日 %H:%M')
+        
+        # V5.0 L2：默认持仓配置（未手动传入时使用主人核心持仓）
+        if not self.holding_stocks:
+            self.holding_stocks = [
+                {"name": "英维克", "code": "002837"},
+                {"name": "铜冠铜箔", "code": "301217"},
+                {"name": "雅克科技", "code": "002409"},
+                {"name": "*ST建艺", "code": "002789"},
+            ]
+        # 默认快速锚点（未手动传入时使用标准5项）
+        if not self.quick_anchors:
+            self.quick_anchors = [
+                {"id": "portfolio", "title": "持仓诊断", "icon": "💼"},
+                {"id": "slevel", "title": "S级催化", "icon": "🔥"},
+                {"id": "topics", "title": "热点题材", "icon": "📊"},
+                {"id": "longhubang", "title": "龙虎榜", "icon": "🐉"},
+                {"id": "risk", "title": "风险提示", "icon": "⚠️"},
+            ]
         
         self._data_loaded = True
     
@@ -467,6 +497,123 @@ class ProGenerator(ProPage):
         """
         return DataGrid(items=items, cols=cols).render()
 
+    # ==================== V5.0 L2-1 TL;DR + 快速锚点 + 持仓金色高亮 便捷方法 ====================
+    
+    def set_tldr(self, key_points: List[str], operation_advice: str = "",
+                risk_level: str = "", suggested_position: str = ""):
+        """设置TL;DR卡片：3条核心结论+今日操作建议+风险/仓位
+        
+        Args:
+            key_points: 3条以内核心结论
+            operation_advice: 今日操作建议（红/绿色高亮）
+            risk_level: 风险等级（中低/中/中高/高）
+            suggested_position: 建议仓位（如3-4成）
+        """
+        self.tldr = key_points[:3]
+        self.operation_advice = operation_advice
+        self.risk_level = risk_level
+        self.suggested_position = suggested_position
+    
+    def set_quick_anchors(self, anchors: List[Dict[str, str]]):
+        """设置右侧悬浮快速锚点
+        
+        Args:
+            anchors: [{"id":"xxx","title":"持仓诊断","icon":"💼"}, ...]
+        """
+        self.quick_anchors = anchors
+    
+    def set_holdings(self, stocks: List[Dict[str, str]]):
+        """设置持仓股，用于报告中自动金色高亮
+        
+        Args:
+            stocks: [{"name":"英维克","code":"002837"}, ...]
+        """
+        self.holding_stocks = stocks
+    
+    def set_og(self, description: str = "", image: str = ""):
+        """设置OG分享元信息"""
+        if description:
+            self.og_description = description
+        if image:
+            self.og_image = image
+    
+    @staticmethod
+    def stock_tag(name: str, code: str = "", is_holding: bool = False, 
+                  change_pct: float = None, tag: str = "") -> str:
+        """股票标签组件 (V5.0 L2-4)
+        
+        持仓股自动金色边框+持仓图标；非持仓股默认玻璃态样式。
+        
+        Args:
+            name: 股票名称
+            code: 股票代码
+            is_holding: 是否为持仓股（金色高亮）
+            change_pct: 涨跌幅%，自动红绿色
+            tag: 额外标签（如"主线"/"ST"）
+        """
+        classes = "stock-tag"
+        if is_holding:
+            classes += " stock-tag-holding"
+        pct_html = ""
+        if change_pct is not None:
+            color = "text-red-400" if change_pct >= 0 else "text-green-400"
+            sign = "+" if change_pct >= 0 else ""
+            pct_html = f'<span class="{color} font-bold ml-1">{sign}{change_pct:.2f}%</span>'
+        code_html = f'<span class="text-white/40 text-[10px] ml-1">{code}</span>' if code else ""
+        tag_html = ""
+        if is_holding:
+            tag_html = '<span class="holding-badge">⭐持仓</span>'
+        elif tag:
+            tag_html = f'<span class="text-white/50 text-[10px] bg-white/5 px-1 rounded ml-1">{tag}</span>'
+        return (
+            f'<span class="{classes}">'
+            f'{tag_html}'
+            f'<span class="stock-tag-name">{name}</span>'
+            f'{code_html}'
+            f'{pct_html}'
+            f'</span>'
+        )
+    
+    @staticmethod
+    def highlight_number(value: str, color: str = "primary", size: str = "lg") -> str:
+        """关键数据大号加粗高对比组件
+        
+        Args:
+            value: 要显示的数值
+            color: primary/warning/danger/success/info
+            size: sm/md/lg/xl/2xl
+        """
+        color_map = {
+            "primary": "text-purple-300",
+            "warning": "text-yellow-400",
+            "danger": "text-red-400",
+            "success": "text-green-400",
+            "info": "text-blue-400",
+        }
+        size_map = {
+            "sm": "text-base", "md": "text-lg", "lg": "text-xl", "xl": "text-2xl", "2xl": "text-3xl",
+        }
+        c = color_map.get(color, "text-white")
+        s = size_map.get(size, "text-xl")
+        return f'<span class="{c} {s} font-black tracking-tight">{value}</span>'
+    
+    @staticmethod
+    def details(summary: str, content: str, open: bool = False) -> str:
+        """次要信息折叠组件（HTML5 details标签）
+        
+        Args:
+            summary: 折叠标题
+            content: 折叠内容HTML
+            open: 是否默认展开
+        """
+        open_attr = " open" if open else ""
+        return (
+            f'<details class="pro-details"{open_attr}>'
+            f'<summary class="pro-details-summary">{summary}</summary>'
+            f'<div class="pro-details-body">{content}</div>'
+            f'</details>'
+        )
+
 
 # 便捷函数
 def create_generator(generator_class, **kwargs) -> ProGenerator:
@@ -486,3 +633,4 @@ class V4Generator(ProGenerator):
         if 'theme' not in kwargs:
             kwargs['theme'] = 'dark'
         super().__init__(**kwargs)
+

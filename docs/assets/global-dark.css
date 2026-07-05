@@ -724,3 +724,382 @@ blockquote, [class*="warning"], [class*="alert"], [class*="danger"], [class*="im
     margin: 12px 0 !important;
     color: var(--text-primary) !important;
 }
+
+
+/* ==========================================================================
+   V5.0 L2 体验交互样式 (2026-07-05)
+   TL;DR / 快速锚点 / 持仓金色高亮 / 移动端响应式 / OG预览兼容 / 折叠
+   ========================================================================== */
+
+/* ---------- L2-1 TL;DR 卡片 ---------- */
+.tldr-card {
+    background: linear-gradient(135deg, rgba(139,92,246,0.22) 0%, rgba(236,72,153,0.12) 50%, rgba(99,102,241,0.18) 100%);
+    border: 1px solid rgba(168,85,247,0.4);
+    border-radius: 20px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(102,126,234,0.25);
+    position: relative;
+    overflow: hidden;
+}
+.tldr-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle, rgba(240,147,251,0.15) 0%, transparent 70%);
+    pointer-events: none;
+}
+.tldr-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.tldr-badge {
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: white;
+    font-weight: 800;
+    font-size: 13px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(168,85,247,0.4);
+}
+.tldr-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 12px 0;
+}
+.tldr-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a855f7, #ec4899);
+    color: white;
+    font-weight: 700;
+    font-size: 12px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+.tldr-advice {
+    background: rgba(16,185,129,0.12);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
+}
+.tldr-advice-label {
+    color: #34d399;
+    font-weight: 600;
+    margin-right: 6px;
+}
+
+/* ---------- L2-1 关键数据大号加粗 ---------- */
+.big-num {
+    font-weight: 900;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #c4b5fd, #f0abfc);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
+}
+.big-num.up { background: linear-gradient(135deg, #fca5a5, #f87171); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.big-num.down { background: linear-gradient(135deg, #6ee7b7, #34d399); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+/* ---------- L2-1 折叠组件 ---------- */
+.pro-details {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+.pro-details[open] { border-color: rgba(139,92,246,0.3); }
+.pro-details-summary {
+    padding: 10px 16px;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255,255,255,0.8);
+    font-weight: 500;
+    font-size: 14px;
+    user-select: none;
+    transition: background 0.2s;
+}
+.pro-details-summary::-webkit-details-marker { display: none; }
+.pro-details-summary::before {
+    content: '▸';
+    color: #a78bfa;
+    transition: transform 0.2s;
+}
+.pro-details[open] > .pro-details-summary::before { transform: rotate(90deg); }
+.pro-details-summary:hover { background: rgba(255,255,255,0.04); }
+.pro-details-body {
+    padding: 0 16px 14px 16px;
+    color: rgba(255,255,255,0.65);
+    font-size: 13px;
+    line-height: 1.7;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 12px;
+    margin-top: -1px;
+}
+
+/* ---------- L2-4 持仓股金色高亮 + StockTag ---------- */
+.holding-stock-tag {
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(234,179,8,0.2), rgba(245,158,11,0.15));
+    border: 1px solid rgba(234,179,8,0.5);
+    color: #fde047 !important;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 6px;
+    margin: 0 2px;
+    box-shadow: 0 2px 8px rgba(234,179,8,0.2);
+    position: relative;
+}
+.holding-stock-tag::before {
+    content: '⭐';
+    font-size: 10px;
+    margin-right: 3px;
+}
+.stock-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 6px;
+    padding: 2px 8px;
+    margin: 0 2px;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+.stock-tag:hover { background: rgba(255,255,255,0.14); }
+.stock-tag-holding {
+    background: linear-gradient(135deg, rgba(234,179,8,0.22), rgba(245,158,11,0.18));
+    border: 1px solid rgba(234,179,8,0.55);
+    box-shadow: 0 0 12px rgba(234,179,8,0.25);
+}
+.stock-tag-holding .stock-tag-name { color: #fde047; font-weight: 700; }
+.holding-badge {
+    background: linear-gradient(135deg, #eab308, #f59e0b);
+    color: #1a1625;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 4px;
+    margin-right: 3px;
+}
+
+/* 持仓卡片金色边框（持仓卡片容器加 .holding-card 类） */
+.holding-card {
+    border: 1px solid rgba(234,179,8,0.45) !important;
+    background: linear-gradient(135deg, rgba(234,179,8,0.08), rgba(245,158,11,0.04)) !important;
+    box-shadow: 0 0 20px rgba(234,179,8,0.12), 0 8px 24px rgba(0,0,0,0.25) !important;
+    position: relative;
+}
+.holding-card::before {
+    content: '⭐ 我的持仓';
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: linear-gradient(135deg, #eab308, #f59e0b);
+    color: #1a1625;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.3px;
+}
+
+/* ---------- L2-1 右侧悬浮快速锚点 ---------- */
+.quick-anchors {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 6px;
+    background: rgba(15,12,41,0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 999px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.qa-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    text-decoration: none;
+    color: rgba(255,255,255,0.7);
+    transition: all 0.25s;
+    position: relative;
+    white-space: nowrap;
+}
+.qa-icon {
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+.qa-label {
+    font-size: 12px;
+    font-weight: 500;
+    max-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.25s;
+}
+.qa-item:hover {
+    background: rgba(139,92,246,0.25);
+    color: white;
+}
+.qa-item:hover .qa-label {
+    max-width: 120px;
+    opacity: 1;
+    margin-left: 2px;
+}
+.qa-item.active {
+    background: linear-gradient(135deg, rgba(99,102,241,0.4), rgba(168,85,247,0.3));
+    color: white;
+}
+
+/* ---------- L2-2 移动端底部导航栏 ---------- */
+.mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background: rgba(15,12,41,0.92);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
+}
+.mnav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 10px;
+    text-decoration: none;
+    color: rgba(255,255,255,0.5);
+    transition: color 0.2s;
+    flex: 1;
+}
+.mnav-icon { font-size: 20px; line-height: 1; }
+.mnav-label { font-size: 10px; font-weight: 500; }
+.mnav-item.active {
+    color: #c4b5fd;
+}
+.mnav-item.active .mnav-icon { transform: scale(1.1); }
+
+/* ---------- L2-2 移动端响应式 (≤768px) ---------- */
+@media (max-width: 768px) {
+    body { padding-bottom: 70px; }
+    .pro-container { padding: 0 12px !important; max-width: 100% !important; }
+    .pt-20 { padding-top: 72px !important; }
+    /* TL;DR更紧凑 */
+    .tldr-card { padding: 14px 16px; margin-bottom: 16px; border-radius: 14px; }
+    .tldr-card .tldr-list li span:last-child { font-size: 13px !important; }
+    .tldr-advice { font-size: 12px; padding: 6px 10px; }
+    /* 字号优化 */
+    .pro-container h1 { font-size: 1.5rem !important; }
+    .pro-container h2 { font-size: 1.15rem !important; }
+    .pro-container h3 { font-size: 1rem !important; }
+    .pro-container p, .pro-container li { font-size: 13px !important; }
+    /* 卡片间距缩小 */
+    .card-glass { padding: 14px !important; border-radius: 14px !important; margin-bottom: 12px !important; }
+    .pro-container .grid { gap: 10px !important; }
+    /* 多列改单列 */
+    .pro-container .grid.grid-cols-2,
+    .pro-container .grid.grid-cols-3,
+    .pro-container .grid.grid-cols-4,
+    .pro-container .md\:grid-cols-2,
+    .pro-container .md\:grid-cols-3 {
+        grid-template-columns: 1fr !important;
+    }
+    /* 右侧快速锚点变底部浮动按钮 */
+    .quick-anchors {
+        top: auto;
+        bottom: 70px;
+        right: 12px;
+        transform: none;
+        flex-direction: column;
+        padding: 6px;
+    }
+    .qa-item { padding: 8px; }
+    .qa-label { display: none !important; }
+    /* 悬浮目录变底部抽屉 */
+    .toc-wrapper.toc-right {
+        right: 0 !important;
+        top: auto !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        transform: translateY(100%) !important;
+        border-radius: 20px 20px 0 0 !important;
+        transition: transform 0.3s ease !important;
+        max-height: 60vh;
+    }
+    .toc-wrapper.toc-right.expanded {
+        transform: translateY(0) !important;
+    }
+    .toc-content { max-height: 40vh; overflow-y: auto; }
+    /* 显示底部导航 */
+    .mobile-bottom-nav { display: flex; }
+    /* 隐藏顶部导航部分项 */
+    .glass-nav .nav-links a { padding: 6px 8px !important; font-size: 11px !important; }
+    /* 表格滚动 */
+    .pro-container table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    /* 浮动按钮下移 */
+    .floating-buttons { bottom: 80px !important; right: 12px !important; }
+    /* 数字缩小一档 */
+    .big-num { font-size: 1.25rem !important; }
+    /* 持仓徽章适配 */
+    .holding-card::before { font-size: 9px; top: 6px; right: 8px; padding: 1px 6px; }
+    /* TOC遮罩层 */
+    .toc-mask {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 998;
+        opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .toc-mask.show { opacity: 1; pointer-events: auto; }
+    /* 调整has-toc的padding */
+    .pro-container.has-toc { padding-right: 12px !important; }
+    /* DataGrid紧凑 */
+    .data-grid, .data-grid-sm { gap: 8px !important; }
+    .data-item, .metric-card { padding: 10px !important; }
+}
+
+/* 平板适配 */
+@media (min-width: 769px) and (max-width: 1200px) {
+    .quick-anchors { right: 10px; padding: 8px 4px; }
+    .qa-label { display: none; }
+    .qa-item { padding: 8px; }
+    .pro-container.has-toc { padding-right: 20px !important; }
+}
