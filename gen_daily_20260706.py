@@ -1,0 +1,340 @@
+#!/usr/bin/env python3
+"""2026年7月6日 每日新闻洞察生成 - 周一·新规首日·V5.0首秀盘前"""
+import sys, os
+WORK_DIR = '/root/daily-news-insight'
+sys.path.insert(0, os.path.join(WORK_DIR, 'v3'))
+from generators.daily_pro import DailyReportProGenerator
+
+gen = DailyReportProGenerator(
+    date_str='2026年7月6日', weekday='星期一',
+    subtitle='2026年7月6日 星期一 · A股新规首日（ST涨跌幅10%+盘后交易）· 央行万亿净投放2000亿 · 纳指期货+1.2%/韩股KOSPI+2%/日经高开0.33% · 江波龙中报预增622-744倍 · 聚辰NOR涨25%今生效 · 三星Q3 DRAM+20% · 黄金4200美元新高 · *ST建艺集合竞价必须清仓',
+    data_dir=os.path.join(WORK_DIR, 'data')
+)
+
+def render_cards(items):
+    out = ''
+    for i in items:
+        c = 'text-red-400' if i['up'] else 'text-green-400'
+        bg = 'from-red-500/20 to-orange-500/10 border-red-500/20' if i['up'] else 'from-green-500/20 to-emerald-500/10 border-green-500/20'
+        out += f'<div class="bg-gradient-to-br {bg} border rounded-lg p-3 text-center transition-all duration-300 hover:scale-105"><div class="text-xs text-white/60 mb-1">{i["name"]}</div><div class="text-sm font-bold {c}">{i["change"]}</div></div>'
+    return out
+
+def render_list(items):
+    out = ''
+    for i in items:
+        c = 'text-red-400' if i['up'] else 'text-green-400'
+        out += f'<div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0"><span class="text-sm text-white/70">{i["name"]}</span><span class="text-sm font-semibold {c}">{i["change"]}</span></div>'
+    return out
+
+# ========== 1. 隔夜全球市场 ==========
+global_html = f'''
+<div class="grid md:grid-cols-3 gap-4">
+  <div class="md:col-span-2">
+    <div class="text-white font-semibold mb-3 flex items-center gap-2"><span>🌍</span><span>隔夜全球市场 · 外盘普涨·纳指期货+1.2%·韩股深V反弹</span></div>
+    <div class="grid grid-cols-3 md:grid-cols-6 gap-2">{render_cards([
+        {"name":"纳斯达克期货","change":"+1.2%","up":True},
+        {"name":"标普500期货","change":"+0.4%","up":True},
+        {"name":"德国DAX","change":"+1.47%","up":True},
+        {"name":"韩国KOSPI","change":"+2.0%","up":True},
+        {"name":"日经225","change":"+0.33%","up":True},
+        {"name":"欧洲STOXX600","change":"+1.41%","up":True},
+    ])}</div>
+    <p class="text-xs text-white/50 mt-3 leading-relaxed">
+      ⚡ <b class="text-yellow-400">核心要点：外盘情绪修复+期货红盘+亚太开盘高开</b>——周末外盘：
+      ①<b>美股现货因独立日假期休市</b>，但<b class="text-red-400">纳斯达克100期货+1.2%、标普500期货+0.4%</b>，盘前全线反弹，高盛最新报告称已捕捉到"美股动量股"初步逢低买入信号；
+      ②<b>欧洲股市周五全线上扬创阶段新高</b>：德国DAX+1.47%报25046点<b class="text-red-400">刷新历史纪录</b>、法国CAC40+1.29%、泛欧STOXX600+1.41%创年内新高，欧元区6月综合PMI终值50.0重返扩张、CPI回落至2.2%；
+      ③<b class="text-red-400">韩国KOSPI周一开盘+1.2%报8186点，截至发稿涨幅扩大至+2%</b>，三星+1.9%、SK海力士+0.3%——上周五（7/3）韩股"深V"：早盘暴跌3%后触发熔断买盘、单日暴涨5.8%收涨（Anthropic与三星洽谈ASIC定制芯片、SK海力士扩产、三星Q3 DRAM涨价20%三利好共振）；
+      ④<b>日经225高开+0.33%报69973点</b>；
+      ⑤<b>大宗商品：现货黄金早盘站上4200美元/盎司创两周新高（+0.6%）</b>，白银期货高开+4%；美元指数回落至100.87；离岸人民币6.7858涨24基点；
+      ⑥<b>宏观信号：CME FedWatch</b>显示9月按兵不动概率升至46.8%（前值35.8%），加息预期退潮但7/14美国CPI将是关键验证。
+      <br><b class="text-yellow-400">外盘情绪解读：</b>上周五费半两日-11%的极端恐慌已在韩股深V+纳指期货反弹中部分修复，但<b>A股今日开盘仍需消化江波龙业绩（622倍是利好还是利好出尽）、新规首日流动性波动、ST板块10%跌停风险三重变量</b>，不要盲目追高外盘映射。
+    </p>
+  </div>
+  <div class="space-y-4">
+    <div>
+    <div class="text-white font-semibold mb-3 flex items-center gap-2"><span>🛢️</span><span>大宗商品（贵金属飙涨）</span></div>
+      <div class="bg-white/5 rounded-lg p-3">{render_list([
+        {"name":"COMEX黄金","change":"+0.6%/4200","up":True},
+        {"name":"COMEX白银","change":"+4.0%","up":True},
+        {"name":"WTI原油","change":"-0.3%","up":False},
+        {"name":"布伦特原油","change":"-0.2%","up":False},
+        {"name":"美元指数","change":"-0.4%/100.87","up":False},
+        {"name":"离岸人民币","change":"+24bp/6.7858","up":True},
+      ])}</div></div>
+    <div>
+    <div class="text-white font-semibold mb-3 flex items-center gap-2"><span>🇰🇷</span><span>韩股核心（半导体反弹）</span></div>
+      <div class="bg-white/5 rounded-lg p-3">{render_list([
+        {"name":"三星电子","change":"+1.9%","up":True},
+        {"name":"SK海力士","change":"+0.3%","up":True},
+      ])}</div></div>
+  </div>
+</div>'''
+gen.add_section("隔夜全球市场·周末要闻", global_html, "🌍")
+
+# ========== 2. A股上周五复盘 ==========
+ashare_html = '''
+<div class="space-y-4">
+<div class="grid md:grid-cols-4 gap-3">
+  <div class="bg-gradient-to-br from-red-500/20 to-orange-500/10 border border-red-500/30 rounded-xl p-3 text-center">
+    <div class="text-xs text-white/60 mb-1">上证指数</div>
+    <div class="text-xl font-bold text-red-400">4043.64</div>
+    <div class="text-xs text-red-400 mt-1">+0.37%</div>
+  </div>
+  <div class="bg-gradient-to-br from-red-500/20 to-orange-500/10 border border-red-500/30 rounded-xl p-3 text-center">
+    <div class="text-xs text-white/60 mb-1">深证成指</div>
+    <div class="text-xl font-bold text-red-400">15597.51</div>
+    <div class="text-xs text-red-400 mt-1">+0.64%</div>
+  </div>
+  <div class="bg-gradient-to-br from-red-500/20 to-orange-500/10 border border-red-500/30 rounded-xl p-3 text-center">
+    <div class="text-xs text-white/60 mb-1">创业板指</div>
+    <div class="text-xl font-bold text-red-400">4019.93</div>
+    <div class="text-xs text-red-400 mt-1">+0.07%</div>
+  </div>
+  <div class="bg-gradient-to-br from-yellow-500/20 to-amber-500/10 border border-yellow-500/30 rounded-xl p-3 text-center">
+    <div class="text-xs text-white/60 mb-1">成交额</div>
+    <div class="text-xl font-bold text-yellow-400">3.18万亿</div>
+    <div class="text-xs text-white/60 mt-1">缩量2680亿</div>
+  </div>
+</div>
+<div class="bg-white/5 rounded-xl p-4">
+  <h4 class="text-white font-semibold mb-3 text-sm">📊 上周五（7/3）A股复盘：缩量修复+高低切换+机器人/黄金领涨</h4>
+  <div class="grid md:grid-cols-2 gap-4 text-xs">
+    <div>
+      <p class="text-white/80 font-semibold mb-2">📈 强势方向（资金流入）</p>
+      <p class="text-white/60 leading-relaxed mb-2">
+      <b class="text-red-400">①人形机器人·40余股涨停</b>：宇树IPO催化，绿的谐波+18.15%、三花智控+21.9亿主力净流入、丰光精密30CM、贝斯特+20%、昊志机电+17%，机器人ETF单周+7.94%，主力净流入244亿全市场第一；<br>
+      <b class="text-yellow-400">②黄金/贵金属·赤峰涨停</b>：COMEX全周+2.2%至4176美元，紫金矿业+5.78%，山金/招金全线飘红；<br>
+      ③军工/商业航天：千帆极轨13组卫星成功发射组网达218颗；<br>
+      ④创新药/医疗：集采边际缓和+基层改革催化，港股通创新药ETF周涨超10%。
+      </p>
+    </div>
+    <div>
+      <p class="text-white/80 font-semibold mb-2">📉 弱势方向（资金流出）</p>
+      <p class="text-white/60 leading-relaxed mb-2">
+      <b class="text-green-400">①半导体/算力（费半映射）</b>：兆易创新成交426亿-2.45%、中际旭创-2.36%、电子板块单日净流出194亿，半导体净流出195亿；<br>
+      ②氟化工/电子HF：多氟多/三美/滨化跌停，雅克-6.11%两日累跌-15.5%；<br>
+      ③科创50独跌-0.59%；<br>
+      <b class="text-yellow-400">特征</b>：3804涨/1628跌、约160股涨停、北向净流入26.85亿结束连流出，但主力净流出86亿，"指数红、个股活、主线切"存量博弈。
+      </p>
+    </div>
+  </div>
+  <p class="text-xs text-white/50 mt-3 leading-relaxed">
+  ⚡ <b class="text-yellow-400">盘口解读：</b>沪指最高4073.88后回落至4043.64收长上影，20日均线4020-4028暂获支撑，上方4055-4070压力带。缩量至3.18万亿说明<b>反弹未获增量确认</b>，今日需看新规+逆回购后量能能否回到3.4万亿。
+  <b>关键位：沪指支撑4010-4028，压力4055-4070；早盘一小时&lt;8500亿则全天冲高回落概率大。</b>
+  </p>
+</div>
+</div>'''
+gen.add_section("上周五A股复盘（7/3）", ashare_html, "📉")
+
+# ========== 3. 今日重磅新闻 ==========
+news_items = [
+    ('新规首日🔥S级','from-red-500 to-pink-500','A股交易新规今日全面落地：ST涨跌幅10%+盘后定价交易+创业板做市商',
+     '三大交易所新规同步生效：①<b>主板ST/*ST涨跌幅由5%上调至10%</b>，单日最大亏损翻倍，绩差股加速出清（<b class="text-red-400">*ST建艺直接面临10%跌停风险，集合竞价必须清仓</b>）；②<b>盘后固定价格交易扩容至全A股、所有ETF（15:05-15:30）</b>，机构可盘后调仓，尾盘异动收敛；③<b>创业板引入做市商</b>，小盘成长流动性改善。配套：证监会再融资新规征求意见（储架发行+小额快速上限6亿+大股东定增锁3年）。<b>核心影响：垃圾股出清加速，业绩龙头估值溢价提升，今日盘面波动节奏完全不同。</b>'),
+    ('央行万亿💧S级','from-blue-500 to-cyan-500','央行今日1万亿3个月买断式逆回购，净投放2000亿终结4个月缩量',
+     '央行开展<b>10000亿元3个月买断式逆回购</b>（到期10/5），当月到期8000亿，<b>净投放中长期资金2000亿元</b>，结束连续4个月缩量回笼。信号：①3月以来"适度调减"结束，明确释放货币政策延续支持性立场；②对冲7月缴税+政府债+跨季三重压力，DR001/DR007已升至政策利率1.4%附近；③配合6/25 MLF加量2000亿、6/29-30隔夜逆回购9000亿，流动性组合拳清晰。<b class="text-yellow-400">影响：托底指数下行空间（沪指4010-4028支撑有效），但≠普涨，资金优先流向业绩确定性主线（存储设备/机器人核心/黄金/创新药）。</b>来源：央行官网/金融时报'),
+    ('江波龙中报🔥S级','from-fuchsia-500 to-purple-500','江波龙H1净利92-110亿同比增62204%-74394%！存储业绩"核弹级"预增',
+     '存储模组龙头江波龙中报预告：<b>上半年净利润92-110亿元，同比暴增62204%-74394%</b>（去年同期仅1477万元），单Q2净利约55-73亿（Q1为36.94亿）环比再增50%+。驱动：①DRAM/NAND涨价（Q2 DRAM合约价+18-23%）；②高附加值产品占比提升；③<b>三星官宣Q3 DRAM涨价20%、聚辰NOR Flash全系涨价25%今日（7/6）正式生效</b>，机构上调Q3 DRAM合约价+32%、NAND+30%，涨价持续至2027年。<b class="text-yellow-400">关键分歧：</b>业绩炸裂是利好还是利好出尽？江波龙今日开盘给出存储板块"情绪锚"——高开高走则板块反弹确立，高开低走则见光死。<b>设备+材料（确定性更强）优先于模组（弹性大波动大）。</b>'),
+    ('存储涨价链','from-orange-500 to-amber-500','三星DRAM+20%+聚辰NOR+25%今生效+SK海力士100万亿扩产+长电78亿封测',
+     '存储涨价三重共振+扩产：①<b>三星正式通知Q3 DRAM涨价20%</b>，服务器DRAM涨幅最大；②<b class="text-red-400">聚辰NOR Flash全系涨价25%今日生效</b>；③SK海力士100万亿韩元清州扩产M17 NAND+P&T7封装+1GW数据中心，韩国6月半导体出口<b>+199.5%达448.2亿美元创历史新高</b>；④Anthropic洽谈三星定制ASIC；⑤长电科技78亿临港新建先进封测工厂；⑥鹏鼎控股96亿定增加码AI服务器/高速光模块。<b>产业逻辑：从"涨价预期"进入"业绩兑现"阶段，存储是7月中报季业绩确定性最强赛道。</b>'),
+    ('黄金新高🥇A级','from-yellow-400 to-amber-400','现货黄金早盘破4200美元/盎司创两周新高，白银+4%',
+     '<b>现货黄金突破4200美元/盎司</b>创两周新高（+0.6%），纽约期银高开+4%。催化：①非农爆冷5.7万远低预期→加息推迟至12月；②美元指数回落至100.87；③央行购金+地缘风险；④黄金ETF华安今年净流入超60亿、规模重返900亿。<b class="text-yellow-400">警惕：</b>上周已涨一波（赤峰涨停、紫金+5.78%），今日高开<b>不追</b>，等回踩5日线布局龙头。'),
+    ('商业航天🆕A级','from-indigo-500 to-blue-500','千帆极轨13组18颗卫星发射成功组网218颗；长征十号乙可回收火箭预期',
+     '7/4长六甲成功发射千帆极轨13组18颗卫星（G60星座），组网卫星总数<b>218颗</b>；长光卫星完成50亿融资；下周<b>长征十号乙可回收火箭发射预期</b>。叠加高端装备研发200%加计扣除延至2028年，<b>商业航天作为新增强催化赛道</b>，关注上海瀚讯、海格通信、中国卫星、铖昌科技、航天电子。'),
+    ('机器人风险⚠️','from-gray-600 to-red-700','⚠️ 日盈电子/长盛轴承/福赛科技等机器人概念股密集提示风险',
+     '财联社7/6 08:07快讯：<b>日盈电子、长盛轴承、福赛科技等机器人概念股密集发布风险提示公告</b>。叠加40余股涨停+主力244亿+一致预期过满，今日人形机器人大概率<b>高开分化</b>——核心龙头延续，跟风小票炸板。<b class="text-red-400">不追高开，分歧低吸龙头，跟风小票坚决规避。</b>'),
+    ('创新药🏥B级','from-emerald-500 to-teal-500','中信证券：创新药产业基本面稳步向好，研发+全球价值+盈利三改善',
+     '中信证券7/6指出2026H2中国创新药产业基本面稳步向好，核心来自研发质量提升、全球价值验证和盈利能力改善。港股通创新药ETF周涨超10%，7月机构重点布局赛道之一。'),
+]
+news_cards = ''
+for tag, grad, title, content in news_items:
+    news_cards += f'<div class="bg-gradient-to-br from-white/5 to-white/0 border border-white/10 rounded-xl p-4 mb-3"><div class="flex items-center gap-2 mb-2"><span class="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r {grad} text-white font-bold whitespace-nowrap">{tag}</span><h4 class="text-white font-semibold text-sm">{title}</h4></div><p class="text-white/60 text-xs leading-relaxed">{content}</p></div>'
+gen.add_section("今日重磅新闻", f'<div class="space-y-3">{news_cards}</div>', "📰")
+
+# ========== 4. 核心题材动态 ==========
+topics_data = [
+    ('🤖','人形机器人','S+最强主线但今日分化：40余股涨停后淘汰赛，跟风小票发风险公告','🔥S+','埃斯顿(4天3板)、三花智控、绿的谐波、拓普集团、丰光精密(30CM)','宇树IPO+Optimus产线+英伟达招人+大摩出货上调至5万台+高端装备加计扣除延至2028年，催化密度7月之最。但①一致预期过满(7/3主力244亿全市场第一)；②日盈/长盛/福赛等密集发风险公告；③新规首日波动大。<b class="text-red-400">今日：不追高开！等分歧回踩低吸核心零部件（减速器/丝杠/电机/传感器龙头），跟风小票回避</b>。'),
+    ('💾','存储芯片/HBM','江波龙622-744倍+三星DRAM+20%+聚辰NOR+25%今生效+韩股+2%','🔥S','江波龙、兆易创新、聚辰股份、长电科技、北方华创','中报核弹级预增+涨价全链条扩散+韩股深V反弹验证产业逻辑。分歧：①费半两日-11%情绪未完全释放；②江波龙可能"利好出尽"高开低走；③上周五大跌（兆易-2.45%成交426亿）。<b>策略："设备+材料"确定性优先于"模组"，高开不追，等回调低吸</b>。'),
+    ('🥇','黄金/贵金属','黄金破4200+白银+4%+降息预期+央行购金，但上周已涨不追高','🟡 S','赤峰黄金、紫金矿业、山金国际、招金黄金、山东黄金','非农爆冷+降息推迟至12月+美元走弱+地缘+ETF流入四重利好。但上周已强势（赤峰涨停、紫金+5.78%），今日若高开<b>不追</b>，等回踩5日线分批布局。中长线逻辑不变。'),
+    ('🚀','商业航天（新增）','千帆极轨13组发射+长光50亿融资+长征十号乙预期','🟡 A','上海瀚讯、海格通信、中国卫星、铖昌科技、航天电子','新增强催化赛道，7/4发射成功+政策支持+本周长征十号乙可回收火箭预期，"新题材+新催化+低拥挤"，适合轻仓首板试探。'),
+    ('🏭','半导体设备','中报高增+国产替代+长鑫IPO，但高位分化等企稳','🟡 A','北方华创、中微公司、盛美上海、拓荆科技、华海清科','存储业绩爆表直接利好设备采购（长鑫IPO预期+国产替代），但前期涨幅大+机构兑现压力仍在。<b>等存储板块情绪企稳后低吸龙头</b>，不追急涨。'),
+    ('💊','创新药/医疗','中信看多+集采缓和+机构7月重点布局','🟢 B','恒瑞医药、百济神州、信达生物、荣昌生物','防御属性+政策底+业绩兑现，港股通创新药ETF周涨10%+，可防守配置。'),
+    ('🏦','大金融/券商','再融资新规+流动性宽松利好，但弹性有限','🟢 B','中信证券、华泰证券、招商银行、成都银行','再融资储架发行利好投行业务，万亿逆回购改善流动性，可作底仓防御。'),
+    ('✈️','航空/大消费','燃油附加费下调（800km下50/上100元）+暑期旺季','🟢 B','中国国航、南方航空、白云机场、上海机场','今日政策落地+暑期出行+成本下行，但持续性待观察，短线轻仓。'),
+    ('⚠️','AI算力/CPO','纳指期货+1.2%情绪修复，但CAPEX见顶叙事未破','⚠️观察','中际旭创、新易盛、寒武纪（观察）','纳指期货+1.2%+韩股半导体反弹带来短期情绪修复窗口，但Meta云转向+黑石放弃数据中心+费半两日-11%中期趋势未扭转。<b class="text-red-400">持仓借反弹减仓，空仓不抄底</b>。'),
+]
+topic_cards = ''
+for icon, name, change, level, leader, analysis in topics_data:
+    topic_cards += f'<div class="bg-white/5 rounded-xl p-4 border border-white/10"><div class="flex items-start justify-between mb-2"><div><div class="flex items-center gap-2 mb-1"><span class="text-xl">{icon}</span><h4 class="text-white font-semibold text-sm">{name}</h4></div><p class="text-white/60 text-xs">{change}</p></div><div class="flex flex-col items-end gap-1"><span class="text-xs font-bold text-white/80 bg-white/10 px-2 py-0.5 rounded-full">{level}</span></div></div><div class="space-y-2 mb-3"><div class="flex items-center gap-2"><span class="text-white/50 text-xs">关注标的</span><span class="text-white/80 text-xs">{leader}</span></div></div><p class="text-white/60 text-xs leading-relaxed">{analysis}</p></div>'
+gen.add_section("核心题材动态", f'<div class="grid md:grid-cols-2 gap-4">{topic_cards}</div>', "🔥")
+
+# ========== 5. 催化剂日历 ==========
+catalysts = [
+    ('开盘前','💧 央行万亿逆回购落地','1万亿3个月买断式，净投放2000亿终结4个月缩量','high','大金融/高股息/全市场托底'),
+    ('开盘前','📋 A股交易新规全面生效','ST涨跌幅10%+盘后定价+创业板做市商','high','ST板块（规避）/小盘股/全市场'),
+    ('全天','💾 江波龙中报622-744倍','存储业绩"核弹级"预增，今日给板块情绪锚','high','存储板块（关注高走/低走）'),
+    ('全天','💾 聚辰NOR涨25%生效','今日正式生效，存储涨价链最后拼图','high','聚辰/兆易/北京君正'),
+    ('全天','🤖 人形机器人分化淘汰赛','40股涨停后分歧，跟风小票发风险公告','high','机器人核心（低吸）/跟风（规避）'),
+    ('全天','🥇 黄金4200+白银+4%','纽约期银+4%，贵金属全线走强','medium','黄金/白银（回踩不追高）'),
+    ('全天','💀 *ST建艺新规首日','10%跌停风险！集合竞价清仓！','high','*ST建艺（清仓！）'),
+    ('本周','📊 7/9 6月CPI/PPI','影响国内政策预期','high','消费/周期/债券'),
+    ('本周','📊 7/14 美国6月CPI','直接决定7月降息预期','high','贵金属/科技/汇率'),
+    ('本周','📋 7/15 中报预告集中','+主板中报预告密集窗口+Q2 GDP','high','高景气龙头/规避纯概念'),
+    ('本周','🚀 长征十号乙可回收','预期本周发射','medium','商业航天'),
+    ('本周','🔓 本周解禁1016亿','屹唐653.6亿、天承126.6亿居前','high','规避解禁高位股'),
+]
+catalyst_cards = ''
+for t,e,i,l,r in catalysts:
+    lc = {'high':('from-red-500/20 to-orange-500/10 border-red-500/30','高','text-red-400'),
+          'medium':('from-yellow-500/20 to-amber-500/10 border-yellow-500/30','中','text-yellow-400'),
+          'low':('from-green-500/20 to-emerald-500/10 border-green-500/30','低','text-green-400')}[l]
+    catalyst_cards += f'<div class="bg-gradient-to-r {lc[0]} border rounded-xl p-4"><div class="flex items-start justify-between"><div><div class="text-white/50 text-xs mb-1">{t}</div><h4 class="text-white font-semibold text-sm mb-2">{e}</h4><p class="text-white/60 text-xs">{i}</p></div><span class="text-xs font-medium {lc[2]} px-2 py-1 rounded-full bg-white/5">{lc[1]}</span></div><div class="mt-2 pt-2 border-t border-white/10"><span class="text-white/50 text-xs">相关方向：</span><span class="text-white/70 text-xs">{r}</span></div></div>'
+gen.add_section("今日/本周关键催化剂", f'<div class="grid md:grid-cols-2 gap-4">{catalyst_cards}</div><p class="text-xs text-white/40 mt-4">💡 7月核心日历：7/6新规首日+万亿逆回购；7/9 CPI/PPI；7/10-15中报预告密集；7/14美国CPI；7/15二季度GDP；7月中下旬长鑫IPO；7/22特斯拉Q2财报；7/30-31美联储议息。本周解禁40家合计约1016亿元（屹唐股份653.6亿、天承科技126.6亿）。</p>', "📅")
+
+# ========== 6. 持仓专项分析 ==========
+portfolio_html = '''
+<div class="space-y-4">
+<div class="bg-gradient-to-r from-red-700/40 to-red-900/30 border-2 border-red-600 rounded-xl p-4">
+  <div class="flex items-start gap-3"><span class="text-3xl">💀💀💀</span><div class="flex-1">
+    <div class="flex items-center justify-between mb-1"><h4 class="text-white font-bold text-base">*ST建艺 (002789) — 新规首日！10%跌停！集合竞价任何价格必须不计成本清仓！！！</h4>
+    <span class="text-red-300 font-bold text-sm">11.74元 / 浮亏-12.7%</span></div>
+    <p class="text-white/70 text-xs leading-relaxed mb-2">
+    上周五-0.42%收11.74元，ST板块59家涨停+2.23%中<b class="text-red-400">逆市下跌</b>，成交仅3782万极度缩量，多头无力。公司7/1公告重大诉讼5301万，2025年报未披露，退市风险未消除。
+    <br><br><b class="text-red-400 text-sm">今日（7/6）ST涨跌幅正式扩至10%：</b><br>
+    ①一个跌停<b>-1.17元（-10%）</b>封板跑不掉；②两个跌停到10.57浮亏-21%；③证监会严打财务造假（上半年59立案+21退市），ST绩差股加速出清；④板块涨2.23%它都不涨，新规后跌得比谁都快。
+    </p>
+    <div class="bg-red-600/50 rounded-lg p-3 text-xs text-white font-bold">🚨🚨🚨 最高优先级铁律：9:15-9:25集合竞价<b>任何价格、不计成本、挂市价单全部清仓！！！</b>10%跌停封板后就是连续跌停，想跑都跑不掉！浮亏-12.7%认亏出局！这是龙空龙生命线——纪律！</div>
+  </div></div>
+</div>
+
+<div class="bg-gradient-to-r from-orange-500/20 to-red-500/10 border-2 border-orange-500/50 rounded-xl p-4">
+  <div class="flex items-start gap-3"><span class="text-2xl">🔴</span><div class="flex-1">
+    <div class="flex items-center justify-between mb-1"><h4 class="text-white font-bold text-base">英维克 (002837) — 深度破止损-31.5%！反弹73-75清≥1/2，破70无条件离场</h4>
+    <span class="text-red-400 font-bold text-sm">71.43元 / 浮亏-31.5%</span></div>
+    <p class="text-white/60 text-xs leading-relaxed mb-2">
+    液冷龙头。上周五<b>+0.04%收71.43元缩量十字星</b>（高74.41/低70.50），成交31.41亿缩量，主力+0.36亿为5日首次转正但5日累计-14.86亿，融资余额5日-2.71亿(-5.85%)。利好：①央行万亿逆回购改善流动性；②纳指期货+1.2%外盘修复；③今日有望借利好冲高73-75。利空：①Q1净利-81.97%证伪业绩；②均线空头+技术完全破位；③黑石放弃弗吉尼亚数据中心；④反弹是减仓窗口非反转。
+    </p>
+    <div class="bg-white/5 rounded-lg p-2 text-xs text-white/70">
+    <span class="text-red-400 font-semibold">⚠️ 操作：</span>深度破止损已既成事实，严禁补仓！
+    ①<b>借利好反弹至73-75区间（上周五高74.41）坚决清仓≥1/2</b>；
+    ②<b class="text-red-400">跌破70元无条件砍仓</b>，不要等反弹；
+    ③借央行利好+外盘反弹窗口离场是最优选择，不幻想V型反转。
+    </div>
+  </div></div>
+</div>
+
+<div class="bg-gradient-to-r from-red-500/20 to-yellow-500/10 border border-orange-500/40 rounded-xl p-4">
+  <div class="flex items-start gap-3"><span class="text-2xl">🟠</span><div class="flex-1">
+    <div class="flex items-center justify-between mb-1"><h4 class="text-white font-bold text-base">雅克科技 (002409) — 两日累跌-15.5%险守200！借存储反弹210-215减1/3锁利</h4>
+    <span class="text-orange-300 font-bold text-sm">199.50元 / 浮盈+83.4%</span></div>
+    <p class="text-white/60 text-xs leading-relaxed mb-2">
+    HBM前驱体。上周五<b>-6.11%收199.50元两日累跌-15.5%</b>（最低195.88险守195），成交93.69亿天量，主力净卖5.43亿。关键变化：①<b class="text-green-400">利好：周末存储核弹级</b>——江波龙622-744倍+三星DRAM+20%+聚辰NOR+25%+韩股KOSPI+2%/三星+1.9%，今日存储链<b>大概率高开反弹</b>；②<b class="text-red-400">利空：公司两次风险提示（"无六氟化钨"证伪炒作、特气仅5.79%）</b>，前期氟化工炒作逻辑已破；③200元是心理关口。
+    </p>
+    <div class="bg-white/5 rounded-lg p-2 text-xs text-white/70">
+    <span class="text-orange-400 font-semibold">💡 操作：</span>83%浮盈"利润保护战"。认错修正（7/2"主升浪延续"判断错误）：
+    ①<b>借存储利好反弹至210-215坚决减1/3锁利</b>；
+    ②<b>底仓1/2观察195-200能否企稳</b>，不破保留博弈HBM长期；
+    ③<b class="text-red-400">跌破195减至1/4以下严控风险</b>；
+    ④绝不补仓，反弹减仓是主旋律。
+    </div>
+  </div></div>
+</div>
+
+<div class="bg-gradient-to-r from-yellow-500/15 to-amber-500/10 border border-yellow-500/30 rounded-xl p-4">
+  <div class="flex items-start gap-3"><span class="text-2xl">🟡</span><div class="flex-1">
+    <div class="flex items-center justify-between mb-1"><h4 class="text-white font-bold text-base">铜冠铜箔 (301217) — 存储业绩爆发核心利好，移动止盈150，破150减至1/3</h4>
+    <span class="text-yellow-300 font-bold text-sm">154.63元 / 浮盈+77.4%</span></div>
+    <p class="text-white/60 text-xs leading-relaxed mb-2">
+    HVLP铜箔。上周五<b>-2.08%收154.63元</b>（高164.56/低150击穿止盈线后拉回），成交67.03亿放量阴线，主力连续3日净流出8.3亿。注意：①<b class="text-yellow-400">国轩高科H1减持839.95万股套现8.29亿</b>（仍持1.27%/1053万股），短期抛压；②<b class="text-green-400">存储业绩爆发是核心利好</b>——江波龙+622倍+三星DRAM+20%，HVLP铜箔直接受益，电子布/CCL涨价链扩散；③SK海力士100万亿扩产长期利好。
+    </p>
+    <div class="bg-white/5 rounded-lg p-2 text-xs text-white/70">
+    <span class="text-yellow-400 font-semibold">💡 操作：</span>77%浮盈必须落袋，严格移动止盈：
+    ①<b>冲高160-165减1/3锁利</b>（上周五高164.56已给出窗口）；
+    ②<b>移动止盈下移至150元</b>，破150减至1/3以下；
+    ③底仓1/3保留博弈HVLP长期+存储景气，140元终极止盈；
+    ④减持+高位放量需警惕，存储业绩爆发对冲部分压力。
+    </div>
+  </div></div>
+</div>
+
+<div class="bg-gradient-to-r from-blue-500/15 to-indigo-500/10 border border-blue-500/30 rounded-xl p-4 mt-3">
+  <h4 class="text-white font-bold text-sm mb-2 flex items-center gap-2"><span>📊</span><span>今日仓位与操作时间表（7/6 周一·新规首日）</span></h4>
+  <div class="text-white/70 text-xs leading-relaxed space-y-1">
+    <p><b class="text-red-400">9:15-9:25 集合竞价【最关键！】：</b>*ST建艺<b>不计成本市价清仓</b>（铁律第一）；英维克低开破70直接砍；观察江波龙/聚辰/存储链开盘价定情绪</p>
+    <p><b class="text-red-400">9:30-10:00 开盘30分钟【黄金窗口】：</b>英维克反弹73-75清≥1/2/破70砍；雅克借存储反弹210-215减1/3；铜冠冲160-165减1/3；持仓全线收缩</p>
+    <p><b class="text-white">10:00-14:30 盘中：</b>总仓位3-4成，留6-7成现金。观察：①<b>量能</b>（早盘1小时>8500亿加仓，<8500亿观望）；②<b>江波龙走势</b>（存储情绪锚）；③<b>机器人分化</b>（核心/跟风）；④<b>黄金回踩</b>（不追高）；⑤<b>新规运行</b>（ST/盘后）。新仓单仓≤5%</p>
+    <p><b class="text-white">14:30-15:30 尾盘+盘后：</b>新规首日注意盘后定价窗口（15:05-15:30），可用于调仓减仓，不追高、不重仓过夜</p>
+    <p><b class="text-green-400">进攻方向（轻仓3-4成）：</b>①人形机器人核心（分歧低吸龙头）；②存储设备+材料（业绩确定性强）；③黄金/白银（回踩布局）；④商业航天（新题材轻仓）；⑤创新药（防御）</p>
+    <p><b class="text-red-400">严格回避：</b>①*ST/ST（10%跌停风险）；②高位算力/CPO（借反弹减仓）；③机器人跟风小票（分化炸板）；④解禁股（屹唐653亿、天承126亿）；⑤无业绩纯题材</p>
+  </div>
+</div>
+</div>'''
+gen.add_section("持仓专项分析【纪律高于一切·新规首日特别版】", portfolio_html, "💎")
+
+# ========== 7. 风险提示 ==========
+risks = [
+    ('💀','*ST建艺新规首日10%跌停','ST涨跌幅扩至10%，一个跌停-10%封板跑不掉，集合竞价必须不计成本清仓！上周五全ST涨2.23%它逆市跌，极度弱势。'),
+    ('📋','A股新规首日波动风险','ST10%+盘后交易+做市商，市场需适应，流动性结构变化，不熟悉规则者慎碰ST和尾盘异动。'),
+    ('📉','江波龙"利好出尽"风险','622-744倍中报核弹级，但上周费半-11%+兆易-2.45%成交426亿，高开低走则存储承压，"买预期卖事实"需警惕。'),
+    ('🤖','人形机器人一致预期过满','7/3主力244亿/40余股涨停，日盈/长盛/福赛密集发风险公告，高开分化淘汰赛，追高连板吃大面。'),
+    ('💥','费半反弹持续性存疑','纳指期货+1.2%仅期货，现货未验证；Meta云转向+黑石放弃数据中心，AI CAPEX见顶未根本扭转，反弹可能是下跌中继。'),
+    ('🥇','黄金高开不追','COMEX破4200+白银+4%，但上周已涨一波，高开追入易套，等回踩5日线再布局。'),
+    ('🔓','本周解禁1016亿','屹唐股份653.6亿、天承科技126.6亿大额解禁，规避即将解禁高位股。'),
+    ('📉','英维克/雅克破位未改','英维克破止损-31.5%、雅克两日-15.5%破200关口，反弹是减仓窗口不是反转，必须执行纪律。'),
+]
+risk_cards = ''
+for icon,t,c in risks:
+    risk_cards += f'<div class="bg-gradient-to-r from-red-500/10 to-orange-500/5 border border-red-500/20 rounded-xl p-4"><div class="flex items-center gap-3"><div class="text-2xl">{icon}</div><div><h4 class="text-white font-semibold text-sm mb-1">{t}</h4><p class="text-white/60 text-xs leading-relaxed">{c}</p></div></div></div>'
+gen.add_section("风险提示", f'<div class="grid md:grid-cols-2 gap-4">{risk_cards}</div><p class="text-xs text-white/40 mt-4">⚠️ 投资有风险，入市需谨慎。以上分析仅供参考，不构成投资建议。数据来源：央行官网、东方财富、财联社、华尔街见闻、金融时报、凤凰网。</p>', "⚠️")
+
+# ========== 8. 每日总结与策略 ==========
+summary = '''
+<div class="space-y-4">
+<div class="bg-white/5 rounded-lg p-4">
+  <h4 class="text-white font-semibold mb-2 flex items-center gap-2"><span>📝</span><span>市场总览</span></h4>
+  <p class="text-white/70 text-sm leading-relaxed">
+  今日是<b class="text-yellow-400">7月首个交易日、A股新规首日、V5.0盘前首秀日</b>，三重意义叠加。周末消息面<b class="text-green-400">整体偏暖</b>：
+  ①央行万亿逆回购净投放2000亿终结4个月缩量，流动性宽松确认；②纳指期货+1.2%、德国DAX创历史新高、韩股KOSPI+2%、日经+0.33%，外盘情绪修复；③<b>江波龙中报预增622-744倍</b>+三星Q3 DRAM涨价20%+聚辰NOR涨25%今生效，存储业绩核弹级；④黄金破4200美元、白银+4%；⑤商业航天新增强催化；⑥证监会再融资新规利好科技融资。
+  <br><br><b class="text-red-400">风险同样明确</b>：①*ST建艺10%跌停风险，必须清仓；②新规首日市场需适应；③人形机器人一致预期过满+多股发风险公告；④江波龙存在利好出尽可能；⑤费半两日-11%中期趋势未完全扭转；⑥本周解禁1016亿。
+  <br><br><b>上周五回顾：</b>缩量修复+高低切换+机器人/黄金领涨（沪指+0.37%/深成+0.64%/创业板+0.07%/缩量3.18万亿），"指数红、个股活、主线切"存量博弈。
+  <br><br><b>今日核心矛盾：</b><b>国内宽松+新规托底+业绩爆发</b> vs <b>海外科技情绪未稳+一致预期过满+ST风险</b>。指数有托底（4010-4028支撑），结构高低切换延续第三周。
+  </p>
+</div>
+<div class="bg-white/5 rounded-lg p-4">
+  <h4 class="text-white font-semibold mb-2 flex items-center gap-2"><span>🎯</span><span>操作策略 · 砍仓+锁利+轻仓新规首日</span></h4>
+  <p class="text-white/70 text-sm leading-relaxed">核心原则：<b class="text-red-400">*ST建艺集合竞价必须清仓、持仓全线收缩、总仓位3-4成、重业绩轻题材</b></p>
+  <ul class="text-white/70 text-sm leading-relaxed mt-2 space-y-1 pl-4 list-disc">
+    <li><b class="text-red-400">第一优先级（9:25前）：</b>*ST建艺集合竞价不计成本清仓（最高优先级铁律！）</li>
+    <li><b class="text-red-400">第二优先级（9:30-10:00）：</b>英维克反弹73-75清≥1/2/破70砍；雅克借存储反弹210-215减1/3；铜冠冲160-165减1/3</li>
+    <li><b>仓位目标：</b>总仓位3-4成，留6-7成现金等本周CPI/中报/美CPI落地</li>
+    <li><b>量能信号：</b>早盘1小时>8500亿可加仓主线龙头，<8500亿继续观望</li>
+    <li><b>进攻方向（轻仓、单仓≤5%）：</b>①人形机器人核心（分歧低吸龙头）；②存储设备+材料（业绩确定性强）；③黄金/白银（回踩布局）；④商业航天（新题材轻仓）；⑤创新药（防御）</li>
+    <li><b>严格回避：</b>ST/*ST股；高位算力/CPO（借反弹减仓）；机器人跟风小票；解禁个股；无业绩纯题材</li>
+  </ul>
+</div>
+<div class="bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 rounded-lg p-4">
+  <h4 class="text-white font-semibold mb-2 flex items-center gap-2"><span>🔮</span><span>boya独家研判</span></h4>
+  <p class="text-white/70 text-sm leading-relaxed">
+  上周精准兑现：7/2提示"雅克冲高减仓"→雅克跌停-10%/-6.11%两日-15.5%；7/3提示"英维克反弹73-75清仓"→英维克上周五高74.41给出窗口。
+  <br><br>
+  今日核心判断：<b>外暖内松+业绩爆发，但新规首日需谨慎，不要被外盘期货红盘冲昏头脑，执行纪律高于一切。</b>
+  <br><br>
+  ①<b class="text-red-400">*ST建艺清仓是今日第一优先级，没有任何商量余地</b>——10%跌停风险下，拖一分钟都可能多亏一个跌停板。这是纪律，不是判断。<br>
+  ②<b>存储进入"业绩验证期"：</b>江波龙622-744倍是7月中报季"发令枪"，后续兆易/北京君正/聚辰/长电业绩陆续出炉，<b>设备+材料确定性>模组弹性</b>，但今日开盘是情绪锚——高开高走确认反弹，高开低走则"见光死"需再等。<br>
+  ③<b>人形机器人从"普涨"进入"分化淘汰赛"：</b>7月最强主线不会一日游，但40股涨停后一定分化，核心龙头（三花/埃斯顿/拓普/绿的）分歧后仍有机会，跟风小票（尤其发风险公告的）坚决回避。<br>
+  ④<b>风格切换延续第三周</b>："高位AI硬件"→"机器人（新产业）+贵金属（避险）+上游材料（涨价真业绩）+创新药（防御）"资金迁移仍在进行，央行万亿逆回购加速此过程。<br>
+  ⑤<b>黄金4200不是终点</b>，但短期高开不追，等回踩5日线再布局，白银弹性大波动也大。<br>
+  ⑥<b>新规首日"多看少动"</b>——ST 10%、盘后定价、创业板做市商都是新东西，先观察规则运行再出手，不要当新规"试验品"。
+  <br><br>
+  <b class="text-yellow-400">核心忠告：保住铜冠+77%、雅克+83%的利润，砍掉英维克-31%、*ST建艺-12.7%的亏损，3-4成仓轻仓应对新规首日，等本周CPI/中报/美CPI三大数据落地后再重拳出击。龙空龙核心是空仓等待重拳时机，不是每天都要满仓。纪律比判断更重要——<br>先把*ST建艺清了再说！</b>🎯
+  </p>
+</div>
+</div>'''
+gen.add_section("每日总结与策略", f'<div class="bg-gradient-to-r from-purple-500/15 to-blue-500/10 border border-purple-500/20 rounded-xl p-5"><div class="text-white font-bold mb-3 flex items-center gap-2"><span>📝</span><span>每日总结与操作策略</span></div>{summary}</div>', "📝")
+
+# 生成并保存
+output_path = os.path.join(WORK_DIR, 'docs/daily/20260706_每日新闻洞察.html')
+html = gen.render()
+with open(output_path, 'w', encoding='utf-8') as f:
+    f.write(html)
+print(f'✅ 报告生成: {output_path}')
+print(f'📊 大小: {os.path.getsize(output_path)} 字节')
