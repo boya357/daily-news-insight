@@ -62,9 +62,11 @@ class ListPageGenerator:
         Returns:
             Whether successful
         """
-        # Security check: only allow modifying known list page files
-        # latest.html is a valid target for list page updates
-        is_list_file = list_filepath.endswith("latest.html") or "/list_" in list_filepath
+        # Security check: list page updates MUST go to index.html (list page), NEVER to latest.html (latest report copy)
+        if list_filepath.endswith("latest.html"):
+            print(f"[BLOCKED] 禁止写入 latest.html！列表页必须写入 index.html。路径: {list_filepath}")
+            return False
+        is_list_file = list_filepath.endswith("index.html") or "/list_" in list_filepath
         if not is_list_file:
             for protected in PROTECTED_FILES:
                 if protected in list_filepath:

@@ -105,7 +105,7 @@ core_tools = [
     ("💓", "题材健康度", "topic-health/", "题材生命周期"),
     ("🕐", "数据时光机", "time-machine/index.html", "历史数据回溯"),
     ("🔬", "产业链时钟", "industry_chain_clock/index.html", "月度更新 · 产业链全景"),
-    ("🧪", "预判验证中心", "prediction_verification/index.html", "预判准确率跟踪"),
+    ("🧪", "预判验证中心", "prediction-center/index.html", "预判准确率跟踪"),
 ]
 
 tool_cards_html = []

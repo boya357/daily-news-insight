@@ -539,7 +539,7 @@ class IndustryChainClockProGenerator(ProGenerator):
             {self._generate_deep_analysis_section()}
         '''
     
-    def publish(self, output_path: str = "docs/industry-chain-clock/index.html"):
+    def publish(self, output_path: str = "docs/industry_chain_clock/index.html"):
         """发布到生产路径"""
         return super().publish(output_path)
 

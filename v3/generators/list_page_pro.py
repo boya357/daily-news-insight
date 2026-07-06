@@ -257,10 +257,10 @@ class ListPageProGenerator(ProGenerator):
         """发布页面
         
         Args:
-            output_path: 输出路径，默认保存到对应频道的 latest.html
+            output_path: 输出路径，默认保存到对应频道的 index.html（列表页）
         """
         if output_path is None:
-            output_path = str(self.docs_dir / self.channel_key / 'latest.html')
+            output_path = str(self.docs_dir / self.channel_key / 'index.html')
         
         result = super().publish(output_path)
         result['channel'] = self.channel_key

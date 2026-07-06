@@ -59,7 +59,7 @@ check "工具页 sector_heatmap/index_pro.html 存在" test -f docs/sector_heatm
 check "工具页 time-machine/index.html 存在" test -f docs/time-machine/index.html
 check "工具页 industry_chain_clock/index.html 存在" test -f docs/industry_chain_clock/index.html
 check "工具页 stock_analysis/index.html 存在" test -f docs/stock_analysis/index.html
-check "工具页 prediction_verification/index.html 存在" test -f docs/prediction_verification/index.html
+check "工具页 prediction-center/index.html 存在" test -f docs/prediction-center/index.html
 
 echo ""
 echo "--- 4. 深色主题（关键页面引入global-dark.css）---"

@@ -458,7 +458,7 @@ class PredictionCenterProGenerator(ProGenerator):
         """页面主要内容"""
         return self.generate()
     
-    def publish(self, output_path: str = "docs/prediction_verification/index.html"):
+    def publish(self, output_path: str = "docs/prediction-center/index.html"):
         """发布到生产路径"""
         return super().publish(output_path)
 

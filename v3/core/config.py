@@ -14,16 +14,16 @@ GITHUB_PAGES_BASE = "https://boya357.github.io/daily-news-insight"
 # ==========================================
 REPORT_TYPES = {
     "index": {"name": "首页", "dir": "", "file": "index.html"},
-    "daily": {"name": "日报", "dir": "daily", "list_file": "latest.html"},
-    "intraday": {"name": "盘中快报", "dir": "intraday", "list_file": "latest.html"},
-    "aftermarket": {"name": "盘后速递", "dir": "aftermarket", "list_file": "latest.html"},
-    "industry_chain": {"name": "产业链", "dir": "industry_chain", "list_file": "latest.html"},
-    "weekly_review": {"name": "周复盘", "dir": "weekly_review", "list_file": "latest.html"},
-    "weekly_outlook": {"name": "周三前瞻", "dir": "weekly_outlook", "list_file": "latest.html"},
-    "weekend_express": {"name": "周末速递", "dir": "weekend_express", "list_file": "latest.html"},
-    "tomorrow_catalyst": {"name": "明日催化剂", "dir": "tomorrow_catalyst", "list_file": "latest.html"},
-    "s_level_catalyst": {"name": "S级催化", "dir": "s_level_catalyst", "list_file": "latest.html"},
-    "monthly": {"name": "月报", "dir": "monthly", "list_file": "latest.html"},
+    "daily": {"name": "日报", "dir": "daily", "list_file": "index.html"},
+    "intraday": {"name": "盘中快报", "dir": "intraday", "list_file": "index.html"},
+    "aftermarket": {"name": "盘后速递", "dir": "aftermarket", "list_file": "index.html"},
+    "industry_chain": {"name": "产业链", "dir": "industry_chain", "list_file": "index.html"},
+    "weekly_review": {"name": "周复盘", "dir": "weekly_review", "list_file": "index.html"},
+    "weekly_outlook": {"name": "周三前瞻", "dir": "weekly_outlook", "list_file": "index.html"},
+    "weekend_express": {"name": "周末速递", "dir": "weekend_express", "list_file": "index.html"},
+    "tomorrow_catalyst": {"name": "明日催化剂", "dir": "tomorrow_catalyst", "list_file": "index.html"},
+    "s_level_catalyst": {"name": "S级催化", "dir": "s_level_catalyst", "list_file": "index.html"},
+    "monthly": {"name": "月报", "dir": "monthly", "list_file": "index.html"},
 }
 
 # ==========================================

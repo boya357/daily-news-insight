@@ -273,7 +273,7 @@ class StockDetailPageGeneratorV3:
                 <a href="../index.html" class="nav-link">首页</a>
                 <a href="index.html" class="nav-link active">个股分析</a>
                 <a href="../产业链/index.html" class="nav-link">产业链</a>
-                <a href="../智能预警系统/index.html" class="nav-link">预警</a>
+                <a href="../alert-system/index.html" class="nav-link">预警</a>
             </div>
         </div>
     </div>
