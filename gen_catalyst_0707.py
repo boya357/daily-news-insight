@@ -68,6 +68,12 @@ events = [
         'category': '国内会议'
     },
     {
+        'type': 'meeting',
+        'title': '香港固定收益及货币峰会暨债券通论坛',
+        'description': '香港金管局与香港证监会、港交所、债券通公司联合举办，重点议题涵盖人民币国际化、市场流动性、互联互通等。',
+        'category': '金融会议'
+    },
+    {
         'type': 'general',
         'title': '卓然股份复牌被实施退市风险警示（*ST卓然）',
         'description': '卓然股份(688121)因无法在法定期限内完成2025年年报披露，7月7日复牌并被实施退市风险警示，简称变更为"*ST卓然"，涨跌幅限制仍为20%。',
@@ -78,12 +84,12 @@ gen.add_events_calendar(events)
 
 # ========== 业绩公告 ==========
 gen.add_earnings_announcements([
+    {'name': '三星电子', 'code': '005930.KS', 'type': 'Q2初步财报', 'growth': '营业利润同比+约18倍（预期）'},
     {'name': '容百科技', 'code': '688005', 'type': '半年报预告', 'growth': '扭亏为盈 净利1.0-1.2亿'},
     {'name': '华源控股', 'code': '002787', 'type': '半年报预告', 'growth': '+50.5%~+85.6%'},
     {'name': '国风新材', 'code': '000859', 'type': '半年报预告', 'growth': '亏损2800-3800万（减亏）'},
     {'name': '江波龙', 'code': '301308', 'type': '半年报预告', 'growth': '+62204%~+74394%（已发）'},
-    {'name': '永鼎股份', 'code': '600105', 'type': '半年报预告', 'growth': '+57%~+120%（已发）'},
-    {'name': '招商轮船', 'code': '601872', 'type': '半年报预告', 'growth': '+214%~+248%（已发）'},
+    {'name': '东方盛虹', 'code': '000301', 'type': '半年报预告', 'growth': '+987%~+1195%（已发）'},
 ])
 
 # ========== 数据发布 ==========
@@ -251,7 +257,7 @@ gen.add_risk_warning([
 ])
 
 # ========== 发布 ==========
-result = gen.publish()
+result = gen.publish(filename="20260707_明日催化剂.html")
 print("=" * 60)
 print("PUBLISH RESULT:", result)
 print("=" * 60)
