@@ -62,9 +62,9 @@ class WeeklyOutlookGenerator:
                 stocks_html = tags.render()
             
             content_html += f'''
-            <div style="background: white; border: 1px solid rgba(0, 0, 0, 0.06);
+            <div style="background: rgba(30,30,50,0.5); border: 1px solid rgba(255,255,255,0.08);
                        border-radius: 14px; padding: 16px 18px;
-                       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);">
+                       box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                 <div style="display: flex; align-items: center; margin-bottom: 8px;">
                     <div style="width: 32px; height: 32px; 
                                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
@@ -73,15 +73,15 @@ class WeeklyOutlookGenerator:
                         {icon_svg("eye", 16, "white")}
                     </div>
                     <div style="flex: 1;">
-                        <span style="font-size: 15px; font-weight: 600; color: #1f2937;">{topic.get("name", "")}</span>
+                        <span style="font-size: 15px; font-weight: 600; color: #f1f5f9;">{topic.get("name", "")}</span>
                     </div>
                     <span style="padding: 3px 10px; border-radius: 20px; 
                                font-size: 11px; font-weight: 600;
-                               background: #fef3c7; color: #92400e;">
+                               background: rgba(245,158,11,0.15); color: #fbbf24;">
                         {topic.get("attention", "重点关注")}
                     </span>
                 </div>
-                <div style="font-size: 13px; color: #6b7280; line-height: 1.6; margin-bottom: 8px;">
+                <div style="font-size: 13px; color: #94a3b8; line-height: 1.6; margin-bottom: 8px;">
                     {topic.get("logic", "")}
                 </div>
                 {stocks_html}
@@ -93,7 +93,7 @@ class WeeklyOutlookGenerator:
     
     def add_second_half_strategy(self, strategy: str):
         """添加下半周操作策略"""
-        content = f'<div style="line-height: 1.8; color: #374151; font-size: 14px;">{strategy}</div>'
+        content = f'<div style="line-height: 1.8; color: #e2e8f0; font-size: 14px;">{strategy}</div>'
         section = Section(title="🎯 下半周操作策略", content=content, icon="target", variant="highlight")
         self._components.append(section)
     

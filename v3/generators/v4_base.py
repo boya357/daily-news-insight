@@ -1074,7 +1074,7 @@ class V4BaseGenerator:
         
         return f'''
         <div class="topic-card-v4">
-            <div class="topic-card-header" style="background: linear-gradient(135deg, {bg_color}, #ffffff);">
+            <div class="topic-card-header" style="background: linear-gradient(135deg, {bg_color}, rgba(30,30,50,0.6));">
                 <div class="topic-header-content">
                     <span class="topic-icon">{icon}</span>
                     <div class="topic-header-info">

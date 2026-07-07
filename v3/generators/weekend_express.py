@@ -106,14 +106,14 @@ class WeekendExpressGenerator:
                 sectors = policy['sector'].split(',') if isinstance(policy['sector'], str) else policy['sector']
                 sector_tags = []
                 for s in sectors[:3]:  # 最多显示3个
-                    sector_tags.append(f'<span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: #dbeafe; color: #1e40af; font-size: 11px; font-weight: 500; margin-right: 4px;">{s.strip()}</span>')
+                    sector_tags.append(f'<span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: rgba(59,130,246,0.15); color: #60a5fa; font-size: 11px; font-weight: 500; margin-right: 4px;">{s.strip()}</span>')
                 sector_html = '<div style="margin-top: 10px;">' + ''.join(sector_tags) + '</div>'
             
             card_content = f'''
-            <div style="font-size: 15px; font-weight: 600; color: #1f2937; margin-bottom: 8px;">
+            <div style="font-size: 15px; font-weight: 600; color: #f1f5f9; margin-bottom: 8px;">
                 {policy.get("title", "")}
             </div>
-            <div style="font-size: 13px; color: #6b7280; line-height: 1.7; margin-bottom: 8px;">
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.7; margin-bottom: 8px;">
                 {policy.get("content", "")}
             </div>
             <div style="font-size: 12px; color: #3b82f6; font-weight: 500; line-height: 1.6;">
@@ -211,7 +211,7 @@ class WeekendExpressGenerator:
             
             # 使用绿色渐变背景的卡片
             card_html = f'''
-            <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); 
+            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.08) 100%); 
                         border: 1px solid #bbf7d0; border-radius: 14px; padding: 16px 18px;
                         transition: all 0.3s ease;"
                  onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.15)';"
@@ -231,7 +231,7 @@ class WeekendExpressGenerator:
     
     def add_trading_plan(self, plan: str):
         """添加下周操作计划"""
-        content = f'<div style="line-height: 1.8; color: #374151; font-size: 14px;">{plan}</div>'
+        content = f'<div style="line-height: 1.8; color: #e2e8f0; font-size: 14px;">{plan}</div>'
         section = Section(title="🎯 下周操作计划", content=content, icon="target")
         self._components.append(section)
     

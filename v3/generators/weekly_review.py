@@ -63,12 +63,12 @@ class WeeklyReviewGenerator:
                 stocks_html = stock_tags.render()
             
             content_html += f'''
-            <div style="background: white; border: 1px solid rgba(0, 0, 0, 0.06);
+            <div style="background: rgba(30,30,50,0.5); border: 1px solid rgba(255,255,255,0.08);
                        border-radius: 16px; padding: 20px;
-                       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
                        transition: all 0.3s ease;"
-                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
-                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.04)';">
+                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)';"
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.2)';">
                 <div style="display: flex; align-items: center; margin-bottom: 12px;">
                     <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
                                border-radius: 10px; display: flex; align-items: center; justify-content: center; 
@@ -77,7 +77,7 @@ class WeeklyReviewGenerator:
                         {icon_svg("topic", 18, "white")}
                     </div>
                     <div style="flex: 1;">
-                        <div style="font-size: 16px; font-weight: 700; color: #1f2937;">
+                        <div style="font-size: 16px; font-weight: 700; color: #f1f5f9;">
                             <span style="display: inline-block; width: 22px; height: 22px; border-radius: 50%; 
                                        background: #4f46e5; color: white; font-size: 12px; font-weight: 700;
                                        text-align: center; line-height: 22px; margin-right: 8px;">{i+1}</span>
@@ -85,11 +85,11 @@ class WeeklyReviewGenerator:
                         </div>
                     </div>
                     <span style="padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
-                               background: #f0fdf4; color: #059669;">
+                               background: rgba(16,185,129,0.15); color: #34d399;">
                         {topic.get("performance", "")}
                     </span>
                 </div>
-                <div style="font-size: 13px; color: #6b7280; line-height: 1.7; margin-bottom: 8px;">
+                <div style="font-size: 13px; color: #94a3b8; line-height: 1.7; margin-bottom: 8px;">
                     {topic.get("logic", "")}
                 </div>
                 {stocks_html}
@@ -126,14 +126,14 @@ class WeeklyReviewGenerator:
             change_color = "#10b981" if h.get('up', True) else "#ef4444"
             
             content_html += f'''
-            <div style="background: #fafafa; border-radius: 14px; padding: 16px 18px;">
+            <div style="background: rgba(255,255,255,0.04); border-radius: 14px; padding: 16px 18px;">
                 <div style="display: flex; align-items: center;">
                     <div style="flex: 1;">
                         <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                            <span style="font-size: 15px; font-weight: 600; color: #1f2937;">{h["name"]}</span>
+                            <span style="font-size: 15px; font-weight: 600; color: #f1f5f9;">{h["name"]}</span>
                             <span style="font-size: 12px; color: #9ca3af; margin-left: 8px;">{h.get("code", "")}</span>
                         </div>
-                        <div style="font-size: 12px; color: #6b7280; line-height: 1.5;">
+                        <div style="font-size: 12px; color: #94a3b8; line-height: 1.5;">
                             周{h.get("change_type", "涨")}幅：{h.get("weekly_change", "")}
                         </div>
                     </div>
@@ -142,7 +142,7 @@ class WeeklyReviewGenerator:
                         <div style="font-size: 13px; font-weight: 500; color: {change_color};">{h.get("weekly_change", "")}</div>
                     </div>
                 </div>
-                <div style="font-size: 12px; color: #6b7280; line-height: 1.6; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e5e7eb;">
+                <div style="font-size: 12px; color: #94a3b8; line-height: 1.6; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e5e7eb;">
                     💡 {h.get("comment", "")}
                 </div>
             </div>'''
@@ -203,7 +203,7 @@ class WeeklyReviewGenerator:
     
     def add_next_week_outlook(self, outlook: str):
         """添加下周展望"""
-        content = f'<div style="line-height: 1.8; color: #374151; font-size: 14px;">{outlook}</div>'
+        content = f'<div style="line-height: 1.8; color: #e2e8f0; font-size: 14px;">{outlook}</div>'
         section = Section(title="🔮 下周市场展望", content=content, icon="compass", variant="highlight")
         self._components.append(section)
     
@@ -215,7 +215,7 @@ class WeeklyReviewGenerator:
     
     def add_trading_plan(self, plan: str):
         """添加下周操作计划"""
-        content = f'<div style="line-height: 1.8; color: #374151; font-size: 14px;">{plan}</div>'
+        content = f'<div style="line-height: 1.8; color: #e2e8f0; font-size: 14px;">{plan}</div>'
         section = Section(title="🎯 下周操作计划", content=content, icon="target")
         self._components.append(section)
     

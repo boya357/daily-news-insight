@@ -178,10 +178,10 @@ def _deprecated_v4_white_theme() -> str:
             .card-glass .text-gray-400 { color: #94A3B8 !important; }
             
             /* 修复浅色背景子卡片文字颜色 */
-            .card-glass .bg-white .text-gray-800 { color: #1f2937 !important; }
-            .card-glass .bg-white .text-gray-700 { color: #374151 !important; }
+            .card-glass .bg-white .text-gray-800 { color: #f1f5f9 !important; }
+            .card-glass .bg-white .text-gray-700 { color: #e2e8f0 !important; }
             .card-glass .bg-white .text-gray-600 { color: #4b5563 !important; }
-            .card-glass .bg-white .text-gray-500 { color: #6b7280 !important; }
+            .card-glass .bg-white .text-gray-500 { color: #94a3b8 !important; }
             .card-glass .bg-white .text-gray-400 { color: #9ca3af !important; }
             
             .stock-card {
@@ -1154,10 +1154,10 @@ def get_pro_theme_css() -> str:
             .card-glass .text-gray-400 { color: rgba(255, 255, 255, 0.6) !important; }
             
             /* 修复浅色背景子卡片文字颜色 */
-            .card-glass .bg-white .text-gray-800 { color: #1f2937 !important; }
-            .card-glass .bg-white .text-gray-700 { color: #374151 !important; }
+            .card-glass .bg-white .text-gray-800 { color: #f1f5f9 !important; }
+            .card-glass .bg-white .text-gray-700 { color: #e2e8f0 !important; }
             .card-glass .bg-white .text-gray-600 { color: #4b5563 !important; }
-            .card-glass .bg-white .text-gray-500 { color: #6b7280 !important; }
+            .card-glass .bg-white .text-gray-500 { color: #94a3b8 !important; }
             .card-glass .bg-white .text-gray-400 { color: #9ca3af !important; }
             
             .stock-card {

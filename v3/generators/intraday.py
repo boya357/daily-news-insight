@@ -109,14 +109,14 @@ class IntradayGenerator:
                 '''
             
             content_html += f'''
-            <div style="background: white; 
-                       border: 1px solid rgba(0, 0, 0, 0.06);
+            <div style="background: rgba(30,30,50,0.5); 
+                       border: 1px solid rgba(255,255,255,0.08);
                        border-radius: 16px; 
                        padding: 20px;
-                       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
                        transition: all 0.3s ease;"
-                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
-                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.04)';">
+                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)';"
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.2)';">
                 <div style="display: flex; align-items: center; margin-bottom: 12px;">
                     <div style="width: 36px; height: 36px; 
                                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
@@ -127,7 +127,7 @@ class IntradayGenerator:
                         {icon_svg("topic", 18, "white")}
                     </div>
                     <div style="flex: 1;">
-                        <div style="font-size: 16px; font-weight: 700; color: #1f2937;">
+                        <div style="font-size: 16px; font-weight: 700; color: #f1f5f9;">
                             <span style="display: inline-block; padding: 2px 8px; 
                                        border-radius: 6px; background: #eef2ff; 
                                        color: #4f46e5; font-size: 12px; font-weight: 600;
@@ -137,7 +137,7 @@ class IntradayGenerator:
                     </div>
                     {hot_badge}
                 </div>
-                <div style="font-size: 13px; color: #6b7280; line-height: 1.7; margin-bottom: 8px;">
+                <div style="font-size: 13px; color: #94a3b8; line-height: 1.7; margin-bottom: 8px;">
                     {topic.get("content", "")}
                 </div>
                 {stocks_html}
@@ -162,12 +162,12 @@ class IntradayGenerator:
         content_html = '<div style="display: flex; flex-direction: column; gap: 12px;">'
         for sector in sectors:
             content_html += f'''
-            <div style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); 
+            <div style="background: linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(220,38,38,0.08) 100%); 
                        border: 1px solid rgba(239, 68, 68, 0.1);
                        border-radius: 14px; 
                        padding: 16px 18px;">
                 <div style="display: flex; align-items: center; margin-bottom: 6px;">
-                    <span style="font-size: 15px; font-weight: 600; color: #991b1b; flex: 1;">
+                    <span style="font-size: 15px; font-weight: 600; color: #f87171; flex: 1;">
                         {sector["name"]}
                     </span>
                     <span style="font-size: 14px; font-weight: 700; color: #dc2626;">
@@ -205,18 +205,18 @@ class IntradayGenerator:
             comment = h.get("comment", "")
             
             content_html += f'''
-            <div style="background: #fafafa; border-radius: 14px; padding: 16px 18px;">
+            <div style="background: rgba(255,255,255,0.04); border-radius: 14px; padding: 16px 18px;">
                 <div style="display: flex; align-items: center;">
                     <div style="flex: 1;">
                         <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                            <span style="font-size: 15px; font-weight: 600; color: #1f2937;">
+                            <span style="font-size: 15px; font-weight: 600; color: #f1f5f9;">
                                 {name}
                             </span>
                             <span style="font-size: 12px; color: #9ca3af; margin-left: 8px;">
                                 {code}
                             </span>
                         </div>
-                        <div style="font-size: 12px; color: #6b7280; line-height: 1.5; max-width: 400px;">
+                        <div style="font-size: 12px; color: #94a3b8; line-height: 1.5; max-width: 400px;">
                             {comment}
                         </div>
                     </div>
@@ -326,7 +326,7 @@ class IntradayGenerator:
             strategy: 操作策略内容
         """
         content = f'''
-        <div style="line-height: 1.8; color: #374151; font-size: 14px;">
+        <div style="line-height: 1.8; color: #e2e8f0; font-size: 14px;">
             {strategy}
         </div>
         '''
@@ -361,7 +361,7 @@ class IntradayGenerator:
             summary: 总结内容
         """
         content = f'''
-        <div style="line-height: 1.8; color: #374151; font-size: 14px;">
+        <div style="line-height: 1.8; color: #e2e8f0; font-size: 14px;">
             {summary}
         </div>
         '''
