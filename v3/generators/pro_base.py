@@ -369,7 +369,6 @@ class ProGenerator(ProPage):
         "tomorrow_catalyst": "tomorrow_catalyst",
         "weekend_express": "weekend_express",
         "weekly_review": "weekly_review",
-        "weekly_outlook": "weekly_outlook",
         "industry_chain": "industry_chain",
         "industry_chain_clock": "industry_chain",
         "monthly": "monthly",
@@ -383,7 +382,6 @@ class ProGenerator(ProPage):
         "tomorrow_catalyst": "历史明日催化",
         "weekend_express": "历史周末速递",
         "weekly_review": "历史周度复盘",
-        "weekly_outlook": "历史周度展望",
         "industry_chain": "产业链历史报告",
         "monthly": "历史月报",
     }
@@ -406,7 +404,6 @@ class ProGenerator(ProPage):
             "明日催化": "tomorrow_catalyst",
             "周末速递": "weekend_express",
             "周度复盘": "weekly_review",
-            "周度展望": "weekly_outlook",
             "产业链": "industry_chain",
             "月报": "monthly",
         }
