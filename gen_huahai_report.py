@@ -1,0 +1,1013 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+华海诚科(688535)深度研究报告生成器 2026-07-07
+"""
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'v3'))
+
+from generators.pro_base import ProGenerator, source_tag, CONF_HIGH, CONF_MEDIUM, CONF_LOW
+from datetime import datetime
+
+
+class HuahaiReportGenerator(ProGenerator):
+    data_type = "industry_chain"
+
+    def __init__(self):
+        super().__init__(
+            title="华海诚科(688535)深度研究报告",
+            active_page="产业链",
+            footer_text="华海诚科深度研究 · HBM封装材料国产独苗 · 2026-07-07",
+            show_toc=False,
+            theme="dark",
+            tldr=[
+                "【核心结论】华海诚科是A股<b class=\"text-red-400\">唯一实现HBM专用GMC颗粒状环氧塑封料量产</b>的公司（全球仅住友/Resonac/华海3家），已通过SK海力士HBM4全工艺验证+三星认证+华为昇腾供应链绑定，<b class=\"text-red-400\">是AI算力HBM封装材料国产替代最核心弹性标的</b>。",
+                "【业绩爆发】并购衡所华威后EMC产能2.5万吨/年跃居全球第二；2026Q1营收+165.58%、净利+87.65%验证拐点；住友电木6月起涨价10-20%抬升价格中枢，机构一致预期2026年净利1.04亿(+330%)、2027年1.39亿，GMC放量超预期存在上修空间。",
+                "【操作建议】当前价162.29元、市值232亿、PE(TTM)761倍估值极高，<b class=\"text-yellow-400\">不建议追高</b>。中报预告(7月15日前后)是关键窗口：若H1净利>4000万则GMC放量确认，回踩130-140区间建仓观察仓；若低于2500万则证伪。建议列入<b>核心观察池</b>，与持仓股雅克科技(前驱体)形成HBM材料端互补配置。",
+            ],
+            operation_advice="短期观望等待回踩，130-140区间分批建观察仓(≤5%仓位)，止损120元；中报超预期+GMC订单落地再加仓，中期目标价180-200元，长期(2027)目标220-260元。与雅克科技形成HBM上游'前驱体+封装材料'互补组合。",
+            risk_level="高（估值TTM 760倍透支2027预期，认证/量产节奏不确定性大）",
+            suggested_position="观察仓≤5%，中报验证后加仓至8-10%",
+            quick_anchors=[
+                {"id": "overview", "title": "公司全景", "icon": "🏢"},
+                {"id": "products", "title": "产品拆解", "icon": "🧪"},
+                {"id": "opportunity", "title": "HBM机遇", "icon": "🚀"},
+                {"id": "competition", "title": "竞争壁垒", "icon": "⚔️"},
+                {"id": "forecast", "title": "业绩测算", "icon": "📊"},
+                {"id": "valuation", "title": "估值定价", "icon": "💰"},
+                {"id": "catalyst", "title": "催化风险", "icon": "⚡"},
+                {"id": "capital", "title": "资金技术", "icon": "📈"},
+                {"id": "strategy", "title": "投资建议", "icon": "🎯"},
+            ],
+            holding_stocks=[
+                {"name": "英维克", "code": "002837"},
+                {"name": "铜冠铜箔", "code": "301217"},
+                {"name": "雅克科技", "code": "002409"},
+                {"name": "*ST建艺", "code": "002789"},
+            ],
+            og_description="华海诚科(688535)HBM封装材料国产独苗深度研究：GMC颗粒状塑封料卡位HBM3E/HBM4核心材料，绑定SK海力士/华为/三星供应链，并购衡所华威跃居全球第二EMC龙头",
+        )
+
+    def load_data(self):
+        super().load_data()
+        self.update_time = "2026年7月7日 10:30"
+        self.cite("上交所2025年报/2026一季报", CONF_HIGH)
+        self.cite("富途牛牛/新浪财经/东方财富行情数据", CONF_HIGH)
+        self.cite("财联社/财联社电报", CONF_HIGH)
+        self.cite("中邮证券研报(2026-01)", CONF_MEDIUM)
+        self.cite("群益证券研报(2025-02)", CONF_MEDIUM)
+        self.cite("韭研公社/雪球深度调研纪要", CONF_MEDIUM)
+        self.cite("TheElec/TrendForce", CONF_MEDIUM)
+        self.cite("同花顺F10/东方财富Choice", CONF_HIGH)
+
+    def _section(self, sid, title, icon, content):
+        return f'''
+        <section id="{sid}" class="mb-8 scroll-mt-24">
+            <div class="flex items-center gap-3 mb-4 pb-3 border-b border-white/10">
+                <span class="text-2xl">{icon}</span>
+                <h2 class="text-xl md:text-2xl font-black text-white tracking-tight">{title}</h2>
+            </div>
+            {content}
+        </section>'''
+
+    def _glass_card(self, content, pad="p-5", extra=""):
+        return f'<div class="card-glass {pad} mb-4 {extra}">{content}</div>'
+
+    def _kpi_grid(self, items):
+        html = '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">'
+        for label, value, color, sub in items:
+            html += f'''
+            <div class="bg-white/[0.04] border border-white/10 rounded-xl p-3 text-center">
+                <div class="text-xs text-white/50 mb-1">{label}</div>
+                <div class="text-{color} text-2xl font-black tracking-tight">{value}</div>
+                <div class="text-[10px] text-white/40 mt-1">{sub}</div>
+            </div>'''
+        html += '</div>'
+        return html
+
+    def _sec_overview(self):
+        kpi = self._kpi_grid([
+            ("收盘价(7/6)", "162.29", "text-white", "市值232.52亿"),
+            ("2025营收", "4.58亿", "text-yellow-400", "同比+38.12%"),
+            ("2025净利", "0.24亿", "text-red-400", "同比-39.47%"),
+            ("2026Q1营收", "2.23亿", "text-green-400", "同比+165.58%"),
+            ("2026Q1净利", "0.14亿", "text-green-400", "同比+87.65%"),
+            ("EMC产能", "2.5万吨", "text-purple-400", "全球第二"),
+            ("研发费用率", "10.93%", "text-blue-400", "同比+2.97pct"),
+            ("GMC产能", "5000吨", "text-orange-400", "2026年内投产"),
+        ])
+
+        content = kpi
+        content += self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">🏢 公司概况与发展历程</h3>
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <ul class="space-y-2 text-white/75">
+                        <li><b class="text-white">全称：</b>江苏华海诚科新材料股份有限公司</li>
+                        <li><b class="text-white">股票代码：</b>688535.SH（科创板）</li>
+                        <li><b class="text-white">成立时间：</b>2010年12月17日</li>
+                        <li><b class="text-white">上市时间：</b>2023年4月4日（发行价35元）</li>
+                        <li><b class="text-white">总部：</b>江苏省连云港市经济技术开发区</li>
+                        <li><b class="text-white">实控人：</b>韩江龙、成兴明、陶军（一致行动人，合计约30%）</li>
+                        <li><b class="text-white">资质：</b>国家级专精特新"小巨人"、国家高新企业</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-purple-300 font-bold text-xs mb-2">📍 关键发展节点</h4>
+                    <div class="relative pl-5 border-l border-purple-500/30 space-y-2 text-xs">
+                        <div class="relative"><div class="absolute -left-[22px] w-3 h-3 rounded-full bg-purple-500 top-1"></div>
+                            <b class="text-white">2010年</b> 成立，专注环氧塑封料研发</div>
+                        <div class="relative"><div class="absolute -left-[22px] w-3 h-3 rounded-full bg-purple-400 top-1"></div>
+                            <b class="text-white">2016年</b> 新三板挂牌，完成技术积累</div>
+                        <div class="relative"><div class="absolute -left-[22px] w-3 h-3 rounded-full bg-blue-500 top-1"></div>
+                            <b class="text-white">2020-2021年</b> 华为哈勃5417万元战略入股(22.38元/股)</div>
+                        <div class="relative"><div class="absolute -left-[22px] w-3 h-3 rounded-full bg-green-500 top-1"></div>
+                            <b class="text-white">2023年4月</b> 科创板上市，募资3.3亿元</div>
+                        <div class="relative"><div class="absolute -left-[22px] w-3 h-3 rounded-full bg-yellow-500 top-1"></div>
+                            <b class="text-white">2024-2025年</b> 100%收购衡所华威，产能跃居全球第二</div>
+                        <div class="relative"><div class="absolute -left-[22px] w-3 h-3 rounded-full bg-red-500 top-1"></div>
+                            <b class="text-white">2026年</b> GMC通过SK海力士HBM4验证，进入批量供货</div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-white/60 text-xs mt-3">数据来源：公司招股说明书/2025年报/上交所公告 {source_tag("公司公告", CONF_HIGH, verified=True)}</p>
+        ''')
+
+        content += self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">👔 实控人与管理层评估</h3>
+            <p class="text-white/80 text-sm leading-relaxed mb-3">
+                公司实际控制人为<b>韩江龙、成兴明、陶军</b>三人（一致行动人），三人均曾在衡所华威（原汉高华威）工作多年，
+                拥有20余年半导体封装材料行业经验，是典型的<b class="text-purple-300">"技术专家型"创业团队</b>。
+                2024-2025年公司以发行股份+现金方式完成衡所华威100%股权收购（原实控人团队的"老东家"），
+                实现了国内EMC行业"老二+老三"合并，整合协同效应在2026Q1业绩中开始显现。
+            </p>
+            <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead><tr class="text-white/50 border-b border-white/10">
+                    <th class="py-2 px-2 text-left">姓名</th><th class="py-2 px-2 text-left">职务</th>
+                    <th class="py-2 px-2 text-left">持股</th><th class="py-2 px-2 text-left">背景</th>
+                </tr></thead>
+                <tbody>
+                    <tr class="border-b border-white/5"><td class="py-2 font-bold">韩江龙</td><td>董事长/总经理</td><td class="text-purple-300">~13.93%</td><td>行业20+年经验，技术出身</td></tr>
+                    <tr class="border-b border-white/5"><td class="py-2 font-bold">成兴明</td><td>董事/副总</td><td class="text-purple-300">~8.56%</td><td>原衡所华威核心团队</td></tr>
+                    <tr class="border-b border-white/5"><td class="py-2 font-bold">陶军</td><td>董事/副总</td><td class="text-purple-300">~7.56%</td><td>原衡所华威核心团队</td></tr>
+                    <tr class="border-b border-white/5"><td class="py-2 font-bold text-orange-300">华为哈勃</td><td>战略股东</td><td class="text-orange-300">~2.95%</td><td>2020年入股，前十大流通股东</td></tr>
+                    <tr><td class="py-2 font-bold">华天科技</td><td>股东+客户</td><td>减持中</td><td>国内封测TOP3，计划减持2.4%</td></tr>
+                </tbody>
+            </table></div>
+            <p class="text-white/60 text-xs mt-3"><b class="text-yellow-400">管理层评估：</b>技术背景强、产业资源深，并购整合能力正在验证；2025年利润下滑主要因并购摊销+原材料涨价，2026Q1利润改善验证整合初见成效。华为哈勃持股比例较IPO时稀释，但仍是前十大股东。</p>
+        ''')
+
+        content += self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">💼 主营业务构成与客户结构</h3>
+            <div class="grid md:grid-cols-2 gap-4 mb-3">
+                <div>
+                    <h4 class="text-cyan-300 font-bold text-xs mb-2">2025年营收结构</h4>
+                    <div class="space-y-2 text-sm">
+                        <div>
+                            <div class="flex justify-between mb-1"><span class="text-white">环氧塑封料(EMC)</span><span class="text-cyan-300 font-bold">93.52% · 4.28亿(+35.6%)</span></div>
+                            <div class="h-2 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-cyan-500 to-blue-500" style="width:93.5%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1"><span class="text-white">电子胶黏剂(Underfill/LMC等)</span><span class="text-purple-300 font-bold">6.07% · 0.28亿(+94.5%)</span></div>
+                            <div class="h-2 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-purple-500 to-pink-500" style="width:6%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1"><span class="text-white">清润模材料(新品)</span><span class="text-yellow-300 font-bold">0.35% · 160万</span></div>
+                            <div class="h-2 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-yellow-500/60" style="width:1%"></div></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-green-300 font-bold text-xs mb-2">客户结构（2025年）</h4>
+                    <ul class="space-y-1.5 text-sm text-white/75">
+                        <li><b class="text-white">国内封测三巨头：</b>长电科技/通富微电/华天科技</li>
+                        <li><b class="text-white">功率器件：</b>安世半导体/扬杰科技/士兰微/全球TOP5功率厂商</li>
+                        <li><b class="text-white">海外客户(爆发式)：</b>外销同比+52611%！SK海力士/三星/LG/英飞凌（衡所华威）</li>
+                        <li><b class="text-orange-300">华为(哈勃系)：</b>常规EMC批量供麒麟，GMC送样昇腾HBM</li>
+                        <li><b class="text-white">内销占比：</b>97.45%（外销2.55%，快速提升中）</li>
+                    </ul>
+                </div>
+            </div>
+        ''')
+
+        content += self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">📈 近3年核心财务数据</h3>
+            <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead><tr class="text-white/50 border-b border-white/10">
+                    <th class="py-2 px-2 text-left">指标</th>
+                    <th class="py-2 px-2 text-right">2023年</th>
+                    <th class="py-2 px-2 text-right">2024年</th>
+                    <th class="py-2 px-2 text-right">2025年</th>
+                    <th class="py-2 px-2 text-right">2026Q1</th>
+                </tr></thead>
+                <tbody>
+                    <tr class="border-b border-white/5 bg-white/[0.02]"><td class="py-2 font-bold">营业总收入(亿)</td><td class="text-right">3.23</td><td class="text-right">3.32</td><td class="text-right text-yellow-300 font-bold">4.58 (+38.1%)</td><td class="text-right text-green-400 font-bold">2.23 (+165.6%)</td></tr>
+                    <tr class="border-b border-white/5"><td class="py-2 font-bold">归母净利润(亿)</td><td class="text-right">0.46</td><td class="text-right">0.40</td><td class="text-right text-red-400 font-bold">0.24 (-39.5%)</td><td class="text-right text-green-400 font-bold">0.14 (+87.7%)</td></tr>
+                    <tr class="border-b border-white/5 bg-white/[0.02]"><td class="py-2">毛利率</td><td class="text-right">28.7%</td><td class="text-right">25.16%</td><td class="text-right">26.66%</td><td class="text-right text-green-400">28.58% (+3.66pct)</td></tr>
+                    <tr class="border-b border-white/5"><td class="py-2">净利率</td><td class="text-right">14.2%</td><td class="text-right">12.1%</td><td class="text-right text-red-400">5.3%</td><td class="text-right">6.06%</td></tr>
+                    <tr class="border-b border-white/5 bg-white/[0.02]"><td class="py-2">ROE(加权)</td><td class="text-right">9.6%</td><td class="text-right">4.1%</td><td class="text-right text-red-400">1.58%</td><td class="text-right">0.62%</td></tr>
+                    <tr class="border-b border-white/5"><td class="py-2">经营性现金流(亿)</td><td class="text-right">0.15</td><td class="text-right">0.17</td><td class="text-right">-0.28</td><td class="text-right">-0.52</td></tr>
+                    <tr class="border-b border-white/5 bg-white/[0.02]"><td class="py-2">研发费用率</td><td class="text-right">7.6%</td><td class="text-right">7.96%</td><td class="text-right text-blue-400">10.93% (+2.97pct)</td><td class="text-right text-blue-400">11.3%</td></tr>
+                    <tr class="border-b border-white/5"><td class="py-2">EMC销量(吨)</td><td class="text-right">~9000</td><td class="text-right">11942</td><td class="text-right text-purple-300 font-bold">14550</td><td class="text-right">—</td></tr>
+                    <tr class="border-b border-white/5 bg-white/[0.02]"><td class="py-2">总资产(亿)</td><td class="text-right">11.2</td><td class="text-right">14.0</td><td class="text-right text-yellow-300">31.6 (+125%)</td><td class="text-right">30.7</td></tr>
+                    <tr><td class="py-2">资产负债率</td><td class="text-right">14.5%</td><td class="text-right">25.3%</td><td class="text-right">28.6%</td><td class="text-right">28.6%</td></tr>
+                </tbody>
+            </table></div>
+            <div class="mt-3 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                <p class="text-yellow-300 text-xs leading-relaxed">
+                    <b>📊 财务解读：</b>2025年"增收不增利"核心原因：①衡所华威Q4才并表2个月（产生并购费用+摊销）；②铜/钯/环氧树脂等原材料大幅涨价；③研发费用率跳升至10.93%（GMC/Underfill高强度投入）。
+                    2026Q1业绩反转信号明确：毛利率28.58%(+3.66pct)、扣非净利+101%，验证并购协同+EMC涨价传导+产品结构升级。但经营性现金流为负需跟踪改善。
+                </p>
+            </div>
+        ''')
+        return self._section("overview", "一、公司基本面全景：EMC国产龙头的质变之年", "🏢", content)
+
+    def _sec_products(self):
+        content = self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">🧪 环氧塑封料(EMC)：核心基本盘（营收占比93.5%）</h3>
+            <p class="text-white/80 text-sm leading-relaxed mb-3">
+                环氧塑封料(EMC)是半导体封装核心材料，以环氧树脂为基体、酚醛树脂为固化剂，加入硅微粉填料及多种助剂，
+                起到<b class="text-cyan-300">保护芯片、导热散热、绝缘耐压、机械支撑</b>的作用，占封装材料成本30-40%。
+            </p>
+            <div class="grid md:grid-cols-2 gap-3 mb-3">
+                <div class="bg-white/[0.03] p-3 rounded-lg border border-white/10">
+                    <h4 class="text-blue-300 font-bold text-xs mb-2">传统EMC（固体/饼状）</h4>
+                    <ul class="text-xs text-white/70 space-y-1">
+                        <li>• 应用：DIP/TO/SOT/SOP等传统封装</li>
+                        <li>• 单价：30-50元/kg，毛利率20-25%</li>
+                        <li>• 国产化率：已超70%，华海份额国内第一</li>
+                    </ul>
+                </div>
+                <div class="bg-gradient-to-br from-purple-500/10 to-pink-500/10 p-3 rounded-lg border border-purple-500/30">
+                    <h4 class="text-purple-300 font-bold text-xs mb-2">高性能EMC（先进封装）</h4>
+                    <ul class="text-xs text-white/70 space-y-1">
+                        <li>• 应用：QFN/BGA/FC/SiP/FOWLP/FOPLP</li>
+                        <li>• 单价：80-150元/kg，毛利率30-40%</li>
+                        <li>• 国产化率：10-20%，高端<5%（日企垄断）</li>
+                        <li>• 2025年公司高性能EMC占比已近60%</li>
+                    </ul>
+                </div>
+            </div>
+            <h4 class="text-red-400 font-bold text-sm mb-2">🔥 GMC/GPM 颗粒状环氧塑封料（核心弹性产品）</h4>
+            <div class="bg-gradient-to-r from-red-500/10 via-orange-500/10 to-yellow-500/10 p-4 rounded-lg border border-red-500/30 mb-3">
+                <p class="text-white/85 text-sm leading-relaxed mb-2">
+                    <b class="text-red-300">GMC(Granular Molding Compound)</b>即颗粒状环氧塑封料，采用颗粒形态区别于传统饼状，
+                    是<b>HBM 3D堆叠、FOWLP/FOPLP、2.5D/3D先进封装</b>的必需材料，采用MR-MUF(Mass Reflow Molded Underfill)工艺成型。
+                </p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-center text-xs">
+                    <div class="bg-white/5 p-2 rounded"><div class="text-white/50">适配堆叠</div><div class="text-red-300 font-black text-lg">12-16层</div><div class="text-white/50">HBM3E/4</div></div>
+                    <div class="bg-white/5 p-2 rounded"><div class="text-white/50">α射线</div><div class="text-red-300 font-black text-lg">&lt;0.01cph</div><div class="text-white/50">超低软错误</div></div>
+                    <div class="bg-white/5 p-2 rounded"><div class="text-white/50">单价</div><div class="text-red-300 font-black text-lg">300-800/kg</div><div class="text-white/50">传统10倍+</div></div>
+                    <div class="bg-white/5 p-2 rounded"><div class="text-white/50">毛利率</div><div class="text-red-300 font-black text-lg">40-50%+</div><div class="text-white/50">最高毛利产品</div></div>
+                </div>
+                <p class="text-white/70 text-xs mt-2">
+                    <b>全球量产企业：</b>日本住友电木(40%)、Resonac(~20%)、<b class="text-red-300">华海诚科（国内唯一）</b>。
+                    已通过SK海力士HBM4全工艺验证，三星、华为昇腾在验证中。
+                </p>
+            </div>
+            <h4 class="text-white font-bold text-sm mb-2">📊 华海诚科EMC产品矩阵</h4>
+            <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead><tr class="text-white/50 border-b border-white/10">
+                    <th class="py-1.5 px-2 text-left">产品系列</th><th class="py-1.5 px-2 text-left">封装类型</th>
+                    <th class="py-1.5 px-2 text-left">应用领域</th><th class="py-1.5 px-2 text-left">单价(元/kg)</th>
+                    <th class="py-1.5 px-2 text-left">阶段</th>
+                </tr></thead>
+                <tbody>
+                    <tr class="border-b border-white/5"><td>传统EMC</td><td>DIP/SOT/SOP/TO</td><td>消费/家电</td><td>30-50</td><td class="text-green-400">量产(基盘)</td></tr>
+                    <tr class="border-b border-white/5"><td>LQFP/QFN</td><td>LQFP/QFN/DFN</td><td>MCU/电源</td><td>50-80</td><td class="text-green-400">批量销售</td></tr>
+                    <tr class="border-b border-white/5"><td>BGA/FC</td><td>BGA/FC-CSP</td><td>手机AP/基带</td><td>80-120</td><td class="text-yellow-300">小批量</td></tr>
+                    <tr class="border-b border-white/5"><td>GR750X1车规/SiC</td><td>功率模块</td><td>新能源车800V</td><td>100-200</td><td class="text-green-400">TOP5量产</td></tr>
+                    <tr class="border-b border-white/5"><td>GR910存储</td><td>BGA/NAND</td><td>NAND Flash</td><td>100-150</td><td class="text-green-400">长存批量</td></tr>
+                    <tr class="border-b border-red-500/30 bg-red-500/5"><td class="text-red-300 font-bold">GMC颗粒料</td><td class="text-red-300 font-bold">HBM/FOWLP/2.5D/3D</td><td class="text-red-300 font-bold">HBM/Chiplet/AI</td><td class="text-red-300 font-bold">300-800</td><td class="text-red-400 font-bold">2026批量供货</td></tr>
+                </tbody>
+            </table></div>
+        ''')
+
+        content += self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">🔬 底部填充胶(Underfill)：第二增长曲线</h3>
+            <p class="text-white/80 text-sm leading-relaxed mb-3">
+                底部填充胶用于<b>倒装芯片(Flip Chip)</b>场景，填充芯片与基板间隙缓解CTE应力，
+                是HBM堆叠、BGA、Chiplet互连的关键材料。2025年胶黏剂收入2780万(+94.5%)，毛利率31.09%。
+            </p>
+            <div class="grid md:grid-cols-3 gap-2 mb-3">
+                <div class="bg-white/[0.03] p-3 rounded-lg">
+                    <div class="text-blue-300 font-bold text-xs mb-1">CUF 毛细管底填胶</div>
+                    <div class="text-[11px] text-white/60">主流技术，毛细作用填充；Flip Chip/BGA标配</div>
+                </div>
+                <div class="bg-white/[0.03] p-3 rounded-lg">
+                    <div class="text-purple-300 font-bold text-xs mb-1">MUF 塑封底填胶</div>
+                    <div class="text-[11px] text-white/60">塑封+Underfill一体化；HBM/MR-MUF工艺核心</div>
+                </div>
+                <div class="bg-white/[0.03] p-3 rounded-lg">
+                    <div class="text-orange-300 font-bold text-xs mb-1">NCP/NCF 非导电膜</div>
+                    <div class="text-[11px] text-white/60">预涂覆型，用于TCB热压键合</div>
+                </div>
+            </div>
+            <div class="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg mb-3">
+                <p class="text-purple-200 text-sm leading-relaxed">
+                    <b>🔥 HBM堆叠对Underfill增量：</b>12层HBM堆叠需<b>11层Underfill</b>，较传统2D封装<b class="text-red-300">增长10倍+</b>。
+                    HBM4向16层演进，Underfill需求持续扩容。
+                </p>
+            </div>
+            <p class="text-white/70 text-xs">公司与华为联合开发FC底填胶用于昇腾950PR，目前Underfill业务规模尚小（不到3000万）。
+            主要竞争对手：日本Namics、贺利氏、汉高、台湾长春；国内回天新材供应麒麟9020底填胶。</p>
+        ''')
+
+        content += self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">💎 其他产品与在研管线/产能规划</h3>
+            <div class="grid md:grid-cols-2 gap-3 mb-3">
+                <div>
+                    <h4 class="text-cyan-300 text-xs font-bold mb-2">已量产/小批量</h4>
+                    <ul class="text-xs text-white/75 space-y-1.5">
+                        <li><b>液态塑封料(LMC)</b>：晶圆级封装WLP/CSP</li>
+                        <li><b>芯片粘接膜(DAF)</b>：堆叠芯片粘接，HBM/3D NAND</li>
+                        <li><b>SiC/GaN封装料GR750X1</b>：全球TOP5功率厂认证</li>
+                        <li><b>新能源车800V平台</b>：电机转子注塑EMC放量</li>
+                        <li><b>GR910 NAND Flash</b>：长存批量供货</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-red-300 text-xs font-bold mb-2">在研管线（2026-2028放量）</h4>
+                    <ul class="text-xs text-white/75 space-y-1.5">
+                        <li><b>HBM4专用GMC升级</b>：适配16层，导热>8W/m·K</li>
+                        <li><b>HBM底填胶(MUF)</b>：MR-MUF一体化成型</li>
+                        <li><b>玻璃基板封装料</b>：应对Intel/三星路线</li>
+                        <li><b>FC-BGA高端EMC</b>：CPU/GPU大尺寸封装</li>
+                        <li><b>混合键合专用料</b>：3D Stack SoC</li>
+                    </ul>
+                </div>
+            </div>
+            <h4 class="text-white font-bold text-sm mt-3 mb-2">🏭 产能规划</h4>
+            <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead><tr class="text-white/50 border-b border-white/10">
+                    <th class="py-1.5 px-2 text-left">项目</th><th class="py-1.5 px-2 text-right">现有产能</th>
+                    <th class="py-1.5 px-2 text-right">规划</th><th class="py-1.5 px-2 text-left">投产</th>
+                </tr></thead>
+                <tbody>
+                    <tr class="border-b border-white/5"><td>连云港本部</td><td class="text-right">1万吨/年</td><td class="text-right">—</td><td>已投产</td></tr>
+                    <tr class="border-b border-white/5"><td>衡所华威</td><td class="text-right">1.5万吨/年</td><td class="text-right">—</td><td>已并表</td></tr>
+                    <tr class="border-b border-white/5 bg-green-500/5"><td>GMC一期</td><td class="text-right">2000吨</td><td class="text-right text-green-400">→5000吨</td><td class="text-green-400">2026年内</td></tr>
+                    <tr class="border-b border-white/5 bg-yellow-500/5"><td>先进封装产线</td><td class="text-right">—</td><td class="text-right">+5000吨</td><td>2026-2027</td></tr>
+                    <tr class="border-b border-white/5 bg-yellow-500/5"><td>车规级产线</td><td class="text-right">—</td><td class="text-right">+5000吨</td><td>2026-2027</td></tr>
+                    <tr class="border-b border-white/5 bg-red-500/5"><td class="text-red-300 font-bold">GMC长期规划</td><td class="text-right">2000吨</td><td class="text-right text-red-300 font-bold">→2万吨</td><td class="text-red-300">2028+</td></tr>
+                </tbody>
+            </table></div>
+        ''')
+        return self._section("products", "二、核心产品线深度拆解：GMC是最大弹性", "🧪", content)
+
+    def _sec_opportunity(self):
+        content = self._glass_card(f'''
+            <h3 class="text-red-400 font-bold text-base mb-3">🚀 HBM封装材料：AI算力最紧缺上游</h3>
+            <div class="bg-gradient-to-r from-red-500/20 via-orange-500/20 to-yellow-500/20 p-4 rounded-xl border border-red-500/40 mb-4">
+                <p class="text-white/90 text-sm leading-relaxed">
+                    <b class="text-red-300">核心逻辑：</b>HBM是AI GPU的"内存心脏"，2026年全球HBM产能缺口超30%。
+                    HBM 3D堆叠必须使用<b>专用GMC+Underfill</b>，该赛道长期被日本住友/Resonac垄断（国产化率<5%），
+                    华海诚科是<b class="text-red-300 text-lg">国内唯一、全球仅三家能量产HBM级GMC</b>的企业，
+                    卡位AI算力最上游"卡脖子"材料。
+                </p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-3 mb-3">
+                <div class="bg-white/[0.04] p-3 rounded-lg text-center">
+                    <div class="text-white/50 text-xs mb-1">HBM3E堆叠</div>
+                    <div class="text-3xl font-black text-red-400">12层</div>
+                    <div class="text-white/50 text-[10px]">需11层Underfill+GMC</div>
+                </div>
+                <div class="bg-white/[0.04] p-3 rounded-lg text-center border border-purple-500/30">
+                    <div class="text-white/50 text-xs mb-1">HBM4堆叠</div>
+                    <div class="text-3xl font-black text-purple-400">16层</div>
+                    <div class="text-white/50 text-[10px]">华海已通过SK海力士验证</div>
+                </div>
+                <div class="bg-white/[0.04] p-3 rounded-lg text-center">
+                    <div class="text-white/50 text-xs mb-1">单GB200服务器</div>
+                    <div class="text-3xl font-black text-yellow-400">~1900元</div>
+                    <div class="text-white/50 text-[10px]">GMC+Underfill+EMC</div>
+                </div>
+            </div>
+            <h4 class="text-white font-bold text-sm mb-2">💰 AI服务器EMC/Underfill价值量测算</h4>
+            <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead><tr class="text-white/50 border-b border-white/10">
+                    <th class="py-1.5 px-2 text-left">AI服务器</th><th class="py-1.5 px-2 text-right">HBM数</th>
+                    <th class="py-1.5 px-2 text-right">GMC</th><th class="py-1.5 px-2 text-right">Underfill</th>
+                    <th class="py-1.5 px-2 text-right">其他EMC</th><th class="py-1.5 px-2 text-right">合计</th>
+                </tr></thead>
+                <tbody>
+                    <tr class="border-b border-white/5"><td>H100(5颗)</td><td class="text-right">5</td><td class="text-right">~7.5元</td><td class="text-right">~30元</td><td class="text-right">~200元</td><td class="text-yellow-300 font-bold">~240元</td></tr>
+                    <tr class="border-b border-white/5"><td>H200(6颗)</td><td class="text-right">6</td><td class="text-right">~12元</td><td class="text-right">~50元</td><td class="text-right">~250元</td><td class="text-yellow-300 font-bold">~310元</td></tr>
+                    <tr class="border-b border-white/5 bg-orange-500/5"><td>GB200(72颗)</td><td class="text-right">72</td><td class="text-right text-orange-300 font-bold">~216元</td><td class="text-right text-orange-300 font-bold">~900元</td><td class="text-right">~800元</td><td class="text-orange-400 font-bold">~1900元</td></tr>
+                    <tr class="border-b border-white/5 bg-red-500/10"><td class="text-red-300 font-bold">Rubin(144颗)</td><td class="text-right text-red-300">144</td><td class="text-right text-red-300 font-bold">~576元</td><td class="text-right text-red-300 font-bold">~2400元</td><td class="text-right text-red-300">~1200元</td><td class="text-red-400 font-black">~4200元</td></tr>
+                </tbody>
+            </table></div>
+            <p class="text-white/60 text-xs mt-2">测算：2026年全球AI服务器约400万台，GB200/Rubin级高端服务器80-100万台，GMC+Underfill市场空间<b class="text-yellow-300">20-40亿元</b>，远期GMC全球市场<b class="text-red-300">50-80亿/年</b>。{source_tag("TrendForce/产业调研", CONF_MEDIUM)}</p>
+        ''')
+
+        content += self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">🌐 核心客户供应链卡位</h3>
+            <div class="grid md:grid-cols-2 gap-3">
+                <div class="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 p-4 rounded-lg border border-blue-500/30">
+                    <h4 class="text-blue-300 font-bold text-sm mb-2">🇰🇷 SK海力士（最高确定性）</h4>
+                    <ul class="text-xs text-white/75 space-y-1">
+                        <li>• GMC已通过<b>HBM4全工艺验证</b></li>
+                        <li>• 进入实质性批量供货阶段</li>
+                        <li>• 借助衡所华威韩国子公司Hysol本地化</li>
+                        <li>• SK海力士HBM产能翻倍→年均3-5亿订单</li>
+                    </ul>
+                </div>
+                <div class="bg-gradient-to-br from-purple-500/10 to-pink-500/10 p-4 rounded-lg border border-purple-500/30">
+                    <h4 class="text-purple-300 font-bold text-sm mb-2">🇨🇳 华为昇腾/麒麟（最强β）</h4>
+                    <ul class="text-xs text-white/75 space-y-1">
+                        <li>• 哈勃战略持股~2.95%，深度绑定</li>
+                        <li>• 常规EMC已<b>批量供应麒麟芯片</b></li>
+                        <li>• GMC在昇腾950PR自研HBM<b>送样测试中</b></li>
+                        <li>• 网传3年框架协议、2026年订单超6亿</li>
+                    </ul>
+                </div>
+                <div class="bg-white/[0.04] p-4 rounded-lg border border-white/10">
+                    <h4 class="text-yellow-300 font-bold text-sm mb-2">🇰🇷 三星电子</h4>
+                    <ul class="text-xs text-white/75 space-y-1">
+                        <li>• GMC同步通过三星认证</li>
+                        <li>• 三星HBM3E/4产能2026翻倍</li>
+                    </ul>
+                </div>
+                <div class="bg-white/[0.04] p-4 rounded-lg border border-white/10">
+                    <h4 class="text-green-300 font-bold text-sm mb-2">🇨🇳 长存/长鑫</h4>
+                    <ul class="text-xs text-white/75 space-y-1">
+                        <li>• GR910 NAND Flash已在长存批量</li>
+                        <li>• 长鑫DRAM封装料验证中</li>
+                    </ul>
+                </div>
+                <div class="bg-white/[0.04] p-4 rounded-lg border border-white/10 md:col-span-2">
+                    <h4 class="text-cyan-300 font-bold text-sm mb-2">🖥️ 英伟达GB200/Rubin（间接受益）</h4>
+                    <p class="text-xs text-white/75">目前<b>未直接供应英伟达</b>，但通过SK海力士HBM模组间接进入GB200/Rubin供应链。
+                    SK海力士是英伟达HBM主力供应商(HBM3E~50%、HBM4主力)，华海GMC经SK海力士→HBM→英伟达形成间接供应。</p>
+                </div>
+            </div>
+        ''')
+
+        content += self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">🗾 日系垄断格局与国产替代空间</h3>
+            <p class="text-white/80 text-sm leading-relaxed mb-3">
+                全球EMC市场日系占<b class="text-red-300">80%+</b>：住友电木~40%、Resonac~20%、长濑~10%、京瓷~8%、日东~5%。
+                GMC/HBM领域住友+Resonac合计占90%+。
+            </p>
+            <div class="overflow-x-auto mb-3">
+            <table class="w-full text-xs">
+                <thead><tr class="text-white/50 border-b border-white/10">
+                    <th class="py-1.5 px-2 text-left">企业</th><th class="py-1.5 px-2 text-left">国别</th>
+                    <th class="py-1.5 px-2 text-right">EMC份额</th><th class="py-1.5 px-2 text-left">HBM GMC</th>
+                </tr></thead>
+                <tbody>
+                    <tr class="border-b border-white/5 bg-red-500/5"><td class="text-red-300 font-bold">住友电木</td><td>日本</td><td class="text-right font-bold text-red-300">~40%</td><td>✅ 全球第一</td></tr>
+                    <tr class="border-b border-white/5"><td>Resonac</td><td>日本</td><td class="text-right">~20%</td><td>✅ HBM量产中</td></tr>
+                    <tr class="border-b border-white/5"><td>长濑/京瓷/日东</td><td>日本</td><td class="text-right">~23%</td><td>⚠️ 部分/侧重</td></tr>
+                    <tr class="border-b border-white/5"><td>恒坤新材</td><td>中国</td><td class="text-right">~3%</td><td class="text-yellow-300">⚠️ 研发中</td></tr>
+                    <tr class="border-b border-white/5 bg-green-500/10"><td class="text-green-300 font-bold">华海诚科</td><td>中国</td><td class="text-right font-bold text-green-300">~7%</td><td class="text-green-400 font-bold">✅ 国内唯一量产</td></tr>
+                </tbody>
+            </table></div>
+            <div class="p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                <p class="text-green-300 text-sm font-bold mb-1">🎯 国产替代三重驱动</p>
+                <ol class="text-xs text-white/75 space-y-1 list-decimal list-inside">
+                    <li><b>价格优势：</b>国产GMC较日系低30-50%</li>
+                    <li><b>住友涨价：</b>2026年6月起全系列涨价10-20%</li>
+                    <li><b>供应链安全：</b>华为/长存/长鑫/中芯系强制国产化</li>
+                </ol>
+            </div>
+        ''')
+        return self._section("opportunity", "三、先进封装浪潮下的核心机遇：HBM材料卡位最硬赛道", "🚀", content)
+
+    def _sec_competition(self):
+        content = self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">⚔️ 国内竞争格局与技术壁垒</h3>
+            <div class="overflow-x-auto mb-3">
+            <table class="w-full text-xs">
+                <thead><tr class="text-white/50 border-b border-white/10">
+                    <th class="py-1.5 px-2 text-left">公司</th><th class="py-1.5 px-2 text-left">产品</th>
+                    <th class="py-1.5 px-2 text-left">与华海关系</th><th class="py-1.5 px-2 text-left">威胁</th>
+                </tr></thead>
+                <tbody>
+                    <tr class="border-b border-white/5 bg-white/[0.02]"><td class="font-bold">恒坤新材</td><td>EMC/GMC在研</td><td>最直接竞品</td><td class="text-yellow-300">⭐⭐⭐</td></tr>
+                    <tr class="border-b border-white/5"><td>联瑞新材 688300</td><td>球形硅微粉(上游)</td><td>上游供应商</td><td class="text-green-400">⭐ 间接</td></tr>
+                    <tr class="border-b border-white/5"><td>圣泉集团 605589</td><td>环氧树脂(上游)</td><td>上游供应商</td><td class="text-green-400">⭐ 间接</td></tr>
+                    <tr class="border-b border-white/5"><td>壹石通 688733</td><td>Low-α球硅(上游)</td><td>上游供应商</td><td class="text-green-400">⭐ 间接</td></tr>
+                    <tr class="border-b border-white/5"><td>回天新材 300041</td><td>Underfill(麒麟独家)</td><td>胶黏剂竞品</td><td class="text-yellow-300">⭐⭐</td></tr>
+                    <tr class="border-b border-white/5"><td>德邦科技 688035</td><td>DAF/Underfill</td><td>胶黏剂竞品</td><td class="text-yellow-300">⭐⭐</td></tr>
+                    <tr class="border-b border-yellow-500/30 bg-yellow-500/5"><td class="text-yellow-300 font-bold">华海诚科 688535</td><td class="text-yellow-200 font-bold">EMC全系列+GMC唯一量产</td><td class="text-yellow-300 font-bold">—</td><td class="text-yellow-300 font-bold">国内EMC/HBM龙头</td></tr>
+                </tbody>
+            </table></div>
+            <h4 class="text-white font-bold text-sm mb-2">🧱 四大核心壁垒</h4>
+            <div class="grid md:grid-cols-2 gap-3">
+                <div class="bg-white/[0.03] p-3 rounded-lg">
+                    <h5 class="text-cyan-300 text-xs font-bold mb-1">① 配方Know-how</h5>
+                    <p class="text-[11px] text-white/70">EMC由30+种原材料复配，需在10+项指标间平衡，"黑箱配方"无法逆向。华海15年+衡所30年沉淀。</p>
+                </div>
+                <div class="bg-white/[0.03] p-3 rounded-lg">
+                    <h5 class="text-cyan-300 text-xs font-bold mb-1">② 客户认证壁垒</h5>
+                    <p class="text-[11px] text-white/70">半导体材料认证<b class="text-red-300">18-36个月</b>，HBM级更长达3-5年；进入后替换成本极高。</p>
+                </div>
+                <div class="bg-white/[0.03] p-3 rounded-lg">
+                    <h5 class="text-cyan-300 text-xs font-bold mb-1">③ 低α射线技术</h5>
+                    <p class="text-[11px] text-white/70">GMC要求α射线&lt;0.01cph/cm²，需从原材料提纯到生产全链条控制。</p>
+                </div>
+                <div class="bg-white/[0.03] p-3 rounded-lg">
+                    <h5 class="text-cyan-300 text-xs font-bold mb-1">④ 规模+客户协同</h5>
+                    <p class="text-[11px] text-white/70">并购后2.5万吨产能全球第二，衡所海外客户+Hysol韩国子公司协同。</p>
+                </div>
+            </div>
+        ''')
+
+        content += self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">🆚 与持仓股雅克科技(002409)对比</h3>
+            <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead><tr class="text-white/50 border-b border-white/10">
+                    <th class="py-1.5 px-2 text-left">对比维度</th><th class="py-1.5 px-2 text-left">华海诚科(688535)</th>
+                    <th class="py-1.5 px-2 text-left">雅克科技(002409)⭐</th>
+                </tr></thead>
+                <tbody>
+                    <tr class="border-b border-white/5"><td class="font-bold">核心产品</td><td>GMC颗粒料+EMC+Underfill</td><td>HBM前驱体+SOD+LNG保温板</td></tr>
+                    <tr class="border-b border-white/5 bg-yellow-500/5"><td class="font-bold">HBM环节</td><td class="text-yellow-300">后端封装(包封+底填)</td><td class="text-yellow-300">前端制造(沉积前驱体)</td></tr>
+                    <tr class="border-b border-white/5"><td class="font-bold">HBM客户</td><td>SK海力士/三星/华为</td><td>SK海力士/三星/美光</td></tr>
+                    <tr class="border-b border-white/5"><td class="font-bold">2025营收</td><td>4.58亿</td><td>~52亿</td></tr>
+                    <tr class="border-b border-white/5"><td class="font-bold">市值(7/6)</td><td>232亿</td><td>~700亿</td></tr>
+                    <tr class="border-b border-white/5"><td class="font-bold">PE(TTM)</td><td>761倍</td><td>~90倍</td></tr>
+                    <tr class="border-b border-white/5"><td class="font-bold">业绩弹性</td><td class="text-red-400">极高(0→1爆发期)</td><td class="text-yellow-300">中高(1→10成长期)</td></tr>
+                    <tr class="border-b border-white/5"><td class="font-bold">确定性</td><td>中(待验证)</td><td class="text-green-400">高(已大规模供货)</td></tr>
+                    <tr class="border-b border-green-500/20 bg-green-500/5"><td class="font-bold text-green-300">配置关系</td><td colspan="2" class="text-green-200"><b>互补而非重叠</b>：雅克(HBM前驱体，确定性高，核心持仓) + 华海(HBM封装材料，弹性高，观察仓)。两者客户重叠、受益逻辑一致，但环节不同，构建HBM材料<b>"前驱体+封装"双龙头</b>。</td></tr>
+                </tbody>
+            </table></div>
+        ''')
+        return self._section("competition", "四、竞争格局与壁垒分析：国内独苗+全球三强", "⚔️", content)
+
+    def _sec_forecast(self):
+        content = self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">📊 2025-2028年业绩预测（分产品）</h3>
+            <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead><tr class="text-white/50 border-b border-white/10">
+                    <th class="py-1.5 px-2 text-left">业务线(亿元)</th><th class="py-1.5 px-2 text-right">2025</th>
+                    <th class="py-1.5 px-2 text-right">2026E</th><th class="py-1.5 px-2 text-right">2027E</th>
+                    <th class="py-1.5 px-2 text-right">2028E</th>
+                </tr></thead>
+                <tbody>
+                    <tr class="border-b border-white/5"><td>传统/高性能EMC</td><td class="text-right">4.28</td><td class="text-right">7.5</td><td class="text-right">9.0</td><td class="text-right">10.5</td></tr>
+                    <tr class="border-b border-white/5 bg-red-500/5"><td class="font-bold text-red-300">GMC颗粒料(核心)</td><td class="text-right text-red-400">~0.05</td><td class="text-right text-red-400 font-bold">1.2</td><td class="text-right text-red-400 font-bold">3.5</td><td class="text-right text-red-400 font-bold">6.0</td></tr>
+                    <tr class="border-b border-white/5"><td>Underfill/胶黏剂</td><td class="text-right">0.28</td><td class="text-right">0.7</td><td class="text-right">1.3</td><td class="text-right">2.0</td></tr>
+                    <tr class="border-b border-white/5"><td>其他(LMC/DAF等)</td><td class="text-right">0.02</td><td class="text-right">0.3</td><td class="text-right">0.7</td><td class="text-right">1.2</td></tr>
+                    <tr class="border-b border-yellow-500/30 bg-yellow-500/5"><td class="font-bold text-yellow-300">合计营收</td><td class="text-right">4.58</td><td class="text-right font-bold text-yellow-300">9.7</td><td class="text-right font-bold text-yellow-300">14.5</td><td class="text-right font-bold text-yellow-300">19.7</td></tr>
+                    <tr class="border-b border-white/5 bg-white/[0.02]"><td>综合毛利率</td><td class="text-right">26.66%</td><td class="text-right text-green-400">31%</td><td class="text-right text-green-400">34%</td><td class="text-right text-green-400">36%</td></tr>
+                    <tr class="border-b border-white/5"><td class="font-bold">归母净利润(亿)</td><td class="text-right">0.24</td><td class="text-right text-green-400 font-bold">1.1</td><td class="text-right text-green-400 font-bold">2.3</td><td class="text-right text-green-400 font-bold">3.8</td></tr>
+                    <tr class="border-b border-white/5 bg-white/[0.02]"><td>EPS(元)</td><td class="text-right">0.25</td><td class="text-right">0.77</td><td class="text-right">1.60</td><td class="text-right">2.65</td></tr>
+                    <tr><td>YoY</td><td class="text-right">-39.5%</td><td class="text-right text-red-400 font-bold">+354%</td><td class="text-right text-red-400 font-bold">+109%</td><td class="text-right text-red-400 font-bold">+65%</td></tr>
+                </tbody>
+            </table></div>
+        ''')
+
+        content += self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">🎭 三种情景分析</h3>
+            <div class="grid md:grid-cols-3 gap-3 mb-3">
+                <div class="bg-green-500/10 p-4 rounded-lg border border-green-500/30">
+                    <h4 class="text-green-300 font-bold text-sm mb-2">🟢 乐观</h4>
+                    <ul class="text-xs text-white/75 space-y-1">
+                        <li>• GMC良率95%+</li>
+                        <li>• SK+三星+华为均超预期</li>
+                        <li>• 涨价传导顺畅</li>
+                        <li>• <b>2026E: 1.5亿</b>(+520%)</li>
+                        <li>• <b>2027E: 3.2亿</b>(+113%)</li>
+                    </ul>
+                </div>
+                <div class="bg-white/[0.04] p-4 rounded-lg border border-white/20">
+                    <h4 class="text-yellow-300 font-bold text-sm mb-2">🟡 中性</h4>
+                    <ul class="text-xs text-white/75 space-y-1">
+                        <li>• GMC良率85%</li>
+                        <li>• SK海力士批量+华为小批量</li>
+                        <li>• 涨价部分传导</li>
+                        <li>• <b>2026E: 1.1亿</b>(+354%)</li>
+                        <li>• <b>2027E: 2.3亿</b>(+109%)</li>
+                    </ul>
+                </div>
+                <div class="bg-red-500/10 p-4 rounded-lg border border-red-500/30">
+                    <h4 class="text-red-300 font-bold text-sm mb-2">🔴 悲观</h4>
+                    <ul class="text-xs text-white/75 space-y-1">
+                        <li>• GMC良率不达预期</li>
+                        <li>• 仅SK海力士小批量</li>
+                        <li>• 日企降价竞争</li>
+                        <li>• <b>2026E: 0.6亿</b>(+148%)</li>
+                        <li>• <b>2027E: 1.0亿</b>(+67%)</li>
+                    </ul>
+                </div>
+            </div>
+            <h4 class="text-white font-bold text-sm mb-2">📐 敏感性分析（2027净利）</h4>
+            <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead><tr class="text-white/50 border-b border-white/10">
+                    <th class="py-1.5 px-2 text-left">变量</th><th class="py-1.5 px-2 text-left">基准</th>
+                    <th class="py-1.5 px-2 text-right">变化</th><th class="py-1.5 px-2 text-right">净利影响</th>
+                </tr></thead>
+                <tbody>
+                    <tr class="border-b border-white/5"><td>GMC良率</td><td>85%</td><td class="text-right">±10pct</td><td class="text-right">∓0.4亿(∓17%)</td></tr>
+                    <tr class="border-b border-white/5"><td>GMC ASP</td><td>500元/kg</td><td class="text-right">±50元</td><td class="text-right">±0.35亿(±15%)</td></tr>
+                    <tr class="border-b border-white/5"><td>华为GMC订单</td><td>2亿/年</td><td class="text-right">±1亿</td><td class="text-right">±0.4亿(±17%)</td></tr>
+                    <tr class="border-b border-white/5"><td>传统EMC毛利率</td><td>27%</td><td class="text-right">±2pct</td><td class="text-right">±0.14亿(±6%)</td></tr>
+                    <tr><td>期间费用率</td><td>20%</td><td class="text-right">±2pct</td><td class="text-right">∓0.29亿(∓13%)</td></tr>
+                </tbody>
+            </table></div>
+        ''')
+        return self._section("forecast", "五、业绩弹性测算：2026-2027年GMC爆发期", "📊", content)
+
+    def _sec_valuation(self):
+        content = self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">💰 当前估值水平</h3>
+            {self._kpi_grid([
+                ("收盘价(7/6)", "162.29", "text-white", "+1.14%"),
+                ("总市值", "232.5亿", "text-yellow-400", "流通216.7亿"),
+                ("PE(TTM)", "761倍", "text-red-400", "极高"),
+                ("PE(2026E)", "211倍", "text-orange-400", "按1.1亿净利"),
+                ("PE(2027E)", "101倍", "text-yellow-400", "按2.3亿净利"),
+                ("PE(2028E)", "61倍", "text-green-400", "按3.8亿净利"),
+                ("PB", "10.6倍", "text-orange-400", "半导体材料高位"),
+                ("52周高/低", "200/51.9", "text-purple-400", "年初+41%"),
+            ])}
+        ''')
+
+        content += self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">🆚 可比公司估值对比</h3>
+            <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead><tr class="text-white/50 border-b border-white/10">
+                    <th class="py-1.5 px-2 text-left">公司</th><th class="py-1.5 px-2 text-left">领域</th>
+                    <th class="py-1.5 px-2 text-right">市值(亿)</th><th class="py-1.5 px-2 text-right">PE(TTM)</th>
+                    <th class="py-1.5 px-2 text-right">PE(2026E)</th>
+                </tr></thead>
+                <tbody>
+                    <tr class="border-b border-white/5 bg-yellow-500/5"><td class="font-bold text-yellow-300">华海诚科</td><td>EMC/GMC</td><td class="text-right">232</td><td class="text-right text-red-400">761</td><td class="text-right">211</td></tr>
+                    <tr class="border-b border-white/5"><td>雅克科技⭐</td><td>HBM前驱体</td><td class="text-right">~700</td><td class="text-right">~90</td><td class="text-right">~60</td></tr>
+                    <tr class="border-b border-white/5"><td>联瑞新材</td><td>球形硅微粉</td><td class="text-right">~200</td><td class="text-right">~45</td><td class="text-right">~32</td></tr>
+                    <tr class="border-b border-white/5"><td>安集科技</td><td>CMP抛光液</td><td class="text-right">~300</td><td class="text-right">~60</td><td class="text-right">~42</td></tr>
+                    <tr class="border-b border-white/5"><td>江丰电子</td><td>靶材</td><td class="text-right">~270</td><td class="text-right">~80</td><td class="text-right">~50</td></tr>
+                    <tr class="border-b border-red-500/20 bg-red-500/5"><td class="text-red-300 font-bold">半导体材料均值</td><td>—</td><td class="text-right">—</td><td class="text-right">~90-120</td><td class="text-right text-red-300 font-bold">~50-65</td></tr>
+                </tbody>
+            </table></div>
+            <div class="mt-3 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                <p class="text-red-300 text-xs"><b>⚠️ 估值评估：</b>当前PE(TTM)761/PE(2026E)211均<b>显著高于</b>半导体材料平均(50-65倍)，
+                即使2027E PE 101倍也高于均值，反映"HBM独苗"稀缺性充分定价，<b>安全边际较薄</b>。</p>
+            </div>
+        ''')
+
+        content += self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">🎯 合理估值与目标价</h3>
+            <div class="grid md:grid-cols-2 gap-4 mb-3">
+                <div>
+                    <h4 class="text-cyan-300 text-sm font-bold mb-2">PE估值法</h4>
+                    <ul class="text-xs text-white/75 space-y-1">
+                        <li>• 中性2027E 2.3亿 × PE 80-100 = <b class="text-yellow-300">184-230亿</b></li>
+                        <li>• 乐观2027E 3.2亿 × PE 80-100 = <b class="text-green-300">256-320亿</b></li>
+                        <li>• 悲观2027E 1.0亿 × PE 60 = <b class="text-red-300">60亿</b></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-cyan-300 text-sm font-bold mb-2">PEG/DCF辅助</h4>
+                    <ul class="text-xs text-white/75 space-y-1">
+                        <li>• 2026-2028 CAGR ~150%，PEG=1.5 → <b class="text-yellow-300">248亿</b></li>
+                        <li>• DCF(WACC=10%, g=3%) → <b class="text-yellow-300">200-260亿</b></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="p-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-500/40">
+                <h4 class="text-white font-bold text-sm mb-2">📈 目标价空间</h4>
+                <div class="grid grid-cols-3 gap-3 text-center">
+                    <div class="p-2 bg-white/5 rounded">
+                        <div class="text-white/50 text-xs">短期(3-6月)</div>
+                        <div class="text-xl font-black text-yellow-400">180-200元</div>
+                        <div class="text-[10px] text-white/50">+11%~+23%</div>
+                    </div>
+                    <div class="p-2 bg-white/5 rounded border border-orange-500/30">
+                        <div class="text-white/50 text-xs">中期(12月)</div>
+                        <div class="text-xl font-black text-orange-400">220-260元</div>
+                        <div class="text-[10px] text-white/50">+36%~+60%</div>
+                    </div>
+                    <div class="p-2 bg-white/5 rounded">
+                        <div class="text-white/50 text-xs">长期(2028)</div>
+                        <div class="text-xl font-black text-green-400">280-350元</div>
+                        <div class="text-[10px] text-white/50">+72%~+116%</div>
+                    </div>
+                </div>
+                <p class="text-white/70 text-xs mt-2 text-center">⚠️ 当前162元接近估值上沿，需等回调至<b class="text-green-300">130-140元</b>才有足够安全边际。</p>
+            </div>
+        ''')
+        return self._section("valuation", "六、估值与定价：估值偏高，需等业绩验证或回调", "💰", content)
+
+    def _sec_catalyst(self):
+        content = self._glass_card(f'''
+            <h3 class="text-green-400 font-bold text-base mb-3">⚡ 近期催化剂</h3>
+            <div class="space-y-3">
+                <div class="flex gap-3 items-start">
+                    <div class="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded flex-shrink-0 mt-0.5">7/15前后</div>
+                    <div><b class="text-white text-sm">中报业绩预告（最关键）</b>
+                        <p class="text-white/60 text-xs mt-0.5">预期H1净利4000-6000万(+200%+)，超6000万确认GMC放量；低于2500万证伪。</p></div>
+                </div>
+                <div class="flex gap-3 items-start">
+                    <div class="bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded flex-shrink-0 mt-0.5">7-8月</div>
+                    <div><b class="text-white text-sm">GMC/Underfill大客户认证</b>
+                        <p class="text-white/60 text-xs mt-0.5">华为昇腾HBM认证、三星HBM4准入、MUF底填胶SK认证。</p></div>
+                </div>
+                <div class="flex gap-3 items-start">
+                    <div class="bg-yellow-500 text-white text-[10px] font-bold px-2 py-1 rounded flex-shrink-0 mt-0.5">Q3</div>
+                    <div><b class="text-white text-sm">GMC新产能5000吨投产</b>
+                        <p class="text-white/60 text-xs mt-0.5">连云港GMC新产能Q3投产，爬坡进度决定全年业绩。</p></div>
+                </div>
+                <div class="flex gap-3 items-start">
+                    <div class="bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded flex-shrink-0 mt-0.5">Q3</div>
+                    <div><b class="text-white text-sm">住友涨价传导</b>
+                        <p class="text-white/60 text-xs mt-0.5">6月起住友EMC涨10-20%，Q3看国产跟价情况。</p></div>
+                </div>
+                <div class="flex gap-3 items-start">
+                    <div class="bg-purple-500 text-white text-[10px] font-bold px-2 py-1 rounded flex-shrink-0 mt-0.5">Q3-Q4</div>
+                    <div><b class="text-white text-sm">定增募资扩产</b>
+                        <p class="text-white/60 text-xs mt-0.5">市场预期30亿级别定增加码GMC，定增价格将成重要锚。</p></div>
+                </div>
+                <div class="flex gap-3 items-start">
+                    <div class="bg-pink-500 text-white text-[10px] font-bold px-2 py-1 rounded flex-shrink-0 mt-0.5">持续</div>
+                    <div><b class="text-white text-sm">国产替代政策</b>
+                        <p class="text-white/60 text-xs mt-0.5">大基金三期3440亿+美国HBM出口管制催化国产化。</p></div>
+                </div>
+            </div>
+        ''')
+
+        content += self._risk_section(
+            title="🔴 核心风险（空方视角）",
+            falsify_signals=[
+                "中报H1净利低于2500万元（GMC证伪）",
+                "GMC良率长期低于80%，无法规模供应",
+                "华为HBM GMC认证未通过或订单大幅低于预期",
+                "股价放量跌破120元关键支撑",
+                "住友/Resonac降价30%以上打价格战",
+                "AI Capex下修/HBM需求不及预期",
+            ],
+            stop_loss="120元（跌破无条件离场，-26%风控）",
+            bear_logic=[
+                "估值泡沫：TTM 761倍，即使2027兑现仍100倍PE，容错率极低",
+                "盈利质量差：2025净利-39%，经营现金流为负，并购摊销持续到2027",
+                "大股东减持：华天科技/德裕丰/杨森茂合计减持约800万股持续抛压",
+                "竞争加剧：日企可能降价压制国产，国内恒坤新材等加速GMC研发",
+                "认证不确定：SK海力士虽通过验证但批量规模存疑，华为GMC未官方确认",
+                "并购整合风险：衡所华威整合节奏、商誉减值、韩国子公司管控",
+                "可转债转股+转增摊薄EPS：总股本持续扩大",
+                "技术路线风险：混合键合若成主流可能替代MR-MUF，长期影响GMC需求",
+            ],
+            contrarian_view="空方认为：华海'HBM独苗'被过度神化，HBM相关收入目前仅百万级对200多亿市值支撑薄弱。"
+                            "华为哈勃持股已从4%稀释至2.95%；股价200元时市值已超过产品成熟期合理估值。"
+                            "参考历史半导体材料股从'概念'到'业绩兑现'往往经历3-5年估值消化期，当前处于'纯概念炒作→业绩证伪'关键窗口，"
+                            "中报不及预期可能戴维斯双杀，下看80-100元。"
+        )
+        return self._section("catalyst", "七、催化与风险：中报是短期胜负手", "⚡", content)
+
+    def _sec_capital(self):
+        content = self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">🏦 机构持仓与资金面</h3>
+            <div class="grid md:grid-cols-2 gap-4 mb-3">
+                <div>
+                    <h4 class="text-cyan-300 text-xs font-bold mb-2">前十大流通股东(2026Q1)</h4>
+                    <table class="w-full text-[11px]">
+                        <thead><tr class="text-white/40 border-b border-white/5">
+                            <th class="py-1 text-left">股东</th><th class="py-1 text-right">持股(万)</th><th class="py-1 text-right">占比</th>
+                        </tr></thead>
+                        <tbody>
+                            <tr class="border-b border-white/5"><td>杨森茂(个人)</td><td class="text-right">296.9(-102)</td><td class="text-right">5.66%</td></tr>
+                            <tr class="border-b border-white/5"><td>华天科技(减持中)</td><td class="text-right">229.8(-32)</td><td class="text-right">4.38%</td></tr>
+                            <tr class="border-b border-white/5"><td>孙慧明(新进)</td><td class="text-right">201.0</td><td class="text-right">3.83%</td></tr>
+                            <tr class="border-b border-white/5"><td>国泰半导体ETF(+55)</td><td class="text-right text-green-400">109.2</td><td class="text-right">2.08%</td></tr>
+                            <tr class="border-b border-white/5"><td>华夏科创板半导体ETF(+50)</td><td class="text-right text-green-400">95.8</td><td class="text-right">1.83%</td></tr>
+                            <tr class="border-b border-white/5"><td>李启明</td><td class="text-right">62.0(-23)</td><td class="text-right">1.18%</td></tr>
+                            <tr class="border-b border-white/5 bg-orange-500/10"><td class="text-orange-300 font-bold">华为哈勃(退出十大)</td><td class="text-right">—</td><td class="text-right">—</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <h4 class="text-yellow-300 text-xs font-bold mb-2">资金流向</h4>
+                    <ul class="text-xs text-white/75 space-y-1.5">
+                        <li>• <b>股东户数：</b>1.36万户(2026Q1)，<b class="text-green-400">较年末-7.67%</b>，筹码集中</li>
+                        <li>• <b>前十大机构占流通：</b>22.11%，控盘度低</li>
+                        <li>• <b>6/29涨13.48%</b>创60日新高186元</li>
+                        <li>• <b>6/30主力净流出1.16亿</b>，近20日净流入5.06亿</li>
+                        <li>• <b>融资余额：</b>近5日融资净流入3.91亿</li>
+                        <li>• <b>公募基金：</b>Q1重仓仅3家，主动型配置极低</li>
+                        <li>• <b>龙虎榜：</b>近1年未上（机构博弈温和）</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                <p class="text-blue-200 text-xs">
+                    <b>资金面：</b>ETF被动加仓+融资杠杆主导行情，主动公募尚未大规模入场（潜在增量）；
+                    但大股东减持(华天/德裕丰/杨森茂合计800万股)持续抛压。
+                </p>
+            </div>
+        ''')
+
+        content += self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">📉 技术面分析</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <h4 class="text-green-300 text-xs font-bold mb-2">关键价位（7/6收盘162.29）</h4>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between p-2 bg-red-500/10 rounded border-l-2 border-red-500">
+                            <span>历史/压力位</span><span class="text-red-300 font-bold">199.99（历史高）</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-orange-500/10 rounded border-l-2 border-orange-500">
+                            <span>短期压力</span><span class="text-orange-300 font-bold">186-195</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-white/[0.05] rounded border-l-2 border-white/30">
+                            <span>当前价</span><span class="text-white font-bold">162.29</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-yellow-500/10 rounded border-l-2 border-yellow-500">
+                            <span>筹码平均成本</span><span class="text-yellow-300 font-bold">149.58</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-green-500/10 rounded border-l-2 border-green-500">
+                            <span>第一支撑</span><span class="text-green-300 font-bold">147-152</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-blue-500/10 rounded border-l-2 border-blue-500">
+                            <span>建仓区间</span><span class="text-blue-300 font-bold">130-140</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-red-500/20 rounded border-l-2 border-red-600">
+                            <span>硬止损</span><span class="text-red-400 font-bold">120元</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-cyan-300 text-xs font-bold mb-2">技术形态</h4>
+                    <ul class="text-xs text-white/75 space-y-1.5">
+                        <li>• <b>均线：</b>站上60日线，6/29放量突破后缩量回踩，观察150支撑</li>
+                        <li>• <b>量价：</b>6/29放量涨13.48%(成交33.8亿、换手14.8%)，后缩量回调，属"放量突破+缩量回踩"经典形态</li>
+                        <li>• <b>筹码：</b>平均成本149.58，<b class="text-yellow-300">当前价在成本线上方</b>，套牢盘180-200</li>
+                        <li>• <b>波动率：</b>近10日振幅超30%，β值高</li>
+                        <li>• <b>除权：</b>4/30完成10转4.8派1，当前填权行情中</li>
+                    </ul>
+                </div>
+            </div>
+        ''')
+        return self._section("capital", "八、资金面与技术面：ETF加仓+杠杆涌入，大股东减持持续", "📈", content)
+
+    def _sec_strategy(self):
+        content = self._glass_card(f'''
+            <div class="text-center mb-4">
+                <div class="inline-block bg-gradient-to-r from-orange-500/30 to-yellow-500/30 border-2 border-orange-500/60 rounded-full px-8 py-3">
+                    <div class="text-orange-300 text-xs font-bold">投资评级</div>
+                    <div class="text-4xl font-black text-yellow-400 mt-1">推荐（观察仓）</div>
+                    <div class="text-white/70 text-xs mt-1">不追高 · 等回踩 · 中报验证后加仓</div>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <h4 class="text-green-400 font-bold text-sm mb-2">✅ 买入理由</h4>
+                    <ol class="text-xs text-white/80 space-y-1 list-decimal list-inside">
+                        <li>HBM封装材料<b>国内唯一量产GMC</b>，稀缺性极强</li>
+                        <li>SK海力士HBM4验证通过，<b>全球第三家</b>量产</li>
+                        <li>华为哈勃持股，深度绑定昇腾国产HBM</li>
+                        <li>并购衡所华威EMC全球第二，<b>2026Q1拐点确认</b></li>
+                        <li>住友涨价抬升价格中枢，国产替代加速</li>
+                        <li>大基金三期+国产替代政策支持</li>
+                        <li>主动公募低配，潜在增量资金大</li>
+                    </ol>
+                </div>
+                <div>
+                    <h4 class="text-red-400 font-bold text-sm mb-2">❌ 风险要点</h4>
+                    <ol class="text-xs text-white/80 space-y-1 list-decimal list-inside">
+                        <li><b>估值极高</b>(TTM 761倍/2027E 101倍)，容错率低</li>
+                        <li>HBM GMC目前收入百万级，<b>业绩待验证</b></li>
+                        <li>大股东持续减持抛压</li>
+                        <li>GMC良率/客户认证不确定</li>
+                        <li>日系可能降价发起价格战</li>
+                        <li>经营现金流为负</li>
+                        <li>HBM技术路线(混合键合)可能替代MR-MUF</li>
+                    </ol>
+                </div>
+            </div>
+        ''')
+
+        content += self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">🎯 具体操作策略</h3>
+            <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+                <tbody>
+                    <tr class="border-b border-white/5"><td class="font-bold py-2">评级</td><td class="text-yellow-300 font-bold">推荐（观察仓）</td></tr>
+                    <tr class="border-b border-white/5"><td class="font-bold">建仓区间</td><td><b class="text-green-300">130-140元</b>黄金区；140-150轻仓；<b class="text-red-300">160+不追</b></td></tr>
+                    <tr class="border-b border-white/5"><td class="font-bold">建仓节奏</td><td>首批30%(130-150) → 中报超预期加40%(160站稳) → 订单落地加30%(180突破)</td></tr>
+                    <tr class="border-b border-white/5"><td class="font-bold">止损位</td><td class="text-red-400 font-bold">120元硬止损(-26%)</td></tr>
+                    <tr class="border-b border-white/5"><td class="font-bold">目标价</td><td>短期<b class="text-yellow-300">180-200</b> · 中期<b class="text-orange-300">220-260</b> · 长期<b class="text-green-300">280-350</b></td></tr>
+                    <tr class="border-b border-white/5"><td class="font-bold">建议仓位</td><td>观察仓<b class="text-yellow-300">≤5%</b>，验证后<b class="text-orange-300">8-10%</b></td></tr>
+                    <tr class="border-b border-white/5 bg-purple-500/10"><td class="font-bold text-purple-300">vs 雅克科技</td><td class="text-purple-200"><b>互补组合</b>：雅克(HBM前驱体，确定性高，核心15-20%) + 华海(HBM封装，弹性高，观察5-10%)。客户重叠(SK海力士/三星)，环节不重叠，构成<b>"前驱体+封装材料"双龙头</b>HBM配置。</td></tr>
+                    <tr><td class="font-bold">跟踪节点</td><td>①7/15中报预告 ②8月中报 ③GMC产能投产 ④华为认证 ⑤SK订单 ⑥定增</td></tr>
+                </tbody>
+            </table></div>
+        ''')
+
+        content += self._glass_card(f'''
+            <h3 class="text-white font-bold text-base mb-3">📅 行情节奏推演</h3>
+            <div class="relative pl-6 border-l-2 border-purple-500/40">
+                <div class="mb-4 relative">
+                    <div class="absolute -left-[29px] w-4 h-4 rounded-full bg-yellow-500 border-2 border-white"></div>
+                    <div class="text-yellow-400 font-bold text-sm">7月上中旬（当前）：观望期</div>
+                    <p class="text-white/70 text-xs">从186回调至162(-13%)，等中报预告。操作：<b>持币观望</b>，回踩140-150建底仓。</p>
+                </div>
+                <div class="mb-4 relative">
+                    <div class="absolute -left-[29px] w-4 h-4 rounded-full bg-red-500 border-2 border-white"></div>
+                    <div class="text-red-400 font-bold text-sm">7下-8月：中报定方向</div>
+                    <p class="text-white/70 text-xs">中报>5000万+GMC放量 → 挑战200；<2500万 → 下探130-140；3500-5000万震荡。</p>
+                </div>
+                <div class="mb-4 relative">
+                    <div class="absolute -left-[29px] w-4 h-4 rounded-full bg-orange-500 border-2 border-white"></div>
+                    <div class="text-orange-400 font-bold text-sm">9-11月：产能+三季报</div>
+                    <p class="text-white/70 text-xs">GMC 5000吨投产，订单兑现，估值切换至2027E；业绩高增挑战220-260。</p>
+                </div>
+                <div class="mb-4 relative">
+                    <div class="absolute -left-[29px] w-4 h-4 rounded-full bg-purple-500 border-2 border-white"></div>
+                    <div class="text-purple-400 font-bold text-sm">12月-2027Q1：估值切换</div>
+                    <p class="text-white/70 text-xs">2026年报验证GMC业绩，估值切换至2027E。</p>
+                </div>
+                <div class="relative">
+                    <div class="absolute -left-[29px] w-4 h-4 rounded-full bg-green-500 border-2 border-white"></div>
+                    <div class="text-green-400 font-bold text-sm">2027全年：GMC大规模放量</div>
+                    <p class="text-white/70 text-xs">GMC扩至2万吨，多客户批量，若净利破3亿则看280-350。</p>
+                </div>
+            </div>
+        ''')
+
+        content += self._glass_card(f'''
+            <h3 class="text-red-400 font-bold text-base mb-3">⚠️ 风险提示与免责声明</h3>
+            <div class="space-y-2 text-sm text-white/80">
+                <div class="flex gap-2"><span class="text-red-400 flex-shrink-0">1.</span><span><b>GMC量产不及预期</b>：良率/认证/订单不确定。</span></div>
+                <div class="flex gap-2"><span class="text-red-400 flex-shrink-0">2.</span><span><b>估值过高</b>：PE 761倍充分定价HBM预期，兑现节奏低于预期则大幅回调。</span></div>
+                <div class="flex gap-2"><span class="text-red-400 flex-shrink-0">3.</span><span><b>大股东减持</b>：华天/德裕丰/杨森茂合计减持800万股持续抛压。</span></div>
+                <div class="flex gap-2"><span class="text-red-400 flex-shrink-0">4.</span><span><b>日系降价竞争</b>：住友/Resonac降价压制国产毛利。</span></div>
+                <div class="flex gap-2"><span class="text-red-400 flex-shrink-0">5.</span><span><b>AI周期下行</b>：全球Capex不及预期冲击核心逻辑。</span></div>
+                <div class="flex gap-2"><span class="text-red-400 flex-shrink-0">6.</span><span><b>技术路线变迁</b>：混合键合若成HBM主流可能替代MR-MUF。</span></div>
+                <div class="flex gap-2"><span class="text-red-400 flex-shrink-0">7.</span><span><b>并购整合</b>：衡所华威整合/商誉减值/韩国子公司管控风险。</span></div>
+            </div>
+            <div class="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                <p class="text-yellow-300 text-xs font-bold">⚠️ 免责声明：本报告基于公开信息整理，仅作投资研究参考，不构成任何投资建议。部分市场传闻数据(如华为6亿订单)未经官方确认，已标注置信度。投资决策需结合个人风险承受能力。股市有风险，投资需谨慎。</p>
+            </div>
+        ''')
+        content += self._source_summary_section()
+        return self._section("strategy", "九、投资建议与操作策略：推荐(观察仓)，等回踩130-140建仓", "🎯", content)
+
+    def _content(self):
+        header = f'''
+        <div class="text-center mb-8 mt-4">
+            <div class="inline-flex items-center gap-2 bg-gradient-to-r from-red-500/20 via-orange-500/20 to-yellow-500/20 border border-orange-500/30 rounded-full px-4 py-1 mb-3">
+                <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                <span class="text-orange-300 text-xs font-semibold">🔥 产业链深度研究 · HBM封装材料国产独苗 · 2026年7月7日</span>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-black text-white mb-2 tracking-tight">
+                <span class="bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 bg-clip-text text-transparent">华海诚科(688535)</span>
+                <br>深度研究报告
+            </h1>
+            <p class="text-white/60 text-sm mb-2">HBM封装材料国产唯一GMC量产 · 并购衡所华威跃居全球第二EMC · 绑定SK海力士/华为</p>
+            <div class="flex items-center justify-center gap-4 text-xs text-white/40 flex-wrap">
+                <span>📅 2026-07-07 盘前研究</span>
+                <span>📊 市值232亿 · PE(TTM)761倍</span>
+                <span>⭐ 与雅克科技HBM互补组合</span>
+                <span>📏 9大章节深度拆解</span>
+            </div>
+            <div class="flex items-center justify-center gap-2 mt-3 flex-wrap">
+                <span class="bg-red-500/20 text-red-300 text-[10px] px-2 py-0.5 rounded border border-red-500/30">HBM</span>
+                <span class="bg-orange-500/20 text-orange-300 text-[10px] px-2 py-0.5 rounded border border-orange-500/30">GMC颗粒料</span>
+                <span class="bg-purple-500/20 text-purple-300 text-[10px] px-2 py-0.5 rounded border border-purple-500/30">先进封装</span>
+                <span class="bg-blue-500/20 text-blue-300 text-[10px] px-2 py-0.5 rounded border border-blue-500/30">国产替代</span>
+                <span class="bg-yellow-500/20 text-yellow-300 text-[10px] px-2 py-0.5 rounded border border-yellow-500/30">华为哈勃</span>
+                <span class="bg-green-500/20 text-green-300 text-[10px] px-2 py-0.5 rounded border border-green-500/30">SK海力士</span>
+            </div>
+        </div>'''
+        return "\n".join([
+            header,
+            self._sec_overview(),
+            self._sec_products(),
+            self._sec_opportunity(),
+            self._sec_competition(),
+            self._sec_forecast(),
+            self._sec_valuation(),
+            self._sec_catalyst(),
+            self._sec_capital(),
+            self._sec_strategy(),
+        ])
+
+
+def main():
+    g = HuahaiReportGenerator()
+    g.load_data()
+    out = "/root/daily-news-insight/docs/industry_chain/20260707_华海诚科深度研究报告.html"
+    res = g.publish(out)
+    print(f"结果: {res}")
+    if not res.get('success'):
+        print("ERRORS:", res.get('errors'))
+        return 1
+    print(f"OK 报告已生成: {out}")
+    print(f"   文件大小: {res['file_size']/1024:.1f} KB")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
