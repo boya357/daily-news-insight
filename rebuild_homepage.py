@@ -308,8 +308,8 @@ body{{
         <a href="#today" class="active">📋 今日</a>
         <a href="#tools">🧰 工具箱</a>
         <a href="portfolio_dashboard/index.html">💼 持仓</a>
-        <a href="s_level_catalyst/latest.html">⚡ S级</a>
-        <a href="daily/latest.html">📰 日报</a>
+        <a href="s_level_catalyst/index.html">⚡ S级</a>
+        <a href="daily/index.html">📰 日报</a>
         <a href="longhubang/index.html">🔥 龙虎榜</a>
         <a href="#archive">📂 归档</a>
     </div>
@@ -394,8 +394,8 @@ body{{
     <button style="position:absolute;top:20px;right:20px;background:transparent;border:none;color:#fff;font-size:24px;cursor:pointer;" onclick="document.getElementById('mmenu').style.display='none'"><i class="fas fa-times"></i></button>
     <a href="#today" onclick="document.getElementById('mmenu').style.display='none'" style="color:#fff;font-size:1.2rem;text-decoration:none;font-weight:600;">📋 今日报告</a>
     <a href="portfolio_dashboard/index.html" style="color:#fff;font-size:1.2rem;text-decoration:none;font-weight:600;">💼 持仓预警</a>
-    <a href="s_level_catalyst/latest.html" style="color:#fff;font-size:1.2rem;text-decoration:none;font-weight:600;">⚡ S级催化</a>
-    <a href="daily/latest.html" style="color:#fff;font-size:1.2rem;text-decoration:none;font-weight:600;">📰 每日洞察</a>
+    <a href="s_level_catalyst/index.html" style="color:#fff;font-size:1.2rem;text-decoration:none;font-weight:600;">⚡ S级催化</a>
+    <a href="daily/index.html" style="color:#fff;font-size:1.2rem;text-decoration:none;font-weight:600;">📰 每日洞察</a>
     <a href="longhubang/index.html" style="color:#fff;font-size:1.2rem;text-decoration:none;font-weight:600;">🔥 龙虎榜</a>
     <a href="#tools" onclick="document.getElementById('mmenu').style.display='none'" style="color:#fff;font-size:1.2rem;text-decoration:none;font-weight:600;">🧰 工具箱</a>
     <a href="#archive" onclick="document.getElementById('mmenu').style.display='none'" style="color:#fff;font-size:1.2rem;text-decoration:none;font-weight:600;">📂 归档</a>

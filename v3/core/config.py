@@ -31,16 +31,16 @@ REPORT_TYPES = {
 # ==========================================
 NAV_ITEMS = [
     {"key": "index", "label": "首页", "icon": "🏠", "path": "/daily-news-insight/index.html"},
-    {"key": "daily", "label": "日报", "icon": "📰", "path": "/daily-news-insight/daily/latest.html"},
-    {"key": "intraday", "label": "盘中", "icon": "📈", "path": "/daily-news-insight/intraday/latest.html"},
-    {"key": "aftermarket", "label": "盘后", "icon": "📉", "path": "/daily-news-insight/aftermarket/latest.html"},
-    {"key": "industry_chain", "label": "产业链", "icon": "🔗", "path": "/daily-news-insight/industry_chain/latest.html"},
-    {"key": "weekly_review", "label": "周复盘", "icon": "📋", "path": "/daily-news-insight/weekly_review/latest.html"},
-    {"key": "weekly_outlook", "label": "周三前瞻", "icon": "🔮", "path": "/daily-news-insight/weekly_outlook/latest.html"},
-    {"key": "weekend_express", "label": "周末速递", "icon": "📦", "path": "/daily-news-insight/weekend_express/latest.html"},
-    {"key": "tomorrow_catalyst", "label": "明日催化", "icon": "⏰", "path": "/daily-news-insight/tomorrow_catalyst/latest.html"},
-    {"key": "s_level_catalyst", "label": "S级催化", "icon": "⭐", "path": "/daily-news-insight/s_level_catalyst/latest.html"},
-    {"key": "monthly", "label": "月报", "icon": "🗓️", "path": "/daily-news-insight/monthly/latest.html"},
+    {"key": "daily", "label": "日报", "icon": "📰", "path": "/daily-news-insight/daily/index.html"},
+    {"key": "intraday", "label": "盘中", "icon": "📈", "path": "/daily-news-insight/intraday/index.html"},
+    {"key": "aftermarket", "label": "盘后", "icon": "📉", "path": "/daily-news-insight/aftermarket/index.html"},
+    {"key": "industry_chain", "label": "产业链", "icon": "🔗", "path": "/daily-news-insight/industry_chain/index.html"},
+    {"key": "weekly_review", "label": "周复盘", "icon": "📋", "path": "/daily-news-insight/weekly_review/index.html"},
+    {"key": "weekly_outlook", "label": "周三前瞻", "icon": "🔮", "path": "/daily-news-insight/weekly_outlook/index.html"},
+    {"key": "weekend_express", "label": "周末速递", "icon": "📦", "path": "/daily-news-insight/weekend_express/index.html"},
+    {"key": "tomorrow_catalyst", "label": "明日催化", "icon": "⏰", "path": "/daily-news-insight/tomorrow_catalyst/index.html"},
+    {"key": "s_level_catalyst", "label": "S级催化", "icon": "⭐", "path": "/daily-news-insight/s_level_catalyst/index.html"},
+    {"key": "monthly", "label": "月报", "icon": "🗓️", "path": "/daily-news-insight/monthly/index.html"},
 ]
 
 # ==========================================

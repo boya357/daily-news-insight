@@ -3113,8 +3113,8 @@ class ProPage:
         # ---- Mobile Bottom Nav ----
         mobile_nav_items = [
             ("/daily-news-insight/", "🏠", "首页", "首页"),
-            ("/daily-news-insight/daily/latest.html", "📰", "日报", "daily"),
-            ("/daily-news-insight/s_level_catalyst/latest.html", "🔥", "S级", "s_level_catalyst"),
+            ("/daily-news-insight/daily/index.html", "📰", "日报", "daily"),
+            ("/daily-news-insight/s_level_catalyst/index.html", "🔥", "S级", "s_level_catalyst"),
             ("/daily-news-insight/portfolio.html", "💼", "持仓", "portfolio"),
             ("/daily-news-insight/toolbox.html", "🧰", "工具", "toolbox"),
         ]
