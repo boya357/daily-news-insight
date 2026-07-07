@@ -48,9 +48,9 @@ class SLevelCatalystGenerator:
         """
         # 左侧：事件背景
         left_html = f'''
-        <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
+        <div style="background: linear-gradient(135deg, rgba(59,130,246,0.12) 0%, rgba(37,99,235,0.08) 100%); 
                     border-radius: 14px; padding: 20px; height: 100%;
-                    border: 1px solid #bae6fd;">
+                    border: 1px solid rgba(96,165,250,0.25);">
             <div style="display: flex; align-items: center; margin-bottom: 12px;">
                 <div style="width: 36px; height: 36px; 
                            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); 
@@ -58,11 +58,11 @@ class SLevelCatalystGenerator:
                            margin-right: 12px;">
                     📚
                 </div>
-                <span style="font-size: 16px; font-weight: 700; color: #1e40af;">
+                <span style="font-size: 16px; font-weight: 700; color: #60a5fa;">
                     事件背景
                 </span>
             </div>
-            <div style="font-size: 13px; color: #374151; line-height: 1.8;">
+            <div style="font-size: 13px; color: #cbd5e1; line-height: 1.8;">
                 {background}
             </div>
         </div>
@@ -70,9 +70,9 @@ class SLevelCatalystGenerator:
         
         # 右侧：触发因素
         right_html = f'''
-        <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); 
+        <div style="background: linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(217,119,6,0.08) 100%); 
                     border-radius: 14px; padding: 20px; height: 100%;
-                    border: 1px solid #fcd34d;">
+                    border: 1px solid rgba(251,191,36,0.25);">
             <div style="display: flex; align-items: center; margin-bottom: 12px;">
                 <div style="width: 36px; height: 36px; 
                            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); 
@@ -80,11 +80,11 @@ class SLevelCatalystGenerator:
                            margin-right: 12px;">
                     🔥
                 </div>
-                <span style="font-size: 16px; font-weight: 700; color: #92400e;">
+                <span style="font-size: 16px; font-weight: 700; color: #fbbf24;">
                     触发因素
                 </span>
             </div>
-            <div style="font-size: 13px; color: #78350f; line-height: 1.8;">
+            <div style="font-size: 13px; color: #fde68a; line-height: 1.8;">
                 {trigger}
             </div>
         </div>
@@ -116,16 +116,16 @@ class SLevelCatalystGenerator:
                     stocks_html = tags.render()
                 
                 item_html = f'''
-                <div style="background: white; border-radius: 12px; padding: 14px 16px;
-                          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-                          border: 1px solid rgba(0,0,0,0.04);
+                <div style="background: rgba(255,255,255,0.04); border-radius: 12px; padding: 14px 16px;
+                          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                          border: 1px solid rgba(255,255,255,0.08);
                           transition: all 0.3s ease;"
-                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)';"
-                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)';">
-                    <div style="font-size: 14px; font-weight: 600; color: #1f2937; margin-bottom: 6px;">
+                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.3)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.15)';">
+                    <div style="font-size: 14px; font-weight: 600; color: #f1f5f9; margin-bottom: 6px;">
                         {item.get("name", "")}
                     </div>
-                    <div style="font-size: 12px; color: #6b7280; line-height: 1.5; margin-bottom: 8px;">
+                    <div style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin-bottom: 8px;">
                         {item.get("desc", "")}
                     </div>
                     {stocks_html}
@@ -205,7 +205,7 @@ class SLevelCatalystGenerator:
             card_content = f'''
             <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
                 <div style="flex: 1;">
-                    <span style="font-size: 16px; font-weight: 700; color: #1f2937;">
+                    <span style="font-size: 16px; font-weight: 700; color: #f1f5f9;">
                         {opp.get("name", "")}
                     </span>
                 </div>
@@ -216,7 +216,7 @@ class SLevelCatalystGenerator:
                     {priority}优先级
                 </span>
             </div>
-            <div style="font-size: 13px; color: #6b7280; line-height: 1.7; margin-bottom: 10px;">
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.7; margin-bottom: 10px;">
                 {opp.get("logic", "")}
             </div>
             {stocks_html}
@@ -479,7 +479,7 @@ class SLevelCatalystGenerator:
     
     def add_investment_strategy(self, strategy: str):
         """添加投资策略建议"""
-        content = f'<div style="line-height: 1.8; color: #374151; font-size: 14px;">{strategy}</div>'
+        content = f'<div style="line-height: 1.8; color: #e2e8f0; font-size: 14px;">{strategy}</div>'
         section = Section(title="🎯 投资策略建议", content=content, icon="target", variant="highlight")
         self._components.append(section)
     

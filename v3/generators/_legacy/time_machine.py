@@ -53,10 +53,10 @@ class TimeMachineGenerator:
             ('持仓仪表盘', '持仓智能预警仪表盘/index.html', 'fa-chart-line'),
             ('智能选题', '智能选题助手/index.html', 'fa-lightbulb'),
             ('产业链时钟', '产业链时钟/index.html', 'fa-clock'),
-            ('S级催化', 's_level_catalyst/latest.html', 'fa-bolt'),
+            ('S级催化', 's_level_catalyst/index.html', 'fa-bolt'),
             ('预判验证', '预判验证/index.html', 'fa-target'),
             ('time-machine', '数据时光机/index.html', 'fa-history'),
-            ('每日报告', 'daily/latest.html', 'fa-newspaper'),
+            ('每日报告', 'daily/index.html', 'fa-newspaper'),
         ]
         
         nav_html = '''<nav class="glass-nav fixed top-0 left-0 right-0 z-50">

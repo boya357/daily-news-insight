@@ -112,7 +112,7 @@ class Section(Component):
         # 更新标题颜色
         if self.title:
             title_html = title_html.replace(
-                'color: #1f2937;',
+                'color: #f1f5f9;',
                 f'color: {v["title_color"]};'
             )
         
@@ -665,18 +665,18 @@ class SubCard(Component):
                 "shadow": "0 2px 8px rgba(16, 185, 129, 0.1)",
             },
             "warning": {
-                "bg": "linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.08) 100%)",
+                "bg": "linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(234, 88, 12, 0.08) 100%)",
                 "padding": "18px 20px",
-                "border": "1px solid rgba(245, 158, 11, 0.2)",
+                "border": "1px solid rgba(245, 158, 11, 0.08)",
                 "radius": "14px",
-                "shadow": "0 2px 8px rgba(245, 158, 11, 0.1)",
+                "shadow": "0 1px 2px rgba(245, 158, 11, 0.04), 0 1px 0 rgba(255, 255, 255, 0.6) inset",
             },
             "danger": {
-                "bg": "linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.08) 100%)",
+                "bg": "linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(220, 38, 38, 0.08) 100%)",
                 "padding": "18px 20px",
-                "border": "1px solid rgba(239, 68, 68, 0.2)",
+                "border": "1px solid rgba(239, 68, 68, 0.08)",
                 "radius": "14px",
-                "shadow": "0 2px 8px rgba(239, 68, 68, 0.1)",
+                "shadow": "0 1px 2px rgba(239, 68, 68, 0.04), 0 1px 0 rgba(255, 255, 255, 0.6) inset",
             },
         }
         
@@ -729,17 +729,17 @@ class DataTable(Component):
     def render(self):
         headers_html = ""
         for h in self.headers:
-            th_style = "text-align:left;padding:10px 14px;font-weight:600;font-size:13px;color:#374151;background:#f9fafb;border-bottom:2px solid #e5e7eb;"
+            th_style = "text-align:left;padding:10px 14px;font-weight:600;font-size:13px;color:#94a3b8;background:rgba(255,255,255,0.05);border-bottom:2px solid rgba(255,255,255,0.08);"
             headers_html += '<th style="' + th_style + '">' + h + '</th>'
         
         rows_html = ""
         row_styles = {
-            "high": "background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-left: 3px solid #ef4444;",
-            "medium": "background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 3px solid #f59e0b;",
-            "low": "background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-left: 3px solid #22c55e;",
-            "default": "background: white; border-bottom: 1px solid #f3f4f6;",
-            "primary": "background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 3px solid #3b82f6;",
-            "warning": "background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%); border-left: 3px solid #f97316;",
+            "high": "background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(220, 38, 38, 0.08) 100%); border-left: 3px solid #ef4444;",
+            "medium": "background: linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(217,119,6,0.08) 100%); border-left: 3px solid #f59e0b;",
+            "low": "background: linear-gradient(135deg, rgba(34,197,94,0.12) 0%, rgba(22,163,74,0.08) 100%); border-left: 3px solid #22c55e;",
+            "default": "background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.06);",
+            "primary": "background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(37, 99, 235, 0.08) 100%); border-left: 3px solid #3b82f6;",
+            "warning": "background: linear-gradient(135deg, rgba(249,115,22,0.12) 0%, rgba(234,88,12,0.08) 100%); border-left: 3px solid #f97316;",
         }
         
         for i, row in enumerate(self.rows):
@@ -859,7 +859,7 @@ class ChartCard(Component):
             
             title_html = f'''
             <div style="margin-bottom: 16px;">
-                <h4 style="font-size: 16px; font-weight: 600; color: #1f2937; margin: 0;">
+                <h4 style="font-size: 16px; font-weight: 600; color: #f1f5f9; margin: 0;">
                     {self.title}
                 </h4>
                 {subtitle_html}
@@ -869,7 +869,7 @@ class ChartCard(Component):
         footer_html = ""
         if self.footer:
             footer_html = f'''
-            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #f3f4f6;
+            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);
                         font-size: 12px; color: #9ca3af; text-align: center;">
                 {self.footer}
             </div>
@@ -877,18 +877,18 @@ class ChartCard(Component):
         
         variants = {
             "default": {
-                "bg": "white",
+                "bg": "rgba(30, 30, 50, 0.5)",
                 "padding": "20px",
-                "border": "1px solid rgba(0, 0, 0, 0.06)",
+                "border": "1px solid rgba(255, 255, 255, 0.08)",
                 "radius": "16px",
-                "shadow": "0 2px 8px rgba(0, 0, 0, 0.04)",
+                "shadow": "0 2px 8px rgba(0, 0, 0, 0.2)",
             },
             "primary": {
-                "bg": "linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%)",
+                "bg": "linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(124, 58, 237, 0.1) 100%)",
                 "padding": "20px",
-                "border": "1px solid rgba(79, 70, 229, 0.1)",
+                "border": "1px solid rgba(139, 92, 246, 0.2)",
                 "radius": "16px",
-                "shadow": "0 2px 8px rgba(79, 70, 229, 0.06)",
+                "shadow": "0 2px 8px rgba(79, 70, 229, 0.15)",
             },
         }
         

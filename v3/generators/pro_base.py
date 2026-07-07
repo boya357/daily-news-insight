@@ -357,12 +357,140 @@ class ProGenerator(ProPage):
         </div>
         '''
     
+    # ==================== 历史报告入口（2026-07-07） ====================
+
+    # 报告频道名到 docs 子目录的映射（用于"📚 查看历史报告"链接推导）
+    # 键：子类中常见的 report_type / data_type 标识；值：docs/ 下的目录名
+    _CHANNEL_DIR_MAP = {
+        "daily": "daily",
+        "intraday": "intraday",
+        "aftermarket": "aftermarket",
+        "s_level_catalyst": "s_level_catalyst",
+        "tomorrow_catalyst": "tomorrow_catalyst",
+        "weekend_express": "weekend_express",
+        "weekly_review": "weekly_review",
+        "industry_chain": "industry_chain",
+        "industry_chain_clock": "industry_chain",
+        "monthly": "monthly",
+    }
+    # 报告频道中文名（用于按钮文案）
+    _CHANNEL_LABEL_MAP = {
+        "daily": "历史日报",
+        "intraday": "历史盘中",
+        "aftermarket": "历史盘后",
+        "s_level_catalyst": "历史S级催化",
+        "tomorrow_catalyst": "历史明日催化",
+        "weekend_express": "历史周末速递",
+        "weekly_review": "历史周度复盘",
+        "industry_chain": "产业链历史报告",
+        "monthly": "历史月报",
+    }
+
+    def _detect_channel_dir(self) -> Optional[str]:
+        """根据当前生成器的 report_type / data_type / active_page 自动推导频道目录名。
+        无法识别时返回 None（不渲染历史入口，避免无效链接）。
+        """
+        candidates = []
+        for attr in ("report_type", "data_type"):
+            v = getattr(self, attr, None)
+            if v:
+                candidates.append(v)
+        ap = getattr(self, "active_page", "") or ""
+        _AP_MAP = {
+            "日报": "daily",
+            "盘中": "intraday",
+            "盘后": "aftermarket",
+            "S级": "s_level_catalyst",
+            "明日催化": "tomorrow_catalyst",
+            "周末速递": "weekend_express",
+            "周度复盘": "weekly_review",
+            "产业链": "industry_chain",
+            "月报": "monthly",
+        }
+        if ap in _AP_MAP:
+            candidates.append(_AP_MAP[ap])
+        for c in candidates:
+            if c in self._CHANNEL_DIR_MAP:
+                return self._CHANNEL_DIR_MAP[c]
+        return None
+
+    def _history_entry_html(self) -> str:
+        """渲染"📚 查看历史报告"入口卡片 HTML。
+        放在报告正文末尾、footer 之前；非报告页面（检测不到频道）返回空串。
+        """
+        channel = self._detect_channel_dir()
+        if not channel:
+            return ""
+        label = self._CHANNEL_LABEL_MAP.get(channel, "历史报告")
+        # 相对路径：报告页位于 docs/<channel>/xxx.html → 列表页 docs/<channel>/index.html
+        href = "./index.html"
+        return f"""
+        <div class="history-entry-wrap" style="margin:2.5rem auto 0.5rem auto; max-width:32rem; text-align:center;">
+            <a href="{href}"
+               class="history-entry-link"
+               style="display:inline-flex !important; align-items:center !important; gap:0.5rem !important;
+                      padding:0.7rem 1.4rem !important;
+                      background:rgba(255,255,255,0.06) !important;
+                      border:1px solid rgba(255,255,255,0.14) !important;
+                      border-radius:999px !important;
+                      color:rgba(255,255,255,0.82) !important;
+                      font-size:0.92rem !important;
+                      font-weight:500 !important;
+                      text-decoration:none !important;
+                      backdrop-filter:blur(12px) !important;
+                      -webkit-backdrop-filter:blur(12px) !important;
+                      box-shadow:0 6px 20px rgba(0,0,0,0.25) !important;
+                      transition:all .25s ease !important;">
+                <span style="font-size:1.05rem;">📚</span>
+                <span>查看{label}</span>
+                <span style="opacity:.75; margin-left:2px;">→</span>
+            </a>
+        </div>
+        <style>
+            .history-entry-link:hover {{
+                background:rgba(102,126,234,0.22) !important;
+                border-color:rgba(139,92,246,0.45) !important;
+                color:#fff !important;
+                transform:translateY(-1px) !important;
+                box-shadow:0 10px 28px rgba(102,126,234,0.35) !important;
+            }}
+            @media (max-width: 640px) {{
+                .history-entry-wrap {{ margin-top:1.75rem !important; }}
+                .history-entry-link {{ font-size:0.88rem !important; padding:0.6rem 1.1rem !important; }}
+            }}
+        </style>
+        """
+
     def render(self) -> str:
-        """渲染完整HTML页面（确保数据已加载）"""
+        """渲染完整HTML页面（确保数据已加载）。
+        在正文末尾、footer 之前自动注入"📚 查看历史报告"入口。
+        """
         if not self._data_loaded:
             self.load_data()
-        return super().render()
-    
+        html = super().render()
+        entry = self._history_entry_html()
+        if entry:
+            footer_patterns = [
+                '<div class="pro-footer',
+                '<div class="text-center text-white/40 text-sm py-10"',
+            ]
+            inserted = False
+            for pat in footer_patterns:
+                idx = html.find(pat)
+                if idx != -1:
+                    html = html[:idx] + entry + html[idx:]
+                    inserted = True
+                    break
+            if not inserted:
+                main_marker = 'id="mainContent"'
+                mi = html.find(main_marker)
+                if mi != -1:
+                    last_close = html.rfind('</div>', mi)
+                    if last_close != -1:
+                        html = html[:last_close] + entry + html[last_close:]
+                        inserted = True
+        return html
+
     def _content(self) -> str:
         """页面主要内容 - 子类必须重写此方法"""
         raise NotImplementedError("子类必须实现 _content 方法")

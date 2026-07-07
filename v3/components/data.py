@@ -53,29 +53,37 @@ class DataCard(Component):
         
         variants = {
             "default": {
-                "bg": "white",
-                "border": "rgba(0, 0, 0, 0.06)",
-                "value_color": "#1f2937"
+                "bg": "rgba(30, 30, 50, 0.5)",
+                "border": "rgba(255,255,255,0.08)",
+                "value_color": "#f1f5f9"
             },
             "primary": {
-                "bg": "linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%)",
-                "border": "rgba(79, 70, 229, 0.1)",
-                "value_color": "#4f46e5"
+                "bg": "linear-gradient(135deg, rgba(79,70,229,0.15) 0%, rgba(124,58,237,0.1) 100%)",
+                "padding": "20px",
+                "border": "1px solid rgba(139,92,246,0.2)",
+                "radius": "16px",
+                "shadow": "0 2px 8px rgba(79,70,229,0.15)",
             },
             "success": {
-                "bg": "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)",
-                "border": "rgba(16, 185, 129, 0.1)",
-                "value_color": "#059669"
+                "bg": "linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.08) 100%)",
+                "padding": "20px",
+                "border": "1px solid rgba(16,185,129,0.25)",
+                "radius": "16px",
+                "shadow": "0 2px 8px rgba(16,185,129,0.1)",
             },
             "warning": {
-                "bg": "linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%)",
-                "border": "rgba(245, 158, 11, 0.1)",
-                "value_color": "#d97706"
+                "bg": "linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(234,88,12,0.08) 100%)",
+                "padding": "20px",
+                "border": "1px solid rgba(245,158,11,0.25)",
+                "radius": "16px",
+                "shadow": "0 2px 8px rgba(245,158,11,0.1)",
             },
             "danger": {
-                "bg": "linear-gradient(135deg, #fef2f2 0%, #fef2f2 100%)",
-                "border": "rgba(239, 68, 68, 0.1)",
-                "value_color": "#dc2626"
+                "bg": "linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(220,38,38,0.08) 100%)",
+                "padding": "20px",
+                "border": "1px solid rgba(239,68,68,0.25)",
+                "radius": "16px",
+                "shadow": "0 2px 8px rgba(239,68,68,0.1)",
             },
         }
         
@@ -94,7 +102,7 @@ class DataCard(Component):
              onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.04)';">
             {icon_html}
-            <div style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">
+            <div style="font-size: 13px; color: #94a3b8; margin-bottom: 6px;">
                 {self.title}
             </div>
             <div style="font-size: 24px; font-weight: 700; color: {v["value_color"]}; line-height: 1.2;">
@@ -159,14 +167,14 @@ class KeyPoints(Component):
                             margin-top: 1px;">
                     {icon_svg("check", 12, "white")}
                 </div>
-                <div style="flex: 1; font-size: 14px; color: #374151; line-height: 1.6;">
+                <div style="flex: 1; font-size: 14px; color: #e2e8f0; line-height: 1.6;">
                     {point}
                 </div>
             </div>
             '''
         
         return f'''
-        <div style="background: white; border-radius: 14px; padding: 4px 16px; 
+        <div style="background: rgba(255,255,255,0.05); border-radius: 14px; padding: 4px 16px; 
                     border: 1px solid rgba(0, 0, 0, 0.04);">
             {points_html}
         </div>
@@ -286,16 +294,16 @@ class MetricsRow(Component):
             
             items_html += f'''
                 <div style="flex: 1; text-align: center; padding: 0 12px; {border_style}">
-                    <div style="font-size: 20px; font-weight: 700; color: #1f2937;">
+                    <div style="font-size: 20px; font-weight: 700; color: #f1f5f9;">
                         {value}
                         {trend_html}
                     </div>
-                    <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">{label}</div>
+                    <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">{label}</div>
                 </div>
             '''
         
         return f'''
-        <div style="background: white; border-radius: 16px; 
+        <div style="background: rgba(255,255,255,0.04); border-radius: 16px; 
                     padding: 20px 12px; border: 1px solid rgba(0, 0, 0, 0.06);
                     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
                     display: flex; align-items: center;">
@@ -316,7 +324,7 @@ class Badge(Component):
     
     def render(self) -> str:
         variants = {
-            "default": {"bg": "#f3f4f6", "color": "#374151"},
+            "default": {"bg": "rgba(255,255,255,0.1)", "color": "#e2e8f0"},
             "primary": {"bg": "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)", "color": "white"},
             "success": {"bg": "linear-gradient(135deg, #10b981 0%, #059669 100%)", "color": "white"},
             "warning": {"bg": "linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)", "color": "white"},
@@ -356,7 +364,7 @@ class CompareTable(Component):
     def render(self) -> str:
         # 表头
         headers_html = "".join(
-            f'<th style="padding: 14px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; background: #f9fafb;">{h}</th>'
+            f'<th style="padding: 14px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(255,255,255,0.05);">{h}</th>'
             for h in self.headers
         )
         
@@ -372,7 +380,7 @@ class CompareTable(Component):
                 if self.highlight_col is not None and j == self.highlight_col:
                     cell_style = "font-weight: 600; color: #4f46e5;"
                 
-                cells_html += '<td style="padding: 14px 16px; font-size: 13px; color: #374151; ' + cell_style + '">' + str(cell) + '</td>'
+                cells_html += '<td style="padding: 14px 16px; font-size: 13px; color: #e2e8f0; ' + cell_style + '">' + str(cell) + '</td>'
             
             rows_html += '<tr style="background: ' + row_bg + '; transition: background 0.2s;">' + cells_html + '</tr>'
         
@@ -428,7 +436,7 @@ class ProgressBar(Component):
             percent_html = f'<span style="font-weight: 600; color: #4f46e5;">{percent:.0f}%</span>' if self.show_percent else ''
             label_html = f'''
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="font-size: 13px; font-weight: 500; color: #374151;">{self.label}</span>
+                <span style="font-size: 13px; font-weight: 500; color: #e2e8f0;">{self.label}</span>
                 {percent_html}
             </div>
             '''
@@ -437,7 +445,7 @@ class ProgressBar(Component):
         <div style="width: 100%;">
             {label_html}
             <div style="width: 100%; height: {self.height}; 
-                        background: #f3f4f6; border-radius: 999px; 
+                        background: rgba(255,255,255,0.08); border-radius: 999px; 
                         overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);">
                 <div style="width: {percent}%; height: 100%; 
                             background: {gradient};
@@ -599,7 +607,7 @@ class GaugeChart(Component):
                 </svg>
                 {value_html}
             </div>
-            {'<div style="font-size: 12px; color: #6b7280; margin-top: 4px;">' + self.label + '</div>' if self.label else ''}
+            {'<div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">' + self.label + '</div>' if self.label else ''}
         </div>
         '''
 
@@ -633,7 +641,7 @@ class Tabs(Component):
             else:
                 active_style = """
                     background: transparent;
-                    color: #6b7280;
+                    color: #94a3b8;
                 """
             
             tab_buttons += f'''
@@ -687,7 +695,7 @@ class Tabs(Component):
         return f'''
         <div id="{tab_id}" style="width: 100%;">
             <div style="display: flex; gap: 6px; padding: 4px; 
-                        background: #f3f4f6; border-radius: 12px; flex-wrap: wrap;">
+                        background: rgba(255,255,255,0.05); border-radius: 12px; flex-wrap: wrap;">
                 {tab_buttons}
             </div>
             {tab_panels}

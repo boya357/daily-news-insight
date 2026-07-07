@@ -125,12 +125,12 @@ class DailyReportGenerator:
             
             index_cards_html += f'''
             <div style="background: {bg_color}; border-radius: 16px; padding: 18px;
-                       border: 1px solid rgba(0,0,0,0.04);
+                       border: 1px solid rgba(255,255,255,0.08);
                        transition: all 0.3s ease;"
                  onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,0.08)';"
                  onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none';">
-                <div style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">{name}</div>
-                <div style="font-size: 22px; font-weight: 700; color: #1f2937; margin-bottom: 4px;">
+                <div style="font-size: 13px; color: #94a3b8; margin-bottom: 8px;">{name}</div>
+                <div style="font-size: 22px; font-weight: 700; color: #f1f5f9; margin-bottom: 4px;">
                     {price}
                 </div>
                 <div style="font-size: 13px; font-weight: 600; color: {color};">
@@ -167,7 +167,7 @@ class DailyReportGenerator:
         bar_gradient = 'linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%)'
         
         html = f'''
-        <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); 
+        <div style="background: rgba(30,30,50,0.5); 
                     padding: 28px; border-radius: 20px; 
                     border: 1px solid rgba(0,0,0,0.06);
                     box-shadow: 0 4px 16px rgba(0,0,0,0.04);">
@@ -184,33 +184,33 @@ class DailyReportGenerator:
             <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 24px; align-items: center;">
                 <!-- 左侧：市场数据 -->
                 <div>
-                    <div style="font-size: 15px; font-weight: 600; color: #1f2937; margin-bottom: 14px;">
+                    <div style="font-size: 15px; font-weight: 600; color: #f1f5f9; margin-bottom: 14px;">
                         📊 市场概况
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
-                        <div style="text-align: center; padding: 12px; background: #f8fafc; border-radius: 10px;">
-                            <div style="font-size: 18px; font-weight: 700; color: #1f2937;">{turnover}</div>
-                            <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">成交额</div>
+                        <div style="text-align: center; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <div style="font-size: 18px; font-weight: 700; color: #f1f5f9;">{turnover}</div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">成交额</div>
                         </div>
-                        <div style="text-align: center; padding: 12px; background: #fef2f2; border-radius: 10px;">
+                        <div style="text-align: center; padding: 12px; background: rgba(239,68,68,0.1); border-radius: 10px;">
                             <div style="font-size: 18px; font-weight: 700; color: #ef4444;">{up_count}</div>
-                            <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">上涨家数</div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">上涨家数</div>
                         </div>
-                        <div style="text-align: center; padding: 12px; background: #f0fdf4; border-radius: 10px;">
+                        <div style="text-align: center; padding: 12px; background: rgba(16,185,129,0.1); border-radius: 10px;">
                             <div style="font-size: 18px; font-weight: 700; color: #10b981;">{down_count}</div>
-                            <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">下跌家数</div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">下跌家数</div>
                         </div>
-                        <div style="text-align: center; padding: 12px; background: #fffbeb; border-radius: 10px;">
+                        <div style="text-align: center; padding: 12px; background: rgba(245,158,11,0.1); border-radius: 10px;">
                             <div style="font-size: 18px; font-weight: 700; color: #f59e0b;">{limit_up}/{limit_down}</div>
-                            <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">涨停/跌停</div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">涨停/跌停</div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- 右侧：情绪温度计 -->
-                <div style="background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%); 
+                <div style="background: linear-gradient(135deg, rgba(250,204,21,0.1) 0%, rgba(245,158,11,0.12) 100%); 
                             border-radius: 16px; padding: 20px; text-align: center;">
-                    <div style="font-size: 13px; font-weight: 600; color: #92400e; margin-bottom: 10px;">
+                    <div style="font-size: 13px; font-weight: 600; color: #fbbf24; margin-bottom: 10px;">
                         🌡️ 市场情绪
                     </div>
                     <div style="font-size: 36px; font-weight: 900; color: {fg_color}; line-height: 1;">
@@ -219,10 +219,10 @@ class DailyReportGenerator:
                     <div style="font-size: 13px; font-weight: 600; color: #b45309; margin-top: 4px;">
                         {fg_level}
                     </div>
-                    <div style="width: 100%; height: 8px; background: #fde68a; border-radius: 4px; overflow: hidden; margin-top: 12px;">
+                    <div style="width: 100%; height: 8px; background: rgba(251,191,36,0.3); border-radius: 4px; overflow: hidden; margin-top: 12px;">
                         <div style="height: 100%; width: {fg_score}%; background: {bar_gradient}; border-radius: 4px;"></div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 10px; color: #92400e; margin-top: 6px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 10px; color: #fcd34d; margin-top: 6px;">
                         <span>恐惧</span>
                         <span>中性</span>
                         <span>贪婪</span>
@@ -253,7 +253,7 @@ class DailyReportGenerator:
             <div>
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px;">
                     <span style="font-size: 18px;">🔥</span>
-                    <span style="font-size: 16px; font-weight: 700; color: #1f2937;">强势板块</span>
+                    <span style="font-size: 16px; font-weight: 700; color: #f1f5f9;">强势板块</span>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
             '''
@@ -269,28 +269,28 @@ class DailyReportGenerator:
                 sustainability = self._assess_sustainability(sector)
                 
                 html += f'''
-                <div style="background: linear-gradient(135deg, #fef2f2 0%, #fff7ed 100%); 
+                <div style="background: linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(234,88,12,0.08) 100%); 
                             border-radius: 16px; padding: 18px;
-                            border: 1px solid rgba(239, 68, 68, 0.15);
+                            border: 1px solid rgba(239,68,68,0.3);
                             transition: all 0.3s ease;"
                      onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(239,68,68,0.1)';"
                      onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none';">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                        <div style="font-size: 16px; font-weight: 700; color: #991b1b;">{name}</div>
+                        <div style="font-size: 16px; font-weight: 700; color: #f87171;">{name}</div>
                         <div style="font-size: 16px; font-weight: 700; color: #ef4444;">{change_str}</div>
                     </div>
                     <div style="font-size: 13px; color: #7f1d1d; line-height: 1.7; margin-bottom: 12px;">
                         <strong>领涨：</strong>{leader}
                     </div>
-                    <div style="font-size: 13px; color: #6b7280; line-height: 1.7; margin-bottom: 12px;">
+                    <div style="font-size: 13px; color: #94a3b8; line-height: 1.7; margin-bottom: 12px;">
                         {reason}
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 11px; color: #6b7280;">持续性评估：</span>
-                        <div style="flex: 1; height: 6px; background: #fecaca; border-radius: 3px; overflow: hidden;">
+                        <span style="font-size: 11px; color: #94a3b8;">持续性评估：</span>
+                        <div style="flex: 1; height: 6px; background: rgba(248,113,113,0.3); border-radius: 3px; overflow: hidden;">
                             <div style="height: 100%; width: {sustainability['score']}%; background: #ef4444; border-radius: 3px;"></div>
                         </div>
-                        <span style="font-size: 11px; font-weight: 600; color: #991b1b;">{sustainability['level']}</span>
+                        <span style="font-size: 11px; font-weight: 600; color: #f87171;">{sustainability['level']}</span>
                     </div>
                 </div>
                 '''
@@ -303,7 +303,7 @@ class DailyReportGenerator:
             <div>
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px;">
                     <span style="font-size: 18px;">🧊</span>
-                    <span style="font-size: 16px; font-weight: 700; color: #1f2937;">弱势板块</span>
+                    <span style="font-size: 16px; font-weight: 700; color: #f1f5f9;">弱势板块</span>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
             '''
@@ -315,14 +315,14 @@ class DailyReportGenerator:
                 reason = sector.get('reason', '')
                 
                 html += f'''
-                <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); 
+                <div style="background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.08) 100%); 
                             border-radius: 16px; padding: 18px;
-                            border: 1px solid rgba(16, 185, 129, 0.15);">
+                            border: 1px solid rgba(16,185,129,0.3);">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                        <div style="font-size: 16px; font-weight: 700; color: #065f46;">{name}</div>
+                        <div style="font-size: 16px; font-weight: 700; color: #34d399;">{name}</div>
                         <div style="font-size: 16px; font-weight: 700; color: #10b981;">{change_str}</div>
                     </div>
-                    <div style="font-size: 13px; color: #6b7280; line-height: 1.7;">
+                    <div style="font-size: 13px; color: #94a3b8; line-height: 1.7;">
                         {reason}
                     </div>
                 </div>
@@ -388,7 +388,7 @@ class DailyReportGenerator:
         dim_scores = topic.get('dimension_scores', {})
         
         html = f'''
-        <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); 
+        <div style="background: linear-gradient(135deg, rgba(250,204,21,0.1) 0%, rgba(245,158,11,0.12) 100%); 
                     padding: 28px; border-radius: 20px; 
                     border: 1px solid rgba(245, 158, 11, 0.2);">
             
@@ -397,12 +397,12 @@ class DailyReportGenerator:
                 <div style="flex: 1;">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                         <span style="font-size: 28px;">⚡</span>
-                        <span style="font-size: 20px; font-weight: 800; color: #92400e;">{name}</span>
+                        <span style="font-size: 20px; font-weight: 800; color: #fbbf24;">{name}</span>
                         <span style="background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
                                    color: white; padding: 4px 10px; border-radius: 12px;
                                    font-size: 12px; font-weight: 700;">{level}级题材</span>
                     </div>
-                    <div style="font-size: 14px; color: #78350f; line-height: 1.8; max-width: 600px;">
+                    <div style="font-size: 14px; color: #fde68a; line-height: 1.8; max-width: 600px;">
                         {core_logic}
                     </div>
                 </div>
@@ -413,7 +413,7 @@ class DailyReportGenerator:
                                background-clip: text;">
                         {total_score}
                     </div>
-                    <div style="font-size: 11px; color: #92400e;">综合评分</div>
+                    <div style="font-size: 11px; color: #fbbf24;">综合评分</div>
                 </div>
             </div>
             
@@ -443,9 +443,9 @@ class DailyReportGenerator:
             <div style="text-align: center; background: rgba(255,255,255,0.7); 
                        border-radius: 12px; padding: 12px 8px;">
                 <div style="font-size: 20px; margin-bottom: 4px;">{icon}</div>
-                <div style="font-size: 16px; font-weight: 700; color: #1f2937;">{score}</div>
-                <div style="font-size: 10px; color: #6b7280; margin-top: 2px;">{label}</div>
-                <div style="width: 100%; height: 4px; background: #fde68a; border-radius: 2px; margin-top: 8px; overflow: hidden;">
+                <div style="font-size: 16px; font-weight: 700; color: #f1f5f9;">{score}</div>
+                <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">{label}</div>
+                <div style="width: 100%; height: 4px; background: rgba(251,191,36,0.3); border-radius: 2px; margin-top: 8px; overflow: hidden;">
                     <div style="height: 100%; width: {score}%; background: {bar_color}; border-radius: 2px;"></div>
                 </div>
             </div>
@@ -458,14 +458,14 @@ class DailyReportGenerator:
         if catalysts:
             html += '''
             <div style="margin-top: 20px;">
-                <div style="font-size: 14px; font-weight: 600; color: #92400e; margin-bottom: 12px;">
+                <div style="font-size: 14px; font-weight: 600; color: #fbbf24; margin-bottom: 12px;">
                     📅 核心催化事件
                 </div>
                 <div style="display: flex; flex-wrap: wrap; gap: 8px;">
             '''
             for cat in catalysts:
                 html += f'''
-                <span style="background: rgba(255,255,255,0.8); color: #78350f;
+                <span style="background: rgba(251,191,36,0.2); color: #fde68a;
                            padding: 6px 12px; border-radius: 8px; font-size: 12px;
                            border: 1px solid #fde68a;">
                     {cat}
@@ -481,7 +481,7 @@ class DailyReportGenerator:
         if leader or mid or flexible:
             html += '''
             <div style="margin-top: 20px;">
-                <div style="font-size: 14px; font-weight: 600; color: #92400e; margin-bottom: 12px;">
+                <div style="font-size: 14px; font-weight: 600; color: #fbbf24; margin-bottom: 12px;">
                     🎯 核心标的
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
@@ -490,24 +490,24 @@ class DailyReportGenerator:
                 html += f'''
                 <div style="background: rgba(255,255,255,0.9); border-radius: 10px; padding: 12px; text-align: center;
                            border: 1px solid #fde68a;">
-                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">龙头</div>
-                    <div style="font-size: 14px; font-weight: 600; color: #1f2937;">{leader}</div>
+                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 4px;">龙头</div>
+                    <div style="font-size: 14px; font-weight: 600; color: #f1f5f9;">{leader}</div>
                 </div>
                 '''
             if mid:
                 html += f'''
                 <div style="background: rgba(255,255,255,0.9); border-radius: 10px; padding: 12px; text-align: center;
                            border: 1px solid #fde68a;">
-                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">中坚</div>
-                    <div style="font-size: 14px; font-weight: 600; color: #1f2937;">{mid}</div>
+                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 4px;">中坚</div>
+                    <div style="font-size: 14px; font-weight: 600; color: #f1f5f9;">{mid}</div>
                 </div>
                 '''
             if flexible:
                 html += f'''
                 <div style="background: rgba(255,255,255,0.9); border-radius: 10px; padding: 12px; text-align: center;
                            border: 1px solid #fde68a;">
-                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">弹性</div>
-                    <div style="font-size: 14px; font-weight: 600; color: #1f2937;">{flexible}</div>
+                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 4px;">弹性</div>
+                    <div style="font-size: 14px; font-weight: 600; color: #f1f5f9;">{flexible}</div>
                 </div>
                 '''
             html += '</div></div>'
@@ -591,11 +591,11 @@ class DailyReportGenerator:
             pred_html += f'''
             <div style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px);
                         border-radius: 16px; padding: 18px 20px; 
-                        border: 1px solid rgba(0, 0, 0, 0.06);">
+                        border: 1px solid rgba(255,255,255,0.08);">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="font-size: 20px;">{style['icon']}</span>
-                        <span style="font-size: 15px; font-weight: 700; color: #1f2937;">{name}</span>
+                        <span style="font-size: 15px; font-weight: 700; color: #f1f5f9;">{name}</span>
                     </div>
                     <div style="text-align: right;">
                         <span style="background: {style['gradient']};
@@ -625,7 +625,7 @@ class DailyReportGenerator:
         '''
         
         html = f'''
-        <div style="background: linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%); 
+        <div style="background: linear-gradient(135deg, rgba(79,70,229,0.15) 0%, rgba(124,58,237,0.1) 100%); 
                     padding: 24px; border-radius: 20px; 
                     border: 1px solid rgba(79, 70, 229, 0.15);">
             {pred_html}
@@ -696,7 +696,7 @@ class DailyReportGenerator:
                 diag_html += f'''
                 <div style="text-align: center; flex: 1;">
                     <div style="font-size: 12px; font-weight: 600; color: {item['color']};">{item['value']}</div>
-                    <div style="font-size: 10px; color: #6b7280; margin-top: 2px;">{item['label']}</div>
+                    <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">{item['label']}</div>
                 </div>
                 '''
             
@@ -705,32 +705,32 @@ class DailyReportGenerator:
                 diag_html = '''
                 <div style="text-align: center; flex: 1;">
                     <div style="font-size: 12px; font-weight: 600; color: #3b82f6;">--</div>
-                    <div style="font-size: 10px; color: #6b7280; margin-top: 2px;">技术面</div>
+                    <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">技术面</div>
                 </div>
                 <div style="text-align: center; flex: 1;">
                     <div style="font-size: 12px; font-weight: 600; color: #3b82f6;">--</div>
-                    <div style="font-size: 10px; color: #6b7280; margin-top: 2px;">资金面</div>
+                    <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">资金面</div>
                 </div>
                 <div style="text-align: center; flex: 1;">
                     <div style="font-size: 12px; font-weight: 600; color: #3b82f6;">--</div>
-                    <div style="font-size: 10px; color: #6b7280; margin-top: 2px;">基本面</div>
+                    <div style="font-size: 10px; color: #94a3b8; margin-top: 2px;">基本面</div>
                 </div>
                 '''
             
             html += f'''
-            <div style="background: white; border-radius: 16px; padding: 18px 20px;
+            <div style="background: rgba(255,255,255,0.04); border-radius: 16px; padding: 18px 20px; border: 1px solid rgba(255,255,255,0.08);
                        border: 1px solid rgba(0,0,0,0.06);
                        box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
                 <!-- 头部信息 -->
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
                     <div>
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                            <span style="font-size: 16px; font-weight: 700; color: #1f2937;">{name}</span>
+                            <span style="font-size: 16px; font-weight: 700; color: #f1f5f9;">{name}</span>
                             <span style="font-size: 11px; color: #9ca3af;">{code}</span>
                         </div>
                         <div style="display: flex; gap: 14px; font-size: 12px;">
-                            <span style="color: #6b7280;">成本: <span style="color: #374151; font-weight: 500;">¥{cost:.2f}</span></span>
-                            <span style="color: #6b7280;">现价: <span style="color: #374151; font-weight: 500;">¥{current:.2f}</span></span>
+                            <span style="color: #94a3b8;">成本: <span style="color: #e2e8f0; font-weight: 500;">¥{cost:.2f}</span></span>
+                            <span style="color: #94a3b8;">现价: <span style="color: #e2e8f0; font-weight: 500;">¥{current:.2f}</span></span>
                         </div>
                     </div>
                     <div style="text-align: right;">
@@ -744,15 +744,15 @@ class DailyReportGenerator:
                 </div>
                 
                 <!-- 诊断指标 -->
-                <div style="display: flex; gap: 8px; margin-bottom: 14px; padding: 10px; background: #f8fafc; border-radius: 10px;">
+                <div style="display: flex; gap: 8px; margin-bottom: 14px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px;">
                     {diag_html}
                 </div>
                 
                 <!-- 风险条 -->
                 <div style="margin-bottom: 12px;">
                     <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
-                        <span style="color: #6b7280;">风险等级</span>
-                        <span style="color: #374151; font-weight: 500;">{risk_level}</span>
+                        <span style="color: #94a3b8;">风险等级</span>
+                        <span style="color: #e2e8f0; font-weight: 500;">{risk_level}</span>
                     </div>
                     <div style="width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden;">
                         <div style="height: 100%; width: {risk_progress}%; background: {risk_bar_color}; border-radius: 3px;"></div>
@@ -803,7 +803,7 @@ class DailyReportGenerator:
         
         # 如果是字符串，直接渲染
         return f'''
-        <div style="background: #f0fdf4; border-radius: 10px; padding: 10px 14px;
+        <div style="background: rgba(16,185,129,0.1); border-radius: 10px; padding: 10px 14px;
                    border-left: 3px solid #10b981;">
             <div style="font-size: 11px; font-weight: 600; color: #059669; margin-bottom: 4px;">
                 💡 操作建议
@@ -927,10 +927,10 @@ class DailyReportGenerator:
         """
         
         html = f'''
-        <div style="background: linear-gradient(135deg, #fafafa 0%, #f5f5f4 100%); 
+        <div style="background: rgba(255,255,255,0.04); 
                     padding: 24px; border-radius: 18px;
                     border: 1px solid rgba(0,0,0,0.05);">
-            <div style="font-size: 15px; font-weight: 600; color: #1f2937; margin-bottom: 12px;">
+            <div style="font-size: 15px; font-weight: 600; color: #f1f5f9; margin-bottom: 12px;">
                 📝 今日总结
             </div>
             <div style="font-size: 14px; color: #4b5563; line-height: 1.9;">

@@ -54,15 +54,15 @@ class AftermarketGenerator:
             extra_html = '<div style="margin-top: 16px; display: flex; gap: 12px;">'
             if volume:
                 extra_html += f'''
-                <div style="flex: 1; background: #f8fafc; border-radius: 12px; padding: 14px;">
-                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">成交额</div>
-                    <div style="font-size: 16px; font-weight: 700; color: #1f2937;">{volume}</div>
+                <div style="flex: 1; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px;">
+                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 4px;">成交额</div>
+                    <div style="font-size: 16px; font-weight: 700; color: #f1f5f9;">{volume}</div>
                 </div>'''
             if northbound:
                 extra_html += f'''
-                <div style="flex: 1; background: #f8fafc; border-radius: 12px; padding: 14px;">
-                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">北向资金</div>
-                    <div style="font-size: 16px; font-weight: 700; color: #1f2937;">{northbound}</div>
+                <div style="flex: 1; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px;">
+                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 4px;">北向资金</div>
+                    <div style="font-size: 16px; font-weight: 700; color: #f1f5f9;">{northbound}</div>
                 </div>'''
             extra_html += '</div>'
         
@@ -224,20 +224,20 @@ class AftermarketGenerator:
             comment = h.get("comment", "")
             
             content_html += f'''
-            <div style="background: white; border: 1px solid rgba(0, 0, 0, 0.06);
+            <div style="background: rgba(30,30,50,0.5); border: 1px solid rgba(255,255,255,0.08);
                        border-radius: 14px; padding: 16px 18px;
-                       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);">
+                       box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                 <div style="display: flex; align-items: center;">
                     <div style="flex: 1;">
                         <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                            <span style="font-size: 15px; font-weight: 600; color: #1f2937;">
+                            <span style="font-size: 15px; font-weight: 600; color: #f1f5f9;">
                                 {name}
                             </span>
                             <span style="font-size: 12px; color: #9ca3af; margin-left: 8px;">
                                 {code}
                             </span>
                         </div>
-                        <div style="font-size: 12px; color: #6b7280; line-height: 1.5; max-width: 400px;">
+                        <div style="font-size: 12px; color: #94a3b8; line-height: 1.5; max-width: 400px;">
                             {comment}
                         </div>
                     </div>
@@ -336,18 +336,18 @@ class AftermarketGenerator:
             inst_html = f'<span style="font-size: 12px; color: #f59e0b; margin-left: 8px;">🏛️ 机构净买</span>' if inst_count > 0 else ''
             
             content_html += f'''
-            <div style="background: white; border: 1px solid rgba(0, 0, 0, 0.06);
+            <div style="background: rgba(30,30,50,0.5); border: 1px solid rgba(255,255,255,0.08);
                        border-radius: 14px; padding: 16px 18px;
-                       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);">
+                       box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                 <div style="display: flex; align-items: center; margin-bottom: 8px;">
                     <div style="flex: 1;">
-                        <span style="font-size: 15px; font-weight: 600; color: #1f2937;">{stock["name"]}</span>
+                        <span style="font-size: 15px; font-weight: 600; color: #f1f5f9;">{stock["name"]}</span>
                         <span style="font-size: 12px; color: #9ca3af; margin-left: 6px;">{stock.get("code", "")}</span>
                         {inst_html}
                     </div>
                     <span style="font-size: 16px; font-weight: 700; color: {change_color};">{stock.get("change", "")}</span>
                 </div>
-                <div style="display: flex; gap: 16px; font-size: 12px; color: #6b7280;">
+                <div style="display: flex; gap: 16px; font-size: 12px; color: #94a3b8;">
                     <span>上榜原因：{stock.get("reason", "")}</span>
                     <span>净买入：{stock.get("net_buy", "")}</span>
                 </div>
@@ -361,7 +361,7 @@ class AftermarketGenerator:
         """添加板块涨跌幅排行"""
         content_html = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">'
         
-        up_html = '<div style="background: #f0fdf4; border-radius: 14px; padding: 16px;">'
+        up_html = '<div style="background: rgba(16,185,129,0.1); border-radius: 14px; padding: 16px;">'
         up_html += '<div style="font-size: 14px; font-weight: 600; color: #059669; margin-bottom: 12px;">📈 领涨板块</div>'
         for s in up_sectors:
             up_html += f'''<div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #bbf7d0;">
@@ -369,11 +369,11 @@ class AftermarketGenerator:
                 <span style="font-size: 13px; font-weight: 600; color: #059669;">{s["change"]}</span></div>'''
         up_html += '</div>'
         
-        down_html = '<div style="background: #fef2f2; border-radius: 14px; padding: 16px;">'
+        down_html = '<div style="background: rgba(239,68,68,0.1); border-radius: 14px; padding: 16px;">'
         down_html += '<div style="font-size: 14px; font-weight: 600; color: #dc2626; margin-bottom: 12px;">📉 领跌板块</div>'
         for s in down_sectors:
             down_html += f'''<div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #fecaca;">
-                <span style="font-size: 13px; color: #991b1b;">{s["name"]}</span>
+                <span style="font-size: 13px; color: #f87171;">{s["name"]}</span>
                 <span style="font-size: 13px; font-weight: 600; color: #dc2626;">{s["change"]}</span></div>'''
         down_html += '</div>'
         
@@ -391,7 +391,7 @@ class AftermarketGenerator:
             core_view: 核心观点字符串
         """
         # 强势板块
-        strong_html = '<div style="background: linear-gradient(135deg, #fef2f2 0%, #fff7ed 100%); border-radius: 16px; padding: 20px; border: 1px solid rgba(239, 68, 68, 0.15);">'
+        strong_html = '<div style="background: linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(234,88,12,0.08) 100%); border-radius: 16px; padding: 20px; border: 1px solid rgba(239,68,68,0.3);">'
         strong_html += '<div style="font-size: 14px; font-weight: 700; color: #dc2626; margin-bottom: 10px;">📈 强势板块</div>'
         strong_html += '<div style="font-size: 13px; color: #4b5563; line-height: 1.7;">'
         for s in strong_sectors:
@@ -399,7 +399,7 @@ class AftermarketGenerator:
         strong_html += '</div></div>'
         
         # 弱势板块
-        weak_html = '<div style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border-radius: 16px; padding: 20px; border: 1px solid rgba(16, 185, 129, 0.15);">'
+        weak_html = '<div style="background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.08) 100%); border-radius: 16px; padding: 20px; border: 1px solid rgba(16,185,129,0.3);">'
         weak_html += '<div style="font-size: 14px; font-weight: 700; color: #059669; margin-bottom: 10px;">📉 弱势板块</div>'
         weak_html += '<div style="font-size: 13px; color: #4b5563; line-height: 1.7;">'
         for w in weak_sectors:
@@ -412,7 +412,7 @@ class AftermarketGenerator:
         view_html += '<p style="font-size: 13px; color: #4b5563; line-height: 1.8; margin: 0;">' + core_view + '</p>'
         view_html += '</div>'
         
-        content_html = '<div style="background: white; padding: 28px; border: 1px solid rgba(0, 0, 0, 0.06); border-radius: 20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 -1px 0 rgba(0, 0, 0, 0.02) inset;">'
+        content_html = '<div style="background: rgba(30,30,50,0.5); padding: 28px; border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.05) inset;">'
         content_html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">'
         content_html += strong_html + weak_html
         content_html += '</div>' + view_html + '</div>'
@@ -442,12 +442,12 @@ class AftermarketGenerator:
         else:
             level = "极度恐慌"
         
-        content_html = '<div style="background: white; padding: 28px; border: 1px solid rgba(0, 0, 0, 0.06); border-radius: 20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 -1px 0 rgba(0, 0, 0, 0.02) inset;">'
+        content_html = '<div style="background: rgba(30,30,50,0.5); padding: 28px; border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.05) inset;">'
         
         # 温度大数字
         content_html += '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">'
         content_html += '<div><div style="font-size: 48px; font-weight: 900; background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">' + str(temperature) + '°</div>'
-        content_html += '<div style="font-size: 13px; color: #6b7280; margin-top: 4px;">市场情绪温度</div></div>'
+        content_html += '<div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">市场情绪温度</div></div>'
         content_html += '<div style="text-align: right;"><div style="font-size: 16px; font-weight: 600; color: #f59e0b;">' + level + '</div>'
         content_html += '<div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">20°=极度恐慌 · 100°=极度贪婪</div></div></div>'
         
@@ -457,7 +457,7 @@ class AftermarketGenerator:
         
         # 四项数据
         content_html += '<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; text-align: center;">'
-        content_html += '<div><div style="font-size: 18px; font-weight: 800; color: #374151;">' + volume + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">成交额</div></div>'
+        content_html += '<div><div style="font-size: 18px; font-weight: 800; color: #e2e8f0;">' + volume + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">成交额</div></div>'
         content_html += '<div><div style="font-size: 18px; font-weight: 800; color: #ef4444;">' + up_count + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">上涨家数</div></div>'
         content_html += '<div><div style="font-size: 18px; font-weight: 800; color: #10b981;">' + down_count + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">下跌家数</div></div>'
         content_html += '<div><div style="font-size: 18px; font-weight: 800; color: #f59e0b;">' + str(limit_up_count) + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">涨停数</div></div>'
@@ -480,11 +480,11 @@ class AftermarketGenerator:
         for p in predictions:
             direction = p.get('direction', '震荡')
             style = direction_styles.get(direction, direction_styles['震荡'])
-            pred_html += '<div style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border-radius: 16px; padding: 20px; border: 1px solid rgba(0, 0, 0, 0.06);">'
+            pred_html += '<div style="background: rgba(30,30,50,0.5); backdrop-filter: blur(10px); border-radius: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.08);">'
             pred_html += '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">'
             pred_html += '<div style="display: flex; align-items: center; gap: 10px;">'
             pred_html += '<span style="font-size: 22px;">' + style['icon'] + '</span>'
-            pred_html += '<span style="font-weight: 700; color: #1f2937;">' + p.get('name', '') + '</span></div>'
+            pred_html += '<span style="font-weight: 700; color: #f1f5f9;">' + p.get('name', '') + '</span></div>'
             pred_html += '<span style="background: ' + style['gradient'] + '; color: white; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 20px;">'
             pred_html += direction + ' · ' + str(p.get('confidence', 60)) + '%</span></div>'
             pred_html += '<p style="font-size: 13px; color: #4b5563; line-height: 1.7; margin: 0;">' + p.get('reason', '') + '</p>'
@@ -493,7 +493,7 @@ class AftermarketGenerator:
         pred_html += '</div>'
         pred_html += '<div style="margin-top: 20px; text-align: center; font-size: 12px; color: #9ca3af;">⚠️ 预判仅供参考，不构成投资建议</div>'
         
-        content_html = '<div style="background: linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%); padding: 28px; border: 1px solid rgba(79, 70, 229, 0.1); border-radius: 20px; box-shadow: 0 4px 16px rgba(79, 70, 229, 0.08), 0 1px 0 rgba(255, 255, 255, 0.6) inset;">'
+        content_html = '<div style="background: linear-gradient(135deg, rgba(79,70,229,0.15) 0%, rgba(124,58,237,0.1) 100%); padding: 28px; border: 1px solid rgba(139,92,246,0.2); border-radius: 20px; box-shadow: 0 4px 16px rgba(79,70,229,0.15), 0 1px 0 rgba(255,255,255,0.05) inset;">'
         content_html += pred_html + '</div>'
         
         section = Section(title="明日关键预判", content=content_html, icon="target")
@@ -507,7 +507,7 @@ class AftermarketGenerator:
     
     def add_trading_plan(self, plan: str):
         """添加下一交易日操作计划"""
-        content = f'<div style="line-height: 1.8; color: #374151; font-size: 14px;">{plan}</div>'
+        content = f'<div style="line-height: 1.8; color: #e2e8f0; font-size: 14px;">{plan}</div>'
         section = Section(title="🎯 明日操作计划", content=content, icon="target", variant="highlight")
         self._components.append(section)
     

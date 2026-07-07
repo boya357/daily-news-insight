@@ -78,7 +78,7 @@ class TomorrowCatalystGenerator:
             content_html = '<div style="display: flex; flex-direction: column; gap: 10px;">'
             for event in type_events:
                 event_html = f'''
-                <div style="background: white; border: 1px solid rgba(0, 0, 0, 0.06);
+                <div style="background: rgba(30,30,50,0.5); border: 1px solid rgba(255,255,255,0.08);
                            border-radius: 12px; padding: 14px 16px;
                            display: flex; align-items: flex-start;
                            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -92,10 +92,10 @@ class TomorrowCatalystGenerator:
                         {icon_svg("calendar", 16, "white")}
                     </div>
                     <div style="flex: 1;">
-                        <div style="font-size: 14px; font-weight: 600; color: #1f2937; margin-bottom: 4px;">
+                        <div style="font-size: 14px; font-weight: 600; color: #f1f5f9; margin-bottom: 4px;">
                             {event.get("title", "")}
                         </div>
-                        <div style="font-size: 12px; color: #6b7280; line-height: 1.5;">
+                        <div style="font-size: 12px; color: #94a3b8; line-height: 1.5;">
                             {event.get("description", "")}
                         </div>
                         <div style="margin-top: 6px;">
@@ -203,7 +203,7 @@ class TomorrowCatalystGenerator:
     
     def add_impact_analysis(self, impact: str):
         """添加市场影响分析"""
-        content = f'<div style="line-height: 1.8; color: #374151; font-size: 14px;">{impact}</div>'
+        content = f'<div style="line-height: 1.8; color: #e2e8f0; font-size: 14px;">{impact}</div>'
         section = Section(title="🔍 市场影响分析", content=content, icon="search", variant="highlight")
         self._components.append(section)
     

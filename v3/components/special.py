@@ -20,24 +20,24 @@ class RiskAlert(Component):
     def render(self) -> str:
         levels = {
             "warning": {
-                "bg": "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)",
+                "bg": "linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(234,88,12,0.08) 100%)",
                 "border": "rgba(245, 158, 11, 0.2)",
                 "icon": "⚠️",
-                "title_color": "#92400e",
+                "title_color": "#fbbf24",
                 "text_color": "#b45309",
             },
             "danger": {
-                "bg": "linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)",
+                "bg": "linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(220,38,38,0.08) 100%)",
                 "border": "rgba(239, 68, 68, 0.2)",
                 "icon": "🚨",
-                "title_color": "#991b1b",
+                "title_color": "#f87171",
                 "text_color": "#b91c1c",
             },
             "info": {
                 "bg": "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
                 "border": "rgba(59, 130, 246, 0.2)",
                 "icon": "ℹ️",
-                "title_color": "#1e40af",
+                "title_color": "#60a5fa",
                 "text_color": "#1d4ed8",
             },
         }
@@ -113,15 +113,15 @@ class Timeline(Component):
                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
                            z-index: 1;">
                 </div>
-                <div style="font-size: 12px; color: #6b7280; font-weight: 500; 
+                <div style="font-size: 12px; color: #94a3b8; font-weight: 500; 
                            margin-bottom: 4px;">
                     {item.get("time", "")}
                 </div>
-                <div style="font-size: 15px; font-weight: 600; color: #1f2937; 
+                <div style="font-size: 15px; font-weight: 600; color: #e2e8f0; 
                            margin-bottom: 6px;">
                     {item.get("title", "")}
                 </div>
-                <div style="font-size: 13px; color: #6b7280; line-height: 1.6;">
+                <div style="font-size: 13px; color: #94a3b8; line-height: 1.6;">
                     {item.get("content", "")}
                 </div>
             </div>
@@ -153,7 +153,7 @@ class CatalystTag(Component):
             '''
         else:
             style = '''
-            background: linear-gradient(135deg, #f0f4ff 0%, #ede9fe 100%);
+            background: linear-gradient(135deg, rgba(79,70,229,0.15) 0%, rgba(124,58,237,0.1) 100%);
             color: #4f46e5;
             border: 1px solid rgba(79, 70, 229, 0.15);
             '''
@@ -194,7 +194,7 @@ class QuoteBlock(Component):
             '''
         
         return f'''
-        <div style="background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%); 
+        <div style="background: linear-gradient(135deg, rgba(168,85,247,0.1) 0%, rgba(139,92,246,0.08) 100%); 
                     border-left: 4px solid #8b5cf6;
                     border-radius: 0 12px 12px 0; 
                     padding: 20px 24px;
@@ -242,7 +242,7 @@ class SectionHeader(Component):
         <div style="display: flex; align-items: center; 
                    margin-bottom: 14px; margin-top: 20px;">
             {icon_html}
-            <h4 style="font-size: 15px; font-weight: 600; color: #374151; 
+            <h4 style="font-size: 15px; font-weight: 600; color: #e2e8f0; 
                       margin: 0; display: flex; align-items: center;">
                 {self.title}
                 {badge_html}
@@ -292,7 +292,7 @@ class NewsItem(Component):
         content_html = ""
         if self.content:
             content_html = f'''
-            <div style="font-size: 13px; color: #6b7280; line-height: 1.6; 
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.6; 
                        margin-top: 8px;">
                 {self.content}
             </div>
@@ -304,11 +304,11 @@ class NewsItem(Component):
         return f'''
         <div style="padding: 14px 16px; 
                     border-radius: 12px;
-                    background: #fafafa;
+                    background: rgba(255,255,255,0.04);
                     margin-bottom: 10px;
                     transition: all 0.2s ease;"
-             onmouseover="this.style.background='#f5f5f5';"
-             onmouseout="this.style.background='#fafafa';">
+             onmouseover="this.style.background='rgba(255,255,255,0.08)';"
+             onmouseout="this.style.background='rgba(255,255,255,0.04)';">
             <div style="display: flex; align-items: flex-start;">
                 {tag_html}
                 <div style="flex: 1; min-width: 0;">
@@ -345,7 +345,7 @@ class ButtonGroup(Component):
                 "success": "background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;",
                 "warning": "background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;",
                 "danger": "background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;",
-                "default": "background: #f3f4f6; color: #374151;",
+                "default": "background: rgba(255,255,255,0.1); color: #e2e8f0;",
             }
             
             style = variants.get(variant, variants["default"])

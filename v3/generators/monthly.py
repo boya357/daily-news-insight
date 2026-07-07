@@ -58,18 +58,18 @@ class MonthlyReportGenerator:
         for sector in sectors:
             change_color = "#10b981" if sector.get('up', True) else "#ef4444"
             content_html += f'''
-            <div style="background: white; border: 1px solid rgba(0, 0, 0, 0.06);
+            <div style="background: rgba(30,30,50,0.5); border: 1px solid rgba(255,255,255,0.08);
                        border-radius: 12px; padding: 14px 16px;
                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);">
                 <div style="display: flex; align-items: center; margin-bottom: 6px;">
-                    <span style="font-size: 14px; font-weight: 600; color: #1f2937; flex: 1;">
+                    <span style="font-size: 14px; font-weight: 600; color: #f1f5f9; flex: 1;">
                         {sector["name"]}
                     </span>
                     <span style="font-size: 14px; font-weight: 600; color: {change_color};">
                         {sector.get("change", "")}
                     </span>
                 </div>
-                <div style="font-size: 12px; color: #6b7280; line-height: 1.5;">
+                <div style="font-size: 12px; color: #94a3b8; line-height: 1.5;">
                     {sector.get("comment", "")}
                 </div>
             </div>'''
@@ -84,8 +84,8 @@ class MonthlyReportGenerator:
         for asset in assets:
             change_color = "#10b981" if asset.get('up', True) else "#ef4444"
             content_html += f'''
-            <div style="background: #f8fafc; border-radius: 12px; padding: 14px;">
-                <div style="font-size: 13px; color: #6b7280; margin-bottom: 4px;">{asset["name"]}</div>
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px;">
+                <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">{asset["name"]}</div>
                 <div style="font-size: 18px; font-weight: 700; color: {change_color};">{asset.get("change", "")}</div>
                 <div style="font-size: 11px; color: #9ca3af; margin-top: 2px;">{asset.get("note", "")}</div>
             </div>'''
@@ -96,7 +96,7 @@ class MonthlyReportGenerator:
     
     def add_next_month_outlook(self, outlook: str):
         """添加下月展望"""
-        content = f'<div style="line-height: 1.8; color: #374151; font-size: 14px;">{outlook}</div>'
+        content = f'<div style="line-height: 1.8; color: #e2e8f0; font-size: 14px;">{outlook}</div>'
         section = Section(title="🔮 下月市场展望", content=content, icon="compass", variant="highlight")
         self._components.append(section)
     
@@ -150,7 +150,7 @@ class MonthlyReportGenerator:
     
     def add_investment_strategy(self, strategy: str):
         """添加月度投资策略"""
-        content = f'<div style="line-height: 1.8; color: #374151; font-size: 14px;">{strategy}</div>'
+        content = f'<div style="line-height: 1.8; color: #e2e8f0; font-size: 14px;">{strategy}</div>'
         section = Section(title="🎯 月度投资策略", content=content, icon="target")
         self._components.append(section)
     

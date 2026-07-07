@@ -406,12 +406,12 @@ class HomePageV4(V4BaseGenerator):
             align-items: center;
             gap: 16px;
             padding: 20px;
-            background: white;
+            background: rgba(30,30,50,0.6);
             border-radius: 16px;
             text-decoration: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255,255,255,0.08);
         }
         .v4-quick-card:hover {
             transform: translateY(-3px);
@@ -489,12 +489,12 @@ class HomePageV4(V4BaseGenerator):
             align-items: center;
             gap: 10px;
             padding: 20px 12px;
-            background: white;
+            background: rgba(30,30,50,0.6);
             border-radius: 16px;
             text-decoration: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255,255,255,0.08);
         }
         .v4-tool-card:hover {
             transform: translateY(-3px);
@@ -528,12 +528,12 @@ class HomePageV4(V4BaseGenerator):
             align-items: center;
             gap: 14px;
             padding: 18px;
-            background: white;
+            background: rgba(30,30,50,0.6);
             border-radius: 16px;
             text-decoration: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255,255,255,0.08);
         }
         .v4-report-card:hover {
             transform: translateY(-2px);

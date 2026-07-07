@@ -1424,7 +1424,7 @@ class V4MarketOverview(V4Component):
             {bar_html}
             {data_grid.render()}
             <div style="margin-top: 16px;">
-                <div style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 12px;">🔥 热门板块</div>
+                <div style="font-size: 14px; font-weight: 600; color: #e2e8f0; margin-bottom: 12px;">🔥 热门板块</div>
                 {sector_chart.render()}
             </div>
         </div>
