@@ -53,7 +53,7 @@ class Section(Component):
             <div style="display: flex; align-items: center; margin-bottom: 20px;">
                 {icon_html}
                 <div style="flex: 1; min-width: 0;">
-                    <h2 style="font-size: 20px; font-weight: 700; color: #1f2937; 
+                    <h2 style="font-size: 20px; font-weight: 700; color: #f1f5f9; 
                                margin: 0; line-height: 1.3;">
                         {self.title}
                     </h2>
@@ -74,20 +74,20 @@ class Section(Component):
         # 变体样式
         variants = {
             "default": {
-                "bg": "white",
+                "bg": "rgba(30, 30, 50, 0.5)",
                 "padding": "28px",
-                "border": "1px solid rgba(0, 0, 0, 0.06)",
+                "border": "1px solid rgba(255, 255, 255, 0.08)",
                 "radius": "20px",
-                "shadow": "0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 -1px 0 rgba(0, 0, 0, 0.02) inset",
-                "title_color": "#1f2937",
+                "shadow": "0 4px 16px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.05) inset",
+                "title_color": "#f1f5f9",
             },
             "highlight": {
-                "bg": "linear-gradient(135deg, #f0f4ff 0%, #f5f3ff 100%)",
+                "bg": "linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(124, 58, 237, 0.1) 100%)",
                 "padding": "28px",
-                "border": "1px solid rgba(79, 70, 229, 0.1)",
+                "border": "1px solid rgba(139, 92, 246, 0.2)",
                 "radius": "20px",
-                "shadow": "0 4px 16px rgba(79, 70, 229, 0.08), 0 1px 0 rgba(255, 255, 255, 0.6) inset",
-                "title_color": "#1f2937",
+                "shadow": "0 4px 16px rgba(79, 70, 229, 0.15), 0 1px 0 rgba(255, 255, 255, 0.05) inset",
+                "title_color": "#f1f5f9",
             },
             "dark": {
                 "bg": "linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)",
@@ -95,7 +95,7 @@ class Section(Component):
                 "border": "1px solid rgba(255, 255, 255, 0.1)",
                 "radius": "20px",
                 "shadow": "0 8px 32px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(255, 255, 255, 0.05) inset",
-                "title_color": "white",
+                "title_color": "#f1f5f9",
             },
             "subtle": {
                 "bg": "transparent",
@@ -103,7 +103,7 @@ class Section(Component):
                 "border": "none",
                 "radius": "0",
                 "shadow": "none",
-                "title_color": "#1f2937",
+                "title_color": "#f1f5f9",
             },
         }
         
@@ -178,7 +178,7 @@ class Card(Component):
             <div style="display: flex; align-items: center; margin-bottom: 18px;">
                 {icon_html}
                 <div style="flex: 1; min-width: 0;">
-                    <h3 style="font-size: 17px; font-weight: 700; color: #1f2937; margin: 0;">
+                    <h3 style="font-size: 17px; font-weight: 700; color: #f1f5f9; margin: 0;">
                         {self.title}
                     </h3>
                     {subtitle_html}
@@ -200,7 +200,7 @@ class Card(Component):
         if self.footer is not None:
             footer_content = self.footer.render() if hasattr(self.footer, 'render') else str(self.footer)
             footer_html = f'''
-            <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid #f3f4f6;">
+            <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08);">
                 {footer_content}
             </div>
             '''
@@ -208,11 +208,11 @@ class Card(Component):
         # 变体样式
         variants = {
             "default": {
-                "bg": "white",
+                "bg": "rgba(30, 30, 50, 0.5)",
                 "padding": "24px",
-                "border": "1px solid rgba(0, 0, 0, 0.06)",
+                "border": "1px solid rgba(255, 255, 255, 0.08)",
                 "radius": "18px",
-                "shadow": "0 4px 12px rgba(0, 0, 0, 0.04)",
+                "shadow": "0 4px 12px rgba(0, 0, 0, 0.2)",
             },
             "primary": {
                 "bg": "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
@@ -232,7 +232,7 @@ class Card(Component):
                     border-radius: {v["radius"]};
                     box-shadow: {v["shadow"]};
                     transition: all 0.3s ease;"
-             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.3)';"
              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='{v["shadow"]}';">
             {header_html}
             {content_html}
@@ -257,34 +257,34 @@ class HighlightBox(Component):
     def render(self) -> str:
         variants = {
             "warning": {
-                "bg": "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)",
-                "border": "rgba(245, 158, 11, 0.2)",
+                "bg": "linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(234, 88, 12, 0.08) 100%)",
+                "border": "rgba(245, 158, 11, 0.3)",
                 "icon_bg": "linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)",
-                "text": "#92400e",
+                "text": "#fbbf24",
             },
             "info": {
-                "bg": "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
-                "border": "rgba(59, 130, 246, 0.2)",
+                "bg": "linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(37, 99, 235, 0.08) 100%)",
+                "border": "rgba(59, 130, 246, 0.3)",
                 "icon_bg": "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-                "text": "#1e40af",
+                "text": "#60a5fa",
             },
             "success": {
-                "bg": "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
-                "border": "rgba(16, 185, 129, 0.2)",
+                "bg": "linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.08) 100%)",
+                "border": "rgba(16, 185, 129, 0.3)",
                 "icon_bg": "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-                "text": "#065f46",
+                "text": "#34d399",
             },
             "danger": {
-                "bg": "linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)",
-                "border": "rgba(239, 68, 68, 0.2)",
+                "bg": "linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(220, 38, 38, 0.08) 100%)",
+                "border": "rgba(239, 68, 68, 0.3)",
                 "icon_bg": "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-                "text": "#991b1b",
+                "text": "#f87171",
             },
             "primary": {
-                "bg": "linear-gradient(135deg, #f0f4ff 0%, #ede9fe 100%)",
-                "border": "rgba(79, 70, 229, 0.2)",
+                "bg": "linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(124, 58, 237, 0.1) 100%)",
+                "border": "rgba(139, 92, 246, 0.3)",
                 "icon_bg": "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
-                "text": "#3730a3",
+                "text": "#a5b4fc",
             },
         }
         
@@ -609,7 +609,7 @@ class SubCard(Component):
                 '<div style="display: flex; align-items: center; margin-bottom: 14px;">' +
                 icon_html +
                 '<div style="flex: 1; min-width: 0;">' +
-                '<h4 style="font-size: 15px; font-weight: 600; color: #374151; margin: 0;">' +
+                '<h4 style="font-size: 15px; font-weight: 600; color: #e2e8f0; margin: 0;">' +
                 self.title + '</h4>' +
                 subtitle_html +
                 '</div>' +
@@ -630,46 +630,53 @@ class SubCard(Component):
         if self.footer is not None:
             footer_content = self.footer.render() if hasattr(self.footer, 'render') else str(self.footer)
             footer_html = (
-                '<div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #e5e7eb;">' +
+                '<div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);">' +
                 footer_content + '</div>'
             )
         
         # 变体样式
         variants = {
             "default": {
-                "bg": "#f9fafb",
+                "bg": "rgba(255, 255, 255, 0.04)",
                 "padding": "18px 20px",
-                "border": "1px solid rgba(0, 0, 0, 0.04)",
+                "border": "1px solid rgba(255, 255, 255, 0.08)",
                 "radius": "14px",
-                "shadow": "0 1px 2px rgba(0, 0, 0, 0.02), 0 1px 0 rgba(255, 255, 255, 0.8) inset",
+                "shadow": "0 2px 8px rgba(0, 0, 0, 0.15)",
+            },
+            "white": {
+                "bg": "rgba(255, 255, 255, 0.04)",
+                "padding": "18px 20px",
+                "border": "1px solid rgba(255, 255, 255, 0.08)",
+                "radius": "14px",
+                "shadow": "0 2px 8px rgba(0, 0, 0, 0.15)",
             },
             "primary": {
-                "bg": "linear-gradient(135deg, #eff6ff 0%, #f0f4ff 100%)",
+                "bg": "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(99, 102, 241, 0.08) 100%)",
                 "padding": "18px 20px",
-                "border": "1px solid rgba(59, 130, 246, 0.08)",
+                "border": "1px solid rgba(59, 130, 246, 0.2)",
                 "radius": "14px",
-                "shadow": "0 1px 2px rgba(59, 130, 246, 0.04), 0 1px 0 rgba(255, 255, 255, 0.6) inset",
+                "shadow": "0 2px 8px rgba(59, 130, 246, 0.1)",
             },
             "success": {
-                "bg": "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)",
+                "bg": "linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.08) 100%)",
                 "padding": "18px 20px",
-                "border": "1px solid rgba(16, 185, 129, 0.08)",
+                "border": "1px solid rgba(16, 185, 129, 0.2)",
                 "radius": "14px",
-                "shadow": "0 1px 2px rgba(16, 185, 129, 0.04), 0 1px 0 rgba(255, 255, 255, 0.6) inset",
+                "shadow": "0 2px 8px rgba(16, 185, 129, 0.1)",
             },
             "warning": {
-                "bg": "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)",
+                "bg": "linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.08) 100%)",
                 "padding": "18px 20px",
-                "border": "1px solid rgba(245, 158, 11, 0.08)",
+                "border": "1px solid rgba(245, 158, 11, 0.2)",
                 "radius": "14px",
-                "shadow": "0 1px 2px rgba(245, 158, 11, 0.04), 0 1px 0 rgba(255, 255, 255, 0.6) inset",
+                "shadow": "0 2px 8px rgba(245, 158, 11, 0.1)",
             },
             "danger": {
-                "bg": "linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)",
+                "bg": "linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.08) 100%)",
                 "padding": "18px 20px",
-                "border": "1px solid rgba(239, 68, 68, 0.08)",
+                "border": "1px solid rgba(239, 68, 68, 0.2)",
                 "radius": "14px",
-                "shadow": "0 1px 2px rgba(239, 68, 68, 0.04), 0 1px 0 rgba(255, 255, 255, 0.6) inset",
+                "shadow": "0 2px 8px rgba(239, 68, 68, 0.1)",
             },
         }
         
@@ -894,7 +901,7 @@ class ChartCard(Component):
                     border-radius: {v["radius"]};
                     box-shadow: {v["shadow"]};
                     transition: all 0.3s ease;"
-             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.08)';"
+             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.3)';"
              onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='{v["shadow"]}';">
             {title_html}
             {chart_html}
