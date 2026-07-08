@@ -1,32 +1,48 @@
 # Query Decomposition Guide
 
-Use this guide during the **Query Understanding** step to decompose the user's question into a complete analysis framework before searching.
+Use this guide during the **Query Understanding** step to create an initial analysis framework before exploratory searches, then revise it after scanning exploratory search titles and snippets.
 
 ---
 
-## 1. Core Analysis
+## 1. Concrete Scope
 
-Answer these 4 questions explicitly before starting any search:
+Answer these scope questions before any search. These fields prevent the research from drifting beyond the user's actual request.
 
-| # | Question | Purpose |
-|---|----------|---------|
-| 1 | **Core question** | One sentence — what exactly needs to be answered? |
-| 2 | **Decision intent** | What will the reader DO with this report? (e.g., vendor selection, investment decision, strategic planning, policy evaluation, competitive response, learning) |
-| 3 | **Task type** | Which category below best matches? (technology survey, competitive analysis, company due diligence, investment/equity research, policy research, trend forecast, market sizing, or other) |
-| 4 | **Inferred dimensions** | What dimensions would a knowledgeable reader expect to see, even if not explicitly requested? Use the implicit dimensions table below + the general expansion rules. |
+| Field | Requirement |
+|---|---|
+| **Time scope** | Required. Extract the explicit or implied time range. If absent, write "Not specified" and state whether current data is still required. |
+| **Geographic scope** | Required. Extract the country, region, city, jurisdiction, or market scope. If absent, write "Not specified" or a justified default such as "global". |
+| **Target object** | Required. Identify the specific entity, population, industry, product, technology, policy, market, or phenomenon being studied. |
+| **Environment / operating context** | Optional. Extract only when the user states or strongly implies deployment, usage, regulatory, budget, technical, organizational, or market-context constraints. Do not invent one if absent. |
 
 ---
 
-## 2. Implicit Dimensions
+## 2. Intent and Coverage
 
-### 2.1 General Expansion Rules (apply to all task types)
+After scope is fixed, answer these questions as the initial decomposition:
+
+| Field | Requirement |
+|---|---|
+| **Core question** | One sentence — what exactly needs to be answered? |
+| **Decision intent** | What will the reader DO with this report? (e.g., vendor selection, investment decision, strategic planning, policy evaluation, competitive response, learning) |
+| **Task type** | Which category below best matches? (technology survey, competitive analysis, company due diligence, investment/equity research, policy research, trend forecast, market sizing, product / solution selection, industry landscape, or other) |
+| **Must-have coverage** | User-explicit requirements and logically mandatory components of the request. These outrank inferred dimensions. |
+| **Inferred dimensions** | Professional dimensions a knowledgeable reader would expect to see, even if not explicitly requested. Use the implicit dimensions table below + the general expansion rules. |
+| **Exclusions** | Topics, geographies, time periods, entities, or interpretations that are explicitly excluded or implied out of scope by the concrete scope. |
+| **Ambiguities** | Constraints that remain unclear and could materially affect the search strategy or final judgment. |
+
+---
+
+## 3. Implicit Dimensions
+
+### 3.1 General Expansion Rules (apply to all task types)
 
 - **Entity → products/services → value chain position → upstream suppliers and downstream customers**
 - **Listed company → latest financials, current valuation (sector-appropriate metrics: PE/PB/PS/EV-EBITDA), institutional consensus, and risk factors**
 - **Industry trend → affected players across the full value chain, with beneficiaries and losers at each layer**
 - When the query does not clearly match any task type below, **default to the widest reasonable scope**.
 
-### 2.2 Task-Type Dimension Checklist
+### 3.2 Task-Type Dimension Checklist
 
 | Task Type | Required Implicit Dimensions |
 |-----------|------------------------------|
@@ -42,19 +58,23 @@ Answer these 4 questions explicitly before starting any search:
 
 ---
 
-## 3. Decomposition Principles
+## 4. Decomposition Principles
 
-### 3.1 Coverage over precision
+### 4.1 Scope before expansion
+
+Always preserve the user's time scope, geographic scope, target object, must-have coverage, and exclusions before adding inferred dimensions. Do not let a broad task-type checklist override concrete user constraints.
+
+### 4.2 Coverage over precision
 
 It is better to cover a dimension shallowly than to miss it entirely. When in doubt, **include it** — depth can be added during the Deep Dives stage.
 
-### 3.2 MECE
+### 4.3 MECE
 
 Dimensions should be **mutually exclusive** (minimal overlap) and **collectively exhaustive** (no critical gaps):
 - If two dimensions cover similar ground → **merge** them.
 - If a gap is discovered → **add** a new dimension.
 
-### 3.3 Granularity floor
+### 4.4 Granularity floor
 
 Every sub-question must be **specific enough to form 1-2 concrete search queries**. If it cannot, split it further.
 

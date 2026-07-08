@@ -102,7 +102,11 @@ no font install to worry about — you only need a correct declaration:
 
 Other layouts — **layered architecture**: stacked full-width bands, components inside each with equal
 gaps. **2×2 quadrant**: two crossing axes, label the four ends, place items by position.
-**Timeline**: one axis line, evenly spaced ticks with date below / event above.
+**Timeline** (only when spacing/clustering is the point — otherwise a table): for many events or
+long / CJK labels, use a **vertical spine** — events as nodes top→bottom in chronological order, date
+on one side of the spine, label on the other; reserve the **horizontal** axis (ticks, date below /
+event above) for a few short-labeled events. Events are nodes on the spine, **never a stack of
+equal-length bars**.
 
 ## 6. Self-check before embedding
 - No text overflows its box; no two boxes/labels overlap; CJK boxes sized at 14px/char.
