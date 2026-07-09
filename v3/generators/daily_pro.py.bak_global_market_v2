@@ -924,8 +924,11 @@ class DailyReportProGenerator(ReportProGenerator):
         import json
         import os
 
+        global_indices = []
+        commodities = []
+        hot_stocks = []
+        news_items = []
         data_available = False
-        gdata = {}
 
         try:
             data_dir = getattr(self, 'data_dir', None)
@@ -937,12 +940,11 @@ class DailyReportProGenerator(ReportProGenerator):
             if os.path.exists(data_file):
                 with open(data_file, 'r', encoding='utf-8') as gf:
                     gdata = json.load(gf)
-                indices = gdata.get('indices', [])
-                # 过滤出有价格的数据
-                valid_indices = [i for i in indices if i.get('price', 0) > 0]
-                valid_tech = [s for s in gdata.get('tech_stocks', []) if s.get('price', 0) > 0]
-                valid_korea = [k for k in gdata.get('korea_market', []) if k.get('price', 0) > 0]
-                data_available = bool(valid_indices or valid_tech)
+                global_indices = gdata.get('indices', [])
+                commodities = gdata.get('commodities', [])
+                hot_stocks = gdata.get('hot_stocks', [])
+                news_items = gdata.get('news', [])
+                data_available = bool(global_indices or commodities)
         except Exception as e:
             print(f"⚠️  加载全球市场数据失败: {e}")
 
@@ -954,90 +956,40 @@ class DailyReportProGenerator(ReportProGenerator):
             self.add_section("隔夜全球市场", html, "🌍")
             return
 
-        # ---- 格式化辅助函数 ----
-        def fmt_pct(item):
-            sign = '+' if item['up'] else ''
-            return f"{sign}{item['change_pct']:.2f}%"
-
-        def color_cls(item):
-            return 'text-red-400' if item['up'] else 'text-green-400'
-
-        def bg_cls(item):
-            return 'from-red-500/20 to-orange-500/10 border-red-500/20' if item['up'] else 'from-green-500/20 to-emerald-500/10 border-green-500/20'
-
-        valid_indices = [i for i in gdata.get('indices', []) if i.get('price', 0) > 0]
-        valid_tech = [s for s in gdata.get('tech_stocks', []) if s.get('price', 0) > 0]
-        valid_korea = [k for k in gdata.get('korea_market', []) if k.get('price', 0) > 0]
-        valid_comm = [c for c in valid_indices if c.get('region') == '大宗商品']
-        valid_idx = [i for i in valid_indices if i.get('region') != '大宗商品']
-
-        # ---- 指数卡片 ----
+        # 指数卡片
         index_cards = ''
-        for idx in valid_idx:
-            index_cards += '<div class="bg-gradient-to-br ' + bg_cls(idx) + ' border rounded-lg p-3 text-center transition-all duration-300 hover:scale-105">'
+        for idx in global_indices:
+            color = 'text-red-400' if idx['up'] else 'text-green-400'
+            bg = 'from-red-500/20 to-orange-500/10 border-red-500/20' if idx['up'] else 'from-green-500/20 to-emerald-500/10 border-green-500/20'
+            index_cards += '<div class="bg-gradient-to-br ' + bg + ' border rounded-lg p-3 text-center transition-all duration-300 hover:scale-105">'
             index_cards += '<div class="text-xs text-white/60 mb-1">' + idx['name'] + '</div>'
-            index_cards += '<div class="text-base font-bold ' + color_cls(idx) + '">' + fmt_pct(idx) + '</div>'
-            index_cards += '<div class="text-xs text-white/40 mt-1">' + f"{idx['price']:,.2f}" + '</div>'
+            index_cards += '<div class="text-sm font-bold ' + color + '">' + idx['change'] + '</div>'
             index_cards += '</div>'
 
-        # ---- 大宗商品 ----
+        # 商品卡片
         commodity_cards = ''
-        for comm in valid_comm:
+        for comm in commodities:
+            color = 'text-red-400' if comm['up'] else 'text-green-400'
             commodity_cards += '<div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0">'
             commodity_cards += '<span class="text-sm text-white/70">' + comm['name'] + '</span>'
-            commodity_cards += '<span class="text-sm font-semibold ' + color_cls(comm) + '">' + fmt_pct(comm) + '</span>'
+            commodity_cards += '<span class="text-sm font-semibold ' + color + '">' + comm['change'] + '</span>'
             commodity_cards += '</div>'
 
-        # ---- 美股科技股 ----
+        # 热门股卡片
         stock_cards = ''
-        for stock in valid_tech:
-            stock_cards += '<div class="bg-white/5 rounded-lg p-3 border border-white/5 hover:border-white/10 transition-all">'
-            stock_cards += '<div class="flex items-center justify-between mb-1">'
-            stock_cards += '<span class="text-sm font-medium text-white/90">' + stock['name'] + '</span>'
-            stock_cards += '<span class="text-xs text-white/40">' + stock.get('sector', '') + '</span>'
-            stock_cards += '</div>'
-            stock_cards += '<div class="flex items-center justify-between">'
-            stock_cards += '<span class="text-white/60 text-xs">$' + f"{stock['price']:.2f}" + '</span>'
-            stock_cards += '<span class="text-sm font-bold ' + color_cls(stock) + '">' + fmt_pct(stock) + '</span>'
-            stock_cards += '</div>'
+        for stock in hot_stocks:
+            color = 'text-red-400' if stock['up'] else 'text-green-400'
+            stock_cards += '<div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0">'
+            stock_cards += '<span class="text-sm text-white/70">' + stock['name'] + '</span>'
+            stock_cards += '<span class="text-sm font-semibold ' + color + '">' + stock['change'] + '</span>'
             stock_cards += '</div>'
 
-        # ---- 韩股板块 ----
-        korea_html = ''
-        if valid_korea:
-            korea_cards = ''
-            for k in valid_korea:
-                price_str = f"{k['price']:,.0f}" if k['price'] > 1000 else f"{k['price']:.2f}"
-                korea_cards += '<div class="bg-white/5 rounded-lg p-3 border border-white/5 hover:border-white/10 transition-all">'
-                korea_cards += '<div class="flex items-center justify-between mb-1">'
-                # 处理英文名，尽量简短
-                kn = k['name']
-                if 'Samsung' in kn: kn = '三星电子'
-                elif 'SK hynix' in kn: kn = 'SK海力士'
-                elif 'NAVER' in kn: kn = 'NAVER'
-                elif 'Kakao' in kn: kn = 'KAKAO'
-                elif 'LG Energy' in kn: kn = 'LG新能源'
-                elif 'Hyundai' in kn: kn = '现代汽车'
-                elif 'Kia' in kn: kn = '起亚'
-                elif 'SDI' in kn: kn = '三星SDI'
-                elif 'Innovation' in kn: kn = 'SK Innovation'
-                korea_cards += '<span class="text-sm font-medium text-white/90">' + kn + '</span>'
-                korea_cards += '<span class="text-xs text-white/40">' + k.get('sector', '') + '</span>'
-                korea_cards += '</div>'
-                korea_cards += '<div class="flex items-center justify-between">'
-                korea_cards += '<span class="text-white/60 text-xs">₩' + price_str + '</span>'
-                korea_cards += '<span class="text-sm font-bold ' + color_cls(k) + '">' + fmt_pct(k) + '</span>'
-                korea_cards += '</div>'
-                korea_cards += '</div>'
+        # 隔夜要闻
+        news_html = ''
+        for item in news_items:
+            news_html += '<div>• ' + item + '</div>'
 
-            korea_html = '<div class="mt-4">'
-            korea_html += '<div class="text-white font-semibold mb-3 flex items-center gap-2">'
-            korea_html += '<span>🇰🇷</span><span>韩国市场核心标的</span>'
-            korea_html += '</div>'
-            korea_html += '<div class="grid grid-cols-2 md:grid-cols-3 gap-2">' + korea_cards + '</div>'
-            korea_html += '</div>'
-
-        # ---- 组装HTML ----
+        # 组装HTML
         html = '<div class="grid md:grid-cols-3 gap-4">'
         html += '<div class="md:col-span-2">'
         html += '<div class="text-white font-semibold mb-3 flex items-center gap-2">'
@@ -1053,16 +1005,14 @@ class DailyReportProGenerator(ReportProGenerator):
 
         html += '<div class="mt-4">'
         html += '<div class="text-white font-semibold mb-3 flex items-center gap-2">'
-        html += '<span>💹</span><span>美股核心科技股</span></div>'
-        html += '<div class="grid grid-cols-2 md:grid-cols-5 gap-2">' + stock_cards + '</div>'
+        html += '<span>💹</span><span>美股热门科技股</span></div>'
+        html += '<div class="grid grid-cols-2 md:grid-cols-4 gap-2">' + stock_cards + '</div>'
         html += '</div>'
 
-        html += korea_html
-
-        # 更新时间
-        update_time = gdata.get('update_time', '')
-        if update_time:
-            html += '<div class="mt-3 text-right text-xs text-white/40">数据更新时间: ' + update_time + '</div>'
+        html += '<div class="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">'
+        html += '<div class="text-sm font-semibold text-blue-400 mb-2">📰 隔夜重要资讯</div>'
+        html += '<div class="text-xs text-white/70 space-y-1">' + news_html + '</div>'
+        html += '</div>'
 
         self.add_section("隔夜全球市场", html, "🌍")
 

@@ -61,6 +61,17 @@ def update_all_data():
         print(f"   ❌ 龙虎榜数据更新失败")
     print()
     
+    # 4. 更新全球市场数据
+    print("4️⃣  更新全球市场数据...")
+    try:
+        from fetch_global_market import main as fetch_global
+        global_data = fetch_global()
+        print(f"   ✅ 全球市场数据更新完成")
+    except Exception as e:
+        print(f"   ⚠️  全球市场数据更新失败: {e}")
+        global_data = None
+    print()
+    
     return market_data, portfolio_data, longhubang_data
 
 
