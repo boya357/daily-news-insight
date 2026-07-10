@@ -98,8 +98,14 @@ Coze 凭证配置要求：凭证名称 `DATA_PROVIDER_API_KEY_NEW`，变量名 `
 | `quote` | 实时行情（价格/涨跌/量/市值/PE） | 腾讯→新浪 | [references/quote.md](references/quote.md) |
 | `kline` | 历史K线（日/周/月/分钟，支持复权） | 腾讯 | [references/kline.md](references/kline.md) |
 | `search` | 按名称/拼音搜索股票 | 腾讯 | [references/search.md](references/search.md) |
-| `minute` | 当日分时数据 | 腾讯 | [references/minute.md](references/minute.md) |
+| `minute` | 当日分时数据 | 腾讯自选股 | [references/minute.md](references/minute.md) |
 | `analyze` | 技术分析（MA/MACD/RSI/支撑压力/缺口/综合信号） | 内置计算 | [references/analyze.md](references/analyze.md) |
+
+> **港股实时行情选择指南**：
+> - `quote` 查港股有 **~15 分钟延迟**（受港交所免费行情授权限制），但字段丰富（涨跌幅、换手率、市值、PE 等）。
+> - `minute` 查港股 **无延迟**（走腾讯自选股内部接口，有实时授权），但仅返回时间、价格、累计成交量/成交额。
+> - **优先级**：查港股实时股价时优先用 `minute`（取最后一条即为最新价）；如果需要市值、PE、换手率等扩展指标且对时效无严格要求，再用 `quote`。
+> - A 股不受此限制，`quote` 和 `minute` 均为实时。
 
 ### 财务与公司信息
 
@@ -196,10 +202,10 @@ esac
 
 ### 行情与分析
 
-- **quote** 依次尝试多个数据源，任一成功即返回
+- **quote** 依次尝试多个数据源，任一成功即返回；**港股行情有 ~15 分钟延迟**，查港股实时价格应优先用 `minute`
+- **minute** 走腾讯自选股接口，A 股和港股均为实时无延迟，但字段仅含时间/价格/累计量
 - **kline** 日/周/月走 fqkline，分钟线走 mkline；历史数据量上限约 120 根
 - **search** 结果约 10 条，适合精确匹配/自动补全场景
-- 分时数据（minute）无备用源
 - 技术分析至少需要 20 根 K 线才能给出有效信号
 
 ### 数据覆盖范围
