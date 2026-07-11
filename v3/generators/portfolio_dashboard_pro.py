@@ -210,6 +210,7 @@ class PortfolioDashboardProGenerator:
         loss_count = p.get('loss_count', 0)
         stop_loss_count = p.get('stop_loss_break_count', 0)
         industry_count = p.get('industry_count', 0)
+        update_time = p.get('update_time', '')
         
         return_color = '#10b981' if total_return >= 0 else '#ef4444'
         return_sign = '+' if total_return >= 0 else ''
@@ -221,6 +222,7 @@ class PortfolioDashboardProGenerator:
                 <div>
                     <h1 style="font-size: 28px; font-weight: 900; margin: 0;">持仓智能预警仪表盘</h1>
                     <p style="opacity: 0.8; font-size: 14px; margin-top: 4px;">Pro · 多维度持仓诊断 · 风险实时预警 · 智能调仓建议</p>
+                    <p style="opacity: 0.6; font-size: 12px; margin-top: 6px;">⏰ 数据更新时间：{update_time}</p>
                 </div>
             </div>
             
