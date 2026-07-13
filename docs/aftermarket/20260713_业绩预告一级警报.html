@@ -1,0 +1,2929 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#0f0c29">
+    <title>一级警报：业绩暴增公司扫描 - 投资研究中心</title>
+    <meta name="description" content="投资研究中心 - 每日A股盘前/盘中/盘后智能分析">
+    <meta property="og:title" content="一级警报：业绩暴增公司扫描">
+    <meta property="og:description" content="投资研究中心 - 每日A股盘前/盘中/盘后智能分析">
+    <meta property="og:image" content="/daily-news-insight/assets/default-og.png">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="一级警报：业绩暴增公司扫描">
+    <meta name="twitter:description" content="投资研究中心 - 每日A股盘前/盘中/盘后智能分析">
+    <meta name="twitter:image" content="/daily-news-insight/assets/default-og.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/daily-news-insight/assets/global-dark.css">
+    <link rel="stylesheet" href="/daily-news-insight/assets/stock-popup.css">
+    
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+            
+            * { font-family: 'Noto Sans SC', sans-serif; }
+            
+            body {
+                background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%) !important;
+                min-height: 100vh;
+                padding-top: 80px;
+                color: rgba(255,255,255,0.95);
+            }
+            
+            .pro-container {
+                max-width: 64rem;
+                margin: 0 auto;
+                padding: 0 1.5rem;
+            }
+            
+            .card-glass {
+                background: rgba(255, 255, 255, 0.07) !important;
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.12) !important;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+                border-radius: 20px;
+                color: rgba(255,255,255,0.95) !important;
+            }
+            
+            .card-glass .text-gray-800,
+            .card-glass .text-gray-700,
+            .card-glass .text-gray-600,
+            .card-glass .text-gray-500,
+            .card-glass .text-gray-400 { color: rgba(255, 255, 255, 0.9) !important; }
+            .card-glass .text-gray-500 { color: rgba(255, 255, 255, 0.75) !important; }
+            .card-glass .text-gray-400 { color: rgba(255, 255, 255, 0.6) !important; }
+            
+            /* 修复浅色背景子卡片文字颜色 */
+            .card-glass .bg-white .text-gray-800 { color: #f1f5f9 !important; }
+            .card-glass .bg-white .text-gray-700 { color: #e2e8f0 !important; }
+            .card-glass .bg-white .text-gray-600 { color: #4b5563 !important; }
+            .card-glass .bg-white .text-gray-500 { color: #94a3b8 !important; }
+            .card-glass .bg-white .text-gray-400 { color: #9ca3af !important; }
+            
+            .stock-card {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .stock-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 20px 60px rgba(102, 126, 234, 0.5);
+            }
+            
+            .risk-bar {
+                height: 8px;
+                border-radius: 4px;
+                background: rgba(255,255,255,0.2);
+                overflow: hidden;
+            }
+            .risk-bar-fill {
+                height: 100%;
+                border-radius: 4px;
+                transition: width 0.5s ease;
+            }
+            
+            .diagnosis-item {
+                text-align: center;
+                padding: 12px 8px;
+                background: rgba(255,255,255,0.1);
+                border-radius: 12px;
+            }
+            
+            .tag-badge {
+                display: inline-block;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+            
+            .section-title {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: white;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .lhb-card {
+                background: rgba(255,255,255,0.05);
+                border-radius: 12px;
+                padding: 1rem;
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .lhb-seat {
+                font-size: 0.75rem;
+                color: rgba(255,255,255,0.6);
+                margin-bottom: 0.25rem;
+            }
+            
+            .fund-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 0;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            .fund-row:last-child {
+                border-bottom: none;
+            }
+            
+            .fund-trend-up {
+                color: #10b981;
+                font-weight: 600;
+            }
+            .fund-trend-down {
+                color: #ef4444;
+                font-weight: 600;
+            }
+            
+            .alert-section {
+                border-left: 4px solid #ef4444;
+                padding-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .warning-section {
+                border-left: 4px solid #f59e0b;
+                padding-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .safe-section {
+                border-left: 4px solid #10b981;
+                padding-left: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            /* 导航栏样式 */
+            .glass-nav {
+                background: rgba(15, 12, 41, 0.75) !important;
+                backdrop-filter: blur(30px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                transition: background 0.3s ease;
+            }
+            
+            .glass-nav.scrolled {
+                background: rgba(0, 0, 0, 0.7);
+            }
+            
+            /* 汉堡菜单按钮 */
+            .hamburger-btn {
+                display: none;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                width: 40px;
+                height: 40px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 18px;
+                transition: all 0.3s;
+            }
+            
+            .hamburger-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            /* 移动端菜单 */
+            .mobile-menu {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.95);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                z-index: 100;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+            }
+            
+            .mobile-menu.show {
+                display: flex;
+            }
+            
+            .mobile-menu-item {
+                color: white;
+                font-size: 18px;
+                font-weight: 600;
+                padding: 15px 30px;
+                text-decoration: none;
+                text-align: center;
+                width: 100%;
+                max-width: 300px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                transition: all 0.3s;
+            }
+            
+            .mobile-menu-item:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: #a78bfa;
+            }
+            
+            .close-menu-btn {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                width: 44px;
+                height: 44px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 20px;
+                transition: all 0.3s;
+            }
+            
+            .close-menu-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            /* 响应式断点 - 平板 */
+            @media (max-width: 1024px) {
+                .pro-container {
+                    max-width: 100%;
+                    padding: 0 1rem;
+                }
+            }
+            
+            /* 响应式断点 - 手机 */
+            @media (max-width: 768px) {
+                .nav-links {
+                    display: none !important;
+                }
+                
+                .hamburger-btn {
+                    display: block !important;
+                }
+                
+                body {
+                    padding-top: 70px;
+                }
+                
+                .pro-container {
+                    padding: 0 0.75rem;
+                }
+                
+                .card-glass {
+                    border-radius: 16px;
+                    padding: 1.25rem;
+                }
+                
+                /* 移动端网格优化 */
+                .grid-cols-2,
+                .grid-cols-3,
+                .grid-cols-4,
+                .grid-cols-5 {
+                    grid-template-columns: 1fr !important;
+                }
+                
+                /* 移动端字体优化 */
+                h1 { font-size: 1.75rem !important; }
+                h2 { font-size: 1.35rem !important; }
+                h3 { font-size: 1.15rem !important; }
+            }
+            
+            /* 响应式断点 - 小屏手机 */
+            @media (max-width: 480px) {
+                body {
+                    padding-top: 60px;
+                }
+                
+                .pro-container {
+                    padding: 0 0.5rem;
+                }
+                
+                .card-glass {
+                    border-radius: 12px;
+                    padding: 1rem;
+                }
+                
+                h1 { font-size: 1.5rem !important; }
+                h2 { font-size: 1.2rem !important; }
+            }
+
+            /* ===== 交互动效增强 ===== */
+            
+            /* 卡片入场动画 */
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .animate-fade-in-up {
+                animation: fadeInUp 0.6s ease-out forwards;
+            }
+            
+            /* 数字滚动动画容器 */
+            .counter-value {
+                font-variant-numeric: tabular-nums;
+            }
+            
+            /* 脉冲动画 */
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.5; }
+            }
+            
+            .animate-pulse {
+                animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            
+            /* 骨架屏加载效果 */
+            @keyframes shimmer {
+                0% { background-position: -200% 0; }
+                100% { background-position: 200% 0; }
+            }
+            
+            .skeleton {
+                background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 75%);
+                background-size: 200% 100%;
+                animation: shimmer 1.5s infinite;
+                border-radius: 8px;
+            }
+            
+            /* 按钮点击效果 */
+            .btn-press:active {
+                transform: scale(0.95);
+            }
+            
+            /* 标签悬浮效果 */
+            .tag-badge {
+                transition: all 0.2s ease;
+            }
+            
+            .tag-badge:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            }
+            
+
+            /* 阅读进度条 */
+            #progressBar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+                z-index: 9999;
+                width: 0%;
+                transition: width 0.1s ease;
+            }
+            
+            /* 回到顶部按钮 */
+            #backToTop {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                width: 50px;
+                height: 50px;
+                background: linear-gradient(135deg, #6366f1, #a855f7);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                z-index: 9998;
+                opacity: 0;
+                transform: translateY(20px);
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+                border: none;
+            }
+            #backToTop:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            }
+            #backToTop.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            /* 操作按钮组 */
+            .action-buttons {
+                position: fixed;
+                bottom: 30px;
+                left: 30px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                z-index: 9998;
+            }
+            .action-btn {
+                width: 50px;
+                height: 50px;
+                background: rgba(30, 30, 50, 0.8);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            }
+            .action-btn:hover {
+                background: rgba(99, 102, 241, 0.8);
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            }
+            
+            /* 打印优化 */
+            @media print {
+                #progressBar, #backToTop, .action-buttons, .glass-nav, .pro-footer {
+                    display: none !important;
+                }
+                body {
+                    background: white !important;
+                    color: black !important;
+                }
+                .card-glass {
+                    background: white !important;
+                    border: 1px solid #ddd !important;
+                    box-shadow: none !important;
+                }
+            }
+            
+            /* 移动端适配 */
+            @media (max-width: 768px) {
+                #backToTop {
+                    bottom: 20px;
+                    right: 20px;
+                    width: 44px;
+                    height: 44px;
+                }
+                .action-buttons {
+                    bottom: 20px;
+                    left: 20px;
+                    gap: 10px;
+                }
+                .action-btn {
+                    width: 44px;
+                    height: 44px;
+                }
+            }
+            /* 进度条动画增强 */
+            .risk-bar-fill {
+                transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            /* 卡片悬浮增强 */
+            .card-glass {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .card-glass:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            }
+            
+            /* 导航项下划线动画 */
+            .nav-links a {
+                position: relative;
+            }
+            
+            .nav-links a::after {
+                content: '';
+                position: absolute;
+                bottom: -2px;
+                left: 50%;
+                width: 0;
+                height: 2px;
+                background: linear-gradient(90deg, #667eea, #764ba2);
+                transition: all 0.3s ease;
+                transform: translateX(-50%);
+                border-radius: 1px;
+            }
+            
+            .nav-links a:hover::after,
+            .nav-links a.bg-white\/20::after {
+                width: 60%;
+            }
+            
+            /* 滚动显示动画 */
+            .reveal {
+                opacity: 0;
+                transform: translateY(30px);
+                transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .reveal.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            /* 弹跳效果 */
+            @keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+            }
+            
+            .animate-bounce {
+                animation: bounce 2s infinite;
+            }
+            
+            /* 旋转动画 */
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+            
+            .animate-spin {
+                animation: spin 1s linear infinite;
+            }
+            
+            /* ===== 移动端体验优化 ===== */
+            
+            /* 触摸区域优化 - 最小44px点击区域 */
+            @media (max-width: 768px) {
+                .mobile-menu-item {
+                    min-height: 44px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 12px 20px;
+                    -webkit-tap-highlight-color: transparent;
+                }
+                
+                .hamburger-btn,
+                .close-menu-btn {
+                    min-width: 44px;
+                    min-height: 44px;
+                    -webkit-tap-highlight-color: transparent;
+                }
+                
+                /* 移动端卡片点击反馈 */
+                .card-glass:active {
+                    transform: scale(0.98);
+                    transition: transform 0.1s ease;
+                }
+                
+                /* 禁止双击缩放 */
+                * {
+                    touch-action: manipulation;
+                }
+                
+                /* 底部安全区域适配 */
+                .pro-container {
+                    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+                }
+                
+                /* 移动端滚动条隐藏 */
+                ::-webkit-scrollbar {
+                    width: 4px;
+                    height: 4px;
+                }
+                
+                ::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                
+                ::-webkit-scrollbar-thumb {
+                    background: rgba(255, 255, 255, 0.3);
+                    border-radius: 2px;
+                }
+                
+                /* 移动端标题截断 */
+                .section-title {
+                    font-size: 1.1rem !important;
+                }
+                
+                /* 移动端网格优化 - 2列布局 */
+                .mobile-grid-2 {
+                    grid-template-columns: repeat(2, 1fr) !important;
+                }
+                
+                /* 移动端字体优化 */
+                body {
+                    font-size: 15px;
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                }
+            }
+            
+            /* 小屏手机额外优化 */
+            @media (max-width: 480px) {
+                .mobile-grid-2 {
+                    grid-template-columns: 1fr !important;
+                }
+                
+                /* 更小的内边距 */
+                .card-glass {
+                    padding: 0.875rem !important;
+                }
+                
+                .section-title {
+                    font-size: 1rem !important;
+                }
+            }
+            
+            /* ===== 深色模式优化 ===== */
+            @media (prefers-color-scheme: dark) {
+                .text-white\/60 {
+                    color: rgba(255, 255, 255, 0.7) !important;
+                }
+            }
+            
+            /* ===== 减少动效模式 ===== */
+            @media (prefers-reduced-motion: reduce) {
+                *,
+                *::before,
+                *::after {
+                    animation-duration: 0.01ms !important;
+                    animation-iteration-count: 1 !important;
+                    transition-duration: 0.01ms !important;
+                }
+            }
+        
+            /* ===== 悬浮目录导航 ===== */
+            .toc-wrapper {
+                position: fixed;
+                top: 120px;
+                width: 220px;
+                max-height: calc(100vh - 160px);
+                background: rgba(139, 92, 246, 0.15);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 16px;
+                box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+                z-index: 90;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .toc-right {
+                right: 20px;
+            }
+            
+            .toc-left {
+                left: 20px;
+            }
+            
+            .toc-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                cursor: pointer;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                user-select: none;
+            }
+            
+            .toc-title {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: white;
+            }
+            
+            .toc-header svg {
+                color: rgba(255, 255, 255, 0.7);
+                transition: transform 0.3s ease;
+            }
+            
+            .toc-wrapper.collapsed .toc-header svg {
+                transform: rotate(-90deg);
+            }
+            
+            .toc-content {
+                max-height: calc(100vh - 220px);
+                overflow-y: auto;
+                padding: 8px 0;
+                transition: max-height 0.3s ease;
+            }
+            
+            .toc-wrapper.collapsed .toc-content {
+                max-height: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            
+            .toc-item {
+                display: block;
+                padding: 8px 16px;
+                font-size: 0.8125rem;
+                color: rgba(255, 255, 255, 0.7);
+                text-decoration: none;
+                border-left: 3px solid transparent;
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+            
+            .toc-item:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.08);
+                border-left-color: rgba(255, 255, 255, 0.3);
+            }
+            
+            .toc-item.active {
+                color: white;
+                font-weight: 500;
+                background: rgba(102, 126, 234, 0.3);
+                border-left-color: #667eea;
+            }
+            
+            .toc-item.pl-4 {
+                padding-left: 32px;
+                font-size: 0.75rem;
+            }
+            
+            /* 滚动条样式 */
+            .toc-content::-webkit-scrollbar {
+                width: 4px;
+            }
+            
+            .toc-content::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            
+            .toc-content::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 2px;
+            }
+            
+            .toc-content::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.4);
+            }
+            
+            /* 大屏显示优化 */
+            @media (min-width: 1400px) {
+                .toc-wrapper {
+                    width: 260px;
+                }
+                .toc-right {
+                    right: calc((100vw - 64rem) / 2 - 300px);
+                }
+                .toc-left {
+                    left: calc((100vw - 64rem) / 2 - 300px);
+                }
+            }
+            
+                        /* 平板端优化 - 折叠为悬浮按钮 */
+            @media (max-width: 1200px) {
+                .toc-wrapper {
+                    top: auto;
+                    bottom: 80px;
+                    right: 16px;
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 240px;
+                    height: auto;
+                    max-height: 60vh;
+                    border-radius: 16px;
+                    top: auto;
+                    bottom: 80px;
+                }
+                
+                .toc-wrapper .toc-header {
+                    justify-content: center;
+                    padding: 12px;
+                    border-bottom: none;
+                }
+                
+                .toc-wrapper.expanded .toc-header {
+                    justify-content: space-between;
+                    padding: 12px 16px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                
+                .toc-wrapper .toc-title {
+                    display: none;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    display: block;
+                    font-size: 0.875rem;
+                }
+                
+                .toc-wrapper .toc-content {
+                    max-height: 0;
+                    padding: 0;
+                    opacity: 0;
+                    transition: all 0.3s ease;
+                }
+                
+                .toc-wrapper.expanded .toc-content {
+                    max-height: calc(60vh - 56px);
+                    padding: 8px 0;
+                    opacity: 1;
+                }
+                
+                .toc-wrapper .toc-header svg {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+            
+            /* 手机端 - 更小的悬浮按钮 */
+            @media (max-width: 480px) {
+                .toc-wrapper {
+                    width: 40px;
+                    height: 40px;
+                    bottom: 70px;
+                    right: 12px;
+                }
+                
+                .toc-wrapper.expanded {
+                    width: 200px;
+                }
+                
+                .toc-wrapper.expanded .toc-title {
+                    font-size: 0.8rem;
+                }
+            }
+            
+            /* 页面内容区域适配 - 避免被目录遮挡 */
+            @media (min-width: 1200px) {
+                .pro-container.has-toc {
+                    max-width: 48rem;
+                }
+            }
+            
+            /* Tab切换组件样式 */
+            .tab-container {
+                margin-bottom: 1rem;
+            }
+            
+            .tab-buttons {
+                display: flex;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                padding-bottom: 0.5rem;
+            }
+            
+            .tab-btn {
+                padding: 0.5rem 1rem;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 8px;
+                color: rgba(255,255,255,0.6);
+                cursor: pointer;
+                font-size: 0.875rem;
+                transition: all 0.3s ease;
+            }
+            
+            .tab-btn:hover {
+                background: rgba(255,255,255,0.1);
+                color: rgba(255,255,255,0.9);
+            }
+            
+            .tab-btn-active {
+                background: rgba(139, 92, 246, 0.3);
+                border-color: rgba(139, 92, 246, 0.5);
+                color: white;
+                font-weight: 500;
+            }
+            
+            .tab-container .tab-content .tab-panel {
+                display: none;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            .tab-container .tab-content .tab-panel.tab-panel-active {
+                display: block !important;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            /* Underline风格Tab */
+            .tab-style-underline .tab-buttons {
+                border-bottom: none;
+                padding-bottom: 0;
+                gap: 1.5rem;
+            }
+            
+            .tab-style-underline .tab-btn {
+                background: transparent;
+                border: none;
+                border-bottom: 2px solid transparent;
+                border-radius: 0;
+                padding: 0.5rem 0;
+            }
+            
+            .tab-style-underline .tab-btn:hover {
+                background: transparent;
+                color: rgba(255,255,255,0.9);
+            }
+            
+            .tab-style-underline .tab-btn-active {
+                border-bottom-color: #8b5cf6;
+                color: white;
+                background: transparent;
+            }
+            
+            /* 次级卡片样式 */
+            .card-subtle {
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 12px;
+                padding: 1rem;
+                transition: all 0.3s ease;
+            }
+            
+            .card-subtle:hover {
+                background: rgba(255,255,255,0.08);
+                border-color: rgba(255,255,255,0.2);
+            }
+</style>
+    
+    <style>
+        .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    </style>
+</head>
+<body>
+    <div id="progressBar" style="position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#6366f1,#a855f7,#ec4899);z-index:9999;width:0%;transition:width 0.1s ease;"></div>
+    
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">📊</span>
+                </div>
+                <span class="text-white font-bold text-lg">投资研究中心</span>
+            </div>
+            <div class="nav-links flex items-center space-x-1 flex-wrap gap-1">
+                <a href="/daily-news-insight/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">首页</a><a href="/daily-news-insight/daily/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">日报</a><a href="/daily-news-insight/intraday/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">盘中</a><a href="/daily-news-insight/aftermarket/index.html" class="text-white bg-white/20 text-sm transition-colors px-3 py-1.5 rounded-lg">盘后</a><a href="/daily-news-insight/industry_chain/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">产业链</a><a href="/daily-news-insight/weekly_review/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周复盘</a><a href="/daily-news-insight/weekend_express/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">周末速递</a><a href="/daily-news-insight/tomorrow_catalyst/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">明日催化</a><a href="/daily-news-insight/s_level_catalyst/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">S级催化</a><a href="/daily-news-insight/monthly/index.html" class="text-white/80 hover:text-white hover:bg-white/10 text-sm transition-colors px-3 py-1.5 rounded-lg">月报</a>
+            </div>
+            <button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </nav>
+    
+    <!-- 移动端全屏菜单 -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button class="close-menu-btn" onclick="toggleMobileMenu()">✕</button>
+        <a href="/daily-news-insight/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🏠 首页</a><a href="/daily-news-insight/daily/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📰 日报</a><a href="/daily-news-insight/intraday/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📈 盘中</a><a href="/daily-news-insight/aftermarket/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📉 盘后</a><a href="/daily-news-insight/industry_chain/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">🔗 产业链</a><a href="/daily-news-insight/weekly_review/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📋 周复盘</a><a href="/daily-news-insight/weekend_express/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📦 周末速递</a><a href="/daily-news-insight/tomorrow_catalyst/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⏰ 明日催化</a><a href="/daily-news-insight/s_level_catalyst/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">⚡ S级催化</a><a href="/daily-news-insight/monthly/index.html" class="mobile-menu-item" onclick="toggleMobileMenu()">📅 月报</a>
+    </div>
+        
+    <div class="pro-container pt-20 main-content-wrap has-toc" id="mainContent">
+        
+        
+        <div class="max-w-4xl mx-auto">
+            
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-black text-white mb-3">
+                一级警报：业绩暴增公司扫描
+            </h1>
+            <p class="text-white/70 text-lg">
+                2026半年报 · 净利润增幅≥100%
+            </p>
+            <p class="text-white/50 text-sm mt-2">
+                2026-07-13
+            </p>
+        </div>
+        
+            
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">🚨</span>
+                    警报概览
+                </h2>
+                <div class="text-white/80">
+                    
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="text-center">
+            <div class="text-3xl font-black text-red-400">41</div>
+            <div class="text-white/60 text-sm mt-1">业绩暴增公司</div>
+        </div>
+        <div class="text-center">
+            <div class="text-3xl font-black text-green-400">23</div>
+            <div class="text-white/60 text-sm mt-1">预增</div>
+        </div>
+        <div class="text-center">
+            <div class="text-3xl font-black text-yellow-400">18</div>
+            <div class="text-white/60 text-sm mt-1">扭亏为盈</div>
+        </div>
+        <div class="text-center">
+            <div class="text-3xl font-black text-purple-400">2026半年报</div>
+            <div class="text-white/60 text-sm mt-1">报告期</div>
+        </div>
+    </div>
+    <div class="grid grid-cols-3 gap-4 text-center">
+        <div class="bg-red-500/10 rounded-lg p-3 border border-red-500/30">
+            <div class="text-2xl font-black text-red-400">7</div>
+            <div class="text-white/60 text-xs mt-1">≥500% 超级增长</div>
+        </div>
+        <div class="bg-orange-500/10 rounded-lg p-3 border border-orange-500/30">
+            <div class="text-2xl font-black text-orange-400">9</div>
+            <div class="text-white/60 text-xs mt-1">200%-500% 高增长</div>
+        </div>
+        <div class="bg-green-500/10 rounded-lg p-3 border border-green-500/30">
+            <div class="text-2xl font-black text-green-400">25</div>
+            <div class="text-white/60 text-xs mt-1">100%-200% 稳健增长</div>
+        </div>
+    </div>
+    
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">🔥</span>
+                    🔥 超级增长（≥500%）共7家
+                </h2>
+                <div class="text-white/80">
+                    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-red-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-500/20 text-red-300 text-sm font-bold mr-3">1</span>
+                <div>
+                    <span class="text-white font-bold text-xl">璞源材料</span>
+                    <span class="text-white/50 text-sm ml-2">603196.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-red-400 font-black text-xl">4580% ~ 6213%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">4300.00万 ~ 5800.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">2025年12月31日,公司完成收购四川茵地乐材料科技集团有限公司(以下简称茵地乐)71%股权的过户手续,茵地乐成为公司控股子公司,因此自2026年1月1日起,茵地乐利润表和现金流量表纳入公司合并报表。报告期内,茵地乐盈利状况较好,提升了上市公司整体盈利能力。同时由于上年同期比较基数较小,本期经营业绩实现同比大幅增长。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-red-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-500/20 text-red-300 text-sm font-bold mr-3">2</span>
+                <div>
+                    <span class="text-white font-bold text-xl">东方材料</span>
+                    <span class="text-white/50 text-sm ml-2">603110.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-red-400 font-black text-xl">1330% ~ 1834%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">935.65万 ~ 1265.88万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">2026年上半年,公司化工业务收入较上年同期有所增长,同时,公司持续提升经营效率,人员优化、降本增效使得期间费用较上年同期有所下降。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-red-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-500/20 text-red-300 text-sm font-bold mr-3">3</span>
+                <div>
+                    <span class="text-white font-bold text-xl">富春染织</span>
+                    <span class="text-white/50 text-sm ml-2">605189.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-red-400 font-black text-xl">1165% ~ 1314%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">1.70亿 ~ 1.90亿</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">报告期内,公司全产业链协同效应释放,新质生产力智能化工厂发挥效率,产品质量稳定且市场占有率不断提高;企业数字化管理体系精准施策,产能合理增长,单位能耗及生产成本显著降低,盈利能力持续增强。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-red-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-500/20 text-red-300 text-sm font-bold mr-3">4</span>
+                <div>
+                    <span class="text-white font-bold text-xl">风范股份</span>
+                    <span class="text-white/50 text-sm ml-2">601700.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-red-400 font-black text-xl">742% ~ 1023%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">7500.00万 ~ 1.00亿</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">1、受益于“十五五”期间新型电力系统建设升级的行业趋势,报告期内,公司紧抓电网投资规模扩张与结构升级的战略窗口,实现铁塔板块核心业务的增长,推动公司实现业绩改善。2、报告期内,公司完成对子公司苏州晶樱光电科技有限公司60%股权的转让事项,通过剥离光伏亏损资产,实现业务结构深度聚焦与轻量化。该处置事项对公司主业的盈利形成了税务抵减效应,一定程度提振了利润水平,实现了战略瘦身与财务回报的双重目标。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-red-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-500/20 text-red-300 text-sm font-bold mr-3">5</span>
+                <div>
+                    <span class="text-white font-bold text-xl">恒誉环保</span>
+                    <span class="text-white/50 text-sm ml-2">688309.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-red-400 font-black text-xl">865%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">8100.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">报告期内,全球循环经济政策提振市场需求,全球固体废弃物化学循环项目建设需求显著提高,市场活力显著增强。公司凭借核心技术在全球拥有的持续领先优势以及多个国际市场实践项目,公司高端装备销售订单显著增加,销售收入相应增长;报告期内,公司现有运营项目持续稳健发力,保持高效平稳运行,持续为营收和利润贡献常态化收益。受上述因素综合影响,公司预计2026年上半年营业收入、归属于母公司所有者的净利润及属于母公司所有者的扣除非经常性损益的净利润同比均实现显著增长。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-red-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-500/20 text-red-300 text-sm font-bold mr-3">6</span>
+                <div>
+                    <span class="text-white font-bold text-xl">和邦生物</span>
+                    <span class="text-white/50 text-sm ml-2">603077.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-red-400 font-black text-xl">615% ~ 731%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">3.70亿 ~ 4.30亿</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">报告期内,归属于上市公司股东的净利润较上年同期上升,主要原因系部分产品价格快速上涨,带动公司整体利润增长。(一)蛋氨酸及副产品:上半年度受地缘冲突影响,蛋氨酸行业因原料短缺等原因导致整体产能下降,行业供应缺口扩大,同时成本中枢不断提升,推动蛋氨酸价格快速上涨,板块利润上升。(二)双甘膦/草甘膦:同样受地缘冲突影响,黄磷等原材料成本迅速提升,且美国将元素磷及草甘膦等关键除草剂纳入关键战略物资,上述因素有效推动草甘膦、双甘膦价格走高,板块利润明显改善。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-red-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-500/20 text-red-300 text-sm font-bold mr-3">7</span>
+                <div>
+                    <span class="text-white font-bold text-xl">龙蟠科技</span>
+                    <span class="text-white/50 text-sm ml-2">603906.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-red-400 font-black text-xl">538% ~ 626%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">3.73亿 ~ 4.48亿</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">报告期内,公司整体业绩较去年同期实现扭亏为盈。受益于动力电池及储能电池的发展,公司磷酸铁锂业务受行业上下游需求影响,收入与销量呈不同程度的增长,规模效益体现,盈利能力有所恢复。...</p>
+        </div>
+    </div>
+    
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">⚡</span>
+                    ⚡ 高增长（200%-500%）共9家
+                </h2>
+                <div class="text-white/80">
+                    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-orange-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-orange-500/20 text-orange-300 text-sm font-bold mr-3">1</span>
+                <div>
+                    <span class="text-white font-bold text-xl">人民网</span>
+                    <span class="text-white/50 text-sm ml-2">603000.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-orange-400 font-black text-xl">468% ~ 526%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">1900.00万 ~ 2200.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">报告期内,公司归属于上市公司股东的净利润实现扭亏为盈,一方面,公司深耕核心主业,营业收入稳步增长,主业利润持续提升。另一方面,重要联营企业亏损大幅收窄,公司对应投资损失同比减少。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-orange-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-orange-500/20 text-orange-300 text-sm font-bold mr-3">2</span>
+                <div>
+                    <span class="text-white font-bold text-xl">新锐股份</span>
+                    <span class="text-white/50 text-sm ml-2">688257.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-orange-400 font-black text-xl">425% ~ 524%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">5.30亿 ~ 6.30亿</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">公司聚焦硬质合金及工具核心赛道,持续推进境内外子公司销售渠道与产能协同,报告期内,公司抓住全球矿业、高端机械加工下游需求旺盛的发展机遇,叠加凿岩工具、切削工具等高附加值产品结构持续优化,公司硬质合金制品、凿岩工具、切削工具产品销量实现同比增长,带动营收规模提升;同时,报告期内受碳化钨等主要原材料价格上涨影响,公司通过实施产品价格调整,提升产品盈利空间。量价双升、产品结构优化及并购协同效应释放共同驱动公司2026年半年度经营业绩同比增长。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-orange-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-orange-500/20 text-orange-300 text-sm font-bold mr-3">3</span>
+                <div>
+                    <span class="text-white font-bold text-xl">淳中科技</span>
+                    <span class="text-white/50 text-sm ml-2">603516.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-orange-400 font-black text-xl">412% ~ 437%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">1.25亿 ~ 1.35亿</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">(一)报告期内,公司传统专业视听业务新签合同下滑,专业芯片和人工智能等新业务尚未放量,营业收入同比下降9%左右。受存储芯片等电子元器件价格上涨影响,专业视听业务毛利率有所下降;本期产品收入结构有所变化,专业芯片产品收入占比提高,导致公司综合毛利率下降。面对当下市场需求和行业压力,公司将继续拓展人工智能等业务,加大研发投入力度,丰富产品线布局,持续推进产品迭代升级与市场开拓,多措并举提升公司收入规模,优化整体经营效益。(二)报告期末,公司持有沐曦股份(SH.688802)股票数量为854,256股...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-orange-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-orange-500/20 text-orange-300 text-sm font-bold mr-3">4</span>
+                <div>
+                    <span class="text-white font-bold text-xl">天创时尚</span>
+                    <span class="text-white/50 text-sm ml-2">603608.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-orange-400 font-black text-xl">272% ~ 421%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">2500.00万 ~ 3500.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">公司主营业务为以多品牌全产业链一体化运营的时尚鞋履业务。报告期内,公司聚焦趋势品类,通过持续强化运动时尚品类的自研自产能力积极提升运动品类的销售占比;洞察及深度挖掘用户需求,聚力打造爆品,积极提升品效;加速全渠道转型升级,优化线下渠道结构,扩大内容电商的投入并提高转化;全产业链高效协同,持续降本增效,全面提升全产业链一体化运营效率,最终实现经营业绩较上年同期有较大幅度提升。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-orange-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-orange-500/20 text-orange-300 text-sm font-bold mr-3">5</span>
+                <div>
+                    <span class="text-white font-bold text-xl">华正新材</span>
+                    <span class="text-white/50 text-sm ml-2">603186.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-orange-400 font-black text-xl">263% ~ 380%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">1.55亿 ~ 2.05亿</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">报告期内,覆铜板行业需求持续提升,公司积极开拓市场,适时产能扩张实现量价齐升;积极有效应对供应链供需持续偏紧的格局,并通过实现高速产品销售增长、持续改善产品结构等,提升产品毛利率,提高盈利水平。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-orange-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-orange-500/20 text-orange-300 text-sm font-bold mr-3">6</span>
+                <div>
+                    <span class="text-white font-bold text-xl">金域医学</span>
+                    <span class="text-white/50 text-sm ml-2">603882.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-orange-400 font-black text-xl">300% ~ 359%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">1.70亿 ~ 2.20亿</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">报告期内公司业绩发生变动的主要原因如下:(一)持续推进降本增效及数智化转型,经营质量持续改善。报告期内,公司坚持长期主义发展理念,围绕客户价值提升和运营效率优化,以成本领先和数字化转型为重要战略抓手,持续强化内部运营管理,深入推进精益运营及数智化能力建设,不断提升组织运营效率。随着各项经营改善措施持续落地,公司主营业务经营保持韧性,核心业务发展逐步企稳,经营效率进一步提升,盈利能力持续改善。(二)前期阶段性影响因素逐步消化,相关不利影响基本出清。2025年公司受宏观环境变化及相关业务周期性影响,...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-orange-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-orange-500/20 text-orange-300 text-sm font-bold mr-3">7</span>
+                <div>
+                    <span class="text-white font-bold text-xl">西部黄金</span>
+                    <span class="text-white/50 text-sm ml-2">601069.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-orange-400 font-black text-xl">280% ~ 333%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">5.00亿 ~ 5.70亿</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">(一)主营业务影响公司2026年半年度实现归属于上市公司股东的净利润以及归属于上市公司股东的扣除非经常性损益的净利润较上年同期法定披露数据以及追溯调整后数据增长的主要原因为:黄金产品销量较上年同期增加、销售价格较上年同期上升以及电解锰和锰锭的销量较上年同期增加、销售价格较上年同期上升。(二)会计处理的影响公司于2025年8月,完成自控股股东处购买新疆美盛矿业有限公司100%股权的相关程序,将相关标的纳入公司合并报表范围。根据《企业会计准则》的相关规定,公司按照同一控制下企业合并原则对上年同期数进...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-orange-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-orange-500/20 text-orange-300 text-sm font-bold mr-3">8</span>
+                <div>
+                    <span class="text-white font-bold text-xl">茶花股份</span>
+                    <span class="text-white/50 text-sm ml-2">603615.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-orange-400 font-black text-xl">332%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">850.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">报告期内,公司实现业绩扭亏为盈的主要原因系公司全资子公司深圳市达迈科技智能有限公司、达迈国际(香港)有限公司开展的电子元器件分销业务取得较好发展。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-orange-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-orange-500/20 text-orange-300 text-sm font-bold mr-3">9</span>
+                <div>
+                    <span class="text-white font-bold text-xl">大连热电</span>
+                    <span class="text-white/50 text-sm ml-2">600719.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-orange-400 font-black text-xl">202% ~ 227%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">4200.00万 ~ 5200.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">本报告期内,收回东海电厂拆迁补偿款1.05亿元,冲减已计提的坏账准备;截至报告期末,剩余尚未收回的补偿款为2.45亿元,本年不再补提坏账准备。...</p>
+        </div>
+    </div>
+    
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">📈</span>
+                    📈 稳健增长（100%-200%）共25家
+                </h2>
+                <div class="text-white/80">
+                    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">1</span>
+                <div>
+                    <span class="text-white font-bold text-xl">ST海钦</span>
+                    <span class="text-white/50 text-sm ml-2">600753.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">188% ~ 322%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">1500.00万 ~ 2200.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">报告期内,公司持续推进大宗商品供应链业务发展,进一步巩固在西南区域市场的竞争优势,液化石油气批发分销数量实现同比增长;同时,受益于前期合理增加库存备货,叠加地缘冲突一季度推升下游市场价格,公司液化石油气业务的收入及盈利能力均有所提升。另一方面,受地缘冲突的持续冲击,公司改性塑料业务面临原材料采购成本上升及供应链稳定性波动的双重压力,导致该业务盈利能力出现一定下滑。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">2</span>
+                <div>
+                    <span class="text-white font-bold text-xl">八方股份</span>
+                    <span class="text-white/50 text-sm ml-2">603489.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">189% ~ 273%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">9300.00万 ~ 1.20亿</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">随着海外终端市场去库存进入尾声,公司订单及生产逐渐恢复正常。公司积极开拓新市场、新客户,销量有所增加,业绩相应提升。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">3</span>
+                <div>
+                    <span class="text-white font-bold text-xl">中重科技</span>
+                    <span class="text-white/50 text-sm ml-2">603135.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">134% ~ 205%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">2226.14万 ~ 2893.98万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">报告期内,公司经营业绩同比实现增长,核心驱动为主营业务收入规模提升。公司前期签订的大额订单已完成设计、生产制造工序,于本报告期集中交付履约,满足收入确认条件,当期营业收入较上年同期明显增加,带动归母净利润同比提升。公司2025年推出股权激励计划,相关激励支出计入当期管理费用约1,200万元,减少本期利润。同时本期加大应收账款、合同资产回款催收力度,历史应收款项回款改善,转回资产减值准备约500万元,增厚当期净利润。上述因素对公司2026年半年度的净利润带来一定的影响。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">4</span>
+                <div>
+                    <span class="text-white font-bold text-xl">华脉科技</span>
+                    <span class="text-white/50 text-sm ml-2">603042.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">173% ~ 196%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">1600.00万 ~ 2100.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">(一)主营业务影响报告期内,受益于通信行业光纤光缆市场价格持续走高,产品毛利提升。公司同步强化精细化管理、推进降本增效,期间费用率同比下降,内外因素驱动公司实现扭亏为盈。(二)非经营性损益的影响报告期内,预计非经常性损益对公司净利润的影响金额约为500万元,主要系计入当期损益的政府补助。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">5</span>
+                <div>
+                    <span class="text-white font-bold text-xl">丽人丽妆</span>
+                    <span class="text-white/50 text-sm ml-2">605136.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">167% ~ 181%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">2208.33万 ~ 2650.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">公司2026年半年度归母净利润扭亏为盈主要系公司在持续巩固传统电商零售业务能力的基础上,2024年起布局海外品牌总代业务并搭建全域分销体系。报告期内相关新业务持续放量,增厚整体毛利;同时,公司依托精细化运营,提升自有品牌营销费用投放效率、科学控制投入规模,共同支撑利润改善。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">6</span>
+                <div>
+                    <span class="text-white font-bold text-xl">通用股份</span>
+                    <span class="text-white/50 text-sm ml-2">601500.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">115% ~ 177%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">1.38亿 ~ 1.78亿</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">2026年上半年,受全球宏观经济因素与地缘政治冲突影响,轮胎原材料价格和物流成本大幅上涨。面对行业挑战,公司坚定战略方向,积极推进国际化布局、自主品牌建设和智能制造升级,海外生产基地优质产能稳步释放,柬埔寨二期项目达产增效,公司整体产能结构、产品结构、渠道结构不断优化,提升市场份额与行业竞争力,轮胎产销量实现较大增长,毛利率水平稳步上行,主营业务盈利能力不断改善。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">7</span>
+                <div>
+                    <span class="text-white font-bold text-xl">博通集成</span>
+                    <span class="text-white/50 text-sm ml-2">603068.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">150% ~ 176%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">4800.00万 ~ 5300.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">报告期内,随着人工智能技术加快向终端侧和边缘侧渗透,智能家居及物联网等AIoT应用场景持续拓展,终端设备对无线连接、本地数据处理及智能化能力的需求不断提升。公司围绕“连接+端侧智能+生态兼容”产品战略,前期研发的Wi-Fi6MCU及Edge AI边缘智能芯片(如BK7236、BK7238和BK7258等系列)在下游主流客户的终端项目逐步落地,并全面进入规模化批量出货阶段,带动报告期内营业收入同比大幅增长。未来,尽管产业供应端呈现涨价及紧缺的压力,但在端侧AI与AIoT应用场景持续拓展的趋势下,公...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">8</span>
+                <div>
+                    <span class="text-white font-bold text-xl">长白山</span>
+                    <span class="text-white/50 text-sm ml-2">603099.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">151% ~ 171%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">105.00万 ~ 145.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">通过市场推广、运营管理优化等举措,景区游客接待量同比提升;客流提升拉动二次消费及配套服务收入同步增长,使得本期营业收入较上年有所增加。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">9</span>
+                <div>
+                    <span class="text-white font-bold text-xl">舒华体育</span>
+                    <span class="text-white/50 text-sm ml-2">605299.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">111% ~ 164%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">3700.00万 ~ 4625.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">2026年上半年,公司整体业绩同比实现较大增长,主要驱动因素为:健身器材海外销售收入大幅提升。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">10</span>
+                <div>
+                    <span class="text-white font-bold text-xl">蓝科高新</span>
+                    <span class="text-white/50 text-sm ml-2">601798.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">150% ~ 153%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">5305.45万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">(一)主营业务影响。报告期内,公司坚持以科技创新为引领,持续优化产品结构。通过强化重点项目运营管理、加强内部协同以及推进海外市场资源建设,公司采取多项措施提升经营质量,使得整体毛利率较去年同期有所提高。同时,公司严格控制各项成本费用,提升管理效率,当期销售费用和管理费用均实现同比下降。此外,公司通过优化融资结构降低融资利率,致使当期财务费用同比下降,从而对本期业绩产生了积极影响。(二)非经营性损益的影响。报告期内,公司通过公开挂牌交易方式处置了一项长期股权投资,产生处置收益约3,244.45万元...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">11</span>
+                <div>
+                    <span class="text-white font-bold text-xl">神马股份</span>
+                    <span class="text-white/50 text-sm ml-2">600810.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">152%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">6600.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">报告期内,受行业市场供需关系等多种因素影响,公司主要产品售价较同期有所上升,因此,公司盈利水平较上年同期有所提升。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">12</span>
+                <div>
+                    <span class="text-white font-bold text-xl">金海通</span>
+                    <span class="text-white/50 text-sm ml-2">603061.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">111% ~ 150%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">1.60亿 ~ 1.90亿</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">2026年上半年,受AI、高性能计算、新能源汽车等下游应用领域的驱动,公司所在的半导体封装和测试设备领域需求持续增长,叠加公司全球化业务布局成效逐步显现,境外市场订单较上年同期实现较好增长。因此,2026年上半年,公司产品测试分选机销量实现较大提升,公司业绩实现较好的增长。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">13</span>
+                <div>
+                    <span class="text-white font-bold text-xl">红板科技</span>
+                    <span class="text-white/50 text-sm ml-2">603459.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">100% ~ 146%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">4.80亿 ~ 5.90亿</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">(一)主营业务影响报告期内,公司主要原材料采购价格大幅上涨,公司一方面强化采购端集中采购,有效严格管控成本;另一方面结合原材料成本波动情况合理传导产品售价,但由于产品生产、销售存在时间差,调价红利滞后释放,致使当期毛利率稍有下降。公司将依托工艺优化、材料替代、提升生产良率深挖内部降本空间,提升公司经营能力,推动盈利能力的持续改善。(二)非经常性损益影响报告期内,公司全资子公司吉安市辉阳电子有限公司竞拍取得江西志浩电子科技有限公司(现更名为“赣州红板科技有限公司”)100%股权,将其纳入合并报表范...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">14</span>
+                <div>
+                    <span class="text-white font-bold text-xl">江苏索普</span>
+                    <span class="text-white/50 text-sm ml-2">600746.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">116% ~ 145%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">2.20亿 ~ 2.50亿</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">2026年上半年,公司主要产品价格同比上升,使得公司半年度经营业绩较去年预计上升。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">15</span>
+                <div>
+                    <span class="text-white font-bold text-xl">红蜻蜓</span>
+                    <span class="text-white/50 text-sm ml-2">603116.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">122% ~ 144%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">500.00万 ~ 1000.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">报告期内,时尚鞋服需求依然疲软,在预期未来经营环境依然较为艰难的情况下,公司持续优化渠道结构,在业务的各个环节用好数智化工具,提高经营效率,同时加大费用支出管控力度,因此公司上半年净利润实现扭亏为盈。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">16</span>
+                <div>
+                    <span class="text-white font-bold text-xl">综艺股份</span>
+                    <span class="text-white/50 text-sm ml-2">600770.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">136%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">4700.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">(一)主营业务影响本报告期,公司坚定以半导体为轴的发展战略,聚焦半导体等核心领域稳健经营,公司实现营业收入约33,000.00万元,上年同期为21,314.96万元,同比增长约54.82%,主要系较上年同期新增合并子公司江苏吉莱微电子股份有限公司的营业收入。(二)非经常性损益的影响本报告期,公司非经常性损益约5,350.00万元,上年同期为2,703.36万元,本期非经常性损益主要系下属海外子公司利用归集的部分自有闲置资金,通过证券投资的方式进行投资理财取得的收益。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">17</span>
+                <div>
+                    <span class="text-white font-bold text-xl">圣龙股份</span>
+                    <span class="text-white/50 text-sm ml-2">603178.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">122% ~ 130%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">1215.00万 ~ 1635.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">公司2026年半年度业绩预盈主要有以下原因:报告期内,北美新工厂完成搬迁后运营全面恢复正常,海外子公司经营业绩企稳回升,有效改善了整体盈利水平。同时,公司持续深化内部管理,严格控制各项费用支出,降本增效成果显著,进一步增厚了公司利润。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">18</span>
+                <div>
+                    <span class="text-white font-bold text-xl">中通国脉</span>
+                    <span class="text-white/50 text-sm ml-2">603559.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">119% ~ 128%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">800.00万 ~ 1200.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">报告期内,扭亏为盈主要原因:一是得益于公司精细化费用管控推动期间费用同比减少;二是公司大力推动应收账款清收工作,回款同比大幅增加,信用减值损失将出现部分转回。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">19</span>
+                <div>
+                    <span class="text-white font-bold text-xl">金煤B股</span>
+                    <span class="text-white/50 text-sm ml-2">900921.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">128%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">2041.38万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">1、主营业务影响上半年,公司生产装置运行稳定。4月初年产10万吨草酸扩产项目建成投产,公司产品结构有所优化,增加了盈利能力较强的草酸产销量,降低了毛利率较差的乙二醇产销规模,此外叠加草酸市场行情上行,整体盈利结构得到改善;同时公司继续推行高卡煤掺烧等降耗举措,降低了产品单耗。上述因素是本期扭亏为盈的主要原因。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">20</span>
+                <div>
+                    <span class="text-white font-bold text-xl">金煤科技</span>
+                    <span class="text-white/50 text-sm ml-2">600844.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">128%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">2041.38万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">1、主营业务影响上半年,公司生产装置运行稳定。4月初年产10万吨草酸扩产项目建成投产,公司产品结构有所优化,增加了盈利能力较强的草酸产销量,降低了毛利率较差的乙二醇产销规模,此外叠加草酸市场行情上行,整体盈利结构得到改善;同时公司继续推行高卡煤掺烧等降耗举措,降低了产品单耗。上述因素是本期扭亏为盈的主要原因。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">21</span>
+                <div>
+                    <span class="text-white font-bold text-xl">立昂微</span>
+                    <span class="text-white/50 text-sm ml-2">605358.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">124%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">3000.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">(一)主营业务影响报告期内,公司归属于上市公司股东的净利润同比扭亏为盈,主要得益于半导体硅片板块盈利能力的改善。随着产品结构持续向高端化迭代升级,产销规模的稳步扩张,尤其是12英寸硅片产销量实现大幅增长,硅片单位成本同步下降,硅片业务(含对立昂微母公司的销售)的综合毛利率同比上升。报告期内,得益于半导体行业景气度的持续复苏,下游客户需求增长及公司加强市场拓展、优化产品结构等因素的影响,公司主要产品产销量变动如下:(1)半导体硅片(出货面积折合为6英寸)的销量约1,150.09万片(含对立昂微母公...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">22</span>
+                <div>
+                    <span class="text-white font-bold text-xl">气派科技</span>
+                    <span class="text-white/50 text-sm ml-2">688216.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">120%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">1200.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">公司2026年上半年业绩较上年同期增长的主要原因系:公司实现扭亏为盈,主要得益于半导体行业周期复苏,订单充足、产能利用率提升,同比产量大幅提升,固定成本分摊大幅摊薄,生产成本下降;同时产品结构优化、销售单价有所提升,毛利率得到改善,共同推动业绩扭亏为盈。主营晶圆测试业务的子公司气派芯竞随着产能的持续释放,实现了业绩扭亏为盈。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">23</span>
+                <div>
+                    <span class="text-white font-bold text-xl">华安证券</span>
+                    <span class="text-white/50 text-sm ml-2">600909.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">100% ~ 120%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">20.70亿 ~ 22.77亿</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">2026年上半年,国内资本市场呈现出高质量发展特征。公司紧抓市场机遇,围绕“保持‘量’的合理增长、增强主营业务竞争力、发挥更充分功能性作用、实现‘质’的有效提升”的战略发展目标,聚焦主业提质增效,促进业务转型升级,强化子公司协同发展,提升集团整体竞争力。报告期内,公司私募股权投资基金业务、另类投资业务、经纪业务等同比增幅较大,经营业绩创历史同期新高。2026年半年度实现归属于上市公司股东的净利润人民币20.70亿元至人民币22.77亿元,同比增长100%至120%。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">24</span>
+                <div>
+                    <span class="text-white font-bold text-xl">生益电子</span>
+                    <span class="text-white/50 text-sm ml-2">688183.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">104% ~ 114%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">10.82亿 ~ 11.37亿</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-green-400 text-sm font-medium">预增</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">受益于AI算力及高速通信等下游领域的高景气需求,公司紧扣战略定位,深入实施“市场引领,双轮驱动”方针,持续聚焦高端市场的结构性增长机会,优化产品结构,有序推进增资扩产项目建设,尤其是智能算力中心高多层高密互连电路板项目按计划高效落地并快速释放效益。同时公司在技术演进与供应链重构中持续构建经营韧性,不断夯实质量管理根基,市场竞争优势进一步巩固。2026年半年度营业收入和净利润较上年同期实现增长。...</p>
+        </div>
+    </div>
+    
+    <div class="bg-white/5 rounded-xl p-5 mb-4 border border-green-500/50 hover:shadow-lg transition-all stock-card">
+        <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-green-500/20 text-green-300 text-sm font-bold mr-3">25</span>
+                <div>
+                    <span class="text-white font-bold text-xl">南宁百货</span>
+                    <span class="text-white/50 text-sm ml-2">600712.SH</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-green-400 font-black text-xl">111%</div>
+                <div class="text-white/50 text-xs">净利润增幅</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-3">
+            <div>
+                <div class="text-white/50 text-xs mb-1">预计净利润</div>
+                <div class="text-white/90 text-sm font-medium">145.00万</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">业绩类型</div>
+                <div class="text-yellow-400 text-sm font-medium">扭亏</div>
+            </div>
+            <div>
+                <div class="text-white/50 text-xs mb-1">披露日期</div>
+                <div class="text-white/70 text-sm">2026-07-14</div>
+            </div>
+        </div>
+        <div class="pt-3 border-t border-white/10">
+            <div class="text-white/60 text-xs mb-1">💡 变动原因：</div>
+            <p class="text-white/80 text-sm leading-relaxed">(一)主营业务方面报告期内,公司稳步推进门店结构优化,关停低效门店,深化精细化管理,严控人工成本、广告促销费、租赁费用等各项成本费用,降本增效成效明显;同时,部分长期待摊费用已于上年摊销完毕,本期未产生相应费用支出。上述因素推动公司利润较上年同期实现增长。(二)非经营性损益方面公司本期非经营性损益对净利润的影响金额约220万元。主要为关停低效门店产生的资产处置收益、核销无法支付的长期应付款项以及处置废旧物资。...</p>
+        </div>
+    </div>
+    
+                </div>
+            
+        </div>
+        
+        <div class="card-glass p-6 mb-6  ">
+            
+                <h2 class="text-lg font-bold text-white mb-4">
+                    <span class="text-blue-400 mr-2">⚠️</span>
+                    风险提示
+                </h2>
+                <div class="text-white/80">
+                    
+    <div class="text-white/60 text-sm leading-relaxed">
+        <p class="mb-2">⚠️ <strong class="text-yellow-400/90">重要风险提示：</strong></p>
+        <ul class="list-disc list-inside space-y-1 ml-2">
+            <li>本警报仅筛选净利润增幅≥100%的公司，<strong class="text-red-400">不构成任何投资建议</strong></li>
+            <li>业绩预告为公司初步测算，最终以正式财报为准，存在不及预期风险</li>
+            <li>高增幅可能源于低基数、一次性收益、并表等非经常性因素，需甄别质量</li>
+            <li>扭亏为盈的公司需关注主业是否真正改善，警惕非经常性损益</li>
+            <li>业绩大增不等于股价上涨，需结合估值、行业景气度、市场情绪综合判断</li>
+            <li>部分公司可能已提前反应，警惕利好兑现即利空</li>
+            <li>投资有风险，入市需谨慎</li>
+        </ul>
+    </div>
+    
+                </div>
+            
+        </div>
+        
+        </div>
+        
+        
+        
+        <div class="history-entry-wrap" style="margin:2.5rem auto 0.5rem auto; max-width:32rem; text-align:center;">
+            <a href="./index.html"
+               class="history-entry-link"
+               style="display:inline-flex !important; align-items:center !important; gap:0.5rem !important;
+                      padding:0.7rem 1.4rem !important;
+                      background:rgba(255,255,255,0.06) !important;
+                      border:1px solid rgba(255,255,255,0.14) !important;
+                      border-radius:999px !important;
+                      color:rgba(255,255,255,0.82) !important;
+                      font-size:0.92rem !important;
+                      font-weight:500 !important;
+                      text-decoration:none !important;
+                      backdrop-filter:blur(12px) !important;
+                      -webkit-backdrop-filter:blur(12px) !important;
+                      box-shadow:0 6px 20px rgba(0,0,0,0.25) !important;
+                      transition:all .25s ease !important;">
+                <span style="font-size:1.05rem;">📚</span>
+                <span>查看历史盘后</span>
+                <span style="opacity:.75; margin-left:2px;">→</span>
+            </a>
+        </div>
+        <style>
+            .history-entry-link:hover {
+                background:rgba(102,126,234,0.22) !important;
+                border-color:rgba(139,92,246,0.45) !important;
+                color:#fff !important;
+                transform:translateY(-1px) !important;
+                box-shadow:0 10px 28px rgba(102,126,234,0.35) !important;
+            }
+            @media (max-width: 640px) {
+                .history-entry-wrap { margin-top:1.75rem !important; }
+                .history-entry-link { font-size:0.88rem !important; padding:0.6rem 1.1rem !important; }
+            }
+        </style>
+        <div class="text-center text-white/40 text-sm py-10">
+            <p>一级警报：业绩暴增公司扫描 · 投资研究中心</p>
+            <p class="text-xs mt-2">数据更新时间：2026年07月13日 20:07</p>
+        </div>
+        
+    </div>
+    <div class="quick-anchors" id="quickAnchors"><a href="#portfolio" class="qa-item" title="持仓诊断"><span class="qa-icon">💼</span><span class="qa-label">持仓诊断</span></a><a href="#slevel" class="qa-item" title="S级催化"><span class="qa-icon">🔥</span><span class="qa-label">S级催化</span></a><a href="#topics" class="qa-item" title="热点题材"><span class="qa-icon">📊</span><span class="qa-label">热点题材</span></a><a href="#longhubang" class="qa-item" title="龙虎榜"><span class="qa-icon">🐉</span><span class="qa-label">龙虎榜</span></a><a href="#risk" class="qa-item" title="风险提示"><span class="qa-icon">⚠️</span><span class="qa-label">风险提示</span></a></div>
+    <div id="progressBar"></div><div class="action-buttons"><button onclick="exportPDF()" class="action-btn" title="打印/导出PDF"><span style="font-size:20px">&#x1F4C4;</span></button><button onclick="shareReport()" class="action-btn" title="分享报告"><span style="font-size:20px">&#x1F517;</span></button></div><button id="backToTop" onclick="scrollToTop()" title="回到顶部"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg></button>
+    <!-- 悬浮目录导航 -->
+<div id="tableOfContents" class="toc-wrapper toc-right">
+  <div class="toc-header" onclick="toggleTOC()">
+    <span class="toc-title">目录</span>
+    <svg id="tocToggleIcon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="transition-transform duration-300">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+    </svg>
+  </div>
+  <div id="tocContent" class="toc-content">
+    <div id="tocContainer" class="toc-container"></div>
+  </div>
+</div>
+
+    <div class="mobile-bottom-nav" id="mobileBottomNav"><a href="/daily-news-insight/" class="mnav-item "><span class="mnav-icon">🏠</span><span class="mnav-label">首页</span></a><a href="/daily-news-insight/daily/index.html" class="mnav-item "><span class="mnav-icon">📰</span><span class="mnav-label">日报</span></a><a href="/daily-news-insight/s_level_catalyst/index.html" class="mnav-item "><span class="mnav-icon">🔥</span><span class="mnav-label">S级</span></a><a href="/daily-news-insight/portfolio.html" class="mnav-item "><span class="mnav-icon">💼</span><span class="mnav-label">持仓</span></a><a href="/daily-news-insight/toolbox.html" class="mnav-item "><span class="mnav-icon">🧰</span><span class="mnav-label">工具</span></a></div>
+    <script src="/daily-news-insight/assets/stock-popup.js"></script>
+    <script src="/daily-news-insight/assets/l2-toolbox.js"></script>
+    
+    <script>
+        // ==================== 移动端菜单切换 ====================
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) {
+                menu.classList.toggle('show');
+                document.body.style.overflow = menu.classList.contains('show') ? 'hidden' : '';
+            }
+        }
+        
+        // 点击菜单项后关闭菜单
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('mobile-menu-item')) {
+                setTimeout(toggleMobileMenu, 100);
+            }
+        });
+        
+        // ==================== 导航栏滚动效果 ====================
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('.glass-nav');
+            if (nav) {
+                if (window.scrollY > 10) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
+                }
+            }
+        });
+        
+        // ==================== 滚动触发动画 ====================
+        function initScrollReveal() {
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                        }
+                    });
+                }, {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                });
+                
+                document.querySelectorAll('.reveal, .card-glass').forEach(function(el, index) {
+                    observer.observe(el);
+                    el.style.animationDelay = (index * 0.1) + 's';
+                });
+            }
+        }
+        
+        // ==================== 数字滚动动画 ====================
+        function animateValue(element, start, end, duration) {
+            var startTimestamp = null;
+            var step = function(timestamp) {
+                if (!startTimestamp) startTimestamp = timestamp;
+                var progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                var value = Math.floor(progress * (end - start) + start);
+                element.textContent = value.toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+        
+        function initCounters() {
+            var counters = document.querySelectorAll('.counter-value');
+            if ('IntersectionObserver' in window) {
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting && !entry.target.dataset.animated) {
+                            entry.target.dataset.animated = 'true';
+                            var target = parseInt(entry.target.dataset.target || entry.target.textContent);
+                            animateValue(entry.target, 0, target, 1500);
+                        }
+                    });
+                }, { threshold: 0.5 });
+                
+                counters.forEach(function(counter) { observer.observe(counter); });
+            }
+        }
+        
+        // ==================== 进度条动画 ====================
+        function initProgressBars() {
+            var bars = document.querySelectorAll('.risk-bar-fill');
+            if ('IntersectionObserver' in window) {
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting && !entry.target.dataset.animated) {
+                            entry.target.dataset.animated = 'true';
+                            var width = entry.target.style.width;
+                            entry.target.style.width = '0%';
+                            setTimeout(function() {
+                                entry.target.style.width = width;
+                            }, 100);
+                        }
+                    });
+                }, { threshold: 0.5 });
+                
+                bars.forEach(function(bar) { observer.observe(bar); });
+            }
+        }
+        
+        // ==================== 卡片入场动画 ====================
+        function initCardAnimations() {
+            var cards = document.querySelectorAll('.card-glass');
+            cards.forEach(function(card, index) {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                
+                setTimeout(function() {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 + index * 100);
+            });
+        }
+        
+
+        // ==================== 阅读进度条 & 回到顶部 ====================
+        function initProgressAndBackToTop() {
+            const progressBar = document.getElementById('progressBar');
+            const backToTop = document.getElementById('backToTop');
+            
+            function updateProgress() {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+                
+                if (progressBar) {
+                    progressBar.style.width = scrolled + '%';
+                }
+                
+                if (backToTop) {
+                    if (winScroll > 300) {
+                        backToTop.classList.add('visible');
+                    } else {
+                        backToTop.classList.remove('visible');
+                    }
+                }
+            }
+            
+            window.addEventListener('scroll', updateProgress);
+            updateProgress();
+        }
+        
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function exportPDF() {
+            window.print();
+        }
+        
+        function shareReport() {
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({ title: document.title, url: url });
+            } else {
+                navigator.clipboard.writeText(url).then(function() {
+                    alert('链接已复制到剪贴板！');
+                }).catch(function() {
+                    prompt('复制以下链接分享：', url);
+                });
+            }
+        }
+        
+        // ==================== 平滑滚动 ====================
+        function initSmoothScroll() {
+            document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        }
+        
+        
+        // ==================== 悬浮目录导航 ====================
+        function toggleTOC() {
+            const toc = document.getElementById('tableOfContents');
+            if (toc) {
+                // 移动端使用expanded类，桌面端使用collapsed类
+                if (window.innerWidth <= 1200) {
+                    toc.classList.toggle('expanded');
+                } else {
+                    toc.classList.toggle('collapsed');
+                }
+            }
+        }
+
+        // 监听窗口大小变化，重置TOC状态
+        window.addEventListener('resize', function() {
+            const toc = document.getElementById('tableOfContents');
+            if (toc) {
+                if (window.innerWidth > 1200) {
+                    toc.classList.remove('expanded');
+                } else {
+                    toc.classList.remove('expanded');
+                }
+            }
+        });
+        
+        function initTableOfContents() {
+            const tocContainer = document.getElementById('tocContainer');
+            if (!tocContainer) return;
+            
+            // 自动提取页面中的h2和h3标题
+            const headings = document.querySelectorAll('.pro-container h2, .pro-container h3');
+            if (headings.length === 0) {
+                // 没有标题则隐藏目录
+                const toc = document.getElementById('tableOfContents');
+                if (toc) toc.style.display = 'none';
+                return;
+            }
+            
+            // 为标题生成id（如果没有的话）
+            headings.forEach(function(heading, index) {
+                if (!heading.id) {
+                    const text = heading.textContent || heading.innerText;
+                    heading.id = 'section-' + index + '-' + text.trim().replace(/\s+/g, '-').replace(/[^\w\-一-龥]/g, '').substring(0, 30);
+                }
+            });
+            
+            // 生成目录HTML
+            var tocHTML = '';
+            headings.forEach(function(heading) {
+                const level = parseInt(heading.tagName.substring(1));
+                const title = heading.textContent || heading.innerText;
+                const indent = level === 3 ? 'pl-4' : '';
+                tocHTML += '<a href="#' + heading.id + '" class="toc-item ' + indent + '" data-level="' + level + '">' + title.trim() + '</a>';
+            });
+            
+            tocContainer.innerHTML = tocHTML;
+            
+            // 为目录项添加平滑滚动
+            tocContainer.querySelectorAll('.toc-item').forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        // 考虑导航栏高度
+                        var offset = 100;
+                        var targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // 初始化滚动高亮
+            initTOCScrollSpy();
+        }
+        
+        function initTOCScrollSpy() {
+            const tocItems = document.querySelectorAll('.toc-item');
+            if (tocItems.length === 0) return;
+            
+            // 获取所有章节
+            const sections = [];
+            tocItems.forEach(function(item) {
+                const id = item.getAttribute('href').substring(1);
+                const section = document.getElementById(id);
+                if (section) {
+                    sections.push({
+                        element: section,
+                        navItem: item,
+                        top: section.offsetTop - 120
+                    });
+                }
+            });
+            
+            if (sections.length === 0) return;
+            
+            // 滚动时更新高亮
+            function updateActiveTOC() {
+                const scrollPosition = window.pageYOffset;
+                
+                // 找到当前处于视口的章节
+                var currentIndex = 0;
+                for (var i = 0; i < sections.length; i++) {
+                    if (scrollPosition >= sections[i].top) {
+                        currentIndex = i;
+                    }
+                }
+                
+                // 更新高亮状态
+                tocItems.forEach(function(item, index) {
+                    item.classList.remove('active');
+                });
+                if (sections[currentIndex]) {
+                    sections[currentIndex].navItem.classList.add('active');
+                }
+            }
+            
+            window.addEventListener('scroll', updateActiveTOC);
+            updateActiveTOC();
+        }
+// ==================== 页面加载完成后初始化 ====================
+        function initAllAnimations() {
+            initProgressAndBackToTop();
+            initScrollReveal();
+            initCounters();
+            initProgressBars();
+            initCardAnimations();
+            initSmoothScroll();
+            initTableOfContents();
+
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initAllAnimations, 100);
+        });
+        
+        if (document.readyState !== 'loading') {
+            setTimeout(initAllAnimations, 100);
+        }
+    </script>
+        
+    <script>
+(function(){
+var HS = [{"name": "英维克", "code": "002837"}, {"name": "铜冠铜箔", "code": "301217"}, {"name": "雅克科技", "code": "002409"}, {"name": "*ST建艺", "code": "002789"}];
+function markHoldings(){
+var root = document.getElementById("mainContent")||document.body;
+var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+var nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+nodes.forEach(function(n){
+  if(!n.parentNode) return;
+  if(n.parentNode.classList && n.parentNode.classList.contains("holding-stock-tag")) return;
+  var tag = n.parentNode.tagName; if(tag==="SCRIPT"||tag==="STYLE") return;
+  var text = n.nodeValue; if(!text || text.length<2) return;
+  var match = null;
+  for(var i=0;i<HS.length;i++){ var name=HS[i].name; if(name && text.indexOf(name)>=0){match={idx:text.indexOf(name),s:HS[i]}; break;} }
+  if(!match) return;
+  var frag = document.createDocumentFragment();
+  var before = text.substring(0, match.idx);
+  var after = text.substring(match.idx + match.s.name.length);
+  if(before) frag.appendChild(document.createTextNode(before));
+  var span = document.createElement("span");
+  span.className = "holding-stock-tag";
+  if(match.s.code) span.setAttribute("data-code", match.s.code);
+  span.textContent = match.s.name;
+  frag.appendChild(span);
+  if(after) frag.appendChild(document.createTextNode(after));
+  n.parentNode.replaceChild(frag, n);
+});
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", markHoldings);
+else setTimeout(markHoldings, 50);
+})();
+    </script>
+</body>
+</html>
