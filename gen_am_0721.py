@@ -1,0 +1,473 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""生成 2026-07-21 盘后速递 - V3.0统一标准"""
+import sys, os, re
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'v3'))
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+from generators.aftermarket import AftermarketGenerator
+from components.layout import Section
+
+DATE = "20260721"
+SUBTITLE = "2026.07.21 · 盘后速递 · 周二"
+gen = AftermarketGenerator(date_str=DATE, subtitle=SUBTITLE)
+
+# 1. 今日核心亮点
+gen.add_today_highlight("""
+<div style="font-size: 14px; line-height: 1.8; color: var(--text-secondary);">
+<p style="margin: 0 0 12px 0;"><strong style="color: #4ade80;">📈 今日定性：深V大奇迹日，科技股暴力反弹</strong>。上证指数收3864.37点(+1.79%)，深成指+4.81%报14264.29，创业板指+7.05%，科创50暴涨10.73%。全市场3100+只上涨，181只涨停，仅20只跌停，与昨日全线跌停形成惊天逆转。</p>
+<p style="margin: 0 0 12px 0;"><strong style="color: #c084fc;">🔥 核心主线：半导体/存储/算力全线爆发</strong>。存储芯片涨近9%，半导体设备批量20cm涨停。长鑫IPO打新资金解冻、台积电上调资本开支、海外存储涨价、政策维稳，四大因素共振。</p>
+<p style="margin: 0 0 12px 0;"><strong style="color: #60a5fa;">💵 资金面：北向+ETF双重流入</strong>。北向净流入72-412亿，重仓回流半导体；股票ETF净流入超600亿。两市成交2.96万亿，放量2550亿。</p>
+<p style="margin: 0;"><strong style="color: #fb923c;">⚠️ 持仓：三涨一跌，雅克地天板</strong>。雅克科技+10%地天板、英维克+8.17%、铜冠铜箔+4.17%、*ST建艺-1.64%。</p>
+</div>""")
+
+# 2. 市场收盘总结
+indices = [
+    {"name": "上证指数", "value": "3864.37", "change": "+1.79%", "icon": "trending_up", "up": True},
+    {"name": "深证成指", "value": "14264.29", "change": "+4.81%", "icon": "trending_up", "up": True},
+    {"name": "创业板指", "value": "3685.97", "change": "+7.05%", "icon": "trending_up", "up": True},
+    {"name": "科创50", "value": "1903.16", "change": "+10.73%", "icon": "trending_up", "up": True},
+]
+gen.add_market_summary(indices, volume="2.96万亿(放量+2550亿)", northbound="净流入72-412亿")
+print("Part 1 done")
+
+# 3. 市场深度分析
+market_deep = """
+<div style="display: flex; flex-direction: column; gap: 18px;">
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">🌡️ 情绪温度计：恐慌→贪婪，单日180度大转向</div>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; font-size: 13px;">
+<div style="background: rgba(34,197,94,0.12); border-radius: 10px; padding: 12px; text-align: center;">
+<div style="color: #86efac; font-size: 11px; margin-bottom: 4px;">上涨/下跌</div>
+<div style="color: var(--text-primary); font-size: 18px; font-weight: 700;">3107 / 2301</div>
+<div style="color: var(--text-muted); font-size: 11px;">涨跌比1.35:1</div></div>
+<div style="background: rgba(245,158,11,0.12); border-radius: 10px; padding: 12px; text-align: center;">
+<div style="color: #fcd34d; font-size: 11px; margin-bottom: 4px;">涨停/跌停</div>
+<div style="color: var(--text-primary); font-size: 18px; font-weight: 700;">181 / 20</div>
+<div style="color: var(--text-muted); font-size: 11px;">涨停潮回归</div></div>
+<div style="background: rgba(59,130,246,0.12); border-radius: 10px; padding: 12px; text-align: center;">
+<div style="color: #93c5fd; font-size: 11px; margin-bottom: 4px;">主力资金</div>
+<div style="color: #4ade80; font-size: 18px; font-weight: 700;">+125亿</div>
+<div style="color: var(--text-muted); font-size: 11px;">结束连续净流出</div></div>
+<div style="background: rgba(168,85,247,0.12); border-radius: 10px; padding: 12px; text-align: center;">
+<div style="color: #d8b4fe; font-size: 11px; margin-bottom: 4px;">科创50</div>
+<div style="color: #4ade80; font-size: 18px; font-weight: 700;">+10.73%</div>
+<div style="color: var(--text-muted); font-size: 11px;">历史级单日暴涨</div></div>
+</div></div>
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">🧭 今日走势深度复盘：从恐慌杀跌到暴力反攻的四小时</div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.9;">
+<p style="margin: 0 0 10px 0;"><strong style="color: #f87171;">【开盘-10:00 恐慌杀跌阶段】</strong>沪指高开0.4%但科技股延续跌势，科创50早盘最大跌幅超3%，沪指最低探至3743点，距离3740关键支撑位岌岌可危。半导体、存储、PCB继续杀跌，长鑫科技打新资金解冻前的最后一跌，恐慌盘集中涌出。</p>
+<p style="margin: 0 0 10px 0;"><strong style="color: #fbbf24;">【10:00-11:30 神秘资金护盘阶段】</strong>10点左右神秘资金开始进场，国家队ETF大额申购资金持续流入，半导体设备、存储龙头率先止跌企稳。长电科技、兆易创新等权重股大单持续流入，市场从单边下跌转为震荡筑底，量能温和放大。</p>
+<p style="margin: 0 0 10px 0;"><strong style="color: #4ade80;">【13:00-14:00 暴力拉升阶段】</strong>午后开盘后半导体板块率先发力，北方华创、中微公司等设备龙头放量大涨，带动整个科技板块全面反弹。科创50从跌3%到涨5%，日内振幅超8%，资金跑步进场抢筹，量化平空单加速上涨。</p>
+<p style="margin: 0;"><strong style="color: #c084fc;">【14:00-收盘 全面高潮阶段】</strong>尾盘加速上涨，半导体批量涨停，科创50涨幅扩大至10%以上，创业板指涨超7%。资金疯狂抢筹超跌科技股，全市场涨停家数快速扩大，跌停家数从早盘200+收窄至20家，市场情绪彻底反转。</p>
+</div></div>
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">⚡ 深V大反转的五大核心驱动因素</div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.9;">
+<p style="margin: 0 0 8px 0;"><strong style="color: #4ade80;">1. 万亿打新资金解冻回流，抛压消失</strong>：长鑫科技579亿巨型IPO完成缴款，万亿级打新资金今日解冻回流市场。机构为凑打新资金被动抛售的半导体、设备、存储龙头，今日反手低位回补筹码，前期抛压彻底消失。这是今日反弹最直接的导火索。</p>
+<p style="margin: 0 0 8px 0;"><strong style="color: #4ade80;">2. 政策维稳托底，多路长线资金密集进场</strong>：中国国新+中国诚通两大国资平台600亿增持、五大险企集体表态加大权益配置、证监会吴清主席调研座谈维稳、25家上市公司回购增持百亿级别的产业资本进场。政策底+资金底双底共振。</p>
+<p style="margin: 0 0 8px 0;"><strong style="color: #4ade80;">3. 台积电上调资本开支，产业景气度再确认</strong>：台积电将2026年收入增速指引上调至略高于40%，全年资本开支由520-560亿美元大幅上调至600-640亿美元，亚利桑那工厂追加投资1000亿美元。AI先进制程与先进封装需求仍在加速。</p>
+<p style="margin: 0 0 8px 0;"><strong style="color: #4ade80;">4. 海外存储大厂涨价，供需缺口确认</strong>：美股存储芯片板块全线反弹，SK海力士、美光科技大涨超4%-5%。摩根士丹利确认三季度内存价格环比上涨至少25%。SK集团会长公开表态AI存储需求指数级增长，HBM长期景气逻辑不变。</p>
+<p style="margin: 0;"><strong style="color: #4ade80;">5. 超跌后的技术性修复，恐慌盘出清</strong>：半导体板块从6月高点累计回调超30%-40%，科创50从2600跌至1663点，跌幅超36%，短期严重超卖。瑞银认为动量股猛烈抛售已接近尾声，对冲基金已将动量股和半导体多头仓位削减约5%。</p>
+</div></div>
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">💰 资金面深度拆解：四类资金动向全解析</div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.9;">
+<p style="margin: 0 0 8px 0;"><strong style="color: #60a5fa;">【北向资金：大幅回流，重仓半导体】</strong>北向资金全天成交4393亿元，净流入72-412亿元（不同统计口径差异较大）。寒武纪、中微公司、中天科技位列沪股通成交前三，中际旭创、宁德时代、新易盛位列深股通成交前三。买入重心集中在半导体设备、存储芯片、AI服务器三大赛道。</p>
+<p style="margin: 0 0 8px 0;"><strong style="color: #a78bfa;">【ETF资金：史诗级净流入，越跌越买】</strong>股票型ETF单日净流入超618亿元，延续本周持续大额申购特征。半导体设备ETF、科创算力ETF等方向资金大幅净流入。火电水电红利ETF、油气能源ETF遭遇赎回，资金完成风格切换：卖出防御→买入科技。</p>
+<p style="margin: 0 0 8px 0;"><strong style="color: #fbbf24;">【主力资金：结束连续净流出，半导体领涨】</strong>全市场主力资金净流入125.20亿元，结束连续多日大额净流出。半导体、算力硬件为资金回流核心赛道。电子板块主力净流入超200亿，计算机净流入超100亿。食品饮料白酒、银行、油气开采继续净流出。</p>
+<p style="margin: 0;"><strong style="color: #f87171;">【龙虎榜资金：机构分化，抢筹光模块/设备】</strong>龙虎榜机构净买入前三为光迅科技(+6.77亿)、格科微(+3.11亿)、长川科技(+2.54亿)；净卖出前三为德明利(-10.53亿)、中科飞测(-5.88亿)。整体机构呈现分歧加大，部分机构借反弹减仓，部分机构底部加仓。</p>
+</div></div>
+</div>"""
+gen._components.append(Section(title="🧭 市场深度分析", content=market_deep, icon="analytics"))
+print("Part 2 done")
+
+# 4. 板块涨跌幅排行
+up_sectors = [
+    {"name": "半导体设备", "change": "+11.2%"},
+    {"name": "存储芯片", "change": "+8.98%"},
+    {"name": "科创芯片", "change": "+9.8%"},
+    {"name": "先进封装", "change": "+7.5%"},
+    {"name": "AI算力", "change": "+6.2%"},
+    {"name": "光模块/CPO", "change": "+5.8%"},
+    {"name": "人形机器人", "change": "+4.5%"},
+    {"name": "PCB/覆铜板", "change": "+4.2%"},
+    {"name": "液冷散热", "change": "+3.8%"},
+    {"name": "光刻胶/材料", "change": "+5.1%"},
+]
+down_sectors = [
+    {"name": "煤炭开采", "change": "-1.2%"},
+    {"name": "石油石化", "change": "-0.8%"},
+    {"name": "银行", "change": "+0.3%"},
+    {"name": "白酒/食品饮料", "change": "-0.5%"},
+    {"name": "公用事业", "change": "-0.3%"},
+]
+gen.add_sector_performance(up_sectors, down_sectors)
+
+# 5. 板块深度分析
+sector_deep = """
+<div style="display: flex; flex-direction: column; gap: 16px;">
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="display: flex; align-items: center; margin-bottom: 12px;">
+<span style="font-size: 18px; margin-right: 8px;">🔬</span>
+<span style="font-weight: 600; color: #4ade80; font-size: 15px;">半导体设备 · +11.2%</span>
+<span style="margin-left: auto; font-size: 12px; color: var(--text-muted);">主力净流入：+87.3亿</span></div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.85;">
+<p style="margin: 0 0 8px 0;"><strong>龙头表现：</strong>北方华创涨停(+10%)、中微公司(+12%)、拓荆科技20cm涨停(+20%)、长川科技20cm涨停(+20%)、芯源微(+15%)、华海清科(+13%)。设备龙头批量涨停，板块内30余只个股涨幅超10%，成为今日最强细分方向。</p>
+<p style="margin: 0 0 8px 0;"><strong>上涨逻辑：</strong>①台积电上调全年资本开支至600-640亿美元，超市场预期，直接利好设备采购；②SEMI上调2026全球半导体设备销售额至1659亿美元，同比增长23.2%创历史新高；③国产替代加速，大基金三期重点支持设备国产化；④超跌反弹，板块前期回调超35%，估值吸引力提升。</p>
+<p style="margin: 0;"><strong>持续性判断：</strong><span style="color: #fbbf24;">⭐⭐⭐⭐ 较强</span>。设备是半导体产业链景气度最确定的环节，国产替代逻辑长期成立，中报业绩增速普遍50%-100%。但短期反弹幅度大，上方套牢盘重，预计以震荡修复为主，不宜追高，回调仍是布局机会。</p>
+</div></div>
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="display: flex; align-items: center; margin-bottom: 12px;">
+<span style="font-size: 18px; margin-right: 8px;">💾</span>
+<span style="font-weight: 600; color: #4ade80; font-size: 15px;">存储芯片 · +8.98%</span>
+<span style="margin-left: auto; font-size: 12px; color: var(--text-muted);">主力净流入：+166.7亿</span></div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.85;">
+<p style="margin: 0 0 8px 0;"><strong>龙头表现：</strong>兆易创新涨停(+10%)、佰维存储20cm涨停(+20%)、德明利(+8%)、江波龙(+12%)、北京君正(+9%)、普冉股份(+11%)。存储模组弹性最大，芯片设计龙头强势，HBM相关标的集体反弹。</p>
+<p style="margin: 0 0 8px 0;"><strong>上涨逻辑：</strong>①海外存储大厂涨价确认，三季度DRAM合约价环比涨20%-32%，NAND涨35%-40%；②SK海力士、美光美股大涨5%+，SK集团会长定调AI存储需求指数级增长；③长鑫科技IPO催化，国产存储替代加速；④中报业绩预增，存储企业盈利拐点明确。</p>
+<p style="margin: 0;"><strong>持续性判断：</strong><span style="color: #4ade80;">⭐⭐⭐⭐⭐ 最强</span>。存储是当前科技板块基本面最硬的方向，AI驱动的结构性短缺周期明确，涨价趋势确立，量价齐升逻辑扎实。HBM高带宽内存是贯穿下半年科技主线核心分支。但短期反弹后分化会加剧，关注有真实业绩支撑的龙头。</p>
+</div></div>
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="display: flex; align-items: center; margin-bottom: 12px;">
+<span style="font-size: 18px; margin-right: 8px;">📦</span>
+<span style="font-weight: 600; color: #4ade80; font-size: 15px;">先进封装/HBM · +7.5%</span>
+<span style="margin-left: auto; font-size: 12px; color: var(--text-muted);">主力净流入：+63.5亿</span></div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.85;">
+<p style="margin: 0 0 8px 0;"><strong>龙头表现：</strong>长电科技地天板(+10%，振幅20%)、通富微电(+8%)、华天科技(+7%)、雅克科技涨停(+10%)、芯原股份(+9%)。长电科技获液冷散热封装专利授权，成为今日先进封装最亮眼标的。</p>
+<p style="margin: 0 0 8px 0;"><strong>上涨逻辑：</strong>①台积电CoWoS先进封装产能持续紧张，AI芯片需求暴增；②HBM需求持续超预期，三星、SK海力士扩产HBM；③长电科技液冷封装专利落地，技术突破催化；④长江存储IPO加速预期，带动HBM全产业链估值重估。</p>
+<p style="margin: 0;"><strong>持续性判断：</strong><span style="color: #4ade80;">⭐⭐⭐⭐ 较强</span>。先进封装是AI算力产业链的关键瓶颈环节，HBM需求爆发式增长。国产替代空间巨大。雅克科技作为HBM前驱体龙头，长期成长确定性高。短期反弹后注意波段操作。</p>
+</div></div>
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="display: flex; align-items: center; margin-bottom: 12px;">
+<span style="font-size: 18px; margin-right: 8px;">🔦</span>
+<span style="font-weight: 600; color: #4ade80; font-size: 15px;">光模块/CPO · +5.8%</span>
+<span style="margin-left: auto; font-size: 12px; color: var(--text-muted);">主力净流入：+102.0亿</span></div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.85;">
+<p style="margin: 0 0 8px 0;"><strong>龙头表现：</strong>光迅科技涨停(+9.67%)、中际旭创(+10%)、新易盛(+9%)、联特科技20cm涨停(+20%)、天孚通信(+8%)。光模块龙头集体反弹，机构净买入光迅科技6.77亿元，龙虎榜机构抢筹信号明显。</p>
+<p style="margin: 0 0 8px 0;"><strong>上涨逻辑：</strong>①AI算力需求持续增长，800G/1.6T光模块出货量持续超预期；②机构跌停板抄底，光迅科技获4机构合计净买6.77亿；③海外云厂商资本开支预期修复，谷歌TPU出货目标上调50%；④超跌反弹，板块前期回调超40%。</p>
+<p style="margin: 0;"><strong>持续性判断：</strong><span style="color: #fbbf24;">⭐⭐⭐ 中等</span>。光模块前期涨幅巨大，获利盘体量庞大，机构持仓拥挤。虽然AI需求仍在增长，但估值已经反映较充分。短期以超跌反弹看待，反弹高度有限，注意上方套牢盘压力。</p>
+</div></div>
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="display: flex; align-items: center; margin-bottom: 12px;">
+<span style="font-size: 18px; margin-right: 8px;">🤖</span>
+<span style="font-weight: 600; color: #4ade80; font-size: 15px;">人形机器人 · +4.5%</span>
+<span style="margin-left: auto; font-size: 12px; color: var(--text-muted);">主力净流入：+59.3亿</span></div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.85;">
+<p style="margin: 0 0 8px 0;"><strong>龙头表现：</strong>征和工业涨停(+10%)、鑫宏业20cm涨停(+20%)、东微半导20cm涨停(+20%)、天准科技20cm涨停(+20%)、绿的谐波(+12%)、三花智控(+6%)。午后震荡反弹，零部件标的弹性较大。</p>
+<p style="margin: 0 0 8px 0;"><strong>上涨逻辑：</strong>①工信部副部长透露2026年人形机器人产量有望突破10万台，上半年已超4万台，产业化临界点到来；②17只概念股半年报业绩预增30%+，埃斯顿净利润预增21-25倍；③上海物理智能与机器人研究院揭牌；④特斯拉Optimus量产临近。</p>
+<p style="margin: 0;"><strong>持续性判断：</strong><span style="color: #a78bfa;">⭐⭐⭐⭐ 较强</span>。2026年是人形机器人"0-1兑现关键节点"，产业端商业化推进加速，基本面与股价短期背离。估值处于历史底部区域，中长期配置价值凸显。关注核心零部件龙头（减速器、电机、传感器）。</p>
+</div></div>
+
+</div>"""
+gen._components.append(Section(title="🏢 板块深度分析（5大核心板块详解）", content=sector_deep, icon="building"))
+print("Part 3 done")
+
+# 6. 持仓股深度诊断
+holdings_deep = """
+<div style="display: flex; flex-direction: column; gap: 16px;">
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="display: flex; align-items: center; margin-bottom: 12px;">
+<span style="font-weight: 600; color: #4ade80; font-size: 16px;">英维克 (002837)</span>
+<span style="margin-left: 8px; font-size: 13px; color: #4ade80; font-weight: 600;">+8.17%</span>
+<span style="margin-left: auto; font-size: 14px; color: var(--text-primary); font-weight: 700;">59.99元</span></div>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; font-size: 12px;">
+<div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center;">
+<div style="color: var(--text-muted);">成交额</div><div style="color: var(--text-primary); font-weight: 600;">39.41亿</div></div>
+<div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center;">
+<div style="color: var(--text-muted);">换手率</div><div style="color: var(--text-primary); font-weight: 600;">6.35%</div></div>
+<div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center;">
+<div style="color: var(--text-muted);">最高/最低</div><div style="color: var(--text-primary); font-weight: 600;">60.22 / 50.00</div></div>
+<div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center;">
+<div style="color: var(--text-muted);">浮盈/浮亏</div><div style="color: #f87171; font-weight: 600;">-42.4%</div></div></div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.85;">
+<p style="margin: 0 0 8px 0;"><strong style="color: #fbbf24;">【技术面判断】</strong>今日探底50元整数关口后暴力反弹，日内振幅超18%，收59.99元接近全天高点。但下降趋势线尚未突破，5日均线（约62元）构成第一压力位，10日均线（约68元）第二压力位。50元形成短期双底支撑，但底部结构尚不稳固，需观察后续量能能否持续。MACD绿柱缩短，KDJ金叉雏形，短期有反弹动能。</p>
+<p style="margin: 0 0 8px 0;"><strong style="color: #60a5fa;">【资金面分析】</strong>今日主力资金净流入约1.2亿元，经过连续暴跌后出现抄底资金介入。但近20日净流出仍超30亿，机构减仓趋势未根本扭转。液冷板块今日主力净流入42.42亿元，板块资金回流明显，但英维克作为前期龙头弹性偏弱，资金关注度有所下降。</p>
+<p style="margin: 0 0 8px 0;"><strong style="color: #a78bfa;">【基本面跟踪】</strong>AI液冷长期需求逻辑仍在，英伟达新一代Rubin平台全面采用液冷方案，2026年全球AI服务器液冷市场规模预计170亿美元。但短期板块经历系统性杀跌后需要时间消化获利盘和恐慌盘。公司中报业绩预计维持高增长，但估值从高位回落。</p>
+<p style="margin: 0;"><strong style="color: #f87171;">【操作建议】</strong><br>
+① <strong>减仓位：62-65元区间减仓1/3</strong>（5日线附近压力较大，反弹先减仓）<br>
+② <strong>加仓位：52-54元区间可少量加仓博弈反弹</strong>（跌破50元止损）<br>
+③ <strong>止损位：50元</strong>（有效跌破50元整数关口，无条件清仓离场）<br>
+④ <strong>止盈位：68-70元</strong>（10日均线附近，反弹至此减仓至底仓）<br>
+⑤ 整体策略：反弹减仓为主，当前仍处于下降通道，不宜盲目加仓抄底，严控仓位在1成以内。</p>
+</div></div>
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="display: flex; align-items: center; margin-bottom: 12px;">
+<span style="font-weight: 600; color: #4ade80; font-size: 16px;">铜冠铜箔 (301217)</span>
+<span style="margin-left: 8px; font-size: 13px; color: #4ade80; font-weight: 600;">+4.17%</span>
+<span style="margin-left: auto; font-size: 14px; color: var(--text-primary); font-weight: 700;">107.54元</span></div>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; font-size: 12px;">
+<div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center;">
+<div style="color: var(--text-muted);">成交额</div><div style="color: var(--text-primary); font-weight: 600;">约50亿</div></div>
+<div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center;">
+<div style="color: var(--text-muted);">换手率</div><div style="color: var(--text-primary); font-weight: 600;">约25%</div></div>
+<div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center;">
+<div style="color: var(--text-muted);">最高/最低</div><div style="color: var(--text-primary); font-weight: 600;">109.47 / 82.59</div></div>
+<div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center;">
+<div style="color: var(--text-muted);">浮盈/浮亏</div><div style="color: #4ade80; font-weight: 600;">+23.4%</div></div></div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.85;">
+<p style="margin: 0 0 8px 0;"><strong style="color: #fbbf24;">【技术面判断】</strong>昨日20cm跌停后今日深V反抽，从最低82.59元（跌停价）反弹至最高109.47元，日内振幅超26%，收107.54元。但20cm跌停的技术破坏极其严重，K线形态走坏，5日均线（约120元）构成强压力。短期反弹修复为主，100元整数关形成支撑。MACD死叉状态，KDJ超卖区反弹，高度有限。</p>
+<p style="margin: 0 0 8px 0;"><strong style="color: #60a5fa;">【资金面分析】</strong>今日主力净流入约2.5亿元，存储板块集体反弹带动抄底资金介入。但近20日净流出仍超90亿，机构减仓趋势未改。昨日跌停龙虎榜显示机构净卖出明显，今日反弹缩量反抽性质更大，需要警惕反弹结束后的二次探底。</p>
+<p style="margin: 0 0 8px 0;"><strong style="color: #a78bfa;">【基本面跟踪】</strong>HBM铜箔需求长期逻辑仍然成立，AI算力爆发带动高端铜箔需求增长。公司作为国内锂电铜箔+PCB铜箔+HBM铜箔多元化布局，中长期成长确定性较高。但短期估值偏高，经历爆炒后需要业绩消化估值。存储芯片三季度涨价趋势对公司HBM铜箔业务形成正向催化。</p>
+<p style="margin: 0;"><strong style="color: #f87171;">【操作建议】</strong><br>
+① <strong>减仓位：110-115元区间减仓1/2</strong>（5日线压力位附近，反弹先大幅减仓锁定利润）<br>
+② <strong>止盈位：100元跌破止盈离场</strong>（100元整数关是重要心理关口，跌破止盈）<br>
+③ <strong>加仓位：95-100元区间可少量加仓</strong>（轻仓博弈二次反弹，跌破90元止损）<br>
+④ <strong>止损位：90元</strong>（跌破90元无条件清仓，不抱幻想）<br>
+⑤ 整体策略：反弹减仓为主，20cm跌停后修复需要时间，仓位控制在1-2成，保留底仓跟踪HBM产业趋势。</p>
+</div></div>
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="display: flex; align-items: center; margin-bottom: 12px;">
+<span style="font-weight: 600; color: #4ade80; font-size: 16px;">雅克科技 (002409)</span>
+<span style="margin-left: 8px; font-size: 13px; color: #4ade80; font-weight: 600;">+10.00% 地天板</span>
+<span style="margin-left: auto; font-size: 14px; color: var(--text-primary); font-weight: 700;">143.55元</span></div>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; font-size: 12px;">
+<div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center;">
+<div style="color: var(--text-muted);">成交额</div><div style="color: var(--text-primary); font-weight: 600;">59.02亿</div></div>
+<div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center;">
+<div style="color: var(--text-muted);">换手率</div><div style="color: var(--text-primary); font-weight: 600;">14.25%</div></div>
+<div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center;">
+<div style="color: var(--text-muted);">最高/最低</div><div style="color: var(--text-primary); font-weight: 600;">143.55 / 117.45</div></div>
+<div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center;">
+<div style="color: var(--text-muted);">浮盈/浮亏</div><div style="color: #4ade80; font-weight: 600;">+31.9%</div></div></div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.85;">
+<p style="margin: 0 0 8px 0;"><strong style="color: #fbbf24;">【技术面判断】</strong>罕见地天板走势！早盘低开后最低探至117.45元（跌停价），午后强力拉升至涨停143.55元，日内振幅超22%。四连跌后首次涨停，主力强力护盘信号明显。但5日均线（约150元）构成第一压力，10日均线（约160元）第二压力。120元形成短期重要支撑，MACD绿柱缩短，KDJ低位金叉，短期反弹动能较强。</p>
+<p style="margin: 0 0 8px 0;"><strong style="color: #60a5fa;">【资金面分析】</strong>今日主力净流入2.96亿元，尾盘强力封板，资金态度坚决。经过四连跌后主力强力护盘，短期底部信号显现。HBM/先进封装/半导体材料全线大涨，雅克科技作为HBM前驱体龙头获得资金强势追捧。存储芯片板块主力净流入166.68亿，板块效应强烈。</p>
+<p style="margin: 0 0 8px 0;"><strong style="color: #a78bfa;">【基本面跟踪】</strong>HBM前驱体国产替代逻辑仍然坚硬，公司行业龙头地位稳固。半导体材料是AI算力产业链上游核心环节，国产替代空间巨大。中报业绩预计维持高速增长，光刻胶、前驱体、电子特气多品类布局。中长期成长确定性高。</p>
+<p style="margin: 0;"><strong style="color: #f87171;">【操作建议】</strong><br>
+① <strong>减仓位：150-155元区间减仓1/3</strong>（5日线压力区，反弹减仓）<br>
+② <strong>持有条件：明日封死涨停则继续持有</strong>（地天板后若能连板，强势延续）<br>
+③ <strong>加仓位：130-135元区间可加仓</strong>（回踩不破130元可加仓博弈二次冲高）<br>
+④ <strong>止损位：125元</strong>（跌破125元减仓至底仓，跌破120元清仓）<br>
+⑤ 整体策略：地天板是强信号，但中期下降趋势未完全扭转，以反弹减仓+底仓长期跟踪结合，仓位控制在2成左右。</p>
+</div></div>
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="display: flex; align-items: center; margin-bottom: 12px;">
+<span style="font-weight: 600; color: #f87171; font-size: 16px;">*ST建艺 (002789)</span>
+<span style="margin-left: 8px; font-size: 13px; color: #f87171; font-weight: 600;">-1.64%</span>
+<span style="margin-left: auto; font-size: 14px; color: var(--text-primary); font-weight: 700;">8.41元</span></div>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; font-size: 12px;">
+<div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center;">
+<div style="color: var(--text-muted);">成交额</div><div style="color: var(--text-primary); font-weight: 600;">3071万</div></div>
+<div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center;">
+<div style="color: var(--text-muted);">换手率</div><div style="color: var(--text-primary); font-weight: 600;">2.38%</div></div>
+<div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center;">
+<div style="color: var(--text-muted);">最高/最低</div><div style="color: var(--text-primary); font-weight: 600;">8.73 / 7.83</div></div>
+<div style="background: rgba(255,255,255,0.04); border-radius: 8px; padding: 8px; text-align: center;">
+<div style="color: var(--text-muted);">浮盈/浮亏</div><div style="color: #f87171; font-weight: 600;">-37.5%</div></div></div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.85;">
+<p style="margin: 0 0 8px 0;"><strong style="color: #fbbf24;">【技术面判断】</strong>继续阴跌探底，收8.41元，最低探至7.83元创调整新低。退市风险下资金持续流出，流动性持续萎缩，每日成交额仅3000万左右。下降通道完好，无任何止跌信号，5日、10日、20日均线全部空头排列。MACD绿柱放大，KDJ钝化，技术面全面走坏。</p>
+<p style="margin: 0 0 8px 0;"><strong style="color: #60a5fa;">【资金面分析】</strong>今日主力净流出约800万元，近20日净流出超1亿，大资金持续出逃。散户抄底接盘，退市风险下无人愿意长期持有。成交额持续萎缩，流动性风险加剧，一旦退市将面临连续跌停无法出货的局面。</p>
+<p style="margin: 0 0 8px 0;"><strong style="color: #a78bfa;">【基本面跟踪】</strong>退市风险持续发酵，债务问题+诉讼缠身+业绩亏损，多重利空叠加。建筑装饰行业整体低迷，地产链风险持续传导，公司基本面恶化趋势未止。ST板块整体低迷，壳价值大幅下降。</p>
+<p style="margin: 0;"><strong style="color: #f87171;">【操作建议】</strong><br>
+① <strong>清仓建议：立即清仓，不要抱有任何幻想</strong>（退市风险敞口必须关闭）<br>
+② <strong>反弹减仓：9元以上坚决减仓</strong>（任何反弹都是减仓机会）<br>
+③ <strong>止损位：已深度套牢，但必须执行纪律</strong>（8元以下加速下跌风险大）<br>
+④ <strong>风险警示：</strong>退市后可能面临连续跌停、流动性枯竭、市值归零风险<br>
+⑤ 整体策略：必须坚决清仓，退市风险股不能有任何侥幸心理，损失已经造成，保留资金在其他优质标的上赚回来。</p>
+</div></div>
+
+</div>"""
+gen._components.append(Section(title="💼 持仓股深度诊断（4只完整分析）", content=holdings_deep, icon="briefcase"))
+print("Part 4 done")
+
+# 7. 龙虎榜深度解读
+longhubang_deep = """
+<div style="display: flex; flex-direction: column; gap: 16px;">
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 16px; margin-bottom: 4px;">
+<div style="display: flex; align-items: center; gap: 20px; font-size: 13px; color: var(--text-secondary);">
+<span>📊 上榜个股：<strong style="color: var(--text-primary);">95只</strong></span>
+<span>🏛️ 机构净买：<strong style="color: #f87171;">-7.04亿</strong></span>
+<span>🐂 北向净买：<strong style="color: #f87171;">-1.76亿</strong></span>
+<span>🔥 游资净买：<strong style="color: #f87171;">-29.99亿</strong></span>
+<span>情绪评分：<strong style="color: #fbbf24;">75分(偏多)</strong></span>
+</div></div>
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="display: flex; align-items: center; margin-bottom: 12px;">
+<span style="font-weight: 600; color: #4ade80; font-size: 15px;">光迅科技 (002281)</span>
+<span style="margin-left: 8px; font-size: 13px; color: #4ade80; font-weight: 600;">+9.67%</span>
+<span style="margin-left: auto; font-size: 12px; background: rgba(245,158,11,0.2); color: #fbbf24; padding: 2px 8px; border-radius: 6px;">机构净买 +6.77亿</span></div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.85;">
+<p style="margin: 0 0 8px 0;"><strong>上榜原因：</strong>日涨幅偏离值达22.22% | <strong>成交额：</strong>134.24亿 | <strong>换手率：</strong>10.21%</p>
+<p style="margin: 0 0 8px 0;"><strong>席位分析：</strong>机构净买入6.77亿元，多机构席位合计净买。深股通专用席位买入9.45亿并卖出9.64亿，北向做T为主。游资方面，知名游资席位参与度高，整体偏短线博弈性质。</p>
+<p style="margin: 0 0 8px 0;"><strong>资金性质判断：</strong>机构在光模块跌停板抄底光迅科技，显示机构对光模块龙头长期价值的认可。但北向做T说明外资波段操作特征明显，不是单边买入持有。机构分歧较大，买卖机构数量接近。</p>
+<p style="margin: 0;"><strong>持续性判断：</strong><span style="color: #fbbf24;">⭐⭐⭐ 中等</span>。光模块龙头超跌反弹，机构抄底提供短期支撑。但光模块整体板块套牢盘沉重，反弹高度有限。建议反弹减仓为主。</p>
+</div></div>
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="display: flex; align-items: center; margin-bottom: 12px;">
+<span style="font-weight: 600; color: #4ade80; font-size: 15px;">格科微 (688728)</span>
+<span style="margin-left: 8px; font-size: 13px; color: #4ade80; font-weight: 600;">+20.03% 20cm涨停</span>
+<span style="margin-left: auto; font-size: 12px; background: rgba(245,158,11,0.2); color: #fbbf24; padding: 2px 8px; border-radius: 6px;">机构净买 +3.11亿</span></div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.85;">
+<p style="margin: 0 0 8px 0;"><strong>上榜原因：</strong>日涨幅达20.03% | <strong>成交额：</strong>11.64亿 | <strong>换手率：</strong>3.05%</p>
+<p style="margin: 0 0 8px 0;"><strong>席位分析：</strong>2家机构净买入3.11亿元，沪股通专用席位买入6494.88万元并卖出1.40亿元，北向小幅净卖出。游资参与度一般，机构主导今日涨停。</p>
+<p style="margin: 0 0 8px 0;"><strong>资金性质判断：</strong>机构大额净买占比高达26.68%，机构态度非常积极。格科微作为CMOS图像传感器龙头，受益于AI视觉、手机摄像头升级等逻辑。机构底部加仓，看好公司中长期成长。</p>
+<p style="margin: 0;"><strong>持续性判断：</strong><span style="color: #4ade80;">⭐⭐⭐⭐ 较强</span>。机构大额净买+20cm涨停，资金态度坚决。换手率仅3.05%说明筹码锁定良好，抛压不大。半导体设备/存储板块效应加持，短期有望延续反弹。</p>
+</div></div>
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="display: flex; align-items: center; margin-bottom: 12px;">
+<span style="font-weight: 600; color: #4ade80; font-size: 15px;">华虹宏力 (688347)</span>
+<span style="margin-left: 8px; font-size: 13px; color: #4ade80; font-weight: 600;">+20.00% 20cm涨停</span>
+<span style="margin-left: auto; font-size: 12px; background: rgba(245,158,11,0.2); color: #fbbf24; padding: 2px 8px; border-radius: 6px;">龙虎榜净买 +2.79亿</span></div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.85;">
+<p style="margin: 0 0 8px 0;"><strong>上榜原因：</strong>日涨幅达20% | <strong>收盘价：</strong>397.78元</p>
+<p style="margin: 0 0 8px 0;"><strong>席位分析：</strong>龙虎榜净买入2.79亿元，为今日净买入额最高个股。但机构席位净卖出3.24亿元，机构在涨停板上减仓明显。游资净买入为主，接力拉升涨停。</p>
+<p style="margin: 0 0 8px 0;"><strong>资金性质判断：</strong>机构净卖出说明机构借反弹减仓，游资主导拉升。华虹宏力作为科创板半导体晶圆制造龙头，前期跌幅较大，游资博弈超跌反弹。但机构分歧较大，涨停板上机构出货。</p>
+<p style="margin: 0;"><strong>持续性判断：</strong><span style="color: #fbbf24;">⭐⭐⭐ 中等偏弱</span>。虽然20cm涨停+净买额第一看似强势，但机构净卖出是隐忧。游资主导的涨停持续性存疑，上方套牢盘压力大。不宜追高，观望为主。</p>
+</div></div>
+
+<div style="background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(236,72,153,0.08)); border: 1px solid rgba(168,85,247,0.3); border-radius: 14px; padding: 18px;">
+<div style="font-weight: 600; color: #c084fc; margin-bottom: 10px;">📋 龙虎榜整体总结与启示</div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.85;">
+<p style="margin: 0 0 6px 0;">① <strong style="color: #4ade80;">机构分化明显：</strong>机构整体净卖出7.04亿元，但光迅科技、格科微、长川科技等龙头获机构净买入，说明机构在精选个股，不是全面抄底。</p>
+<p style="margin: 0 0 6px 0;">② <strong style="color: #60a5fa;">游资主导反弹：</strong>游资净卖出29.99亿元，整体偏谨慎，主要在超跌科技股上做短线反弹博弈，快进快出特征明显。</p>
+<p style="margin: 0 0 6px 0;">③ <strong style="color: #fbbf24;">北向做T为主：</strong>北向资金整体净卖出1.76亿元（龙虎榜口径），在光迅科技、长川科技等个股上大额做T，波段操作特征显著。</p>
+<p style="margin: 0;">④ <strong style="color: #f87171;">操作启示：</strong>本次反弹是游资主导+机构分化的超跌反弹，并非机构全面加仓的趋势性行情。操作上以反弹减仓、波段操作为主，不宜盲目追高。</p>
+</div></div>
+
+</div>"""
+gen._components.append(Section(title="🐉 龙虎榜深度解读", content=longhubang_deep, icon="award"))
+print("Part 5 done")
+
+# 8. 重点关注标的
+watchlist = """
+<div style="display: flex; flex-direction: column; gap: 16px;">
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="display: flex; align-items: center; margin-bottom: 12px;">
+<span style="font-weight: 600; color: #4ade80; font-size: 15px;">兆易创新 (603986)</span>
+<span style="margin-left: 8px; font-size: 12px; background: rgba(74,222,128,0.2); color: #4ade80; padding: 2px 8px; border-radius: 6px;">存储芯片龙头</span>
+<span style="margin-left: auto; font-size: 14px; color: var(--text-primary); font-weight: 700;">475.53元 +10%涨停</span></div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.85;">
+<p style="margin: 0 0 8px 0;"><strong>📌 关注逻辑：</strong>国内NOR Flash+利基DRAM双龙头，存储芯片板块总龙头。主力资金净流入27.25亿元，全市场第一，资金关注度最高。中报业绩预增，盈利拐点明确。5亿元增资子公司实施DRAM募投项目，加码国产DRAM替代。存储涨价周期+国产替代双重逻辑。</p>
+<p style="margin: 0 0 8px 0;"><strong>🎯 目标价：</strong><span style="color: #4ade80;">550-580元</span>（反弹第一目标位，前期平台位置）</p>
+<p style="margin: 0 0 8px 0;"><strong>🛑 止损位：</strong><span style="color: #f87171;">420元</span>（跌破420元止损，说明反弹失败）</p>
+<p style="margin: 0;"><strong>⚖️ 风险评级：</strong>中等风险 | 存储板块龙头，业绩支撑强，但前期涨幅大，套牢盘重。建议回调到440-450元区间低吸，不追高。</p>
+</div></div>
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="display: flex; align-items: center; margin-bottom: 12px;">
+<span style="font-weight: 600; color: #4ade80; font-size: 15px;">北方华创 (002371)</span>
+<span style="margin-left: 8px; font-size: 12px; background: rgba(245,158,11,0.2); color: #fbbf24; padding: 2px 8px; border-radius: 6px;">半导体设备龙一</span>
+<span style="margin-left: auto; font-size: 14px; color: var(--text-primary); font-weight: 700;">涨停 +10%</span></div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.85;">
+<p style="margin: 0 0 8px 0;"><strong>📌 关注逻辑：</strong>国内半导体设备绝对龙头，刻蚀/薄膜/清洗多品类布局，国产替代核心受益标的。台积电上调资本开支+国内晶圆厂扩产，设备需求持续旺盛。中报业绩预计高速增长50%-80%。大基金三期重点支持方向。</p>
+<p style="margin: 0 0 8px 0;"><strong>🎯 目标价：</strong><span style="color: #4ade80;">前高附近</span>（设备龙头，长期成长空间大）</p>
+<p style="margin: 0 0 8px 0;"><strong>🛑 止损位：</strong><span style="color: #f87171;">跌破20日线</span>（跌破20日线减仓，跌破60日线清仓）</p>
+<p style="margin: 0;"><strong>⚖️ 风险评级：</strong>中高风险 | 设备龙头确定性高，但估值不便宜。适合中长期持有，不适合短线追涨。回调低吸为主。</p>
+</div></div>
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="display: flex; align-items: center; margin-bottom: 12px;">
+<span style="font-weight: 600; color: #c084fc; font-size: 15px;">三花智控 (002050)</span>
+<span style="margin-left: 8px; font-size: 12px; background: rgba(168,85,247,0.2); color: #c084fc; padding: 2px 8px; border-radius: 6px;">人形机器人+热管理</span>
+<span style="margin-left: auto; font-size: 14px; color: var(--text-primary); font-weight: 700;">+6%左右</span></div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.85;">
+<p style="margin: 0 0 8px 0;"><strong>📌 关注逻辑：</strong>人形机器人核心零部件龙头，特斯拉Optimus核心供应链企业。热管理技术从汽车延伸至机器人，协同效应显著。2026年人形机器人产量突破10万台，产业化临界点到来。公司业绩确定性高，机构重仓配置型标的。</p>
+<p style="margin: 0 0 8px 0;"><strong>🎯 目标价：</strong><span style="color: #4ade80;">前期高点附近</span>（机器人+汽车热管理双轮驱动）</p>
+<p style="margin: 0 0 8px 0;"><strong>🛑 止损位：</strong><span style="color: #f87171;">跌破20日线</span>（跌破20日线减仓观望）</p>
+<p style="margin: 0;"><strong>⚖️ 风险评级：</strong>中等风险 | 基本面扎实，机构持仓集中。人形机器人产业趋势明确，中长期配置价值高。适合逢低布局，中长期持有。</p>
+</div></div>
+
+</div>"""
+gen._components.append(Section(title="🎯 重点关注标的（3只潜力股）", content=watchlist, icon="target"))
+
+# 9. 明日操作策略
+trading_plan = """
+<div style="display: flex; flex-direction: column; gap: 18px;">
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">📈 明日大盘判断：震荡分化，反弹进入压力测试</div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.9;">
+<p style="margin: 0 0 8px 0;"><strong style="color: #4ade80;">乐观情景（概率40%）：延续反弹，挑战3900点</strong>。如果北向资金继续大额流入、半导体板块延续强势、量能维持3万亿以上，市场有望延续反弹，沪指挑战3900-3950点压力位。但3930点附近套牢盘沉重，突破难度大。</p>
+<p style="margin: 0 0 8px 0;"><strong style="color: #fbbf24;">中性情景（概率45%）：高位震荡，分化加剧</strong>。最可能的走势。大涨后获利盘兑现，板块内部分化，龙头继续强势，跟风股回落。指数在3800-3900区间震荡整理，消化套牢盘和获利盘。</p>
+<p style="margin: 0;"><strong style="color: #f87171;">悲观情景（概率15%）：冲高回落，二次探底</strong>。如果量能快速萎缩、北向资金转为净流出、科技板块大幅回调，反弹可能一日游，指数回落再次探底3750-3800区间。但政策托底下，大幅下跌空间有限。</p>
+</div></div>
+
+<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px;">
+<div style="font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">📊 仓位建议：3-4成仓，反弹减仓为主</div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 1.9;">
+<p style="margin: 0 0 8px 0;"><strong>整体仓位：</strong>3-4成仓位。大反弹后不宜追高，保留现金等待回调机会。</p>
+<p style="margin: 0 0 8px 0;"><strong>持仓结构：</strong><br>
+• 核心底仓（2成）：半导体设备/存储芯片龙头（业绩确定性高）<br>
+• 弹性仓位（1成）：人形机器人/先进封装（产业趋势明确）<br>
+• 现金仓位（6-7成）：等待回调低吸机会</p>
+<p style="margin: 0;"><strong>操作节奏：</strong>反弹减仓为主，尤其是高位被套的标的趁反弹减仓，降低仓位控制风险。优质龙头可保留底仓长期跟踪。</p>
+</div></div>
+
+<div style="background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.08)); border: 1px solid rgba(59,130,246,0.3); border-radius: 14px; padding: 18px;">
+<div style="font-weight: 600; color: #60a5fa; margin-bottom: 12px;">⚡ 明日具体操作计划（精确到价格）</div>
+<div style="color: var(--text-secondary); font-size: 13px; line-height: 2;">
+<p style="margin: 0 0 6px 0;"><strong style="color: #f87171;">【卖出计划】</strong></p>
+<p style="margin: 0 0 6px 0; padding-left: 16px;">1. 英维克：<strong>62-65元区间减仓1/3</strong>，反弹到5日线附近先减仓；<strong>68-70元减仓至底仓</strong>（10日线压力）</p>
+<p style="margin: 0 0 6px 0; padding-left: 16px;">2. 铜冠铜箔：<strong>110-115元区间减仓1/2</strong>，锁定大部分利润；<strong>跌破100元止盈离场</strong></p>
+<p style="margin: 0 0 6px 0; padding-left: 16px;">3. 雅克科技：<strong>150-155元区间减仓1/3</strong>；若封死涨停则持有，开板回落减仓</p>
+<p style="margin: 0 0 6px 0; padding-left: 16px;">4. *ST建艺：<strong>任何反弹都是减仓机会</strong>，9元以上坚决减仓，必须清仓离场</p>
+<p style="margin: 0 0 6px 0;"><strong style="color: #4ade80;">【买入计划】</strong></p>
+<p style="margin: 0 0 6px 0; padding-left: 16px;">1. 兆易创新：<strong>440-450元区间可轻仓介入</strong>，跌破420元止损，目标550元</p>
+<p style="margin: 0 0 6px 0; padding-left: 16px;">2. 三花智控：<strong>回调到20日线附近低吸</strong>，跌破60日线止损，目标前期高点</p>
+<p style="margin: 0 0 6px 0; padding-left: 16px;">3. 格科微：<strong>回调15-16元区间可关注</strong>，机构大额净买+低位启动，短线博弈延续性</p>
+<p style="margin: 0;"><strong style="color: #fbbf24;">【纪律铁律】</strong><br>
+• 不追高，不追涨，只低吸<br>
+• 严格止损，单笔亏损不超过5%<br>
+• 单只个股仓位不超过总仓位20%<br>
+• 整体仓位不超过4成，保留充足现金</p>
+</div></div>
+
+</div>"""
+gen._components.append(Section(title="📋 明日操作策略", content=trading_plan, icon="assignment"))
+
+# 10. 风险提示
+risks = [
+    "外围科技股反弹持续性存疑：本次反弹是超跌反弹还是趋势反转仍需观察，机构分歧大，游资主导，若量能不能持续则反弹高度有限",
+    "套牢盘抛压沉重：科技板块前期涨幅巨大，套牢盘体量庞大，反弹到关键压力位会面临大量解套抛压",
+    "美联储加息风险：美国通胀数据反复，美联储加息预期升温，全球科技股估值承压",
+    "中报业绩不及预期：中报密集披露期，部分高估值科技股业绩可能低于预期，引发业绩杀",
+    "地缘政治风险：中东局势、中美关系等不确定性因素仍在，随时可能冲击市场情绪",
+]
+gen.add_risk_warning(risks)
+
+# 11. 晚间重要新闻
+evening_news = [
+    {"title": "兆易创新拟5亿元增资子公司 实施DRAM募投项目", "content": "兆易创新增资全资子公司珠海横琴芯存半导体，DRAM项目再获资金加注。", "time": "19:05", "tag": "利好", "tag_color": "green"},
+    {"title": "阳光电源董事长提议5亿-10亿元回购股份", "content": "曹仁贤提议斥资5亿-10亿元回购股份，用于股权激励。", "time": "17:59", "tag": "利好", "tag_color": "green"},
+    {"title": "韩国7月上中旬半导体出口暴增1.8倍", "content": "韩国7月半导体出口额221亿美元，同比增180.6%，占总出口四成。", "time": "14:15", "tag": "行业", "tag_color": "blue"},
+    {"title": "2026年人形机器人产量有望突破10万台", "content": "工信部副部长透露，今年上半年已超4万台，全年预计超10万台。", "time": "12:43", "tag": "行业", "tag_color": "blue"},
+    {"title": "证监会主席吴清调研座谈 全力维护市场平稳运行", "content": "证监会主席到证券营业部调研，就促进资本市场稳定健康发展听取意见。", "time": "09:14", "tag": "政策", "tag_color": "purple"},
+]
+gen.add_evening_news(evening_news)
+
+# ===== 发布 =====
+print("开始生成盘后速递报告...")
+html = gen.generate()
+print(f"HTML生成完成，长度: {len(html)} 字符")
+
+result = gen.publish(
+    title="2026.07.21 盘后速递",
+    report_type="aftermarket",
+    filename="20260721_盘后速递.html",
+    excerpt="深V大奇迹日！科创50暴涨10.73%，半导体/存储全线爆发。四只持仓三涨一跌，雅克地天板。",
+    auto_deploy=False
+)
+print(f"发布结果: {result}")
+
+# 字数统计
+text_only = re.sub(r'<[^>]+>', '', html)
+chinese_chars = len(re.findall(r'[\u4e00-\u9fff]', text_only))
+print(f"正文中文字数: {chinese_chars}")
