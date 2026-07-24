@@ -17,9 +17,7 @@
 
 > **详细规范**：详见 `recent_memory/decision/` 目录下的完整文档
 
----
-
-## 🏗️ 系统架构速查
+## 系统架构速查
 
 ### 工作目录
 - **Git仓库**：`/root/daily-news-insight/`
@@ -45,7 +43,7 @@
 
 ---
 
-## 🚨 三大绝对禁令
+## 三大绝对禁令
 1. **禁止覆盖**：`latest.html`、首页`index.html` 禁止全量覆盖
 2. **禁止自制模板**：必须用Pro生成器或复制标准模板
 3. **禁止假数据**：价格数据必须查当日真实数据
@@ -91,13 +89,9 @@
 ### Tab切换组件
 - 旧版：重要新闻汇总8个分类tab（政策、宏观、市场、行业、公司、科技、金融、周期）
 - Pro版：核心题材按级别分3个tab（S/A/B级题材）、重要新闻汇总8个分类tab（2026-06-16补回）
-- 注意：用户说的"tap按钮"即tab标签切换按钮，用户发音/输入习惯问题
+- 注意：用户说的"tap按钮"即tab标签切换按钮
 - 实现方式：news-tabs-container + news-tab-btn + news-tab-panel 类名 + switchNewsTab JS函数
 - 位置：daily_pro.py 的 add_important_news() 方法
-
-
-
-### Git合并冲突
 - 禁止`git merge -X theirs`，会残留冲突标记
 - 优先手动解决，或`git reset --hard origin/main`回退
 
@@ -109,4 +103,6 @@
 - 校验规则：上证指数3000-5000点区间，异常值需二次验证
 
 ## Pro生成器使用注意
-独立实现的生成器方法签名不统一：PortfolioDashboardProGenerator入参为data_path，用generate()生成内容；HomePageProGenerator用render()生成内容。调用前必须先grep查询公开方法，避免硬编码错误。
+独立生成器方法签名不统一，调用前先grep查公开方法，避免硬编码错误。
+- **调度健康检查**：三重校验任务触发，漏发告警。详见 基础设定/experience/scheduler_health_check.md
+GitHub Pages CDN缓存旧页可空提交触发重建刷新。调度健康检查file_check必须用绝对路径，避免全量漏报误判。
