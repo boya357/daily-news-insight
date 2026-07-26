@@ -63,6 +63,7 @@ class DataCard(Component):
                 "border": "1px solid rgba(139,92,246,0.2)",
                 "radius": "16px",
                 "shadow": "0 2px 8px rgba(79,70,229,0.15)",
+                "value_color": "#c4b5fd"
             },
             "success": {
                 "bg": "linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.08) 100%)",
@@ -70,6 +71,7 @@ class DataCard(Component):
                 "border": "1px solid rgba(16,185,129,0.25)",
                 "radius": "16px",
                 "shadow": "0 2px 8px rgba(16,185,129,0.1)",
+                "value_color": "#86efac"
             },
             "warning": {
                 "bg": "linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(234,88,12,0.08) 100%)",
@@ -77,6 +79,7 @@ class DataCard(Component):
                 "border": "1px solid rgba(245,158,11,0.25)",
                 "radius": "16px",
                 "shadow": "0 2px 8px rgba(245,158,11,0.1)",
+                "value_color": "#fcd34d"
             },
             "danger": {
                 "bg": "linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(220,38,38,0.08) 100%)",
@@ -84,6 +87,7 @@ class DataCard(Component):
                 "border": "1px solid rgba(239,68,68,0.25)",
                 "radius": "16px",
                 "shadow": "0 2px 8px rgba(239,68,68,0.1)",
+                "value_color": "#fca5a5"
             },
         }
         
