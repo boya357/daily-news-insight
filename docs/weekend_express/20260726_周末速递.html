@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>周末速递 - 投资研究中心</title>
+    <meta name="description" content="2026.07.26 · 周末速递">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    
+    
+    <!-- 标准导航栏样式 -->
+    
+        <style>
+            /* Glass-Nav 玻璃态导航栏 */
+            .glass-nav {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 2147483647 !important;
+                background: rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                transition: background 0.3s ease;
+                isolation: isolate !important;
+                pointer-events: auto !important;
+            }
+            
+            .glass-nav.scrolled {
+                background: rgba(0, 0, 0, 0.7);
+            }
+            
+            .glass-nav * {
+                position: relative;
+                z-index: 2147483647 !important;
+                pointer-events: auto !important;
+            }
+            
+            .glass-nav-inner {
+                max-width: 80rem;
+                margin: 0 auto;
+                padding: 0 1rem;
+                height: 60px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            
+            .glass-nav-logo {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                text-decoration: none;
+            }
+            
+            .glass-nav-logo-icon {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+            }
+            
+            .glass-nav-logo-text {
+                color: white;
+                font-weight: 700;
+                font-size: 18px;
+            }
+            
+            .glass-nav-links {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                flex-wrap: wrap;
+            }
+            
+            .glass-nav-link {
+                padding: 6px 12px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 500;
+                color: rgba(255, 255, 255, 0.8);
+                transition: all 0.2s ease;
+            }
+            
+            .glass-nav-link:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.1);
+            }
+            
+            .glass-nav-link.active {
+                color: white;
+                background: rgba(255, 255, 255, 0.15);
+            }
+            
+            .hamburger-btn {
+                display: none;
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 16px;
+                color: white;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            /* 移动端菜单 - 玻璃态深色 */
+            .mobile-menu {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(15, 23, 42, 0.95);
+                backdrop-filter: blur(20px);
+                z-index: 2147483646;
+                flex-direction: column;
+                padding: 80px 24px 24px;
+            }
+            
+            .mobile-menu.show {
+                display: flex;
+            }
+            
+            .mobile-menu-item {
+                padding: 14px 16px;
+                border-radius: 10px;
+                text-decoration: none;
+                font-size: 16px;
+                font-weight: 500;
+                color: rgba(255, 255, 255, 0.8);
+                margin-bottom: 4px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            
+            .mobile-menu-item:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.1);
+            }
+            
+            .mobile-menu-item.active {
+                color: white;
+                background: rgba(255, 255, 255, 0.15);
+            }
+            
+            .close-menu-btn {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 16px;
+                color: white;
+            }
+            
+            @media (max-width: 768px) {
+                .glass-nav-links {
+                    display: none;
+                }
+                .hamburger-btn {
+                    display: flex;
+                }
+            }
+        </style>
+        
+    
+    <!-- 动效样式 -->
+    
+<style>
+/* 卡片悬停上浮效果 */
+.card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* 入场淡入上移动画 */
+.fade-in-up {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.fade-in-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 数字滚动动画 */
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 徽章标签系统 */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+.badge-hot {
+    background: linear-gradient(135deg, rgba(245,158,11,0.25) 0%, rgba(217,119,6,0.2) 100%);
+    color: #fbbf24;
+}
+.badge-good {
+    background: linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(5,150,105,0.15) 100%);
+    color: #34d399;
+}
+.badge-risk {
+    background: linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(220,38,38,0.15) 100%);
+    color: #f87171;
+}
+.badge-info {
+    background: linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(37,99,235,0.15) 100%);
+    color: #60a5fa;
+}
+
+/* 表格悬停高亮 */
+.table-hover tbody tr:hover {
+    background: rgba(255,255,255,0.05) !important;
+}
+
+/* 折叠面板 */
+.collapse-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+.collapse-content.open {
+    max-height: 2000px;
+}
+.collapse-toggle {
+    cursor: pointer;
+    user-select: none;
+}
+.collapse-arrow {
+    transition: transform 0.3s ease;
+}
+.collapse-arrow.open {
+    transform: rotate(180deg);
+}
+
+/* 渐变进度条 */
+.progress-gradient {
+    background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%);
+}
+
+/* 玻璃态悬浮效果 */
+.glass-effect {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+</style>
+
+    
+    <!-- 基础样式 -->
+    <style>
+        body {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+            padding-top: 80px;
+        }
+        
+        .content-area {
+            max-width: 64rem;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        /* 报告标题样式 */
+        .report-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+        
+        .report-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .report-header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        /* 内容排版优化 */
+        .prose-content p {
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+        
+        .prose-content h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #1f2937;
+        }
+        
+        .prose-content h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .prose-content ul, .prose-content ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+        
+        .prose-content li {
+            margin-bottom: 0.5rem;
+            line-height: 1.7;
+        }
+        
+        .prose-content strong {
+            color: #1f2937;
+            font-weight: 600;
+        }
+        
+        /* 代码块 */
+        .prose-content code {
+            background: #f3f4f6;
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+        }
+        
+        .prose-content pre {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+        }
+        
+        .prose-content pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+        
+        /* 返回按钮 */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            color: white;
+            opacity: 0.9;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            transition: opacity 0.2s;
+        }
+        
+        .back-button:hover {
+            opacity: 1;
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .report-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            body {
+                padding-top: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+        <nav class="glass-nav">
+            <div class="glass-nav-inner">
+                <a href="/daily-news-insight/index.html" class="glass-nav-logo">
+                    <div class="glass-nav-logo-icon">📊</div>
+                    <span class="glass-nav-logo-text">投资研究中心</span>
+                </a>
+                <div class="glass-nav-links">
+                    
+            <a href="/daily-news-insight/index.html" class="glass-nav-link ">首页</a>
+            <a href="/daily-news-insight/daily/index.html" class="glass-nav-link ">日报</a>
+            <a href="/daily-news-insight/intraday/index.html" class="glass-nav-link ">盘中</a>
+            <a href="/daily-news-insight/aftermarket/index.html" class="glass-nav-link ">盘后</a>
+            <a href="/daily-news-insight/industry_chain/index.html" class="glass-nav-link ">产业链</a>
+            <a href="/daily-news-insight/weekly_review/index.html" class="glass-nav-link ">周复盘</a>
+            <a href="/daily-news-insight/weekend_express/index.html" class="glass-nav-link active">周末速递</a>
+            <a href="/daily-news-insight/tomorrow_catalyst/index.html" class="glass-nav-link ">明日催化</a>
+            <a href="/daily-news-insight/s_level_catalyst/index.html" class="glass-nav-link ">S级催化</a>
+            <a href="/daily-news-insight/monthly/index.html" class="glass-nav-link ">月报</a>
+                </div>
+                <button class="hamburger-btn" onclick="toggleMenu()">
+                    ☰
+                </button>
+            </div>
+        </nav>
+        
+        <!-- 移动端菜单 -->
+        <div class="mobile-menu" id="mobileMenu">
+            <button class="close-menu-btn" onclick="toggleMenu()">✕</button>
+            
+            <a href="/daily-news-insight/index.html" class="mobile-menu-item " onclick="toggleMenu()">首页</a>
+            <a href="/daily-news-insight/daily/index.html" class="mobile-menu-item " onclick="toggleMenu()">日报</a>
+            <a href="/daily-news-insight/intraday/index.html" class="mobile-menu-item " onclick="toggleMenu()">盘中</a>
+            <a href="/daily-news-insight/aftermarket/index.html" class="mobile-menu-item " onclick="toggleMenu()">盘后</a>
+            <a href="/daily-news-insight/industry_chain/index.html" class="mobile-menu-item " onclick="toggleMenu()">产业链</a>
+            <a href="/daily-news-insight/weekly_review/index.html" class="mobile-menu-item " onclick="toggleMenu()">周复盘</a>
+            <a href="/daily-news-insight/weekend_express/index.html" class="mobile-menu-item active" onclick="toggleMenu()">周末速递</a>
+            <a href="/daily-news-insight/tomorrow_catalyst/index.html" class="mobile-menu-item " onclick="toggleMenu()">明日催化</a>
+            <a href="/daily-news-insight/s_level_catalyst/index.html" class="mobile-menu-item " onclick="toggleMenu()">S级催化</a>
+            <a href="/daily-news-insight/monthly/index.html" class="mobile-menu-item " onclick="toggleMenu()">月报</a>
+        </div>
+        
+        <script>
+            function toggleMenu() {
+                const menu = document.getElementById('mobileMenu');
+                menu.classList.toggle('show');
+            }
+            
+            // 导航栏滚动加深效果
+            window.addEventListener('scroll', function() {
+                const nav = document.querySelector('.glass-nav');
+                if (nav) {
+                    if (window.scrollY > 50) {
+                        nav.classList.add('scrolled');
+                    } else {
+                        nav.classList.remove('scrolled');
+                    }
+                }
+            });
+        </script>
+        
+        <div class="content-area">
+            <a href="/daily-news-insight/weekend_express/index.html" class="back-button">← 返回列表</a>
+            <div class="report-header">
+                <h1>周末速递</h1>
+                <p class="text-white/80">2026.07.26 · 周末速递</p>
+            </div>
+        </div>
+        
+        <div class="content-area">
+            <div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #f1f5f9; 
+                               margin: 0; line-height: 1.3;">
+                        📰 周末要闻速览
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: rgba(30, 30, 50, 0.5); 
+                        padding: 28px; 
+                        border: 1px solid rgba(255, 255, 255, 0.08);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.05) inset;">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+        <div style="padding: 14px 16px; 
+                    border-radius: 12px;
+                    background: rgba(255,255,255,0.04);
+                    margin-bottom: 10px;
+                    transition: all 0.2s ease;"
+             onmouseover="this.style.background='rgba(255,255,255,0.08)';"
+             onmouseout="this.style.background='rgba(255,255,255,0.04)';">
+            <div style="display: flex; align-items: flex-start;">
+                <div style="margin-right: 10px;">
+        <span style="display: inline-block; padding: 4px 12px; 
+                    border-radius: 16px; font-size: 11px; font-weight: 700;
+                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white;
+                    letter-spacing: 0.3px; text-transform: uppercase;">
+            重磅政策
+        </span>
+        </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 14px; font-weight: 700; 
+                               color: #1f2937; line-height: 1.5;">
+                        7月24日政治局会议定调下半年经济：六张网+服务消费+稳资本市场
+                    </div>
+                    
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.6; 
+                       margin-top: 8px;">
+                7月24日中央政治局会议分析下半年经济工作，定调"抓落实、促提速、储增量"。财政端加快专项债、超长期特别国债、8000亿新型政策性金融工具发行拨付；投资端提速"六张网"（算力网、新型电网、交通网、水网、能源网、数字基础设施）+城市更新；消费重心转向服务消费（养老、文旅、家政、体育）。资本市场表述延续并强化"稳定和增强资本市场信心"，强调逆周期调节、中长期资金入市、上市公司分红、规范量化交易。
+            </div>
+            
+                    
+            <div style="font-size: 12px; color: #9ca3af; margin-top: 6px;">
+                7月24日 · 东方财富网/财联社
+            </div>
+            
+                </div>
+            </div>
+        </div>
+        
+        <div style="padding: 14px 16px; 
+                    border-radius: 12px;
+                    background: rgba(255,255,255,0.04);
+                    margin-bottom: 10px;
+                    transition: all 0.2s ease;"
+             onmouseover="this.style.background='rgba(255,255,255,0.08)';"
+             onmouseout="this.style.background='rgba(255,255,255,0.04)';">
+            <div style="display: flex; align-items: flex-start;">
+                <div style="margin-right: 10px;">
+        <span style="display: inline-block; padding: 4px 12px; 
+                    border-radius: 16px; font-size: 11px; font-weight: 700;
+                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white;
+                    letter-spacing: 0.3px; text-transform: uppercase;">
+            监管动态
+        </span>
+        </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 14px; font-weight: 700; 
+                               color: #1f2937; line-height: 1.5;">
+                        两高内幕交易司法解释7月27日起施行：2012年以来首次系统性修改
+                    </div>
+                    
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.6; 
+                       margin-top: 8px;">
+                最高法、最高检联合发布修改后的内幕交易司法解释，7月27日起施行。核心变化：内幕信息敏感期起点大幅前置至"控股股东、实控人向关系密切人员透露初步意向"之时，堵死"意向阶段"套利漏洞；收紧"合法交易"抗辩空间，"打擦边球"余地消失。证监会同步部署严查财务造假、内幕交易、操纵市场，推进AI监管应用。
+            </div>
+            
+                    
+            <div style="font-size: 12px; color: #9ca3af; margin-top: 6px;">
+                7月24日 · 新浪财经
+            </div>
+            
+                </div>
+            </div>
+        </div>
+        
+        <div style="padding: 14px 16px; 
+                    border-radius: 12px;
+                    background: rgba(255,255,255,0.04);
+                    margin-bottom: 10px;
+                    transition: all 0.2s ease;"
+             onmouseover="this.style.background='rgba(255,255,255,0.08)';"
+             onmouseout="this.style.background='rgba(255,255,255,0.04)';">
+            <div style="display: flex; align-items: flex-start;">
+                <div style="margin-right: 10px;">
+        <span style="display: inline-block; padding: 4px 12px; 
+                    border-radius: 16px; font-size: 11px; font-weight: 700;
+                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white;
+                    letter-spacing: 0.3px; text-transform: uppercase;">
+            流动性
+        </span>
+        </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 14px; font-weight: 700; 
+                               color: #1f2937; line-height: 1.5;">
+                        央行预告2.1万亿隔夜逆回购：7月29-31日每日6000亿+8月3日3000亿
+                    </div>
+                    
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.6; 
+                       margin-top: 8px;">
+                中国人民银行7月24日公告，将在7月29日至31日每日开展6000亿元、8月3日开展3000亿元隔夜逆回购操作，合计2.1万亿元，采用固定利率、数量招标。意在匹配月末金融机构短期流动性需求，对冲月内10205亿元逆回购到期压力，构成典型"政策底"组合拳。
+            </div>
+            
+                    
+            <div style="font-size: 12px; color: #9ca3af; margin-top: 6px;">
+                7月24日 · 中国人民银行/中国证券报
+            </div>
+            
+                </div>
+            </div>
+        </div>
+        
+        <div style="padding: 14px 16px; 
+                    border-radius: 12px;
+                    background: rgba(255,255,255,0.04);
+                    margin-bottom: 10px;
+                    transition: all 0.2s ease;"
+             onmouseover="this.style.background='rgba(255,255,255,0.08)';"
+             onmouseout="this.style.background='rgba(255,255,255,0.04)';">
+            <div style="display: flex; align-items: flex-start;">
+                <div style="margin-right: 10px;">
+        <span style="display: inline-block; padding: 4px 12px; 
+                    border-radius: 16px; font-size: 11px; font-weight: 700;
+                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white;
+                    letter-spacing: 0.3px; text-transform: uppercase;">
+            公司重磅
+        </span>
+        </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 14px; font-weight: 700; 
+                               color: #1f2937; line-height: 1.5;">
+                        宁德时代抛出200-400亿元回购方案：创A股史上最大单次回购
+                    </div>
+                    
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.6; 
+                       margin-top: 8px;">
+                宁德时代7月25日公告，拟以200亿-400亿元回购股份，回购价格不超过550元/股，所回购股份全部注销以减少注册资本。同时披露半年报：净利432.84亿元，同比增41.98%。这是A股史上最大单次回购，对创业板指和新能源赛道情绪有重要支撑作用。
+            </div>
+            
+                    
+            <div style="font-size: 12px; color: #9ca3af; margin-top: 6px;">
+                7月25日 · 证券时报
+            </div>
+            
+                </div>
+            </div>
+        </div>
+        
+        <div style="padding: 14px 16px; 
+                    border-radius: 12px;
+                    background: rgba(255,255,255,0.04);
+                    margin-bottom: 10px;
+                    transition: all 0.2s ease;"
+             onmouseover="this.style.background='rgba(255,255,255,0.08)';"
+             onmouseout="this.style.background='rgba(255,255,255,0.04)';">
+            <div style="display: flex; align-items: flex-start;">
+                <div style="margin-right: 10px;">
+        <span style="display: inline-block; padding: 4px 12px; 
+                    border-radius: 16px; font-size: 11px; font-weight: 700;
+                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white;
+                    letter-spacing: 0.3px; text-transform: uppercase;">
+            IPO重磅
+        </span>
+        </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 14px; font-weight: 700; 
+                               color: #1f2937; line-height: 1.5;">
+                        长鑫科技7月27日科创板挂牌：募资579亿，科创板史上最大IPO
+                    </div>
+                    
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.6; 
+                       margin-top: 8px;">
+                长鑫科技股票将于7月27日（周一）在上交所科创板上市，发行价8.66元/股，发行后总股本668.81亿股（超额配售前），基础募资约579亿元，为科创板史上最大IPO。长鑫是国内DRAM龙头，其上市将重塑A股存储板块估值体系，对整个半导体产业链有里程碑意义。
+            </div>
+            
+                    
+            <div style="font-size: 12px; color: #9ca3af; margin-top: 6px;">
+                7月27日 · 中国证券报
+            </div>
+            
+                </div>
+            </div>
+        </div>
+        
+        <div style="padding: 14px 16px; 
+                    border-radius: 12px;
+                    background: rgba(255,255,255,0.04);
+                    margin-bottom: 10px;
+                    transition: all 0.2s ease;"
+             onmouseover="this.style.background='rgba(255,255,255,0.08)';"
+             onmouseout="this.style.background='rgba(255,255,255,0.04)';">
+            <div style="display: flex; align-items: flex-start;">
+                <div style="margin-right: 10px;">
+        <span style="display: inline-block; padding: 4px 12px; 
+                    border-radius: 16px; font-size: 11px; font-weight: 700;
+                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white;
+                    letter-spacing: 0.3px; text-transform: uppercase;">
+            海外市场
+        </span>
+        </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 14px; font-weight: 700; 
+                               color: #1f2937; line-height: 1.5;">
+                        美股周线三连阴：科技七巨头单日蒸发7970亿美元，存储芯片重挫
+                    </div>
+                    
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.6; 
+                       margin-top: 8px;">
+                美股上周收跌：道指周跌0.38%、标普500周跌0.61%、纳指周跌2.13%。7月24日单日科技七巨头市值蒸发7970亿美元，特斯拉跌14.52%创2025年3月以来最大单日跌幅。费城半导体指数周五大跌4.25%，闪迪跌10.79%、SK海力士ADR跌8.81%、美光跌6.99%。市场担忧AI资本开支可持续性+美联储加息预期升温。
+            </div>
+            
+                    
+            <div style="font-size: 12px; color: #9ca3af; margin-top: 6px;">
+                7月25日 · 新浪财经/财联社
+            </div>
+            
+                </div>
+            </div>
+        </div>
+        
+        <div style="padding: 14px 16px; 
+                    border-radius: 12px;
+                    background: rgba(255,255,255,0.04);
+                    margin-bottom: 10px;
+                    transition: all 0.2s ease;"
+             onmouseover="this.style.background='rgba(255,255,255,0.08)';"
+             onmouseout="this.style.background='rgba(255,255,255,0.04)';">
+            <div style="display: flex; align-items: flex-start;">
+                <div style="margin-right: 10px;">
+        <span style="display: inline-block; padding: 4px 12px; 
+                    border-radius: 16px; font-size: 11px; font-weight: 700;
+                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white;
+                    letter-spacing: 0.3px; text-transform: uppercase;">
+            大宗商品
+        </span>
+        </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 14px; font-weight: 700; 
+                               color: #1f2937; line-height: 1.5;">
+                        布伦特原油周涨近10%破百：中东地缘冲突推升能源安全与二次通胀
+                    </div>
+                    
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.6; 
+                       margin-top: 8px;">
+                受美伊局势+胡塞武装袭击红海油轮影响，布伦特原油周涨9.85%报96.78美元/桶，盘中突破100美元关口，WTI周涨9.21%。油价飙升直接推升全球通胀预期反弹，美联储年内加息预期迅速升温，CME数据显示本周加息概率从13%跳升至38%，美债收益率与美元指数同步走强，全球科技成长股遭遇估值压制。
+            </div>
+            
+                    
+            <div style="font-size: 12px; color: #9ca3af; margin-top: 6px;">
+                7月25日 · 今日头条/新浪财经
+            </div>
+            
+                </div>
+            </div>
+        </div>
+        
+        <div style="padding: 14px 16px; 
+                    border-radius: 12px;
+                    background: rgba(255,255,255,0.04);
+                    margin-bottom: 10px;
+                    transition: all 0.2s ease;"
+             onmouseover="this.style.background='rgba(255,255,255,0.08)';"
+             onmouseout="this.style.background='rgba(255,255,255,0.04)';">
+            <div style="display: flex; align-items: flex-start;">
+                <div style="margin-right: 10px;">
+        <span style="display: inline-block; padding: 4px 12px; 
+                    border-radius: 16px; font-size: 11px; font-weight: 700;
+                    background: rgba(255,255,255,0.1); color: #e2e8f0;
+                    letter-spacing: 0.3px; text-transform: uppercase;">
+            产业政策
+        </span>
+        </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 14px; font-weight: 600; 
+                               color: #374151; line-height: 1.5;">
+                        《可再生能源发展"十五五"规划》正式发布：2030年装机35亿千瓦
+                    </div>
+                    
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.6; 
+                       margin-top: 8px;">
+                《可再生能源发展"十五五"规划》正式发布，目标到2030年可再生能源消费总量达18亿吨标准煤左右，发电总装机达35亿千瓦左右，风电和太阳能发电总装机达28亿千瓦以上。新能源逐步从补充能源向主力电源转型，"扩量提质"成为核心方向。
+            </div>
+            
+                    
+            <div style="font-size: 12px; color: #9ca3af; margin-top: 6px;">
+                7月下旬 · 我的钢铁网/宏观周报
+            </div>
+            
+                </div>
+            </div>
+        </div>
+        
+        <div style="padding: 14px 16px; 
+                    border-radius: 12px;
+                    background: rgba(255,255,255,0.04);
+                    margin-bottom: 10px;
+                    transition: all 0.2s ease;"
+             onmouseover="this.style.background='rgba(255,255,255,0.08)';"
+             onmouseout="this.style.background='rgba(255,255,255,0.04)';">
+            <div style="display: flex; align-items: flex-start;">
+                <div style="margin-right: 10px;">
+        <span style="display: inline-block; padding: 4px 12px; 
+                    border-radius: 16px; font-size: 11px; font-weight: 700;
+                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white;
+                    letter-spacing: 0.3px; text-transform: uppercase;">
+            基建政策
+        </span>
+        </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 14px; font-weight: 700; 
+                               color: #1f2937; line-height: 1.5;">
+                        国常会系统推进"六张网"规划建设：算力网+新型电网+物流网等
+                    </div>
+                    
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.6; 
+                       margin-top: 8px;">
+                国务院总理李强7月20日主持召开国常会，听取"六张网"（水网、新型电网、算力网、新一代通信网、城市地下管网、物流网）规划建设督查情况汇报。要求因地因业加快实施，加强资金要素保障，切实把重大基础设施网络建设好。工信部同步表示将加快光子、时空信息等新兴增长点培育，加速算电一体化布局落地。
+            </div>
+            
+                    
+            <div style="font-size: 12px; color: #9ca3af; margin-top: 6px;">
+                7月20日 · 国务院/新浪财经
+            </div>
+            
+                </div>
+            </div>
+        </div>
+        </div>
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #f1f5f9; 
+                               margin: 0; line-height: 1.3;">
+                        🏛️ 政策解读
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: rgba(30, 30, 50, 0.5); 
+                        padding: 28px; 
+                        border: 1px solid rgba(255, 255, 255, 0.08);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.05) inset;">
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="border-left: 4px solid #3b82f6; border-radius: 0 12px 12px 0;
+                       transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateX(4px)';"
+                 onmouseout="this.style.transform='translateX(0)';">
+                <div style="background: rgba(255, 255, 255, 0.04); padding: 18px 20px; border: 1px solid rgba(255, 255, 255, 0.08);border-radius: 14px;box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);margin-bottom: 12px;">
+            <div style="font-size: 15px; font-weight: 600; color: #f1f5f9; margin-bottom: 8px;">
+                政策一：政治局会议"六张网"基建投资提速 — 算力/电网/数字基建的确定性红利
+            </div>
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.7; margin-bottom: 8px;">
+                7月24日政治局会议明确投资端提速"六张网"建设（算力网、新型电网、交通网、水网、能源网、数字基础设施）+城市更新，纠偏地方"不敢投"。财政端加快专项债、超长期特别国债、8000亿新型政策性金融工具发行拨付，研究储备提前下达2027年专项债、动用地方债务结存限额、追加政策性金融工具额度。这不是"大水漫灌"，而是精准投向新质生产力基础设施。
+            </div>
+            <div style="font-size: 12px; color: #3b82f6; font-weight: 500; line-height: 1.6;">
+                💡 影响解读：算力网：AI数据中心建设加速，液冷散热、算力交换机、光模块需求刚性；新型电网：特高压、智能电网、储能并网设备增量确定；数字基础设施：国产算力芯片、服务器、网络安全受益。核心是"政策有资金配套+项目有落地时间表"，不是空喊口号。
+            </div>
+            <div style="margin-top: 10px;"><span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: rgba(59,130,246,0.15); color: #60a5fa; font-size: 11px; font-weight: 500; margin-right: 4px;">算力基建</span><span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: rgba(59,130,246,0.15); color: #60a5fa; font-size: 11px; font-weight: 500; margin-right: 4px;">特高压电网</span><span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: rgba(59,130,246,0.15); color: #60a5fa; font-size: 11px; font-weight: 500; margin-right: 4px;">数字基建</span></div>
+            </div>
+            </div>
+            
+            <div style="border-left: 4px solid #3b82f6; border-radius: 0 12px 12px 0;
+                       transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateX(4px)';"
+                 onmouseout="this.style.transform='translateX(0)';">
+                <div style="background: rgba(255, 255, 255, 0.04); padding: 18px 20px; border: 1px solid rgba(255, 255, 255, 0.08);border-radius: 14px;box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);margin-bottom: 12px;">
+            <div style="font-size: 15px; font-weight: 600; color: #f1f5f9; margin-bottom: 8px;">
+                政策二：内幕交易新规施行 + 监管组合拳 — 净化市场环境，利好优质白马
+            </div>
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.7; margin-bottom: 8px;">
+                7月27日起，两高修订后的内幕交易司法解释正式施行。三大核心变化：①敏感期起点前置至"初步意向"阶段，堵死信息泄露灰色地带；②收紧"合法交易"抗辩，举证责任更严格；③证监会同步部署严查财务造假、操纵市场，推进AI监管应用。配合证监会投资者座谈会释放的"稳市场信号"，构成"政策底"典型组合。
+            </div>
+            <div style="font-size: 12px; color: #3b82f6; font-weight: 500; line-height: 1.6;">
+                💡 影响解读：短期对市场情绪偏正面，因为监管强化意味着"政策底"信号明确。中长期看，内幕交易成本大幅提升，优质白马、高分红蓝筹的配置价值上升，靠消息炒作的小票生存空间压缩。对量化交易的规范也在推进，有助于降低市场波动。受益方向：高股息蓝筹、ETF、券商（成交量回升预期）。
+            </div>
+            <div style="margin-top: 10px;"><span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: rgba(59,130,246,0.15); color: #60a5fa; font-size: 11px; font-weight: 500; margin-right: 4px;">券商</span><span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: rgba(59,130,246,0.15); color: #60a5fa; font-size: 11px; font-weight: 500; margin-right: 4px;">高分红蓝筹</span><span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: rgba(59,130,246,0.15); color: #60a5fa; font-size: 11px; font-weight: 500; margin-right: 4px;">ETF</span></div>
+            </div>
+            </div>
+            
+            <div style="border-left: 4px solid #3b82f6; border-radius: 0 12px 12px 0;
+                       transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateX(4px)';"
+                 onmouseout="this.style.transform='translateX(0)';">
+                <div style="background: rgba(255, 255, 255, 0.04); padding: 18px 20px; border: 1px solid rgba(255, 255, 255, 0.08);border-radius: 14px;box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);margin-bottom: 12px;">
+            <div style="font-size: 15px; font-weight: 600; color: #f1f5f9; margin-bottom: 8px;">
+                政策三：服务消费成为扩内需重心 — 文旅/养老/家政/消费REITs
+            </div>
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.7; margin-bottom: 8px;">
+                政治局会议将消费重心从商品消费转向服务消费，重点方向包括养老、文旅、家政、体育。具体抓手：发文旅消费券、落实居民增收、完善社保稳预期。此前国常会已部署灵活就业人员社保新模式、农民工住房保障、失能照护服务资源共享等社保体系优化四大方向。核心逻辑是通过完善社会保障来释放居民消费意愿，尤其是服务消费。
+            </div>
+            <div style="font-size: 12px; color: #3b82f6; font-weight: 500; line-height: 1.6;">
+                💡 影响解读：文旅消费：暑期旺季+消费券双重催化，景区、酒店、航空弹性大；养老服务：失能照护、社区养老、居家护理赛道政策红利持续；消费REITs：基础设施REITs扩容至消费领域的预期升温。但需注意，服务消费的业绩兑现节奏慢于商品消费，属于中长期逻辑，短期更多是主题催化。
+            </div>
+            <div style="margin-top: 10px;"><span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: rgba(59,130,246,0.15); color: #60a5fa; font-size: 11px; font-weight: 500; margin-right: 4px;">文旅消费</span><span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: rgba(59,130,246,0.15); color: #60a5fa; font-size: 11px; font-weight: 500; margin-right: 4px;">养老服务</span><span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: rgba(59,130,246,0.15); color: #60a5fa; font-size: 11px; font-weight: 500; margin-right: 4px;">消费REITs</span></div>
+            </div>
+            </div>
+            
+            <div style="border-left: 4px solid #3b82f6; border-radius: 0 12px 12px 0;
+                       transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateX(4px)';"
+                 onmouseout="this.style.transform='translateX(0)';">
+                <div style="background: rgba(255, 255, 255, 0.04); padding: 18px 20px; border: 1px solid rgba(255, 255, 255, 0.08);border-radius: 14px;box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);margin-bottom: 12px;">
+            <div style="font-size: 15px; font-weight: 600; color: #f1f5f9; margin-bottom: 8px;">
+                政策四：可再生能源"十五五"规划发布 — 28亿千瓦风光装机目标
+            </div>
+            <div style="font-size: 13px; color: #94a3b8; line-height: 1.7; margin-bottom: 8px;">
+                《可再生能源发展"十五五"规划》正式发布，2030年目标：可再生能源消费18亿吨标煤、发电总装机35亿千瓦、风电+光伏28亿千瓦以上。新能源从"补充能源"向"主力电源"转型，"扩量提质"是核心。配网侧：新型电力系统建设加速，特高压、储能、虚拟电厂需求确定。制造端：光伏、风电设备需求有长期支撑，但需警惕产能过剩与价格战。
+            </div>
+            <div style="font-size: 12px; color: #3b82f6; font-weight: 500; line-height: 1.6;">
+                💡 影响解读：对新能源板块是中长期利好，但短期需区分环节：上游材料（硅料、锂矿）仍面临产能过剩压力；中游制造（组件、电池片）价格竞争激烈；下游运营（绿电运营商）受益于装机增长+电价稳定。储能、特高压、电网设备是更具确定性的细分方向。宁德时代400亿回购也为新能源板块提供情绪支撑。
+            </div>
+            <div style="margin-top: 10px;"><span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: rgba(59,130,246,0.15); color: #60a5fa; font-size: 11px; font-weight: 500; margin-right: 4px;">储能</span><span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: rgba(59,130,246,0.15); color: #60a5fa; font-size: 11px; font-weight: 500; margin-right: 4px;">特高压</span><span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: rgba(59,130,246,0.15); color: #60a5fa; font-size: 11px; font-weight: 500; margin-right: 4px;">绿电运营</span></div>
+            </div>
+            </div>
+            </div>
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M11 17h2v-6h-2v6zm1-15C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM11 7h2v4h-2V7z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #f1f5f9; 
+                               margin: 0; line-height: 1.3;">
+                        🔮 下周题材预判
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(124, 58, 237, 0.1) 100%); 
+                        padding: 28px; 
+                        border: 1px solid rgba(139, 92, 246, 0.2);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(79, 70, 229, 0.15), 0 1px 0 rgba(255, 255, 255, 0.05) inset;">
+                
+        <div id="tabs_14442" style="width: 100%;">
+            <div style="display: flex; gap: 6px; padding: 4px; 
+                        background: rgba(255,255,255,0.05); border-radius: 12px; flex-wrap: wrap;">
+                
+            <button class="tab-btn active" 
+                    style="padding: 10px 20px; border: none; border-radius: 10px;
+                           font-size: 13px; font-weight: 600; cursor: pointer;
+                           transition: all 0.3s ease; 
+                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                    color: white;
+                    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+                "
+                    onclick="switchTab_tabs_14442(0)">
+                半导体
+            </button>
+            
+            <button class="tab-btn " 
+                    style="padding: 10px 20px; border: none; border-radius: 10px;
+                           font-size: 13px; font-weight: 600; cursor: pointer;
+                           transition: all 0.3s ease; 
+                    background: transparent;
+                    color: #94a3b8;
+                "
+                    onclick="switchTab_tabs_14442(1)">
+                AI算力
+            </button>
+            
+            <button class="tab-btn " 
+                    style="padding: 10px 20px; border: none; border-radius: 10px;
+                           font-size: 13px; font-weight: 600; cursor: pointer;
+                           transition: all 0.3s ease; 
+                    background: transparent;
+                    color: #94a3b8;
+                "
+                    onclick="switchTab_tabs_14442(2)">
+                电子材料
+            </button>
+            
+            <button class="tab-btn " 
+                    style="padding: 10px 20px; border: none; border-radius: 10px;
+                           font-size: 13px; font-weight: 600; cursor: pointer;
+                           transition: all 0.3s ease; 
+                    background: transparent;
+                    color: #94a3b8;
+                "
+                    onclick="switchTab_tabs_14442(3)">
+                机器人
+            </button>
+            
+            <button class="tab-btn " 
+                    style="padding: 10px 20px; border: none; border-radius: 10px;
+                           font-size: 13px; font-weight: 600; cursor: pointer;
+                           transition: all 0.3s ease; 
+                    background: transparent;
+                    color: #94a3b8;
+                "
+                    onclick="switchTab_tabs_14442(4)">
+                大宗商品
+            </button>
+            
+            </div>
+            
+            <div class="tab-panel" id="tabs_14442_panel_0" style="display: block; padding-top: 20px;">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.08) 100%); 
+                        border: 1px solid #bbf7d0; border-radius: 14px; padding: 16px 18px;
+                        transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.15)';"
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 16px; font-weight: 700; color: #166534; flex: 1;">
+                    存储芯片超级周期验证（SK海力士/三星财报周）
+                </span>
+                <span style="padding: 5px 12px; border-radius: 20px; 
+                           font-size: 11px; font-weight: 700;
+                           background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                    高确定性
+                </span>
+            </div>
+            <div style="font-size: 13px; color: #15803d; line-height: 1.6; margin-bottom: 10px;">
+                下周存储三巨头集中发财报：SK海力士7/29（营业利润预计64.1万亿韩元，同比+596%，单季超去年全年）、三星7/30（DS部门利润89.4万亿韩元）、铠侠7/31。AI驱动HBM量价齐升，2026年HBM产能已全部售罄，2027年产能也被长期协议锁定。叠加长鑫科技7/27科创板上市（579亿募资），存储产业链迎来估值重估窗口。但需注意：美股存储股周五大跌，短期A股有联动压力，建议"先抑后扬"操作思路。
+            </div>
+            <div style="padding-top:16px;border-top:1px solid rgba(255,255,255,.1);margin-top:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div style="width:16px;height:16px;margin-right:6px;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="#94a3b8">
+            <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/>
+        </svg>
+        </div><span style="font-size:13px;color:#94a3b8;font-weight:500;">受益标的</span></div><div style="display:flex;flex-wrap:wrap;"><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">雅克科技(HBM前驱体)</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">华海诚科(环氧塑封料)</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">长电科技(先进封装)</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">江波龙</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">佰维存储</span></div></div>
+            
+            </div>
+            
+            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.08) 100%); 
+                        border: 1px solid #bbf7d0; border-radius: 14px; padding: 16px 18px;
+                        transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.15)';"
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 16px; font-weight: 700; color: #166534; flex: 1;">
+                    先进封装产能紧缺（日月光涨价20%+长电扩产78亿）
+                </span>
+                <span style="padding: 5px 12px; border-radius: 20px; 
+                           font-size: 11px; font-weight: 700;
+                           background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                    高确定性
+                </span>
+            </div>
+            <div style="font-size: 13px; color: #15803d; line-height: 1.6; margin-bottom: 10px;">
+                全球先进封装赛道景气度持续走高：日月光宣布CoWoS、FoCoS等AI封装最高涨价超20%，2026年资本开支提升至85亿美元。国内封测企业上半年相继启动调价，下半年存在继续涨价空间。长电科技规划2026年固投100亿元，临港78亿高端封测工厂落地。Yole预测2031年全球先进封装市场1090亿美元。2.5D/3D封装产能紧缺延续至2027年下半年。长电科技7/25成交142亿，多空博弈激烈，半年报业绩预增63%-102%。
+            </div>
+            <div style="padding-top:16px;border-top:1px solid rgba(255,255,255,.1);margin-top:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div style="width:16px;height:16px;margin-right:6px;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="#94a3b8">
+            <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/>
+        </svg>
+        </div><span style="font-size:13px;color:#94a3b8;font-weight:500;">受益标的</span></div><div style="display:flex;flex-wrap:wrap;"><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">长电科技</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">通富微电</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">华天科技</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">盛合晶微</span></div></div>
+            
+            </div>
+            </div>
+            </div>
+            
+            <div class="tab-panel" id="tabs_14442_panel_1" style="display: none; padding-top: 20px;">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.08) 100%); 
+                        border: 1px solid #bbf7d0; border-radius: 14px; padding: 16px 18px;
+                        transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.15)';"
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 16px; font-weight: 700; color: #166534; flex: 1;">
+                    算力基建"六张网"政策红利（液冷+算力网+算电一体化）
+                </span>
+                <span style="padding: 5px 12px; border-radius: 20px; 
+                           font-size: 11px; font-weight: 700;
+                           background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                    高确定性
+                </span>
+            </div>
+            <div style="font-size: 13px; color: #15803d; line-height: 1.6; margin-bottom: 10px;">
+                政治局会议+国常会双重定调"六张网"建设，算力网位列其中。工信部明确加速算电一体化布局落地。AI数据中心建设进入加速期，液冷散热成为刚需（单机柜功率从10kW→50kW+）。英维克作为液冷龙头深度调整后估值吸引力提升，但技术面仍处于下跌趋势，需等待止跌信号。核心逻辑：政策有资金配套+下游需求刚性，但短期需消化高位回调压力。
+            </div>
+            <div style="padding-top:16px;border-top:1px solid rgba(255,255,255,.1);margin-top:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div style="width:16px;height:16px;margin-right:6px;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="#94a3b8">
+            <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/>
+        </svg>
+        </div><span style="font-size:13px;color:#94a3b8;font-weight:500;">受益标的</span></div><div style="display:flex;flex-wrap:wrap;"><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">英维克(液冷龙头)</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">曙光数创</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">中际旭创(光模块)</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">工业富联</span></div></div>
+            
+            </div>
+            </div>
+            </div>
+            
+            <div class="tab-panel" id="tabs_14442_panel_2" style="display: none; padding-top: 20px;">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.08) 100%); 
+                        border: 1px solid #bbf7d0; border-radius: 14px; padding: 16px 18px;
+                        transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.15)';"
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 16px; font-weight: 700; color: #166534; flex: 1;">
+                    高速铜箔/CCL（AI服务器+存储双驱动，业绩验证期）
+                </span>
+                <span style="padding: 5px 12px; border-radius: 20px; 
+                           font-size: 11px; font-weight: 700;
+                           background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                    高确定性
+                </span>
+            </div>
+            <div style="font-size: 13px; color: #15803d; line-height: 1.6; margin-bottom: 10px;">
+                AI服务器PCB升级（从12层→20层+）带动高频高速铜箔需求爆发，HBM封装也需高端铜箔。铜冠铜箔作为锂电铜箔+PCB铜箔双龙头，本周大幅回调30%，属于超跌范畴。核心逻辑：①AI服务器铜箔量价齐升趋势未变；②锂价企稳+锂电铜箔盈利修复；③深证成指样本调入带来被动配置资金。技术面90元附近是关键支撑位，跌破需重新评估。
+            </div>
+            <div style="padding-top:16px;border-top:1px solid rgba(255,255,255,.1);margin-top:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div style="width:16px;height:16px;margin-right:6px;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="#94a3b8">
+            <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/>
+        </svg>
+        </div><span style="font-size:13px;color:#94a3b8;font-weight:500;">受益标的</span></div><div style="display:flex;flex-wrap:wrap;"><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">铜冠铜箔</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">金安国纪(覆铜板)</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">德福科技</span></div></div>
+            
+            </div>
+            </div>
+            </div>
+            
+            <div class="tab-panel" id="tabs_14442_panel_3" style="display: none; padding-top: 20px;">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.08) 100%); 
+                        border: 1px solid #bbf7d0; border-radius: 14px; padding: 16px 18px;
+                        transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.15)';"
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 16px; font-weight: 700; color: #166534; flex: 1;">
+                    人形机器人/Physical AI（英伟达×现代机器人参考平台）
+                </span>
+                <span style="padding: 5px 12px; border-radius: 20px; 
+                           font-size: 11px; font-weight: 700;
+                           background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
+                    中确定性
+                </span>
+            </div>
+            <div style="font-size: 13px; color: #15803d; line-height: 1.6; margin-bottom: 10px;">
+                旧金山AI峰会上，现代汽车集团与英伟达共同宣布搭建机器人参考平台（Robot Reference Platform），为高校和初创企业开发各类机器人提供标准化支撑。黄仁勋表态"AI热潮短期内不会崩盘"，Physical AI是下一阶段重要方向。但A股机器人板块上半年涨幅较大，目前处于调整期，需等待催化剂和业绩验证。
+            </div>
+            <div style="padding-top:16px;border-top:1px solid rgba(255,255,255,.1);margin-top:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div style="width:16px;height:16px;margin-right:6px;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="#94a3b8">
+            <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/>
+        </svg>
+        </div><span style="font-size:13px;color:#94a3b8;font-weight:500;">受益标的</span></div><div style="display:flex;flex-wrap:wrap;"><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">拓普集团</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">三花智控</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">鸣志电器</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">绿的谐波</span></div></div>
+            
+            </div>
+            </div>
+            </div>
+            
+            <div class="tab-panel" id="tabs_14442_panel_4" style="display: none; padding-top: 20px;">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.08) 100%); 
+                        border: 1px solid #bbf7d0; border-radius: 14px; padding: 16px 18px;
+                        transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.15)';"
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 16px; font-weight: 700; color: #166534; flex: 1;">
+                    油气/能源安全（油价破百+中东地缘冲突）
+                </span>
+                <span style="padding: 5px 12px; border-radius: 20px; 
+                           font-size: 11px; font-weight: 700;
+                           background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
+                    中确定性
+                </span>
+            </div>
+            <div style="font-size: 13px; color: #15803d; line-height: 1.6; margin-bottom: 10px;">
+                布伦特原油周涨近10%，盘中破百。中东地缘冲突（红海航运遇袭+霍尔木兹海峡风险）推升供给中断预期。油价上涨利好石油石化、煤炭等能源板块，但也会推升通胀预期，压制全球科技成长股估值。操作上适合作为防御配置，而非追涨品种。需警惕：若地缘局势缓和，油价可能快速回落。
+            </div>
+            <div style="padding-top:16px;border-top:1px solid rgba(255,255,255,.1);margin-top:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div style="width:16px;height:16px;margin-right:6px;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="#94a3b8">
+            <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/>
+        </svg>
+        </div><span style="font-size:13px;color:#94a3b8;font-weight:500;">受益标的</span></div><div style="display:flex;flex-wrap:wrap;"><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">中国海油</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">中国石油</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">中国神华</span><span style="display:inline-block;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;margin:3px 6px 3px 0;transition:all .2s ease;background:linear-gradient(135deg, rgba(79,70,229,.25) 0%, rgba(124,58,237,.25) 100%);color:#c4b5fd;border:1px solid rgba(124,58,237,.35);" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 16px rgba(79,70,229,.4)';this.style.borderColor='rgba(255,255,255,.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(79,70,229,.3)';this.style.borderColor='rgba(124,58,237,.35)';">中海油服</span></div></div>
+            
+            </div>
+            </div>
+            </div>
+            
+            
+        <script>
+        function switchTab_tabs_14442(index) {
+            const container = document.getElementById("tabs_14442");
+            const buttons = container.querySelectorAll(".tab-btn");
+            const panels = container.querySelectorAll(".tab-panel");
+            
+            buttons.forEach((btn, i) => {
+                if (i === index) {
+                    btn.style.background = "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)";
+                    btn.style.color = "white";
+                    btn.style.boxShadow = "0 2px 8px rgba(79, 70, 229, 0.3)";
+                } else {
+                    btn.style.background = "transparent";
+                    btn.style.color = "#6b7280";
+                    btn.style.boxShadow = "none";
+                }
+            });
+            
+            panels.forEach((panel, i) => {
+                panel.style.display = i === index ? "block" : "none";
+            });
+        }
+        </script>
+        
+        </div>
+        
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #f1f5f9; 
+                               margin: 0; line-height: 1.3;">
+                        🎯 下周操作计划
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: rgba(30, 30, 50, 0.5); 
+                        padding: 28px; 
+                        border: 1px solid rgba(255, 255, 255, 0.08);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.05) inset;">
+                <div style="line-height: 1.8; color: #e2e8f0; font-size: 14px;">
+<h3 style="color: #f1f5f9; margin-bottom: 12px;">📊 大盘判断：震荡整固，结构分化</h3>
+<p>下周（7月28日-8月1日）A股大概率维持"指数震荡、结构分化"格局。核心矛盾：</p>
+<ul style="color: #cbd5e1; line-height: 2;">
+  <li><strong style="color: #fbbf24;">国内政策底明确</strong>：政治局会议定调稳增长+六张网投资提速+央行2.1万亿逆回购兜底，下有支撑</li>
+  <li><strong style="color: #f87171;">外部扰动加剧</strong>：美联储决议（加息概率38%）+美股科技财报+油价破百推升通胀预期，上有压制</li>
+  <li><strong style="color: #60a5fa;">关键变量</strong>：7/27长鑫上市、7/29美联储决议、7/31中国PMI、存储三巨头财报</li>
+</ul>
+
+<h3 style="color: #f1f5f9; margin: 16px 0 12px 0;">💼 仓位建议：4-5成，防御为主，精选科技</h3>
+<p>总体策略：<strong>红利防御打底 + 科技硬件精选业绩兑现标的 + 控制仓位</strong>。上周美股科技股大跌+油价暴涨，周一A股科技板块可能低开，但国内政策底提供支撑，不建议盲目追涨也不建议恐慌杀跌。</p>
+
+<h3 style="color: #f1f5f9; margin: 16px 0 12px 0;">🎯 重点关注方向（3个核心方向）</h3>
+<p><strong style="color: #34d399;">方向一：存储芯片产业链（先抑后扬）</strong><br>
+核心逻辑：SK海力士/三星/铠侠三大存储巨头下周集中发财报，普遍预期创历史新高。长鑫科技周一上市为板块提供新估值锚。但美股存储股周五大跌（闪迪-10.8%、海力士ADR-8.8%），短期有联动压力。<br>
+操作建议：周一若大幅低开，观察承接力度，雅克科技/华海诚科在关键支撑位可考虑分批低吸；若高开太多则不追，等财报落地后再决策。</p>
+
+<p><strong style="color: #60a5fa;">方向二：先进封装（业绩验证+涨价逻辑）</strong><br>
+核心逻辑：日月光涨价20%+国内封测企业跟涨，长电科技半年报预增63%-102%，二季度环比大增96%。产能紧缺延续到2027年。<br>
+操作建议：长电科技80元附近是强支撑，回调至75-80元区间可考虑加仓，止损位设72元；上方压力位90-95元。</p>
+
+<p><strong style="color: #fbbf24;">方向三：红利防御（油价+高股息）</strong><br>
+核心逻辑：油价破百利好能源板块，政治局会议稳资本市场利好高股息蓝筹。作为底仓配置对冲科技成长波动。<br>
+操作建议：石油石化（中国海油）、煤炭（中国神华）、银行等红利方向配置1-2成仓位，作为防御垫。</p>
+
+<h3 style="color: #f1f5f9; margin: 16px 0 12px 0;">📈 具体买卖计划（含价格点位）</h3>
+<table style="width:100%; border-collapse: collapse; font-size: 13px;">
+  <tr style="background: rgba(59,130,246,0.1);">
+    <th style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; color: #93c5fd;">标的</th>
+    <th style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; color: #93c5fd;">操作</th>
+    <th style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; color: #93c5fd;">价格区间</th>
+    <th style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; color: #93c5fd;">仓位</th>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #e2e8f0;">雅克科技</td>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #34d399; text-align: center;">持有/低吸</td>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #fbbf24; text-align: center;">140-145元低吸<br>160-170元减仓</td>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">底仓50%<br>机动30%</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #e2e8f0;">华海诚科</td>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #fbbf24; text-align: center;">观察等待</td>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #fbbf24; text-align: center;">85-90元击球区<br>75元止损</td>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">计划建仓10%</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #e2e8f0;">长电科技</td>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #34d399; text-align: center;">逢低加仓</td>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #fbbf24; text-align: center;">75-80元加仓<br>72元止损<br>90-95元减仓</td>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">计划10-15%</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #e2e8f0;">铜冠铜箔</td>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #fbbf24; text-align: center;">谨慎持有</td>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #fbbf24; text-align: center;">90元支撑位<br>跌破85元止损<br>105-110元减仓</td>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">保留底仓</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #e2e8f0;">英维克</td>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #f87171; text-align: center;">反弹减仓</td>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #fbbf24; text-align: center;">60-65元减仓1/2<br>55元清仓止损</td>
+    <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">逐步退出</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; color: #e2e8f0;">*ST建艺</td>
+    <td style="padding: 8px; color: #f87171; text-align: center;">坚决清仓</td>
+    <td style="padding: 8px; color: #fbbf24; text-align: center;">任何价位都走</td>
+    <td style="padding: 8px; text-align: center;">退市风险敞口必须关</td>
+  </tr>
+</table>
+
+<h3 style="color: #f1f5f9; margin: 16px 0 12px 0;">⏰ 下周关键时间点</h3>
+<ul style="color: #cbd5e1; line-height: 2;">
+  <li><strong>7/27（周一）</strong>：长鑫科技科创板上市、工业企业利润数据、内幕交易新规施行</li>
+  <li><strong>7/29（周三）</strong>：美联储FOMC利率决议（凌晨2:00）、SK海力士Q2财报</li>
+  <li><strong>7/30（周四）</strong>：美国Q2 GDP+6月PCE、三星电子Q2财报、微软/Meta财报</li>
+  <li><strong>7/31（周五）</strong>：中国7月PMI、日本央行决议、铠侠财报、苹果/亚马逊财报、ChinaJoy开幕</li>
+</ul>
+</div>
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <div style="background: linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(234,88,12,0.08) 100%); 
+                    border: 1px solid rgba(245, 158, 11, 0.2);
+                    border-radius: 14px; 
+                    padding: 18px 20px;
+                    margin: 16px 0;">
+            <div style="display: flex; align-items: flex-start;">
+                <span style="font-size: 20px; margin-right: 12px; flex-shrink: 0; margin-top: -2px;">
+                    ⚠️
+                </span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; color: #fbbf24; 
+                               font-size: 14px; margin-bottom: 6px;">
+                        ⚠️ 风险提示
+                    </div>
+                    <div style="color: #b45309; 
+                               font-size: 13px; line-height: 1.6;">
+                        美联储超预期加息或释放强烈鹰派信号，导致美债收益率飙升、北向资金大幅流出，压制A股科技成长板块估值。触发条件：7/29美联储决议加息或暗示9月确定加息；应对措施：降低科技仓位至3成以下，增配红利防御板块。；美股科技巨头财报不及预期，AI资本开支指引低于市场预期，引发全球科技股系统性调整。触发条件：微软/Meta/苹果/亚马逊财报中AI相关收入或资本开支指引增速放缓；应对措施：提前减仓高估值AI标的，留足现金等待回调后的买入机会。；中东地缘冲突进一步升级，油价持续飙升突破110-120美元/桶，全球二次通胀预期失控，美联储被迫重启加息周期。触发条件：霍尔木兹海峡被封锁、主要产油国卷入冲突；应对措施：增配油气、黄金等通胀对冲资产，降低成长股敞口。；半年报密集披露期个股业绩暴雷，尤其是前期涨幅较大的科技成长股，可能引发板块情绪杀跌。触发条件：持仓股或重点跟踪标的业绩不及预期、增收不增利；应对措施：提前规避高位、业绩不确定性大的个股，重点布局业绩确定性高的龙头。
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        </div>
+        
+        <footer style="max-width: 64rem; margin: 40px auto 0; 
+                     padding: 32px 24px;
+                     border-top: 1px solid rgba(0, 0, 0, 0.06);">
+            <div style="text-align: center; color: #9ca3af; font-size: 13px; line-height: 1.8;">
+                <div style="margin-bottom: 8px;">
+                    <span style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                               -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                               font-weight: 700; font-size: 16px;">投资研究中心</span>
+                </div>
+                <div>AI驱动 · 数据驱动 · 价值投资</div>
+                <div style="margin-top: 8px; font-size: 12px;">
+                    投资有风险，入市需谨慎。本报告仅供参考，不构成投资建议。
+                </div>
+            </div>
+        </footer>
+        
+
+<script>
+// 入场动画 - 滚动时触发
+document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+    
+    // 观察所有带fade-in-up类的元素
+    document.querySelectorAll('.fade-in-up').forEach(el => {
+        observer.observe(el);
+    });
+});
+
+// 数字滚动动画
+function animateNumber(element, target, duration = 1500) {
+    const start = 0;
+    const startTime = performance.now();
+    
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // 缓动函数 - easeOutExpo
+        const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+        const current = Math.floor(start + (target - start) * easeProgress);
+        
+        element.textContent = current.toLocaleString();
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    
+    requestAnimationFrame(update);
+}
+
+// 折叠面板切换
+function toggleCollapse(id) {
+    const content = document.getElementById('collapse-' + id);
+    const arrow = document.getElementById('collapse-arrow-' + id);
+    
+    if (content.classList.contains('open')) {
+        content.classList.remove('open');
+        arrow.classList.remove('open');
+    } else {
+        content.classList.add('open');
+        arrow.classList.add('open');
+    }
+}
+</script>
+
+</body>
+</html>
