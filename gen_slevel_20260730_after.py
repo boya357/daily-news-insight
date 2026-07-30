@@ -96,43 +96,126 @@ gen.add_catalyst_deep_analysis([
     }
 ])
 
-# ============ 5. 隔夜外盘 ============
-gen.add_catalyst_deep_analysis([
-    {
-        "title": "隔夜外盘速递",
-        "level": "high",
-        "impact": "利空出尽+财报分化",
-        "stocks": [
-            {"code": ".IXIC", "name": "纳斯达克", "impact": "-1.74%收24442点，美联储按兵不动但鹰派声音增强，尾盘跳水"},
-            {"code": ".SOX", "name": "费城半导体", "impact": "跌超5%，连续4日累计跌超11%，科天半导体重挫10%+，美光跌9%+"},
-            {"code": "NVDA", "name": "英伟达", "impact": "跌超3.5%领跌科技巨头，AI循环融资质疑+估值回调压力"},
-            {"code": "MSFT", "name": "微软", "impact": "盘后大涨7.8%，FY2027资本支出指引1750亿美元，Azure AI增长强劲"},
-            {"code": "META", "name": "Meta", "impact": "盘后大跌超7%，上调全年资本开支预估下限至1300亿美元，投入加大引发回报担忧"},
-        ],
-        "analysis": "隔夜外盘关键变化：\n"
-                   "1️⃣ 美联储连续第5次按兵不动，但3票反对加息（2016年以来首次），鹰派声音增强\n"
-                   "2️⃣ 科技股财报分化：微软盘后涨7.8%（AI业务增长超预期），META盘后跌7%+（投入加大）\n"
-                   "3️⃣ 费城半导体指数连续4日跌超11%，进入技术性回调区间\n"
-                   "4️⃣ 中概股逆势飘红，金龙指数涨1.7%，新东方+15%，小米+7%\n\n"
-                   "对明日A股影响：美联储鹰派靴子落地（利空出尽），微软财报验证AI资本开支韧性（利好算力链），"
-                   "叠加国内政治局会议政策利好，明日A股科技股有望迎来超跌反弹。"
-                   "但需注意META资本开支上调引发的\"投入回报比\"担忧，可能继续压制纯题材标的估值。"
-    },
-    {
-        "title": "亚太与产业动态",
-        "level": "medium",
-        "impact": "政策驱动国产替代",
-        "stocks": [
-            {"code": "美方限制", "name": "先进机器人进口限制", "impact": "美国FCC将外国电力逆变器和先进机器人列入覆盖清单，商务部回应将坚决反制"},
-            {"code": "长江存储", "name": "专利诉讼澄清", "impact": "深夜声明辟谣\"19项专利无效\"传闻，27项专利在美起诉美光仍在审理中，Xtacking架构全球领先"},
-            {"code": "韩国股市", "name": "KOSPI熔断", "impact": "7/29单日暴跌超12%创纪录，科技股领跌，全球半导体情绪传导"},
-            {"code": "日经指数", "name": "日本股市", "impact": "东京电子跌10.59%，铠侠暴跌13.85%，存储芯片股全线重挫"},
-        ],
-        "analysis": "亚太地区半导体产业链承压，韩国KOSPI连续两日触发熔断、日本科技股暴跌。"
-                   "但中方反制美方先进机器人/逆变器进口限制，反而可能加速国产替代进程。"
-                   "长江存储专利澄清是重要正面信号，印证了国内存储技术实力，对国产存储产业链构成情绪修复。"
-    }
-])
+# ============ 5. 隔夜外盘（独立模块，确保数据可见） ============
+overnight_html = '''
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+    <!-- 美股指数 -->
+    <div style="background: linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(185,28,28,0.08) 100%); 
+                border-radius: 14px; padding: 18px; border: 1px solid rgba(248,113,113,0.25);">
+        <div style="display: flex; align-items: center; margin-bottom: 14px;">
+            <div style="width: 34px; height: 34px; background: linear-gradient(135deg, #ef4444, #b91c1c); 
+                       border-radius: 9px; display: flex; align-items: center; justify-content: center; margin-right: 10px;">📉</div>
+            <span style="font-size: 15px; font-weight: 700; color: #fca5a5;">美股主要指数</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; 
+                       background: rgba(255,255,255,0.04); border-radius: 8px;">
+                <span style="color: #e2e8f0; font-size: 13px;">纳斯达克综合</span>
+                <span style="color: #f87171; font-weight: 700; font-size: 14px;">-1.74%</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; 
+                       background: rgba(255,255,255,0.04); border-radius: 8px;">
+                <span style="color: #e2e8f0; font-size: 13px;">标普500</span>
+                <span style="color: #f87171; font-weight: 700; font-size: 14px;">-1.52%</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; 
+                       background: rgba(255,255,255,0.04); border-radius: 8px;">
+                <span style="color: #e2e8f0; font-size: 13px;">道琼斯工业</span>
+                <span style="color: #f87171; font-weight: 700; font-size: 14px;">-2.19%</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; 
+                       background: rgba(255,255,255,0.04); border-radius: 8px;">
+                <span style="color: #e2e8f0; font-size: 13px;">费城半导体指数</span>
+                <span style="color: #f87171; font-weight: 700; font-size: 14px;">-5.0%+ (4日累跌11%+)</span>
+            </div>
+        </div>
+    </div>
+    <!-- 核心科技股 -->
+    <div style="background: linear-gradient(135deg, rgba(59,130,246,0.12) 0%, rgba(37,99,235,0.08) 100%); 
+                border-radius: 14px; padding: 18px; border: 1px solid rgba(96,165,250,0.25);">
+        <div style="display: flex; align-items: center; margin-bottom: 14px;">
+            <div style="width: 34px; height: 34px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); 
+                       border-radius: 9px; display: flex; align-items: center; justify-content: center; margin-right: 10px;">💻</div>
+            <span style="font-size: 15px; font-weight: 700; color: #60a5fa;">核心科技股表现</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; 
+                       background: rgba(255,255,255,0.04); border-radius: 8px;">
+                <span style="color: #e2e8f0; font-size: 13px;">英伟达 NVDA</span>
+                <span style="color: #f87171; font-weight: 700; font-size: 14px;">-3.5%+</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; 
+                       background: rgba(255,255,255,0.04); border-radius: 8px;">
+                <span style="color: #e2e8f0; font-size: 13px;">微软 MSFT <span style="color: #fbbf24; font-size: 11px;">盘后</span></span>
+                <span style="color: #4ade80; font-weight: 700; font-size: 14px;">+7.8% 🔥</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; 
+                       background: rgba(255,255,255,0.04); border-radius: 8px;">
+                <span style="color: #e2e8f0; font-size: 13px;">Meta <span style="color: #fbbf24; font-size: 11px;">盘后</span></span>
+                <span style="color: #f87171; font-weight: 700; font-size: 14px;">-7.0%+</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; 
+                       background: rgba(255,255,255,0.04); border-radius: 8px;">
+                <span style="color: #e2e8f0; font-size: 13px;">美光科技 / AMD</span>
+                <span style="color: #f87171; font-weight: 700; font-size: 14px;">-9%+ / -5%+</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 美联储 + 关键事件 -->
+<div style="background: linear-gradient(135deg, rgba(168,85,247,0.12) 0%, rgba(139,92,246,0.08) 100%); 
+            border-radius: 14px; padding: 18px; border: 1px solid rgba(192,132,252,0.25); margin-bottom: 16px;">
+    <div style="display: flex; align-items: center; margin-bottom: 12px;">
+        <div style="width: 34px; height: 34px; background: linear-gradient(135deg, #a855f7, #7c3aed); 
+                   border-radius: 9px; display: flex; align-items: center; justify-content: center; margin-right: 10px;">🏛️</div>
+        <span style="font-size: 15px; font-weight: 700; color: #c084fc;">美联储议息会议 + 关键事件</span>
+    </div>
+    <div style="color: #cbd5e1; font-size: 13px; line-height: 2; padding: 4px 8px;">
+        <b style="color: #fbbf24;">【美联储】</b> 连续第5次按兵不动，利率维持3.5%-3.75%，但<b style="color: #f87171;">3票反对加息</b>（2016年以来首次鹰派分歧），沃什强调"无隐性通胀目标"<br>
+        <b style="color: #fbbf24;">【微软财报】</b> FY2027资本支出指引<b style="color: #4ade80;">1750亿美元</b>，Azure AI增长强劲，盘后暴涨7.8%，验证AI算力需求韧性<br>
+        <b style="color: #fbbf24;">【Meta财报】</b> 上调全年CapEx下限至<b style="color: #f87171;">1300亿美元</b>，投入加大引发"回报比"担忧，盘后大跌7%+<br>
+        <b style="color: #fbbf24;">【长江存储】</b> 深夜声明辟谣"19项专利无效"传闻，27项专利在美起诉美光仍在审理中，Xtacking架构全球领先<br>
+        <b style="color: #fbbf24;">【美方限制】</b> FCC将外国电力逆变器和先进机器人列入覆盖清单，商务部回应将坚决反制
+    </div>
+</div>
+
+<!-- 亚太市场 -->
+<div style="background: linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(217,119,6,0.08) 100%); 
+            border-radius: 14px; padding: 18px; border: 1px solid rgba(251,191,36,0.25);">
+    <div style="display: flex; align-items: center; margin-bottom: 12px;">
+        <div style="width: 34px; height: 34px; background: linear-gradient(135deg, #f59e0b, #d97706); 
+                   border-radius: 9px; display: flex; align-items: center; justify-content: center; margin-right: 10px;">🌏</div>
+        <span style="font-size: 15px; font-weight: 700; color: #fbbf24;">亚太市场动态</span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 8px;">
+        <div style="text-align: center; padding: 12px 8px; background: rgba(255,255,255,0.04); border-radius: 10px;">
+            <div style="color: #94a3b8; font-size: 12px; margin-bottom: 6px;">韩国KOSPI</div>
+            <div style="color: #f87171; font-weight: 800; font-size: 16px;">-12%+</div>
+            <div style="color: #64748b; font-size: 11px; margin-top: 4px;">连续熔断</div>
+        </div>
+        <div style="text-align: center; padding: 12px 8px; background: rgba(255,255,255,0.04); border-radius: 10px;">
+            <div style="color: #94a3b8; font-size: 12px; margin-bottom: 6px;">东京电子</div>
+            <div style="color: #f87171; font-weight: 800; font-size: 16px;">-10.59%</div>
+            <div style="color: #64748b; font-size: 11px; margin-top: 4px;">半导体设备</div>
+        </div>
+        <div style="text-align: center; padding: 12px 8px; background: rgba(255,255,255,0.04); border-radius: 10px;">
+            <div style="color: #94a3b8; font-size: 12px; margin-bottom: 6px;">台积电ADR</div>
+            <div style="color: #f87171; font-weight: 800; font-size: 16px;">-3.51%</div>
+            <div style="color: #64748b; font-size: 11px; margin-top: 4px;">晶圆代工龙头</div>
+        </div>
+        <div style="text-align: center; padding: 12px 8px; background: rgba(255,255,255,0.04); border-radius: 10px;">
+            <div style="color: #94a3b8; font-size: 12px; margin-bottom: 6px;">中概金龙</div>
+            <div style="color: #4ade80; font-weight: 800; font-size: 16px;">+1.7%</div>
+            <div style="color: #64748b; font-size: 11px; margin-top: 4px;">逆势飘红</div>
+        </div>
+    </div>
+</div>
+'''
+
+from v3.components.layout import Section
+overnight_section = Section(title="🌙 隔夜外盘跟踪", content=overnight_html, icon="moon", variant="highlight")
+gen._components.insert(4, overnight_section)
 
 # ============ 6. 投资机会 ============
 gen.add_investment_opportunities([
