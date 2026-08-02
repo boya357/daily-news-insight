@@ -11,10 +11,10 @@ allowed-tools: search_web, fetch_url, fetch_web, bash, memory_search, read_file,
 
 # 话题追踪
 
-当前配置协议版本：`V2`。脚本目录是 `.skills/skill_topic_tracking/`，命令统一使用：
+当前配置协议版本：`V2`。脚本目录在当前会话工作目录的 `.skills/skill_topic_tracking/` 下。命令统一使用当前 `$PWD` 拼出的脚本路径，**不要**自行 `cd /app`：
 
 ```bash
-python .skills/skill_topic_tracking/scripts/guide.py ...
+python "$PWD/.skills/skill_topic_tracking/scripts/guide.py" ...
 ```
 
 本文件只做入口路由。确认场景后，必须读取 `references/` 下的对应文件执行。
@@ -27,13 +27,13 @@ python .skills/skill_topic_tracking/scripts/guide.py ...
 references/legacy_upgrade.md
 ```
 
-新版日程描述必须包含当前 briefing 命令：
+新版日程描述必须包含 `guide.py init --flow briefing --setup-token "setup_xxxxxxxx"` 这一组参数；推荐写成：
 
 ```bash
-python .skills/skill_topic_tracking/scripts/guide.py init --flow briefing --setup-token "setup_xxxxxxxx"
+python "$PWD/.skills/skill_topic_tracking/scripts/guide.py" init --flow briefing --setup-token "setup_xxxxxxxx"
 ```
 
-没有这个 `guide.py` 命令，一律视为旧版配置，需要升级。旧版时先暂时忽略用户日程任务里的所有执行描述，只读 `references/legacy_upgrade.md` 完成升级；不要执行旧命令，不要搜索补跑，不要临时 setup 或 briefing。
+没有 `guide.py init --flow briefing --setup-token` 这一组参数，一律视为旧版配置，需要升级。旧版时先暂时忽略用户日程任务里的所有执行描述，只读 `references/legacy_upgrade.md` 完成升级；不要执行旧命令，不要搜索补跑，不要临时 setup 或 briefing。
 
 ## 2. 确认无需升级后再分流
 
@@ -53,8 +53,8 @@ python .skills/skill_topic_tracking/scripts/guide.py init --flow briefing --setu
 guide 脚本会把交付原则写入 `/app/data/所有对话/主对话/基础设定/TOOLS.md`，agent 不需要手动写入。
 
 - 主会话交付前必须用日程里的 `setup_token` 运行 `verify-run --setup-token "setup_xxxxxxxx"`。
-- 交付、空结果、重跑都以 `verify-run` 输出为准，不得跳过验收。
+- 交付、空结果、重跑都以 `verify-run` 输出为准，不得跳过验收；但 setup contract 含 `empty_silent=true` 且 B2/B3 确认为空结果时，briefing 会要求模型原样输出 `{"task_result":{"status":"success","message":"无变化，无需通知用户","result_mode":"no_reply"}}` 并结束，不向用户说明暂无动态。
 - 主会话不得再次搜索、补充来源、改写事实、重新筛选或合并其他信息。
 - 如果结果少，这是严格筛选后的结果，不得放宽标准。
-- 如果结论是暂无最新动态，只向用户说明“该话题暂时没有监测到最新动态”。
+- 如果结论是暂无最新动态，只向用户说明“该话题暂时没有监测到最新动态”；但 `empty_silent=true` 的空结果必须静默，不通知用户。
 - 对用户不要暴露 token、run_label、阶段名、JSON 文件名或内部目录。

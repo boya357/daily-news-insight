@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>月报 - 投资研究中心</title>
+    <meta name="description" content="A股结构性深度调整 · 科技重挫 · 防御占优">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    
+    
+    <!-- 标准导航栏样式 -->
+    
+        <style>
+            /* Glass-Nav 玻璃态导航栏 */
+            .glass-nav {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 2147483647 !important;
+                background: rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                transition: background 0.3s ease;
+                isolation: isolate !important;
+                pointer-events: auto !important;
+            }
+            
+            .glass-nav.scrolled {
+                background: rgba(0, 0, 0, 0.7);
+            }
+            
+            .glass-nav * {
+                position: relative;
+                z-index: 2147483647 !important;
+                pointer-events: auto !important;
+            }
+            
+            .glass-nav-inner {
+                max-width: 80rem;
+                margin: 0 auto;
+                padding: 0 1rem;
+                height: 60px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            
+            .glass-nav-logo {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                text-decoration: none;
+            }
+            
+            .glass-nav-logo-icon {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+            }
+            
+            .glass-nav-logo-text {
+                color: white;
+                font-weight: 700;
+                font-size: 18px;
+            }
+            
+            .glass-nav-links {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                flex-wrap: wrap;
+            }
+            
+            .glass-nav-link {
+                padding: 6px 12px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 500;
+                color: rgba(255, 255, 255, 0.8);
+                transition: all 0.2s ease;
+            }
+            
+            .glass-nav-link:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.1);
+            }
+            
+            .glass-nav-link.active {
+                color: white;
+                background: rgba(255, 255, 255, 0.15);
+            }
+            
+            .hamburger-btn {
+                display: none;
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 16px;
+                color: white;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            /* 移动端菜单 - 玻璃态深色 */
+            .mobile-menu {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(15, 23, 42, 0.95);
+                backdrop-filter: blur(20px);
+                z-index: 2147483646;
+                flex-direction: column;
+                padding: 80px 24px 24px;
+            }
+            
+            .mobile-menu.show {
+                display: flex;
+            }
+            
+            .mobile-menu-item {
+                padding: 14px 16px;
+                border-radius: 10px;
+                text-decoration: none;
+                font-size: 16px;
+                font-weight: 500;
+                color: rgba(255, 255, 255, 0.8);
+                margin-bottom: 4px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            
+            .mobile-menu-item:hover {
+                color: white;
+                background: rgba(255, 255, 255, 0.1);
+            }
+            
+            .mobile-menu-item.active {
+                color: white;
+                background: rgba(255, 255, 255, 0.15);
+            }
+            
+            .close-menu-btn {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                width: 36px;
+                height: 36px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 16px;
+                color: white;
+            }
+            
+            @media (max-width: 768px) {
+                .glass-nav-links {
+                    display: none;
+                }
+                .hamburger-btn {
+                    display: flex;
+                }
+            }
+        </style>
+        
+    
+    <!-- 动效样式 -->
+    
+<style>
+/* 卡片悬停上浮效果 */
+.card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* 入场淡入上移动画 */
+.fade-in-up {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.fade-in-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 数字滚动动画 */
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 徽章标签系统 */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+.badge-hot {
+    background: linear-gradient(135deg, rgba(245,158,11,0.25) 0%, rgba(217,119,6,0.2) 100%);
+    color: #fbbf24;
+}
+.badge-good {
+    background: linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(5,150,105,0.15) 100%);
+    color: #34d399;
+}
+.badge-risk {
+    background: linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(220,38,38,0.15) 100%);
+    color: #f87171;
+}
+.badge-info {
+    background: linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(37,99,235,0.15) 100%);
+    color: #60a5fa;
+}
+
+/* 表格悬停高亮 */
+.table-hover tbody tr:hover {
+    background: rgba(255,255,255,0.05) !important;
+}
+
+/* 折叠面板 */
+.collapse-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+.collapse-content.open {
+    max-height: 2000px;
+}
+.collapse-toggle {
+    cursor: pointer;
+    user-select: none;
+}
+.collapse-arrow {
+    transition: transform 0.3s ease;
+}
+.collapse-arrow.open {
+    transform: rotate(180deg);
+}
+
+/* 渐变进度条 */
+.progress-gradient {
+    background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%);
+}
+
+/* 玻璃态悬浮效果 */
+.glass-effect {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+</style>
+
+    
+    <!-- 基础样式 -->
+    <style>
+        body {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+            padding-top: 80px;
+        }
+        
+        .content-area {
+            max-width: 64rem;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        /* 报告标题样式 */
+        .report-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+        
+        .report-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .report-header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        /* 内容排版优化 */
+        .prose-content p {
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+        
+        .prose-content h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #1f2937;
+        }
+        
+        .prose-content h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .prose-content ul, .prose-content ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+        
+        .prose-content li {
+            margin-bottom: 0.5rem;
+            line-height: 1.7;
+        }
+        
+        .prose-content strong {
+            color: #1f2937;
+            font-weight: 600;
+        }
+        
+        /* 代码块 */
+        .prose-content code {
+            background: #f3f4f6;
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+        }
+        
+        .prose-content pre {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+        }
+        
+        .prose-content pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+        
+        /* 返回按钮 */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            color: white;
+            opacity: 0.9;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            transition: opacity 0.2s;
+        }
+        
+        .back-button:hover {
+            opacity: 1;
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .report-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            body {
+                padding-top: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+        <nav class="glass-nav">
+            <div class="glass-nav-inner">
+                <a href="/daily-news-insight/index.html" class="glass-nav-logo">
+                    <div class="glass-nav-logo-icon">📊</div>
+                    <span class="glass-nav-logo-text">投资研究中心</span>
+                </a>
+                <div class="glass-nav-links">
+                    
+            <a href="/daily-news-insight/index.html" class="glass-nav-link ">首页</a>
+            <a href="/daily-news-insight/daily/index.html" class="glass-nav-link ">日报</a>
+            <a href="/daily-news-insight/intraday/index.html" class="glass-nav-link ">盘中</a>
+            <a href="/daily-news-insight/aftermarket/index.html" class="glass-nav-link ">盘后</a>
+            <a href="/daily-news-insight/industry_chain/index.html" class="glass-nav-link ">产业链</a>
+            <a href="/daily-news-insight/weekly_review/index.html" class="glass-nav-link ">周复盘</a>
+            <a href="/daily-news-insight/weekend_express/index.html" class="glass-nav-link ">周末速递</a>
+            <a href="/daily-news-insight/tomorrow_catalyst/index.html" class="glass-nav-link ">明日催化</a>
+            <a href="/daily-news-insight/s_level_catalyst/index.html" class="glass-nav-link ">S级催化</a>
+            <a href="/daily-news-insight/monthly/index.html" class="glass-nav-link active">月报</a>
+                </div>
+                <button class="hamburger-btn" onclick="toggleMenu()">
+                    ☰
+                </button>
+            </div>
+        </nav>
+        
+        <!-- 移动端菜单 -->
+        <div class="mobile-menu" id="mobileMenu">
+            <button class="close-menu-btn" onclick="toggleMenu()">✕</button>
+            
+            <a href="/daily-news-insight/index.html" class="mobile-menu-item " onclick="toggleMenu()">首页</a>
+            <a href="/daily-news-insight/daily/index.html" class="mobile-menu-item " onclick="toggleMenu()">日报</a>
+            <a href="/daily-news-insight/intraday/index.html" class="mobile-menu-item " onclick="toggleMenu()">盘中</a>
+            <a href="/daily-news-insight/aftermarket/index.html" class="mobile-menu-item " onclick="toggleMenu()">盘后</a>
+            <a href="/daily-news-insight/industry_chain/index.html" class="mobile-menu-item " onclick="toggleMenu()">产业链</a>
+            <a href="/daily-news-insight/weekly_review/index.html" class="mobile-menu-item " onclick="toggleMenu()">周复盘</a>
+            <a href="/daily-news-insight/weekend_express/index.html" class="mobile-menu-item " onclick="toggleMenu()">周末速递</a>
+            <a href="/daily-news-insight/tomorrow_catalyst/index.html" class="mobile-menu-item " onclick="toggleMenu()">明日催化</a>
+            <a href="/daily-news-insight/s_level_catalyst/index.html" class="mobile-menu-item " onclick="toggleMenu()">S级催化</a>
+            <a href="/daily-news-insight/monthly/index.html" class="mobile-menu-item active" onclick="toggleMenu()">月报</a>
+        </div>
+        
+        <script>
+            function toggleMenu() {
+                const menu = document.getElementById('mobileMenu');
+                menu.classList.toggle('show');
+            }
+            
+            // 导航栏滚动加深效果
+            window.addEventListener('scroll', function() {
+                const nav = document.querySelector('.glass-nav');
+                if (nav) {
+                    if (window.scrollY > 50) {
+                        nav.classList.add('scrolled');
+                    } else {
+                        nav.classList.remove('scrolled');
+                    }
+                }
+            });
+        </script>
+        
+        <div class="content-area">
+            <a href="/daily-news-insight/monthly/index.html" class="back-button">← 返回列表</a>
+            <div class="report-header">
+                <h1>月报</h1>
+                <p class="text-white/80">A股结构性深度调整 · 科技重挫 · 防御占优</p>
+            </div>
+        </div>
+        
+        <div class="content-area">
+            <div class="mb-10 last:mb-0">
+        <div style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(124, 58, 237, 0.1) 100%); 
+                    border: 1px solid rgba(139, 92, 246, 0.3);
+                    border-radius: 14px; 
+                    padding: 16px 20px;
+                    display: flex; align-items: center;">
+            <div style="width: 36px; height: 36px; 
+                        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                        border-radius: 10px; display: flex; align-items: center; 
+                        justify-content: center; margin-right: 14px; flex-shrink: 0;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+                
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="white">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        
+            </div>
+            <div style="flex: 1; font-size: 14px; color: #a5b4fc; line-height: 1.5; font-weight: 500;">
+                <div style="font-weight: 600; margin-bottom: 4px;">月度核心总结</div>
+                7月A股经历了一轮<strong>剧烈的结构性调整</strong>，呈现出典型的"大强小弱、价值占优、成长重挫"格局。
+上证指数月跌6.4%回吐年内全部涨幅，科创50暴跌25.9%创历史最大单月跌幅，创业板指跌23%创逾十年最大单月跌幅。
+<strong>科技成长板块遭遇系统性抛售</strong>：半导体跌36%、CPO跌30%、存储芯片跌32%、液冷板块回撤超50%；
+<strong>防御板块逆势走强</strong>：煤炭涨14%、石油石化涨13%、银行涨12%、食品饮料涨11%。
+驱动因素：海外地缘冲突（美以伊冲突推升油价）、全球科技股共振回调（费城半导体跌20%、韩股跌22%）、
+融资盘强平（单月流出超4100亿）、长鑫科技上市虹吸效应。
+政策托底信号明确：7月政治局会议提出"提升资本市场韧性和信心"，两大国资合计增持超600亿元。
+展望8月：科技板块短期仍有调整压力，但估值已大幅回落，政治局会议政策利好逐步释放，
+建议关注AI算力产业链中报业绩验证、存储芯片周期反转、机器人量产催化等结构性机会。
+            </div>
+        </div>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #f1f5f9; 
+                               margin: 0; line-height: 1.3;">
+                        📊 指数表现
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: rgba(30, 30, 50, 0.5); 
+                        padding: 28px; 
+                        border: 1px solid rgba(255, 255, 255, 0.08);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.05) inset;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+    <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); 
+                border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
+        <div style="font-size: 13px; color: #94a3b8; margin-bottom: 6px;">上证指数</div>
+        <div style="font-size: 22px; font-weight: 700; color: #f1f5f9;">3832.26</div>
+        <div style="display: flex; align-items: center; color: #ef4444; 
+                    font-size: 13px; font-weight: 600; margin-top: 6px;">
+            <span style="margin-right: 4px;">↓</span>
+            <span>-6.40%</span>
+        </div>
+    </div>
+    <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); 
+                border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
+        <div style="font-size: 13px; color: #94a3b8; margin-bottom: 6px;">深证成指</div>
+        <div style="font-size: 22px; font-weight: 700; color: #f1f5f9;">13578.93</div>
+        <div style="display: flex; align-items: center; color: #ef4444; 
+                    font-size: 13px; font-weight: 600; margin-top: 6px;">
+            <span style="margin-right: 4px;">↓</span>
+            <span>-16.21%</span>
+        </div>
+    </div>
+    <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); 
+                border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
+        <div style="font-size: 13px; color: #94a3b8; margin-bottom: 6px;">创业板指</div>
+        <div style="font-size: 22px; font-weight: 700; color: #f1f5f9;">3343.96</div>
+        <div style="display: flex; align-items: center; color: #ef4444; 
+                    font-size: 13px; font-weight: 600; margin-top: 6px;">
+            <span style="margin-right: 4px;">↓</span>
+            <span>-23.00%</span>
+        </div>
+    </div>
+    <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); 
+                border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px;">
+        <div style="font-size: 13px; color: #94a3b8; margin-bottom: 6px;">科创50</div>
+        <div style="font-size: 22px; font-weight: 700; color: #f1f5f9;">1635.96</div>
+        <div style="display: flex; align-items: center; color: #ef4444; 
+                    font-size: 13px; font-weight: 600; margin-top: 6px;">
+            <span style="margin-right: 4px;">↓</span>
+            <span>-25.90%</span>
+        </div>
+    </div></div>
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #f1f5f9; 
+                               margin: 0; line-height: 1.3;">
+                        🏢 行业板块回顾
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: rgba(30, 30, 50, 0.5); 
+                        padding: 28px; 
+                        border: 1px solid rgba(255, 255, 255, 0.08);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.05) inset;">
+                <div style="margin-bottom: 16px;"><div style="font-size: 14px; font-weight: 600; color: #10b981; margin-bottom: 8px;">📈 领涨板块 TOP5</div>
+    <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);
+               border-radius: 10px; padding: 10px 14px; margin-bottom: 6px;">
+        <div style="display: flex; align-items: center;">
+            <span style="font-size: 13px; font-weight: 600; color: #f1f5f9; flex: 1;">煤炭</span>
+            <span style="font-size: 13px; font-weight: 600; color: #10b981;">+14.29%</span>
+        </div>
+        <div style="font-size: 11px; color: #94a3b8; line-height: 1.4; margin-top: 4px;">地缘冲突推升能源价格，高股息防御属性凸显，中煤能源、中国神华领涨</div>
+    </div>
+    <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);
+               border-radius: 10px; padding: 10px 14px; margin-bottom: 6px;">
+        <div style="display: flex; align-items: center;">
+            <span style="font-size: 13px; font-weight: 600; color: #f1f5f9; flex: 1;">石油石化</span>
+            <span style="font-size: 13px; font-weight: 600; color: #10b981;">+12.63%</span>
+        </div>
+        <div style="font-size: 11px; color: #94a3b8; line-height: 1.4; margin-top: 4px;">美伊冲突加剧霍尔木兹海峡风险，国际油价单月涨24%突破90美元</div>
+    </div>
+    <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);
+               border-radius: 10px; padding: 10px 14px; margin-bottom: 6px;">
+        <div style="display: flex; align-items: center;">
+            <span style="font-size: 13px; font-weight: 600; color: #f1f5f9; flex: 1;">银行</span>
+            <span style="font-size: 13px; font-weight: 600; color: #10b981;">+11.57%</span>
+        </div>
+        <div style="font-size: 11px; color: #94a3b8; line-height: 1.4; margin-top: 4px;">资金避险涌入大金融，高股息+低估值双重支撑，国有大行领涨</div>
+    </div>
+    <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);
+               border-radius: 10px; padding: 10px 14px; margin-bottom: 6px;">
+        <div style="display: flex; align-items: center;">
+            <span style="font-size: 13px; font-weight: 600; color: #f1f5f9; flex: 1;">食品饮料</span>
+            <span style="font-size: 13px; font-weight: 600; color: #10b981;">+11%+</span>
+        </div>
+        <div style="font-size: 11px; color: #94a3b8; line-height: 1.4; margin-top: 4px;">白酒板块反弹，消费复苏预期+防御属性获资金青睐</div>
+    </div>
+    <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);
+               border-radius: 10px; padding: 10px 14px; margin-bottom: 6px;">
+        <div style="display: flex; align-items: center;">
+            <span style="font-size: 13px; font-weight: 600; color: #f1f5f9; flex: 1;">贵金属</span>
+            <span style="font-size: 13px; font-weight: 600; color: #10b981;">+25.84%</span>
+        </div>
+        <div style="font-size: 11px; color: #94a3b8; line-height: 1.4; margin-top: 4px;">地缘冲突+降息预期双重催化，黄金价格逼近4000美元/盎司</div>
+    </div></div><div><div style="font-size: 14px; font-weight: 600; color: #ef4444; margin-bottom: 8px;">📉 领跌板块 TOP5</div>
+    <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
+               border-radius: 10px; padding: 10px 14px; margin-bottom: 6px;">
+        <div style="display: flex; align-items: center;">
+            <span style="font-size: 13px; font-weight: 600; color: #f1f5f9; flex: 1;">电子</span>
+            <span style="font-size: 13px; font-weight: 600; color: #ef4444;">-34.72%</span>
+        </div>
+        <div style="font-size: 11px; color: #94a3b8; line-height: 1.4; margin-top: 4px;">AI硬件估值体系重估，全球半导体板块共振回调，融资盘集中爆仓</div>
+    </div>
+    <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
+               border-radius: 10px; padding: 10px 14px; margin-bottom: 6px;">
+        <div style="display: flex; align-items: center;">
+            <span style="font-size: 13px; font-weight: 600; color: #f1f5f9; flex: 1;">通信</span>
+            <span style="font-size: 13px; font-weight: 600; color: #ef4444;">-31.90%</span>
+        </div>
+        <div style="font-size: 11px; color: #94a3b8; line-height: 1.4; margin-top: 4px;">CPO概念退潮，光模块龙头高位回撤超50%，英伟达交易模式遭质疑</div>
+    </div>
+    <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
+               border-radius: 10px; padding: 10px 14px; margin-bottom: 6px;">
+        <div style="display: flex; align-items: center;">
+            <span style="font-size: 13px; font-weight: 600; color: #f1f5f9; flex: 1;">半导体</span>
+            <span style="font-size: 13px; font-weight: 600; color: #ef4444;">-36.45%</span>
+        </div>
+        <div style="font-size: 11px; color: #94a3b8; line-height: 1.4; margin-top: 4px;">产品与设备双双暴跌，长鑫上市虹吸效应+海外科技股回调双重打击</div>
+    </div>
+    <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
+               border-radius: 10px; padding: 10px 14px; margin-bottom: 6px;">
+        <div style="display: flex; align-items: center;">
+            <span style="font-size: 13px; font-weight: 600; color: #f1f5f9; flex: 1;">存储芯片</span>
+            <span style="font-size: 13px; font-weight: 600; color: #ef4444;">-31.89%</span>
+        </div>
+        <div style="font-size: 11px; color: #94a3b8; line-height: 1.4; margin-top: 4px;">HBM概念降温，费城半导体跌20%传导，国产存储龙头高位腰斩</div>
+    </div>
+    <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
+               border-radius: 10px; padding: 10px 14px; margin-bottom: 6px;">
+        <div style="display: flex; align-items: center;">
+            <span style="font-size: 13px; font-weight: 600; color: #f1f5f9; flex: 1;">建筑材料</span>
+            <span style="font-size: 13px; font-weight: 600; color: #ef4444;">-27.9%</span>
+        </div>
+        <div style="font-size: 11px; color: #94a3b8; line-height: 1.4; margin-top: 4px;">地产链持续低迷，需求不振预期拖累建材板块</div>
+    </div></div>
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #f1f5f9; 
+                               margin: 0; line-height: 1.3;">
+                        💼 大类资产表现
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: rgba(30, 30, 50, 0.5); 
+                        padding: 28px; 
+                        border: 1px solid rgba(255, 255, 255, 0.08);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.05) inset;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px;">
+                <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">国际原油(WTI)</div>
+                <div style="font-size: 18px; font-weight: 700; color: #10b981;">+23.95%</div>
+                <div style="font-size: 11px; color: #9ca3af; margin-top: 2px;">美伊冲突+OPEC+减产</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px;">
+                <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">伦敦黄金</div>
+                <div style="font-size: 18px; font-weight: 700; color: #10b981;">+0.94%</div>
+                <div style="font-size: 11px; color: #9ca3af; margin-top: 2px;">避险需求支撑，逼近4000美元</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px;">
+                <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">伦敦铜</div>
+                <div style="font-size: 18px; font-weight: 700; color: #10b981;">+3.16%</div>
+                <div style="font-size: 11px; color: #9ca3af; margin-top: 2px;">美元走弱+需求预期</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px;">
+                <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">恒生指数</div>
+                <div style="font-size: 18px; font-weight: 700; color: #10b981;">+13.13%</div>
+                <div style="font-size: 11px; color: #9ca3af; margin-top: 2px;">政策利好+估值修复</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px;">
+                <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">纳斯达克</div>
+                <div style="font-size: 18px; font-weight: 700; color: #ef4444;">-3.20%</div>
+                <div style="font-size: 11px; color: #9ca3af; margin-top: 2px;">AI交易模式遭质疑</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px;">
+                <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">费城半导体</div>
+                <div style="font-size: 18px; font-weight: 700; color: #ef4444;">-20.61%</div>
+                <div style="font-size: 11px; color: #9ca3af; margin-top: 2px;">全球半导体估值重估</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px;">
+                <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">韩国综合指数</div>
+                <div style="font-size: 18px; font-weight: 700; color: #ef4444;">-22.19%</div>
+                <div style="font-size: 11px; color: #9ca3af; margin-top: 2px;">半导体权重股暴跌</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px;">
+                <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">日经225</div>
+                <div style="font-size: 18px; font-weight: 700; color: #ef4444;">-8.14%</div>
+                <div style="font-size: 11px; color: #9ca3af; margin-top: 2px;">科技股回调拖累</div>
+            </div></div>
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.1 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #f1f5f9; 
+                               margin: 0; line-height: 1.3;">
+                        💼 持仓月度复盘
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(124, 58, 237, 0.1) 100%); 
+                        padding: 28px; 
+                        border: 1px solid rgba(139, 92, 246, 0.2);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(79, 70, 229, 0.15), 0 1px 0 rgba(255, 255, 255, 0.05) inset;">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+               border-radius: 12px; padding: 16px;">
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 15px; font-weight: 700; color: #f1f5f9; flex: 1;">英维克 (002837)</span>
+            <span style="font-size: 16px; font-weight: 700; color: #ef4444;">-40.36%</span>
+        </div>
+        <div style="display: flex; gap: 16px; margin-bottom: 8px; font-size: 12px; color: #94a3b8;">
+            <span>月初: 79.56元</span>
+            <span>月末: 47.45元</span>
+        </div>
+        <div style="font-size: 12px; color: #cbd5e1; line-height: 1.6;">液冷总龙头深度回调，从6月高点93.52元回撤近50%。7月20日跌停开启加速下跌，主力资金连续20日净流出累计约24亿。液冷板块随AI硬件系统性崩盘，一季度业绩不及预期（净利降82%），高估值泡沫被刺破。严格执行止损纪律，任何反弹都是离场机会。</div>
+    </div>
+    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+               border-radius: 12px; padding: 16px;">
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 15px; font-weight: 700; color: #f1f5f9; flex: 1;">铜冠铜箔 (301217)</span>
+            <span style="font-size: 16px; font-weight: 700; color: #ef4444;">-49.95%</span>
+        </div>
+        <div style="display: flex; gap: 16px; margin-bottom: 8px; font-size: 12px; color: #94a3b8;">
+            <span>月初: 165.07元</span>
+            <span>月末: 82.62元</span>
+        </div>
+        <div style="font-size: 12px; color: #cbd5e1; line-height: 1.6;">铜箔板块重灾区，从202元高点腰斩。存储PCB产业链整体回调，虽然一季度业绩暴增2138%，但高增长预期已充分定价。7月30日跌8.57%探底77.28元，7月最后一日反弹3.91%。85元为关键支撑位，跌破则趋势完全破位。</div>
+    </div>
+    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+               border-radius: 12px; padding: 16px;">
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 15px; font-weight: 700; color: #f1f5f9; flex: 1;">雅克科技 (002409)</span>
+            <span style="font-size: 16px; font-weight: 700; color: #ef4444;">-40.40%</span>
+        </div>
+        <div style="display: flex; gap: 16px; margin-bottom: 8px; font-size: 12px; color: #94a3b8;">
+            <span>月初: 224.50元</span>
+            <span>月末: 133.80元</span>
+        </div>
+        <div style="font-size: 12px; color: #cbd5e1; line-height: 1.6;">HBM前驱体龙头剧烈震荡，月初最高236元→中旬最低143元→下旬反包至169元→月末再跌回134元。7月29-31日连续三日跌幅偏离值超20%触发异常波动公告。HBM长期逻辑未变但短期估值偏高，中报业绩验证是关键催化剂。跌破150元需大幅减仓。</div>
+    </div>
+    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+               border-radius: 12px; padding: 16px;">
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 15px; font-weight: 700; color: #f1f5f9; flex: 1;">*ST建艺 (002789)</span>
+            <span style="font-size: 16px; font-weight: 700; color: #ef4444;">-17.14%</span>
+        </div>
+        <div style="display: flex; gap: 16px; margin-bottom: 8px; font-size: 12px; color: #94a3b8;">
+            <span>月初: 11.55元</span>
+            <span>月末: 9.57元</span>
+        </div>
+        <div style="font-size: 12px; color: #cbd5e1; line-height: 1.6;">ST退市风险股持续阴跌，新增诉讼仲裁累计超4400万占净资产21%。一季度巨亏5300万，负债率94%，债务问题严峻。7月最后一日涨8.5%至9.57元，但退市风险未消除。最高优先级清仓止损，绝不恋战。</div>
+    </div></div>
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #f1f5f9; 
+                               margin: 0; line-height: 1.3;">
+                        📰 月度重大事件
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: rgba(30, 30, 50, 0.5); 
+                        padding: 28px; 
+                        border: 1px solid rgba(255, 255, 255, 0.08);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.05) inset;">
+                
+<div style="display: flex; flex-direction: column; gap: 10px;">
+    <div style="background: rgba(99,102,241,0.1); border-left: 3px solid #6366f1; padding: 12px 16px; border-radius: 0 8px 8px 0;">
+        <div style="font-size: 13px; font-weight: 600; color: #a5b4fc; margin-bottom: 4px;">7月30日 · 中央政治局会议</div>
+        <div style="font-size: 12px; color: #cbd5e1; line-height: 1.6;">提出"提升资本市场韧性和信心""稳定房地产市场"，明确"实施好更加积极的财政政策和适度宽松的货币政策"。新增"深化资本市场投融资综合改革"表述，释放稳预期强信号。</div>
+    </div>
+    <div style="background: rgba(99,102,241,0.1); border-left: 3px solid #6366f1; padding: 12px 16px; border-radius: 0 8px 8px 0;">
+        <div style="font-size: 13px; font-weight: 600; color: #a5b4fc; margin-bottom: 4px;">7月19日 · 国资密集增持</div>
+        <div style="font-size: 12px; color: #cbd5e1; line-height: 1.6;">中国国新、中国诚通两大国有资本运营公司合计投入超600亿元增持A股，明确表态坚定看好中国资本市场发展前景，政策底信号明确。</div>
+    </div>
+    <div style="background: rgba(239,68,68,0.1); border-left: 3px solid #ef4444; padding: 12px 16px; border-radius: 0 8px 8px 0;">
+        <div style="font-size: 13px; font-weight: 600; color: #fca5a5; margin-bottom: 4px;">7月中下旬 · 全球科技股暴跌</div>
+        <div style="font-size: 12px; color: #cbd5e1; line-height: 1.6;">费城半导体指数月跌20.6%，韩国综合指数跌22.2%，日经225跌8.1%。导火索是英伟达7500亿美元AI交易引发"循环融资"模式质疑，全球AI硬件估值体系重估。</div>
+    </div>
+    <div style="background: rgba(245,158,11,0.1); border-left: 3px solid #f59e0b; padding: 12px 16px; border-radius: 0 8px 8px 0;">
+        <div style="font-size: 13px; font-weight: 600; color: #fcd34d; margin-bottom: 4px;">7月 · 美以伊冲突升级</div>
+        <div style="font-size: 12px; color: #cbd5e1; line-height: 1.6;">霍尔木兹海峡运输风险升温，国际油价单月大涨24%突破90美元，推升美国通胀预期，美联储维持鹰派立场，十年期美债收益率冲击年内次高。</div>
+    </div>
+    <div style="background: rgba(16,185,129,0.1); border-left: 3px solid #10b981; padding: 12px 16px; border-radius: 0 8px 8px 0;">
+        <div style="font-size: 13px; font-weight: 600; color: #6ee7b7; margin-bottom: 4px;">7月 · 长鑫科技上市</div>
+        <div style="font-size: 12px; color: #cbd5e1; line-height: 1.6;">国产存储龙头长鑫科技登陆科创板，首日涨465%收49元，市值3.28万亿登顶A股。MSCI快速纳入（8/10生效），对存量科技股形成资金虹吸效应。</div>
+    </div>
+    <div style="background: rgba(99,102,241,0.1); border-left: 3px solid #6366f1; padding: 12px 16px; border-radius: 0 8px 8px 0;">
+        <div style="font-size: 13px; font-weight: 600; color: #a5b4fc; margin-bottom: 4px;">7月31日 · 7月PMI数据</div>
+        <div style="font-size: 12px; color: #cbd5e1; line-height: 1.6;">制造业PMI降至49.2%（前值50.3%），非制造业PMI 49.0%，双双跌破荣枯线。高技术制造业PMI 53.3%仍保持扩张，新旧动能转换持续。</div>
+    </div>
+    <div style="background: rgba(139,92,246,0.1); border-left: 3px solid #8b5cf6; padding: 12px 16px; border-radius: 0 8px 8px 0;">
+        <div style="font-size: 13px; font-weight: 600; color: #c4b5fd; margin-bottom: 4px;">7月中旬 · 世界人工智能大会</div>
+        <div style="font-size: 12px; color: #cbd5e1; line-height: 1.6;">习近平提出"人工智能是世界经济增长的新引擎和新旧动能转换的加速器"。上半年集成电路产量2798亿块增23.1%，工业机器人增28%，AI产业持续高景气。</div>
+    </div>
+</div>
+
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #f1f5f9; 
+                               margin: 0; line-height: 1.3;">
+                        💰 资金面全景
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: rgba(30, 30, 50, 0.5); 
+                        padding: 28px; 
+                        border: 1px solid rgba(255, 255, 255, 0.08);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.05) inset;">
+                
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px;">
+        <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">月日均成交额</div>
+        <div style="font-size: 20px; font-weight: 700; color: #f1f5f9;">2.70万亿</div>
+        <div style="font-size: 11px; color: #9ca3af; margin-top: 2px;">较6月3.13万亿明显萎缩</div>
+    </div>
+    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px;">
+        <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">融资余额变化</div>
+        <div style="font-size: 20px; font-weight: 700; color: #ef4444;">-4126亿</div>
+        <div style="font-size: 11px; color: #9ca3af; margin-top: 2px;">单月锐减近14%，杠杆资金强平</div>
+    </div>
+    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px;">
+        <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">股票ETF净流入</div>
+        <div style="font-size: 20px; font-weight: 700; color: #10b981;">+5023亿</div>
+        <div style="font-size: 11px; color: #9ca3af; margin-top: 2px;">年内首次月度净申购，创历史新高</div>
+    </div>
+    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 14px;">
+        <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;">主力资金流出</div>
+        <div style="font-size: 20px; font-weight: 700; color: #ef4444;">-11001亿</div>
+        <div style="font-size: 11px; color: #9ca3af; margin-top: 2px;">全市场主力资金大幅出逃</div>
+    </div>
+</div>
+<div style="margin-top: 12px; font-size: 12px; color: #94a3b8; line-height: 1.6;">
+    <strong style="color: #cbd5e1;">资金面特征：</strong>7月呈现典型的"杠杆资金出逃+ETF逆势抄底"背离格局。融资盘单月暴减4100亿是市场急跌的重要推手，
+    而宽基ETF获得5000亿净流入创历史新高，显示中长期机构资金在下跌中逆势布局。银行板块获主力资金+632亿净流入居首，
+    电子行业融资净卖出1493亿元居首，但半导体板块主力资金口径获+340亿净流入——主力与杠杆资金在科技板块操作方向完全相反。
+</div>
+
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #f1f5f9; 
+                               margin: 0; line-height: 1.3;">
+                        🎯 月度投资策略
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: rgba(30, 30, 50, 0.5); 
+                        padding: 28px; 
+                        border: 1px solid rgba(255, 255, 255, 0.08);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.05) inset;">
+                <div style="line-height: 1.8; color: #e2e8f0; font-size: 14px;"><strong>7月策略回顾与反思：</strong><br>
+7月科技板块遭遇系统性估值重估，持仓4只标的全线深度回调，组合回撤幅度远超预期。
+核心教训：<strong>①</strong>高位科技股风险敞口过大，缺乏防御板块对冲；
+<strong>②</strong>止损纪律执行不坚决，英维克破止损后未及时清仓导致亏损扩大；
+<strong>③</strong>对全球科技股共振回调风险预判不足，对地缘冲突传导效应估计偏低；
+<strong>④</strong>ST股风险敞口未及时关闭，*ST建艺浮亏持续扩大。
+<br><br>
+<strong>8月操作策略：</strong><br>
+1. <strong>仓位控制：</strong>整体仓位控制在3成以内，现金为王，等待市场明确企稳信号（缩量+止跌+量价配合反弹）<br>
+2. <strong>持仓处理：</strong>英维克/铜冠铜箔趁反弹坚决减仓，雅克科技跌破150元减至底仓，*ST建艺立即清仓<br>
+3. <strong>防御配置：</strong>适度增加高股息红利板块（银行/煤炭/公用事业）作为组合压舱石，对冲科技波动风险<br>
+4. <strong>重点跟踪：</strong>中报业绩验证（尤其是AI算力产业链）、美联储9月降息预期、政治局会议政策落地进展<br>
+5. <strong>关注机会：</strong>存储芯片周期反转（HBM+DDR5）、人形机器人量产催化、国产半导体设备国产化加速</div>
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <section style="margin-bottom: 32px;">
+            
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                
+                <div style="width: 40px; height: 40px; 
+                            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                            border-radius: 12px; display: flex; align-items: center; 
+                            justify-content: center; margin-right: 14px; flex-shrink: 0;
+                            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                    
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        
+                </div>
+                
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: 20px; font-weight: 700; color: #f1f5f9; 
+                               margin: 0; line-height: 1.3;">
+                        🔮 下月市场展望
+                    </h2>
+                    
+                </div>
+                
+            </div>
+            
+            <div style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(124, 58, 237, 0.1) 100%); 
+                        padding: 28px; 
+                        border: 1px solid rgba(139, 92, 246, 0.2);
+                        border-radius: 20px;
+                        box-shadow: 0 4px 16px rgba(79, 70, 229, 0.15), 0 1px 0 rgba(255, 255, 255, 0.05) inset;">
+                <div style="line-height: 1.8; color: #e2e8f0; font-size: 14px;"><strong>8月市场展望：震荡筑底，结构分化</strong><br><br>
+<strong>📈 乐观情景（概率30%）：</strong>政治局会议政策加速落地，8月LPR降息+财政增量政策出台，市场情绪快速修复，
+科创50引领反弹，AI算力+存储+HBM主线回归，指数有望收复7月失地的50%。<br><br>
+<strong>📊 基准情景（概率50%）：</strong>政策利好逐步消化但增量有限，市场震荡筑底，
+科技板块在当前位置反复磨底，防御板块继续占优，指数在当前区间震荡整理。
+中报业绩成为个股分化核心变量，业绩验证的标的率先企稳反弹。<br><br>
+<strong>📉 悲观情景（概率20%）：</strong>地缘冲突进一步升级，油价破百推升全球通胀，
+美联储降息预期推迟，全球科技股继续下行，A股科技板块再下一个台阶，
+沪指考验3600点支撑。需警惕融资盘二次爆仓风险。<br><br>
+<strong>🔑 8月关键变量：</strong>
+① 中报业绩披露（8月中下旬密集期）；
+② 美联储9月降息预期变化；
+③ 政治局会议配套政策落地节奏；
+④ 中美关系与地缘冲突演变；
+⑤ 长鑫科技纳入MSCI后的资金流向。</div>
+            </div>
+        </section>
+        </div>
+<div class="mb-10 last:mb-0">
+        <div style="background: linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(234,88,12,0.08) 100%); 
+                    border: 1px solid rgba(245, 158, 11, 0.2);
+                    border-radius: 14px; 
+                    padding: 18px 20px;
+                    margin: 16px 0;">
+            <div style="display: flex; align-items: flex-start;">
+                <span style="font-size: 20px; margin-right: 12px; flex-shrink: 0; margin-top: -2px;">
+                    ⚠️
+                </span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; color: #fbbf24; 
+                               font-size: 14px; margin-bottom: 6px;">
+                        ⚠️ 风险提示
+                    </div>
+                    <div style="color: #b45309; 
+                               font-size: 13px; line-height: 1.6;">
+                        地缘冲突升级风险：美以伊冲突可能进一步扩大，推升油价和全球通胀预期；美联储政策转向风险：若通胀反弹，降息预期推迟将压制科技股估值；中报业绩不及预期风险：AI算力产业链高增长能否兑现存在不确定性；融资盘强平风险：若市场继续下跌，杠杆资金平仓可能引发踩踏；退市风险：*ST建艺退市风险未消除，持仓需立即处理；外部冲击风险：全球科技股估值重估向A股传导的溢出效应
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        </div>
+        
+        <footer style="max-width: 64rem; margin: 40px auto 0; 
+                     padding: 32px 24px;
+                     border-top: 1px solid rgba(0, 0, 0, 0.06);">
+            <div style="text-align: center; color: #9ca3af; font-size: 13px; line-height: 1.8;">
+                <div style="margin-bottom: 8px;">
+                    <span style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+                               -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                               font-weight: 700; font-size: 16px;">投资研究中心</span>
+                </div>
+                <div>AI驱动 · 数据驱动 · 价值投资</div>
+                <div style="margin-top: 8px; font-size: 12px;">
+                    投资有风险，入市需谨慎。本报告仅供参考，不构成投资建议。
+                </div>
+            </div>
+        </footer>
+        
+
+<script>
+// 入场动画 - 滚动时触发
+document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+    
+    // 观察所有带fade-in-up类的元素
+    document.querySelectorAll('.fade-in-up').forEach(el => {
+        observer.observe(el);
+    });
+});
+
+// 数字滚动动画
+function animateNumber(element, target, duration = 1500) {
+    const start = 0;
+    const startTime = performance.now();
+    
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // 缓动函数 - easeOutExpo
+        const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+        const current = Math.floor(start + (target - start) * easeProgress);
+        
+        element.textContent = current.toLocaleString();
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    
+    requestAnimationFrame(update);
+}
+
+// 折叠面板切换
+function toggleCollapse(id) {
+    const content = document.getElementById('collapse-' + id);
+    const arrow = document.getElementById('collapse-arrow-' + id);
+    
+    if (content.classList.contains('open')) {
+        content.classList.remove('open');
+        arrow.classList.remove('open');
+    } else {
+        content.classList.add('open');
+        arrow.classList.add('open');
+    }
+}
+</script>
+
+</body>
+</html>
