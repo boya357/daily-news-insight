@@ -285,5 +285,5 @@ gen.add_evening_news(news_list=[
 gen.add_earnings_forecast()
 
 # 生成并发布
-result = gen.publish()
+result = gen.publish(docs_root="/root/daily-news-insight/docs")
 print("发布结果:", result)
