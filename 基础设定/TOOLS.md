@@ -3,8 +3,8 @@
 ## 数据验证铁律
 **任何数据必须反复验证后才能写入报告，绝对不能凭记忆或未经核实直接引用！**
 
-## 核心检查清单（每日工作必看）
-1. **价格数据**：必须查当日收盘价，禁历史数据
+## 每日必看检查清单
+1. **价格数据**：必查当日收盘价，禁历史数据
 2. **目录检查**：先`ls docs/`确认，禁建"催化日历"目录
 3. **列表页保护**：`latest.html`>3KB，绝对禁全文件覆盖
 4. **列表页更新**：读→插新卡片→原"最新"改普通标签
@@ -42,7 +42,7 @@
 ## 三大绝对禁令
 1. **禁止覆盖**：`latest.html`、首页`index.html` 禁止全量覆盖
 2. **禁止自制模板**：必须用Pro生成器或复制标准模板
-3. **禁止假数据**：价格数据必须查当日真实数据
+3. **禁止假数据**：价格数据必查当日真实数据
 
 ---
 
@@ -88,18 +88,18 @@
 - 注意：用户说的"tap按钮"即tab标签切换按钮
 - 实现方式：news-tabs-container + news-tab-btn + news-tab-panel 类名 + switchNewsTab JS函数
 - 位置：daily_pro.py 的 add_important_news() 方法
-- 禁止`git merge -X theirs`，会残留冲突标记
-- 优先手动解决，或`git reset --hard origin/main`回退
+- 禁止`git merge -X theirs`，优先手动解决冲突
+- **报告文件名强制带.html后缀**：GitHub Pages站点所有HTML报告必须校验文件名带.html，否则会被识别为二进制文件触发浏览器下载，列表页引用链接同步带完整后缀
 
 ---
 
 ## 数据层要点
-- 双数据源同步：`data/`（本地）↔ `docs/data/`（部署）
-- 字段兼容：price/current_price、change_pct/today_change、sectors_hot/hot_sectors
-- 校验规则：上证指数3000-5000点区间，异常值需二次验证
+- 双数据源同步：本地data/ ↔ 部署docs/data/
+- 字段兼容：常用别名字段自动兼容
+- 上证指数校验区间3000-5000点
 
 ## Pro生成器使用注意
-独立生成器方法签名不统一，调用前先grep查公开方法，避免硬编码错误。
-- **调度健康检查**：三重校验任务触发，漏发告警。详见 基础设定/experience/scheduler_health_check.md
-GitHub Pages CDN缓存旧页可空提交刷新。调度健康检查file_check用绝对路径，避免漏报误判。
-- **markdown-it H标签正则避坑**：贪婪替换h标签属性会丢闭合标签，逐次匹配处理。详见 基础设定/experience/markdown_it_h_tag_regex_fix.md
+独立生成器签名不统一，调用前先grep查公开方法，避免硬编码错误。
+- 调度健康检查：三重校验任务触发，漏发告警。详见对应experience文件
+GitHub Pages旧页CDN缓存可空提交刷新，file_check用绝对路径避免漏报误判。
+- markdown-it H标签正则避坑：贪婪替换会丢闭合标签，逐次匹配处理。详见 基础设定/experience/markdown_it_h_tag_regex_fix.md
