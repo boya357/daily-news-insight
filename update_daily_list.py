@@ -313,7 +313,7 @@ def main():
     final_html = PAGE_TEMPLATE.replace('__REPORT_CARDS__', '\n'.join(report_cards))
     
     # 5. 写入文件
-    output_path = f'{daily_dir}/latest.html'
+    output_path = f'{daily_dir}/index.html'
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(final_html)
     
