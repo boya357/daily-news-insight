@@ -303,12 +303,12 @@ def main():
     # 4. 插入到模板中（用replace而不是format，避免CSS中的大括号被误解析）
     final_html = PAGE_TEMPLATE.replace('{report_cards}', '\n'.join(report_cards))
     
-    # 5. 写入文件
-    output_path = f'{industry_dir}/latest.html'
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(final_html)
-    
-    print(f'✅ 已写入 {output_path}')
+    # 5. 写入文件（latest.html + index.html 双写，遵循列表页新铁规）
+    for fname in ('latest.html', 'index.html'):
+        output_path = f'{industry_dir}/{fname}'
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(final_html)
+        print(f'✅ 已写入 {output_path}')
     print(f'✅ 布局完全固定，只自动更新了报告卡片')
 
 if __name__ == '__main__':
