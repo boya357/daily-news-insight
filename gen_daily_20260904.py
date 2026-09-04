@@ -1,0 +1,670 @@
+#!/usr/bin/env python3
+"""2026年9月4日 每日新闻洞察生成 - 周五"""
+import sys, os, json
+WORK_DIR = '/root/daily-news-insight'
+sys.path.insert(0, os.path.join(WORK_DIR, 'v3'))
+from generators.daily_pro import DailyReportProGenerator
+
+gen = DailyReportProGenerator(
+    date_str='2026年9月4日', weekday='星期五',
+    subtitle='2026年9月4日 周五 · 美联储沃勒鸽派表态美股大涨·英伟达129亿美元收购Hugging Face·OpenAI发布GPT-6·液冷散热华为TMU催化·MLCC三星万亿订单·长江存储IPO已问询',
+    data_dir=os.path.join(WORK_DIR, 'data')
+)
+
+def render_cards(items):
+    out = ''
+    for i in items:
+        c = 'text-red-400' if i['up'] else 'text-green-400'
+        bg = 'from-red-500/20 to-orange-500/10 border-red-500/20' if i['up'] else 'from-green-500/20 to-emerald-500/10 border-green-500/20'
+        out += '<div class="bg-gradient-to-br %s border rounded-lg p-3 text-center transition-all duration-300 hover:scale-105"><div class="text-xs text-white/60 mb-1">%s</div><div class="text-sm font-bold %s">%s</div></div>' % (bg, i['name'], c, i['change'])
+    return out
+
+def render_list(items):
+    out = ''
+    for i in items:
+        c = 'text-red-400' if i['up'] else 'text-green-400'
+        out += '<div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0"><span class="text-sm text-white/70">%s</span><span class="text-sm font-semibold %s">%s</span></div>' % (i['name'], c, i['change'])
+    return out
+
+
+gen.set_tldr(
+    key_points=[
+        '美联储理事沃勒释放鸽派信号：若通胀确认降温将支持9月维持利率不变，交易员加息押注从63%降至60%，美债收益率回落、美元指数下跌0.69%，美股三大指数集体大涨（道指+1.18%、纳指+1.40%、标普+1.06%）',
+        '英伟达宣布以129.3亿美元收购全球最大AI开源社区Hugging Face，AI平台整合提速；OpenAI正式发布GPT-6，定位AGI研发里程碑，擅长代理用户操作电脑',
+        '科技七巨头全线走强：特斯拉+5.42%领跑，Meta+3.01%、微软+2.68%、英伟达+1.80%；芯片股涨跌互现，费半+0.11%；博通-2.74%、阿斯麦-2.15%、AMD-0.20%',
+        '华为发布《AI使能液冷TMU技术报告》，CDU升级为TMU，液冷散热再获催化；三星电机签1.07万亿韩元AI服务器MLCC供应合同（2027全年），MLCC景气延续；长江存储IPO审核状态变更为"已问询"',
+        'A股9月3日缩量十字星：沪指+0.02%收3942点，成交1.76万亿再缩323亿，超3500股下跌，液冷服务器概念+1.84%领涨（集泰股份4连板、金帝股份4天3板），贵金属/航运强势；今晚20:30美国8月非农数据公布，为下周美联储议息关键指引'
+    ],
+    operation_advice='周五开盘策略：美股大涨+美联储鸽派+科技催化，A股大概率高开，但周五效应+缩量+高位股退潮，高开后大概率分化，追高需谨慎。核心操作：①英维克液冷华为TMU直接催化，昨日+3.41%收68.49元（主力净流入1.53亿），关注70-73元压力，反弹至75元上方减仓机动仓，破65元止损；②铜冠铜箔连续3日下跌（-3.72%收104.84元，3日主力净流出7.54亿），PCB铜箔中期逻辑仍在但短期获利盘兑现，反弹108-112元减仓，破100元止盈；③雅克科技+0.58%收131.6元，HBM前驱体+长鑫存储IPO双重催化，135-140元压力，破128元减仓；④*ST建艺+0.43%收11.77元，蚌埠融兴撤诉是小利好但退市风险未解除，反弹12元上方坚决清仓；⑤液冷散热华为TMU是今日最强催化，但集泰股份4连板已高，关注低位补涨；⑥MLCC/长江存储催化半导体材料/设备；⑦今晚非农数据是关键变盘点，仓位控制5成以内，不追高、逢高减仓过周末',
+    risk_level='中等',
+    suggested_position='4-5成'
+)
+
+gen.set_quick_anchors([
+    {'id': 'section-隔夜全球市场深度解读', 'title': '全球市场', 'icon': '🌍'},
+    {'id': 'section-A股昨日复盘与今日展望', 'title': 'A股复盘', 'icon': '📊'},
+    {'id': 'section-核心题材与今日催化', 'title': '核心题材', 'icon': '🔥'},
+    {'id': 'section-持仓诊断与操作建议', 'title': '持仓诊断', 'icon': '💼'},
+    {'id': 'section-空方视角与多空博弈', 'title': '空方视角', 'icon': '⚖️'},
+    {'id': 'section-预判验证闭环', 'title': '预判验证', 'icon': '🔮'},
+    {'id': 'section-教训库引用', 'title': '教训库', 'icon': '📚'},
+])
+
+gen.set_holdings([
+    {'name': '英维克', 'code': '002837'},
+    {'name': '铜冠铜箔', 'code': '301217'},
+    {'name': '雅克科技', 'code': '002409'},
+    {'name': '*ST建艺', 'code': '002789'},
+])
+
+gen.set_og(
+    description='每日新闻洞察 2026年9月4日：美联储沃勒鸽派表态美股大涨、英伟达129亿美元收购Hugging Face、OpenAI发布GPT-6、华为液冷TMU催化、MLCC三星万亿订单、长江存储IPO已问询',
+)
+
+gen.add_global_market()
+
+global_cards1 = render_cards([
+    {"name":"道琼斯","change":"+1.18%","up":True},
+    {"name":"标普500","change":"+1.06%","up":True},
+    {"name":"纳斯达克","change":"+1.40%","up":True},
+    {"name":"费城半导体","change":"+0.11%","up":True},
+    {"name":"日经225","change":"-0.90%","up":False},
+    {"name":"恒生指数","change":"-0.39%","up":False},
+])
+global_list1 = render_list([
+    {"name":"WTI原油","change":"+0.37%/$91.64","up":True},
+    {"name":"布伦特原油","change":"+0.24%/$95.75","up":True},
+    {"name":"COMEX黄金","change":"-0.37%/$4522.92","up":False},
+    {"name":"COMEX白银","change":"-0.31%/$67.49","up":False},
+])
+global_list2 = render_list([
+    {"name":"三星电子","change":"-0.20%/250000KRW","up":False},
+    {"name":"SK海力士","change":"-1.05%/1596000KRW","up":False},
+    {"name":"美光科技","change":"+0.22%/$958.16","up":True},
+    {"name":"台积电ADR","change":"+0.36%/$417.01","up":True},
+])
+global_list3 = render_list([
+    {"name":"英伟达","change":"+1.80%/$228.45","up":True},
+    {"name":"AMD","change":"-0.20%/$456.16","up":False},
+    {"name":"微软","change":"+2.68%/$510.12","up":True},
+    {"name":"苹果","change":"+1.00%/$328.21","up":True},
+    {"name":"博通","change":"-2.74%/$357.16","up":False},
+    {"name":"英特尔","change":"+1.80%/$91.67","up":True},
+    {"name":"应用材料","change":"-0.58%/$435.91","up":False},
+    {"name":"阿斯麦","change":"-2.15%/$1646.19","up":False},
+])
+
+global_html = '''
+<div class="grid md:grid-cols-3 gap-4">
+  <div class="md:col-span-2">
+    <div class="text-white font-semibold mb-3 flex items-center gap-2"><span>🌍</span><span>隔夜全球市场 · 沃勒鸽派引爆美股·英伟达129亿收购HuggingFace·GPT-6发布·华为液冷催化</span></div>
+    <div class="grid grid-cols-3 md:grid-cols-6 gap-2">{0}</div>
+    <p class="text-xs text-white/50 mt-3 leading-relaxed">
+      ⚡ <b class="text-yellow-400">核心要点：美联储理事沃勒释放鸽派信号（若通胀降温将支持9月维持利率不变），交易员加息押注从63%降至60%，美股三大指数集体大涨超1%，纳指+1.4%领涨；科技七巨头全线走强，特斯拉+5.42%领跑；英伟达宣布129.3亿美元收购Hugging Face；OpenAI发布GPT-6；中概股多数走弱。</b>来源：第一财经、财联社、韭研公社、华尔街见闻<br>
+      ①<b>美联储沃勒鸽派表态，加息预期大幅降温</b>：<br>
+      ·美联储理事沃勒表示"近期数据显示通胀正在出现缓和迹象，若通胀继续朝2%目标取得进展，愿意支持维持政策利率"<br>
+      ·交易员9月加息押注从63%降至60%，一度低至50.4%；10年期美债收益率回落，美元指数跌0.69%<br>
+      ·初请失业金20.6万人高于预期，劳动力市场降温信号显现<br>
+      ·<b>今晚20:30美国8月非农数据</b>公布，为9月议息会议最关键数据（若低于预期将进一步压低加息预期）<br>
+      ②<b>英伟达129.3亿美元收购Hugging Face</b>：<br>
+      ·英伟达宣布以约129.3亿美元收购全球最大AI开源社区平台Hugging Face<br>
+      ·AI平台整合提速，从芯片→模型→社区全链条布局，强化AI生态护城河<br>
+      ·英伟达收+1.80%报228.45美元；微软+2.68%领涨七巨头<br>
+      ③<b>OpenAI正式发布GPT-6</b>：<br>
+      ·OpenAI发布新一代大模型GPT-6，定位AGI研发关键里程碑<br>
+      ·总裁布罗克曼称"标志着人们可以委托给AI的工作类型一次真正转变"，尤其擅长代表用户操作电脑<br>
+      ④<b>科技七巨头全线走强，芯片股分化</b>：<br>
+      ·特斯拉+5.42%、Meta+3.01%、微软+2.68%、谷歌+1.59%、亚马逊+1.54%、苹果+1.00%、英伟达+1.80%<br>
+      ·费半仅+0.11%，芯片股分化明显：英特尔+1.80%、美光+0.22%、台积电ADR+0.36%；博通-2.74%、阿斯麦-2.15%、AMD-0.20%<br>
+      ·存储股分化：希捷-1.23%、西部数据-1.63%、闪迪+0.10%；光通信走弱：Lumentum-2.67%、Coherent-1.57%<br>
+      ⑤<b>中概股多数走弱，纳斯达克金龙指数-0.81%</b>：<br>
+      ·百度+1.31%、小鹏+0.54%、理想+0.42%、哔哩哔哩+0.32%<br>
+      ·携程-5.11%、网易-1.63%、拼多多-0.75%、京东-0.32%<br>
+      ⑥<b>大宗商品：原油小涨、黄金小幅回调</b>：<br>
+      ·WTI原油91.64美元（+0.37%）、布伦特95.75美元（+0.24%）<br>
+      ·COMEX黄金4522.92美元（-0.37%），此前黄金现货涨2.07%创新高后获利了结<br>
+      ·高盛维持年底黄金4900美元目标，RBC看好5000美元大关<br>
+      ⑦<b>日韩股市：日经-0.90%、韩股SK海力士-1.05%承压</b>：<br>
+      ·LG新能源+5.18%、起亚+2.41%、现代+1.46%<br>
+    </p>
+  </div>
+  <div class="space-y-4">
+    <div>
+    <div class="text-white font-semibold mb-3 flex items-center gap-2"><span>🛢️</span><span>大宗商品</span></div>
+      <div class="bg-white/5 rounded-lg p-3">{1}</div>
+    </div>
+    <div>
+    <div class="text-white font-semibold mb-3 flex items-center gap-2"><span>🇰🇷</span><span>韩股存储双雄</span></div>
+      <div class="bg-white/5 rounded-lg p-3">{2}</div>
+    </div>
+    <div>
+    <div class="text-white font-semibold mb-3 flex items-center gap-2"><span>💻</span><span>美股科技龙头</span></div>
+      <div class="bg-white/5 rounded-lg p-3">{3}</div>
+    </div>
+  </div>
+</div>'''.format(global_cards1, global_list1, global_list2, global_list3)
+gen.add_section("隔夜全球市场深度解读", global_html, "🌍")
+
+ashare_html = '''
+<div class="space-y-4">
+<div class="grid md:grid-cols-4 gap-3">
+  <div class="bg-gradient-to-br from-red-500/20 to-orange-500/10 border border-red-500/30 rounded-xl p-3 text-center">
+    <div class="text-xs text-white/60 mb-1">上证指数</div>
+    <div class="text-xl font-bold text-red-400">3942.09</div>
+    <div class="text-xs text-red-400">+0.02%</div>
+  </div>
+  <div class="bg-gradient-to-br from-red-500/20 to-orange-500/10 border border-red-500/30 rounded-xl p-3 text-center">
+    <div class="text-xs text-white/60 mb-1">深证成指</div>
+    <div class="text-xl font-bold text-red-400">13625.12</div>
+    <div class="text-xs text-red-400">+0.10%</div>
+  </div>
+  <div class="bg-gradient-to-br from-red-500/20 to-orange-500/10 border border-red-500/30 rounded-xl p-3 text-center">
+    <div class="text-xs text-white/60 mb-1">创业板指</div>
+    <div class="text-xl font-bold text-red-400">3312.54</div>
+    <div class="text-xs text-red-400">+0.01%</div>
+  </div>
+  <div class="bg-gradient-to-br from-green-500/20 to-emerald-500/10 border border-green-500/30 rounded-xl p-3 text-center">
+    <div class="text-xs text-white/60 mb-1">科创50</div>
+    <div class="text-xl font-bold text-green-400">1611.17</div>
+    <div class="text-xs text-green-400">-0.40%</div>
+  </div>
+</div>
+
+<div class="grid md:grid-cols-4 gap-3">
+  <div class="bg-white/5 rounded-xl p-3 text-center">
+    <div class="text-xs text-white/60 mb-1">成交额</div>
+    <div class="text-lg font-bold text-white">1.76万亿</div>
+    <div class="text-xs text-yellow-400">缩量323亿</div>
+  </div>
+  <div class="bg-white/5 rounded-xl p-3 text-center">
+    <div class="text-xs text-white/60 mb-1">上涨家数</div>
+    <div class="text-lg font-bold text-green-400">~1800</div>
+    <div class="text-xs text-white/50">占比约33%</div>
+  </div>
+  <div class="bg-white/5 rounded-xl p-3 text-center">
+    <div class="text-xs text-white/60 mb-1">下跌家数</div>
+    <div class="text-lg font-bold text-red-400">超3500</div>
+    <div class="text-xs text-white/50">占比约66%</div>
+  </div>
+  <div class="bg-white/5 rounded-xl p-3 text-center">
+    <div class="text-xs text-white/60 mb-1">连板高度</div>
+    <div class="text-lg font-bold text-yellow-400">4板</div>
+    <div class="text-xs text-white/50">集泰股份</div>
+  </div>
+</div>
+
+<div class="bg-white/5 rounded-xl p-4">
+  <h4 class="text-white font-semibold mb-3 flex items-center gap-2"><span>📝</span> 9月3日盘面特征：缩量十字星·个股普跌·液冷独强·高位退潮</h4>
+  <div class="grid md:grid-cols-2 gap-4 text-xs text-white/70 leading-relaxed">
+    <div>
+      <p class="mb-2"><b class="text-yellow-400">指数走势：</b>三大指数高开后冲高回落，沪指最高3968点遇阻（连续两天验证3965为强压力位），午后最低探3930点获支撑，尾盘V回收十字星。5日均线失守，短期均线呈空头排列，重心持续下移。</p>
+      <p class="mb-2"><b class="text-yellow-400">量能萎缩：</b>成交额1.76万亿，连续3日缩量（8/31:2.13万亿→9/2:1.79万亿→9/3:1.76万亿），3天累计缩量3700亿，资金持续撤退观望情绪浓厚。</p>
+      <p class="mb-2"><b class="text-yellow-400">个股表现：</b>超3500股下跌，中位数涨跌幅-0.68%，典型"指数微红、个股普跌"格局；涨停约50家，跌停约20家（传智教育、深中华A、爱丽家居等高位股批量跌停）。</p>
+    </div>
+    <div>
+      <p class="mb-2"><b class="text-red-400">强势板块：</b>液冷服务器+1.84%领涨（集泰股份4连板、金帝股份4天3板、金富科技4天2板、鸣志电器10cm、同飞股份+9.51%、思泉新材20cm、英维克+3.41%）；贵金属/保险/港口航运/机器人（鸣志电器涨停）/培育钻石（黄河旋风）表现活跃。</p>
+      <p class="mb-2"><b class="text-green-400">弱势板块：</b>农产品加工/教育/塑料制品领跌；高位人气股退潮（传智教育/深中华A/爱丽家居/一鸣食品/新赛股份/哈药股份跌停）；科创板-0.40%半导体回调；消费电子/传媒/医药偏弱。</p>
+      <p class="mb-2"><b class="text-blue-400">资金面：</b>液冷板块主力净流出8.39亿（分歧明显），但134股获净流入；剑桥科技+4.50亿、工业富联+4.31亿、思泉新材+2.75亿、申菱环境+2.54亿、英维克+1.53亿居前。北向资金维持小幅波动。</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+  <h4 class="text-blue-300 font-semibold mb-2 flex items-center gap-2"><span>🎯</span> 9月4日（周五）展望</h4>
+  <p class="text-xs text-white/70 leading-relaxed">
+    <b>多空关键点：</b>隔夜美股大涨（纳指+1.4%）+美联储鸽派+华为液冷催化+MLCC三星大单+长江存储IPO利好，A股大概率高开；但周五效应+1.76万亿地量+超3500股下跌+高位股批量跌停+今晚非农不确定性，高开后分化概率大。<br>
+    <b>核心观察：</b>①10:30前成交额能否回到9/3同期之上（放量则修复，缩量则继续电风扇轮动）；②沪指能否站稳3944点（多空分界），上方3965强压力，下方3934-3926支撑；③液冷散热华为TMU催化能否延续（已是连续3日主线，警惕兑现）；④今晚20:30非农数据为最大变量。<br>
+    <b>操作原则：</b>高开不追高，冲高减仓为主，仓位控制4-5成过周末，等待非农数据落地后再做方向选择。
+  </p>
+</div>
+</div>
+'''
+gen.add_section("A股昨日复盘与今日展望", ashare_html, "📊")
+
+topics_html = '''
+<div class="space-y-4">
+
+<div class="bg-white/5 rounded-xl p-4 border-l-4 border-red-500">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-lg">🔥</span>
+    <span class="text-white font-bold text-base">S级催化：液冷散热 · 华为发布TMU技术报告，CDU升级为TMU</span>
+    <span class="text-xs bg-red-500/30 text-red-300 px-2 py-0.5 rounded-full">S级</span>
+  </div>
+  <div class="text-xs text-white/70 space-y-1 leading-relaxed">
+    <p><b class="text-yellow-400">催化事件：</b>华为发布《AI使能液冷TMU技术报告》，将CDU（冷量分配单元）升级为TMU（热管理单元），标志液冷从"冷板+CDU"分立架构走向"TMU智能热管理"集成化方案，机构看好液冷行情持续。</p>
+    <p><b class="text-yellow-400">产业背景：</b>①TrendForce预测AI芯片液冷渗透率从2025年33%→2026年53%→2027年接近60%；②谷歌超80%AI服务器采用液冷；③Rubin平台全液冷无风冷组件（写入英伟达DSX参考设计）；④央视报道山东/广东液冷产线满产，CDU订单排至2026年底；⑤同飞股份液冷CDU技术实力国内头部，海外AIDC客户扩圈；⑥江南新材液冷6月单月产值1亿，扩产加速。</p>
+    <p><b class="text-yellow-400">板块表现：</b>9/3液冷服务器概念+1.84%领涨，集泰股份4连板（液冷硅油）、金帝股份4天3板、金富科技4天2板、思泉新材20cm、鸣志电器10cm、同飞股份+9.51%、欧陆通+9.49%、申菱环境+5.54%、英维克+3.41%（主力净流入1.53亿）。</p>
+    <p><b class="text-red-400">⚠️风险提示：</b>①集泰股份公告"液冷硅油2026年上半年未实现任何销售"（纯概念炒作）；②金帝股份公告"两个液冷项目尚未形成批量生产能力，暂无正式订单"；③飞龙股份公告"第一大股东减持0.9%"；④板块已连续3日上涨，部分标的4连板，短期获利盘丰厚，谨防利好兑现高开低走；⑤华为TMU是技术演进而非爆发性新增量。</p>
+    <p><b class="text-green-400">✅关注方向：</b>①真订单真业绩标的（英维克/申菱环境/同飞股份/高澜股份）；②CDU/TMU核心供应商；③液冷 Manifold/快接头/冷板等上游核心零部件（集智股份推出Manifold校直设备）；④石墨烯散热新方向（英伟达Vera Rubin已选定石墨烯导热垫片）。</p>
+  </div>
+</div>
+
+<div class="bg-white/5 rounded-xl p-4 border-l-4 border-orange-500">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-lg">📦</span>
+    <span class="text-white font-bold text-base">MLCC/被动元件：三星电机签1.07万亿韩元AI服务器MLCC大单</span>
+    <span class="text-xs bg-orange-500/30 text-orange-300 px-2 py-0.5 rounded-full">A级</span>
+  </div>
+  <div class="text-xs text-white/70 space-y-1 leading-relaxed">
+    <p><b class="text-yellow-400">催化事件：</b>三星电机宣布与全球知名客户签订1.07万亿韩元（约合人民币58亿元）MLCC供应合同，用于AI服务器，供货期2027全年。AI服务器MLCC用量约28000颗/台，是传统服务器13倍；纯电车用量是油车6倍。</p>
+    <p><b class="text-yellow-400">行业判断：</b>机构判断MLCC产业正式迈入上升格局，Q4供需缺口扩大、价格走升；村田涨价口径+Rubin单柜高容用量共振。</p>
+    <p><b class="text-yellow-400">相关标的：</b>达利凯普、风华高科、三环集团、博杰股份、洁美科技等。</p>
+    <p><b class="text-red-400">⚠️风险：</b>被动元件板块7月后明显弱于大盘，被PCB/铜箔/液冷分流资金，板块指数困在均线束内，快速转强难度大。</p>
+  </div>
+</div>
+
+<div class="bg-white/5 rounded-xl p-4 border-l-4 border-purple-500">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-lg">💾</span>
+    <span class="text-white font-bold text-base">存储芯片/半导体：长江存储IPO已问询+长鑫存储上市催化</span>
+    <span class="text-xs bg-purple-500/30 text-purple-300 px-2 py-0.5 rounded-full">S级</span>
+  </div>
+  <div class="text-xs text-white/70 space-y-1 leading-relaxed">
+    <p><b class="text-yellow-400">催化事件：</b>①长江存储控股科创板IPO审核状态变更为"已问询"，国产存储龙头上市进程加速；②澜起科技CXL 3.2 MXC芯片导入三星、SK海力士，PCIe Switch年内流片；③精智达签15.76亿元半导体测试设备采购大合同；④长电科技拟定增募资不超65亿用于高性能计算高端先进封装平台扩产；⑤英伟达收购HuggingFace+GPT-6发布持续提振AI情绪。</p>
+    <p><b class="text-yellow-400">产业背景：</b>①马斯克定调"存储是AI唯一瓶颈，供给20% vs 需求200%"；②HBM4价格2027年翻倍预期；③NCC（日本三大电容厂之一）AI服务器铝电解电容2025年中开始出货；④PCB上游江南新材铜粉月销5000吨环比+67%，验证Q3 PCB上量明显。</p>
+    <p><b class="text-red-400">⚠️风险：</b>①铜冠铜箔连续3日下跌，3日主力净流出7.54亿，存储/HBM板块短期获利盘兑现压力大；②美股存储股分化（希捷-1.23%、西数-1.63%）；③费半仅+0.11%，博通/阿斯麦大跌对半导体情绪有压制。</p>
+  </div>
+</div>
+
+<div class="bg-white/5 rounded-xl p-4 border-l-4 border-blue-500">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-lg">🤖</span>
+    <span class="text-white font-bold text-base">机器人/AI应用：深圳机器人三年方案+特斯拉FSD+GPT-6催化</span>
+    <span class="text-xs bg-blue-500/30 text-blue-300 px-2 py-0.5 rounded-full">A级</span>
+  </div>
+  <div class="text-xs text-white/70 space-y-1 leading-relaxed">
+    <p><b class="text-yellow-400">催化事件：</b>①深圳印发《推动智能机器人产业高质量发展工作方案(2026-2028)》，目标2028年建成全球最具影响力智能机器人产业高地；②特斯拉AI日/机器人日预期；③GPT-6发布提升AI Agent应用预期；④鸣志电器9/3涨停，机器人概念震荡走强。</p>
+    <p><b class="text-yellow-400">相关标的：</b>鸣志电器、双环传动（终止分拆子公司上市）、兆威机电（拟竞买土地投建灵巧手产业园）、恒工精密（机器人进展超预期）、绿的谐波等。</p>
+  </div>
+</div>
+
+<div class="bg-white/5 rounded-xl p-4 border-l-4 border-yellow-500">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-lg">💰</span>
+    <span class="text-white font-bold text-base">宏观/政策：十部门中小企业十五五规划+医保谈判9/5启动+七部门消费扩容</span>
+    <span class="text-xs bg-yellow-500/30 text-yellow-300 px-2 py-0.5 rounded-full">B级</span>
+  </div>
+  <div class="text-xs text-white/70 space-y-1 leading-relaxed">
+    <p>①<b>十部门印发《促进中小企业发展"十五五"规划》</b>：到2030年专精特新"小巨人"达2.2万家，设立国家中小企业发展基金二期，带动社会资本投早投小投硬科技（利好创投/科创板）；</p>
+    <p>②<b>七部门消费扩容升级</b>：目标2030年社零60万亿元（5年增10万亿），利好消费电子/AI应用/大消费；</p>
+    <p>③<b>2026医保国谈9/5启动</b>：国家医保目录谈判+商保创新药目录协商同步进行，利好创新药/CRO（板块已有预期，注意兑现）；</p>
+    <p>④<b>工信部表态动力电池</b>：将完善动力电池治理体系，推动回收利用新政策，防范盲目建设和非理性竞争；</p>
+    <p>⑤<b>央行定调适度宽松</b>：潘功胜表态持续实施适度宽松货币政策，9月/四季度降息预期升温；</p>
+    <p>⑥<b>算力订单落地</b>：亚康股份/行云科技各签9.22亿元算力租赁协议，算力需求持续验证。</p>
+  </div>
+</div>
+
+<div class="bg-white/5 rounded-xl p-4 border-l-4 border-gray-500">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="text-lg">📌</span>
+    <span class="text-white font-bold text-base">其他重要公告与事件</span>
+  </div>
+  <div class="text-xs text-white/70 space-y-1 leading-relaxed">
+    <p>·<b>佛塑科技</b>：拟投资71.58亿元建设两大绿色高端隔膜项目；</p>
+    <p>·<b>双环传动</b>：终止分拆子公司环动科技至科创板上市；</p>
+    <p>·<b>宝武镁业</b>：控股股东变更为中国宝武，国资入主；</p>
+    <p>·<b>珠免集团</b>：格力集团将成为间接控股股东；</p>
+    <p>·<b>*ST康佳</b>：拟主动终止上市，股票停牌（ST板块风险警示）；</p>
+    <p>·<b>合盛硅业</b>：控股股东完成减持3%；</p>
+    <p>·<b>AI制药里程碑</b>：西湖大学首款AI辅助研发原创药"艾普司韦"获批上市（全球首款DEL技术+AI辅助小分子新药，从发现到上市仅3年半）；</p>
+    <p>·<b>OpenAI GPT-6发布</b>：定位AGI关键里程碑，擅长代理用户操作电脑；</p>
+    <p>·<b>月之暗面(Kimi)</b>：以保密形式向港交所递交A1，启动港股IPO。</p>
+  </div>
+</div>
+
+</div>
+'''
+gen.add_section("核心题材与今日催化", topics_html, "🔥")
+
+portfolio_html = '''
+<div class="space-y-4">
+
+<div class="bg-gradient-to-r from-yellow-500/20 to-orange-500/10 border border-yellow-500/40 rounded-xl p-4">
+  <div class="flex items-center justify-between mb-3">
+    <div class="flex items-center gap-2">
+      <span class="text-2xl">🟡</span>
+      <div>
+        <div class="text-white font-bold text-lg">英维克 (002837) · 液冷散热龙头</div>
+        <div class="text-xs text-white/50">成本104.23元 | 止损98元 | 深度破止损区间</div>
+      </div>
+    </div>
+    <div class="text-right">
+      <div class="text-xl font-bold text-red-400">68.49元</div>
+      <div class="text-xs text-red-400">+3.41%（9/3）</div>
+    </div>
+  </div>
+  <div class="grid md:grid-cols-3 gap-3 mb-3">
+    <div class="bg-white/5 rounded-lg p-2 text-center">
+      <div class="text-xs text-white/50">当日成交</div>
+      <div class="text-sm font-bold text-white">60.21亿</div>
+      <div class="text-xs text-white/50">换手率7.86%</div>
+    </div>
+    <div class="bg-white/5 rounded-lg p-2 text-center">
+      <div class="text-xs text-white/50">主力资金</div>
+      <div class="text-sm font-bold text-red-400">+1.53亿</div>
+      <div class="text-xs text-white/50">净流入</div>
+    </div>
+    <div class="bg-white/5 rounded-lg p-2 text-center">
+      <div class="text-xs text-white/50">区间高点</div>
+      <div class="text-sm font-bold text-white">70.62元</div>
+      <div class="text-xs text-white/50">盘中（9/3）</div>
+    </div>
+  </div>
+  <div class="text-xs text-white/70 leading-relaxed space-y-1">
+    <p><b class="text-yellow-400">持仓诊断：</b>英维克从8/19低点52.59元反弹至68.49元，20个交易日累计+22.52%，9/3盘中最高冲70.62元（突破70元关口）但未能站稳。液冷板块连续3日领涨，华为发布TMU技术报告今日直接催化。RSI6=73.56已进入超买区，短期有回调压力。从高点回撤约67%（深度破止损），中期仍属超跌反弹性质。</p>
+    <p><b class="text-green-400">利好：</b>①华为TMU技术报告直接催化液冷板块；②央视报道液冷产线满产CDU订单排至年底；③Rubin全液冷方案写入DSX参考设计；④主力连续2日净流入（9/2:+0.76亿、9/3:+1.53亿）；⑤10日主力累计净流入23.5亿。</p>
+    <p><b class="text-red-400">风险：</b>①RSI6=73.56超买，短期技术性回调压力；②集泰股份/金帝股份等概念股公告"无实际销售/订单"，液冷板块短期炒作气氛浓；③70元是前期密集成交区压力；④从104元成本深度套牢，反弹是减仓窗口而非补仓时机。</p>
+    <p><b class="text-blue-400">📌操作建议：</b>华为TMU催化高开，关注70-73元压力位。<b class="text-yellow-400">反弹至73-75元区间坚决减仓1/2机动仓，站上75元且量能配合可暂持但不加仓；若高开低走破66元减仓至底仓，二次破65元无条件清仓</b>。深度破止损标的，严禁补仓抄底，任何反弹都是减仓窗口。</p>
+  </div>
+</div>
+
+<div class="bg-gradient-to-r from-orange-500/20 to-red-500/10 border border-orange-500/40 rounded-xl p-4">
+  <div class="flex items-center justify-between mb-3">
+    <div class="flex items-center gap-2">
+      <span class="text-2xl">🟠</span>
+      <div>
+        <div class="text-white font-bold text-lg">铜冠铜箔 (301217) · PCB铜箔+锂电铜箔双龙头</div>
+        <div class="text-xs text-white/50">成本87.16元 | 止损78.44元 | 连续3日回调</div>
+      </div>
+    </div>
+    <div class="text-right">
+      <div class="text-xl font-bold text-green-400">104.84元</div>
+      <div class="text-xs text-green-400">-3.72%（9/3）</div>
+    </div>
+  </div>
+  <div class="grid md:grid-cols-3 gap-3 mb-3">
+    <div class="bg-white/5 rounded-lg p-2 text-center">
+      <div class="text-xs text-white/50">当日成交</div>
+      <div class="text-sm font-bold text-white">28.39亿</div>
+      <div class="text-xs text-white/50">换手率3.25%</div>
+    </div>
+    <div class="bg-white/5 rounded-lg p-2 text-center">
+      <div class="text-xs text-white/50">3日主力</div>
+      <div class="text-sm font-bold text-green-400">-7.54亿</div>
+      <div class="text-xs text-white/50">持续净流出</div>
+    </div>
+    <div class="bg-white/5 rounded-lg p-2 text-center">
+      <div class="text-xs text-white/50">区间低点</div>
+      <div class="text-sm font-bold text-white">103.01元</div>
+      <div class="text-xs text-white/50">盘中（9/3）</div>
+    </div>
+  </div>
+  <div class="text-xs text-white/70 leading-relaxed space-y-1">
+    <p><b class="text-orange-400">持仓诊断：</b>铜冠铜箔从8/31高点123.97元连续3日回调（-8.37%→-4.67%→-3.72%），3日累计下跌约15.4%，最低探103.01元，主力3日净流出7.54亿。半年报业绩亮眼（H1净利+514.75%，PCB铜箔营收+47.16%毛利率提升6.04pct），但前期涨幅过大（年内+214%），获利盘兑现压力大。</p>
+    <p><b class="text-green-400">利好：</b>①H1业绩超预期净利+514%，PCB铜箔供不应求；②高频高速铜箔产量占PCB铜箔50%以上；③江南新材铜粉月销+67%验证Q3 PCB上量；④长期AI服务器高端铜箔需求逻辑不变。</p>
+    <p><b class="text-red-400">风险：</b>①连续3日主力大幅净流出（9/1:-4.34亿、9/2:-1.21亿、9/3:-1.99亿）；②从高点123.97回调15%短期趋势走弱；③100元整数关口+前期平台是关键支撑，若跌破可能加速下探；④估值偏高（PE TTM 529倍），中报利好已兑现。</p>
+    <p><b class="text-blue-400">📌操作建议：</b>长江存储IPO+MLCC催化对铜箔有情绪支撑，但主力持续流出趋势未改。<b class="text-yellow-400">反弹至108-112元区间减仓1/3锁定利润；若跌破103元（9/3低点）继续减仓至底仓1/3；跌破100元整数关口无条件止盈离场</b>。保留底仓观察90-95元支撑，但不抄底。</p>
+  </div>
+</div>
+
+<div class="bg-gradient-to-r from-blue-500/20 to-cyan-500/10 border border-blue-500/40 rounded-xl p-4">
+  <div class="flex items-center justify-between mb-3">
+    <div class="flex items-center gap-2">
+      <span class="text-2xl">🔵</span>
+      <div>
+        <div class="text-white font-bold text-lg">雅克科技 (002409) · HBM前驱体+半导体材料龙头</div>
+        <div class="text-xs text-white/50">成本108.8元 | 止损87.04元 | 浮盈+21.0%</div>
+      </div>
+    </div>
+    <div class="text-right">
+      <div class="text-xl font-bold text-red-400">131.60元</div>
+      <div class="text-xs text-red-400">+0.58%（9/3）</div>
+    </div>
+  </div>
+  <div class="grid md:grid-cols-3 gap-3 mb-3">
+    <div class="bg-white/5 rounded-lg p-2 text-center">
+      <div class="text-xs text-white/50">当日成交</div>
+      <div class="text-sm font-bold text-white">13.70亿</div>
+      <div class="text-xs text-white/50">换手率3.27%</div>
+    </div>
+    <div class="bg-white/5 rounded-lg p-2 text-center">
+      <div class="text-xs text-white/50">主力资金</div>
+      <div class="text-sm font-bold text-red-400">+1919万</div>
+      <div class="text-xs text-white/50">小幅净流入</div>
+    </div>
+    <div class="bg-white/5 rounded-lg p-2 text-center">
+      <div class="text-xs text-white/50">区间</div>
+      <div class="text-sm font-bold text-white">129.86-133.96</div>
+      <div class="text-xs text-white/50">震荡整理</div>
+    </div>
+  </div>
+  <div class="text-xs text-white/70 leading-relaxed space-y-1">
+    <p><b class="text-blue-400">持仓诊断：</b>雅克科技从高点229元回撤至131.6元（回撤约42.5%），近期在128-135元区间震荡筑底。H1归母净利润5.61亿元同比+7.29%，业绩稳健但增速放缓。HBM前驱体+半导体材料+电子特气三主线逻辑仍在，但前期大幅杀跌后进入震荡整固阶段。</p>
+    <p><b class="text-green-400">利好：</b>①长江存储IPO已问询+HBM国产化加速，前驱体材料直接受益；②澜起科技CXL芯片导入三星/SK海力士，半导体国产替代持续推进；③长电科技65亿定增加码先进封装，封装材料需求扩张；④氦气出口管制利好电子特气（但公司特气占比仅约5.8%直接影响有限）。</p>
+    <p><b class="text-red-400">风险：</b>①从高位229元回撤幅度大，上方套牢盘沉重；②H1业绩+7.29%增速放缓，市场对高增速预期差；③DDX 3日/5日/10日连续为负（-1.18/-1.76/-2.25），中期资金流出趋势未改；④博通/阿斯麦隔夜大跌对半导体情绪有压制。</p>
+    <p><b class="text-blue-400">📌操作建议：</b>半导体材料/存储催化下震荡偏强。<b class="text-yellow-400">135-140元压力位反弹减仓1/3锁利；守住130元可持底仓观察；跌破128元减仓至底仓1/3；跌破125元止盈离场</b>。作为组合中唯一半导体材料核心持仓，底仓保留但不加仓，等待明确方向选择。</p>
+  </div>
+</div>
+
+<div class="bg-gradient-to-r from-red-500/20 to-pink-500/10 border border-red-500/40 rounded-xl p-4">
+  <div class="flex items-center justify-between mb-3">
+    <div class="flex items-center gap-2">
+      <span class="text-2xl">🚨</span>
+      <div>
+        <div class="text-white font-bold text-lg">*ST建艺 (002789) · ST重组股 · 最高优先级清仓</div>
+        <div class="text-xs text-white/50">成本~13.45元 | 止损12.5元 | 浮亏约-12.5%</div>
+      </div>
+    </div>
+    <div class="text-right">
+      <div class="text-xl font-bold text-red-400">11.77元</div>
+      <div class="text-xs text-red-400">+0.43%（9/3）</div>
+    </div>
+  </div>
+  <div class="grid md:grid-cols-3 gap-3 mb-3">
+    <div class="bg-white/5 rounded-lg p-2 text-center">
+      <div class="text-xs text-white/50">当日成交</div>
+      <div class="text-sm font-bold text-white">4155万</div>
+      <div class="text-xs text-white/50">换手率2.29%</div>
+    </div>
+    <div class="bg-white/5 rounded-lg p-2 text-center">
+      <div class="text-xs text-white/50">主力资金</div>
+      <div class="text-sm font-bold text-red-400">+294万</div>
+      <div class="text-xs text-white/50">净流入</div>
+    </div>
+    <div class="bg-white/5 rounded-lg p-2 text-center">
+      <div class="text-xs text-white/50">负债率</div>
+      <div class="text-sm font-bold text-red-400">95.69%</div>
+      <div class="text-xs text-white/50">极高</div>
+    </div>
+  </div>
+  <div class="text-xs text-white/70 leading-relaxed space-y-1">
+    <p><b class="text-red-400">持仓诊断：</b>*ST建艺9/3微涨+0.43%收11.77元，成交仅4155万流动性差。H1营收10.29亿（-47.45%），归母净利-1.44亿（同比改善23.83%但仍亏损），负债率95.69%极高。蚌埠融兴买卖合同纠纷撤诉是小利好（对利润无影响），但退市风险+债务问题根本未解。</p>
+    <p><b class="text-yellow-400">小利好：</b>①蚌埠融兴供应链撤诉，诉讼事项减少一项；②H1亏损同比收窄23.83%；③尾盘有两波拉升，或有资金博弈摘帽预期。</p>
+    <p><b class="text-red-400">核心风险：</b>①负债率95.69%资不抵债风险；②H1营收-47%主业严重萎缩；③2024年净资产为负被*ST，若2026年不能转正将退市；④毛利率仅1.56%几乎无盈利能力；⑤ST板块分化严重，*ST康佳今日宣布主动终止上市（警示效应）。</p>
+    <p><b class="text-red-400">🚨操作建议：最高优先级清仓！任何价格任何反弹都是离场机会！</b>11.5-12元区间逢高坚决清仓，不要抱有摘帽预期幻想。*ST康佳主动终止上市是明确警示，ST股退市风险不可承受，<b class="text-red-400">今日开盘集合竞价即挂单卖出，全部清仓不留一股</b>。</p>
+  </div>
+</div>
+
+<div class="bg-gradient-to-r from-purple-500/20 to-indigo-500/10 border border-purple-500/40 rounded-xl p-4">
+  <h4 class="text-purple-300 font-semibold mb-3 flex items-center gap-2"><span>📊</span> 组合整体诊断与仓位建议</h4>
+  <div class="grid md:grid-cols-2 gap-4 text-xs text-white/70 leading-relaxed">
+    <div>
+      <p class="mb-2"><b class="text-white">组合状态：</b>4只持仓中，2只深度套牢（英维克-34%、*ST建艺-12%），1只大幅回撤后震荡（雅克+21%浮盈从+92%缩水），1只连续回调但仍浮盈（铜冠+20%）。整体健康度中等偏低，*ST建艺是最大风险点。</p>
+      <p class="mb-2"><b class="text-white">今日核心操作优先级：</b></p>
+      <p>①🚨<b class="text-red-400">最高优先级</b>：*ST建艺开盘清仓（一股不留）</p>
+      <p>②<b class="text-yellow-400">高优先级</b>：英维克借华为液冷催化73-75元减仓1/2</p>
+      <p>③<b class="text-yellow-400">高优先级</b>：铜冠铜箔反弹108-112元减仓1/3</p>
+      <p>④<b class="text-blue-400">中优先级</b>：雅克科技135-140元压力位减仓1/3</p>
+    </div>
+    <div>
+      <p class="mb-2"><b class="text-white">仓位建议：4-5成过周末</b></p>
+      <p>·清仓*ST建艺后回收约5%仓位；</p>
+      <p>·英维克/铜冠/雅克各减仓1/3机动仓，回收约15-20%仓位；</p>
+      <p>·保留雅克+铜冠底仓为核心（3-4成），英维克保留观察仓；</p>
+      <p>·现金仓位5成以上，等待今晚非农数据+下周方向明朗。</p>
+      <p class="mt-2"><b class="text-white">关注方向：</b>液冷真订单标的、半导体设备/材料（长江存储催化）、AI Agent（GPT-6催化），但均以盘中量能确认为准，不追高。</p>
+    </div>
+  </div>
+</div>
+
+</div>
+'''
+gen.add_section("持仓诊断与操作建议", portfolio_html, "💼")
+
+bear_html = '''
+<div class="space-y-4">
+<div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+  <h4 class="text-red-300 font-semibold mb-3 flex items-center gap-2"><span>🐻</span> 空方视角：五大理由提示今日高开需谨慎</h4>
+  <div class="space-y-3 text-xs text-white/70 leading-relaxed">
+    <div class="flex gap-2">
+      <span class="text-red-400 font-bold shrink-0">①</span>
+      <p><b class="text-white">量能持续萎缩，3天缩量3700亿：</b>8/31成交2.13万亿→9/2:1.79万亿→9/3:1.76万亿，资金持续撤退观望，没有量能配合的高开很容易演变成"高开低走"套路。9/3超3500股下跌已经说明资金在借反弹出货。</p>
+    </div>
+    <div class="flex gap-2">
+      <span class="text-red-400 font-bold shrink-0">②</span>
+      <p><b class="text-white">3965点连续两天验证为强压力：</b>9/2最高3965.81、9/3最高3968.11，两次冲到3965都被打回，该位置已从压力位变成强压力区。5日均线失守，短期均线空头排列，重心下移。</p>
+    </div>
+    <div class="flex gap-2">
+      <span class="text-red-400 font-bold shrink-0">③</span>
+      <p><b class="text-white">高位股批量跌停，投机情绪退潮：</b>9/3传智教育、深中华A、爱丽家居、一鸣食品、新赛股份、哈药股份批量跌停，连板高度降至4板，高位接力情绪极差。这往往是市场转弱的领先信号。</p>
+    </div>
+    <div class="flex gap-2">
+      <span class="text-red-400 font-bold shrink-0">④</span>
+      <p><b class="text-white">液冷板块"利好兑现"风险：</b>集泰股份公告液冷硅油上半年零销售，金帝股份公告液冷项目尚未量产无正式订单，说明液冷板块短期纯概念炒作气氛浓厚。华为TMU报告是技术演进而非新增量，高开后警惕"利好出尽"。</p>
+    </div>
+    <div class="flex gap-2">
+      <span class="text-red-400 font-bold shrink-0">⑤</span>
+      <p><b class="text-white">今晚非农数据不确定性+周五效应：</b>美国8月非农数据今晚20:30公布，若数据偏强将重新点燃加息预期，美债收益率反弹压制科技股；周五资金通常避险减仓过周末，高开后抛压可能较大。中概股隔夜-0.81%已经暗示外资态度谨慎。</p>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white/5 rounded-xl p-4">
+  <h4 class="text-white font-semibold mb-3 flex items-center gap-2"><span>⚖️</span> 多空力量对比</h4>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div>
+      <div class="text-red-400 font-semibold text-sm mb-2">🐂 多方力量</div>
+      <div class="space-y-1 text-xs text-white/70">
+        <div class="flex items-center gap-2"><div class="w-2 h-2 bg-red-400 rounded-full"></div>美联储沃勒鸽派表态，9月加息预期降温</div>
+        <div class="flex items-center gap-2"><div class="w-2 h-2 bg-red-400 rounded-full"></div>美股三大指数集体大涨超1%</div>
+        <div class="flex items-center gap-2"><div class="w-2 h-2 bg-red-400 rounded-full"></div>英伟达129亿美元收购Hugging Face提振AI情绪</div>
+        <div class="flex items-center gap-2"><div class="w-2 h-2 bg-red-400 rounded-full"></div>OpenAI GPT-6发布催化AI应用</div>
+        <div class="flex items-center gap-2"><div class="w-2 h-2 bg-red-400 rounded-full"></div>华为液冷TMU技术报告直接催化</div>
+        <div class="flex items-center gap-2"><div class="w-2 h-2 bg-red-400 rounded-full"></div>长江存储IPO已问询+MLCC三星大单</div>
+        <div class="flex items-center gap-2"><div class="w-2 h-2 bg-red-400 rounded-full"></div>央行定调适度宽松，政策底明确</div>
+        <div class="flex items-center gap-2"><div class="w-2 h-2 bg-red-400 rounded-full"></div>富时A50期货夜盘微涨+0.03%</div>
+      </div>
+    </div>
+    <div>
+      <div class="text-green-400 font-semibold text-sm mb-2">🐻 空方力量</div>
+      <div class="space-y-1 text-xs text-white/70">
+        <div class="flex items-center gap-2"><div class="w-2 h-2 bg-green-400 rounded-full"></div>连续3日缩量3700亿，资金撤退观望</div>
+        <div class="flex items-center gap-2"><div class="w-2 h-2 bg-green-400 rounded-full"></div>超3500股下跌，个股普跌赚钱效应差</div>
+        <div class="flex items-center gap-2"><div class="w-2 h-2 bg-green-400 rounded-full"></div>高位股批量跌停，投机情绪退潮</div>
+        <div class="flex items-center gap-2"><div class="w-2 h-2 bg-green-400 rounded-full"></div>3965点强压力两次冲不过</div>
+        <div class="flex items-center gap-2"><div class="w-2 h-2 bg-green-400 rounded-full"></div>今晚非农数据不确定性，周五效应</div>
+        <div class="flex items-center gap-2"><div class="w-2 h-2 bg-green-400 rounded-full"></div>费半仅+0.11%，博通-2.74%、阿斯麦-2.15%</div>
+        <div class="flex items-center gap-2"><div class="w-2 h-2 bg-green-400 rounded-full"></div>中概股-0.81%，外资态度偏谨慎</div>
+        <div class="flex items-center gap-2"><div class="w-2 h-2 bg-green-400 rounded-full"></div>液冷板块部分龙头公告无实际订单</div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-3 p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
+    <p class="text-xs text-yellow-300"><b>综合判断：</b>多空力量6:4，多方略占优但优势不大，核心取决于今晚非农数据。周五大概率高开后震荡分化，<b class="text-white">高开不追高、冲高减仓、留足现金、等非农落地</b>是最优策略。</p>
+  </div>
+</div>
+</div>
+'''
+gen.add_section("空方视角与多空博弈", bear_html, "⚖️")
+
+pred_html = '''
+<div class="space-y-4">
+<div class="bg-white/5 rounded-xl p-4">
+  <h4 class="text-white font-semibold mb-3 flex items-center gap-2"><span>🔮</span> 历史预判验证（T+2/T+3/T+5）</h4>
+  <div class="overflow-x-auto">
+  <table class="w-full text-xs">
+    <thead>
+      <tr class="border-b border-white/10">
+        <th class="text-left py-2 text-white/60">预判日期</th>
+        <th class="text-left py-2 text-white/60">预判内容</th>
+        <th class="text-center py-2 text-white/60">验证期</th>
+        <th class="text-center py-2 text-white/60">结果</th>
+      </tr>
+    </thead>
+    <tbody class="text-white/70">
+      <tr class="border-b border-white/5">
+        <td class="py-2">9/2（周二）</td>
+        <td>博通AI财报超预期将带动A股AI算力链反弹</td>
+        <td class="text-center">T+2</td>
+        <td class="text-center"><span class="text-yellow-400">⏳部分兑现</span><br><span class="text-white/50 text-xs">9/3液冷领涨但博通ADR隔夜-2.74%，AI算力链分化</span></td>
+      </tr>
+      <tr class="border-b border-white/5">
+        <td class="py-2">9/2（周二）</td>
+        <td>美伊冲突升级利好黄金/原油/军工</td>
+        <td class="text-center">T+2</td>
+        <td class="text-center"><span class="text-green-400">✅兑现</span><br><span class="text-white/50 text-xs">9/3贵金属板块领涨，黄金创历史新高；原油维持90+美元高位</span></td>
+      </tr>
+      <tr class="border-b border-white/5">
+        <td class="py-2">8/29（周五）</td>
+        <td>中报披露后市场进入估值修复期，科技股超跌反弹</td>
+        <td class="text-center">T+5</td>
+        <td class="text-center"><span class="text-yellow-400">⏳部分兑现</span><br><span class="text-white/50 text-xs">8/31科技大涨但9/1-3连续缩量分化，反弹力度弱于预期</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+  <h4 class="text-blue-300 font-semibold mb-3 flex items-center gap-2"><span>🎯</span> 今日新增预判（待验证）</h4>
+  <div class="space-y-2 text-xs text-white/70">
+    <div class="p-2 bg-white/5 rounded-lg">
+      <p class="mb-1"><b class="text-yellow-400">预判1（T+1）：</b>液冷板块华为TMU催化高开，但集泰股份/金帝股份等高位连板股大概率高开低走，板块分化加剧，关注真订单标的（英维克/申菱环境/同飞）能否逆势走强。</p>
+      <p class="text-white/50">置信度：70% | 验证时点：9/4收盘</p>
+    </div>
+    <div class="p-2 bg-white/5 rounded-lg">
+      <p class="mb-1"><b class="text-yellow-400">预判2（T+1）：</b>今晚非农数据若不及预期（新增就业<15万），美联储9月维持利率不变概率升至70%+，全球风险资产大涨；若超预期（>20万）则加息预期重燃，美股和A股下周一承压。</p>
+      <p class="text-white/50">置信度：80% | 验证时点：9/4晚20:30</p>
+    </div>
+    <div class="p-2 bg-white/5 rounded-lg">
+      <p class="mb-1"><b class="text-yellow-400">预判3（T+3）：</b>长江存储IPO"已问询"催化半导体设备/材料板块（雅克科技/精智达/长电科技/拓荆科技等），下周存储链有望迎来阶段性反弹。</p>
+      <p class="text-white/50">置信度：65% | 验证时点：下周三前</p>
+    </div>
+  </div>
+</div>
+</div>
+'''
+gen.add_section("预判验证闭环", pred_html, "🔮")
+
+lesson_html = '''
+<div class="space-y-4">
+<div class="bg-white/5 rounded-xl p-4">
+  <h4 class="text-white font-semibold mb-3 flex items-center gap-2"><span>📚</span> 教训库引用（历史教训·今日警示）</h4>
+  <div class="space-y-3 text-xs text-white/70 leading-relaxed">
+    <div class="p-3 bg-red-500/10 border-l-2 border-red-500 rounded">
+      <p class="text-red-300 font-semibold mb-1">⚠️ 教训1：高位利好兑现是利空</p>
+      <p>9/3集泰股份4连板、金帝股份4天3板后双双公告"液冷业务上半年零销售/无正式订单"，纯概念炒作一旦公司澄清风险极大。今日华为TMU催化液冷高开，<b>高位连板股（集泰/金帝）切忌追高，利好兑现可能是出货时机</b>。</p>
+    </div>
+    <div class="p-3 bg-yellow-500/10 border-l-2 border-yellow-500 rounded">
+      <p class="text-yellow-300 font-semibold mb-1">⚠️ 教训2：连续缩量+个股普跌=反弹非反转</p>
+      <p>8/31放量大涨后连续3日缩量（2.13→1.79→1.76万亿），超3500股下跌，典型"指数不跌个股跌"格局。历史上缩量十字星后向下选择方向概率偏大，<b>控制仓位比预判方向更重要，不抄底不追高</b>。</p>
+    </div>
+    <div class="p-3 bg-orange-500/10 border-l-2 border-orange-500 rounded">
+      <p class="text-orange-300 font-semibold mb-1">⚠️ 教训3：ST股的"最后一棒"永远不要接</p>
+      <p>*ST康佳宣布主动终止上市再次警示ST股退市风险。*ST建艺负债率95.69%、H1营收-47%、毛利率1.56%，即便有小利好（撤诉）也不改变基本面，<b>任何反弹都是逃命窗口，必须坚决清仓绝不恋战</b>。</p>
+    </div>
+    <div class="p-3 bg-blue-500/10 border-l-2 border-blue-500 rounded">
+      <p class="text-blue-300 font-semibold mb-1">⚠️ 教训4：周五+重大数据公布前=现金为王</p>
+      <p>今晚非农数据是9月议息会议前最关键数据，结果将直接影响全球市场方向。周五资金通常减仓避险，历史上"周五高开低走"概率高于"周五高开高走"。<b>仓位压降至5成以内，不在重大不确定性前重仓</b>。</p>
+    </div>
+    <div class="p-3 bg-purple-500/10 border-l-2 border-purple-500 rounded">
+      <p class="text-purple-300 font-semibold mb-1">⚠️ 教训5：深度破止损标的不要期待V型反转</p>
+      <p>英维克从104元成本跌至52.59元（-50%）再反弹至68元（-34%），RSI超买+70元压力位+板块概念炒作，<b>反弹至压力位（73-75元）必须减仓，深度套牢后的每一次反弹都是降低成本的机会，不是"等回本"的理由</b>。</p>
+    </div>
+  </div>
+</div>
+</div>
+'''
+gen.add_section("教训库引用", lesson_html, "📚")
+
+# 添加重要新闻汇总
+gen.add_important_news()
+
+# 发布
+output_path = os.path.join(WORK_DIR, "docs/daily/20260904_每日新闻洞察.html")
+print("Publishing report...")
+result = gen.publish(output_path=output_path)
+print("发布结果:", result)
+print(f"文件大小: {result.get('file_size', 0)} 字节")
+print(f"输出路径: {result.get('output_path', '')}")
+print("Done!")
