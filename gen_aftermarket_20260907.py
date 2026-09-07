@@ -198,6 +198,57 @@ gen.add_dragon_tiger_list([
     },
 ])
 
+
+# ============ 9. 重点关注标的（非持仓潜力股） ============
+watch_stocks_html = """
+<div style="display: flex; flex-direction: column; gap: 16px;">
+    <div style="background: rgba(30,30,50,0.5); border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 16px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 16px; font-weight: 700; color: #f1f5f9;">🏆 中际旭创 (300308)</span>
+            <span style="margin-left: 10px; font-size: 12px; background: linear-gradient(135deg, #10b981, #059669);
+                  color: white; padding: 3px 10px; border-radius: 10px; font-weight: 600;">光模块龙头</span>
+        </div>
+        <div style="font-size: 13px; color: #94a3b8; line-height: 1.8;">
+            <p><strong style="color: #e2e8f0;">今日表现：</strong>涨超10%，半日成交241亿，全天成交超300亿，当之无愧的光模块总龙头。英伟达CPO交换机量产+1.6T光模块三季度上量+深圳光博会催化，四重利好共振。</p>
+            <p><strong style="color: #e2e8f0;">核心逻辑：</strong>全球高速光模块绝对龙头，800G市占率第一，1.6T领先同业6-12个月。海外四大云厂商全年AI资本开支上调至7200亿美元，公司直接受益于AI算力基础设施投资爆发。三季度业绩大概率超预期。</p>
+            <p><strong style="color: #e2e8f0;">操作建议：</strong>回调至850元以下可轻仓介入（首仓1/5），目标价950-1000元，止损800元（跌破20日线出局）。短期涨幅较大，不宜追高，等待回调5-8%后的低吸机会。</p>
+        </div>
+    </div>
+
+    <div style="background: rgba(30,30,50,0.5); border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 16px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 16px; font-weight: 700; color: #f1f5f9;">🥇 生益科技 (600183)</span>
+            <span style="margin-left: 10px; font-size: 12px; background: linear-gradient(135deg, #f59e0b, #ea580c);
+                  color: white; padding: 3px 10px; border-radius: 10px; font-weight: 600;">CCL龙头</span>
+        </div>
+        <div style="font-size: 13px; color: #94a3b8; line-height: 1.8;">
+            <p><strong style="color: #e2e8f0;">今日表现：</strong>涨超8%，成交放大至45亿，受松下CCL涨价30%催化，作为国内覆铜板龙头直接受益。PCB板块今日超40股涨停或涨超10%，生益科技作为上游材料端弹性最大。</p>
+            <p><strong style="color: #e2e8f0;">核心逻辑：</strong>国内CCL（覆铜板）行业绝对龙头，全球第二大厂商。AI服务器用高端板材（M7/M8级、Extreme Low-loss）供不应求，建滔积层板年内多次提价，行业进入量价齐升周期。公司高端产品占比持续提升，毛利率有望进一步扩张。</p>
+            <p><strong style="color: #e2e8f0;">操作建议：</strong>回调至28元以下可介入（首仓1/4），目标价35元（+25%空间），止损25元（跌破10日线）。PCB板块第一天已现分歧，明日分化后再决定是否加仓，不建议追涨。</p>
+        </div>
+    </div>
+
+    <div style="background: rgba(30,30,50,0.5); border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 16px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 16px; font-weight: 700; color: #f1f5f9;">💎 华海诚科 (688535)</span>
+            <span style="margin-left: 10px; font-size: 12px; background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+                  color: white; padding: 3px 10px; border-radius: 10px; font-weight: 600;">HBM材料</span>
+        </div>
+        <div style="font-size: 13px; color: #94a3b8; line-height: 1.8;">
+            <p><strong style="color: #e2e8f0;">今日表现：</strong>涨6.94%，收101.04元，成交6.12亿，换手率约10.5%。存储芯片+HBM概念同步走强，华海诚科作为环氧塑封料国产龙头受益于先进封装扩产。</p>
+            <p><strong style="color: #e2e8f0;">核心逻辑：</strong>国内GMC（环氧塑封料）龙头，HBM封装材料核心供应商。华为韬定律推动三维堆叠/先进封装需求爆发，测试设备和封装材料是直接受益环节。存储芯片超级周期+先进封装扩产，公司业绩有望在Q4迎来拐点。</p>
+            <p><strong style="color: #e2e8f0;">操作建议：</strong>回调至90-95元区间可介入（首仓1/5），目标价120元（+25-30%空间），止损82元。当前101元位置处于前期压力位附近，等待回调至击球区再介入更稳妥。</p>
+        </div>
+    </div>
+</div>
+"""
+from v3.components.layout import Section
+watch_section = Section(title="🎯 重点关注标的", content=watch_stocks_html, icon="target")
+gen._components.insert(len(gen._components)-2, watch_section)
+
 # ============ 9. 明日操作策略 ============
 gen.add_tomorrow_prediction([
     {
