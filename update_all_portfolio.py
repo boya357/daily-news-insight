@@ -366,7 +366,7 @@ def update_index_page(data):
 def update_dashboard(data):
     """更新持仓智能预警仪表盘"""
     print("🔄 更新持仓智能预警仪表盘...")
-    os.system('python3 v3/generators/update_portfolio_v3.py')
+    os.system('python3 update_portfolio_dashboard.py')
     print("  ✅ 持仓智能预警仪表盘更新完成")
 
 def update_warning_system(data):
@@ -2680,10 +2680,10 @@ def main():
     
     # ========== 时光机模块 ==========
     print("\n📁 [时光机模块]")
-    from v3.generators.time_machine import TimeMachineGenerator
+    from v3.generators.time_machine_pro import TimeMachinePage as TimeMachineGenerator
     tm_generator = TimeMachineGenerator()
-    tm_generator.generate()
-    dates_count = len(tm_generator.get_available_dates())
+    tm_generator.publish()
+    dates_count = len(tm_generator._get_available_dates())
     print(f"   ✅ 时光机页面已更新（{dates_count}个历史快照）")
 
     # ========== 图表数据绑定 ==========
