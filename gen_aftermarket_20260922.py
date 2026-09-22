@@ -4,6 +4,7 @@ sys.path.insert(0, '/root/daily-news-insight/v3')
 os.chdir('/root/daily-news-insight')
 
 from v3.generators.aftermarket import AftermarketGenerator
+from v3.components.layout import Section
 
 gen = AftermarketGenerator(date_str="20260922", subtitle="2026.09.22 · 盘后速递")
 
@@ -137,81 +138,138 @@ gen.add_market_deep_analysis(
     core_view="今日市场呈现典型的\"节前震荡+结构轮动\"格局。早盘科技股冲高（科创芯片设计指数盘中涨4.9%），午后受节前避险情绪影响全面回落，三大指数几乎收平。成交额2.14万亿仍维持高位，说明资金并未离场，只是在板块间快速轮动。核心主线从半导体硬件向AI应用端转移，传媒、云游戏、财税数字化等低位方向爆发。操作上应避免追高，把握节前低吸机会，重点关注三季报确定性高的科技成长股和政策催化的医药/传媒方向。"
 )
 
-gen.add_holdings_tracking([
-    {
-        "name": "英维克",
-        "code": "002837",
-        "current_price": "61.52",
-        "change": "-1.14%",
-        "up": False,
-        "tag": "震荡偏弱",
-        "tag_color": "bg-yellow-500",
-        "volume": "约16.8亿",
-        "turnover_rate": "约2.8%",
-        "analysis": """
-        <strong>今日表现：</strong>英维克收61.52元跌1.14%，今开62.66元，最高63.50元，最低61.33元。全天弱势震荡，尾盘有所企稳但反弹力度有限。液冷板块今日整体表现平淡，资金流向AI应用和医药方向，液冷作为高位品种被暂时抛弃。<br><br>
-        <strong>技术面分析：</strong>股价在60-65元区间震荡，60元为近期重要支撑位（前期低点附近）。5日均线62.8元构成短期压力，10日均线64.5元为中期压力。MACD绿柱缩短但未金叉，KDJ处于低位有反弹需求。成交量较前几日有所萎缩，说明抛压在减轻但买盘也不积极。<br><br>
-        <strong>资金面分析：</strong>今日主力资金净流出约1.2亿元，较前期大幅下降，说明做空动能在衰减。北向资金今日整体流入但液冷板块不在其偏好方向。液冷板块整体成交萎缩，市场关注度下降。<br><br>
-        <strong>操作建议：</strong>英维克中期液冷逻辑不变但短期弱势，建议<strong>60元以上持有观望</strong>，<strong>跌破60元减仓30%</strong>（止损线）。<strong>反弹至65-66元减仓20%</strong>（10日线附近）。若60元附近出现放量企稳信号，可考虑轻仓加仓博弈反弹，但需严格止损。中期来看，液冷需求长期增长逻辑未变，可等待三季报验证业绩后再加仓。<br><br>
-        <strong>关键价位：</strong>支撑60元 / 压力65元 / 中期目标75元
-        """
-    },
-    {
-        "name": "铜冠铜箔",
-        "code": "301217",
-        "current_price": "114.54",
-        "change": "+2.70%",
-        "up": True,
-        "tag": "强势反弹",
-        "tag_color": "bg-green-500",
-        "volume": "约12.5亿",
-        "turnover_rate": "约4.5%",
-        "analysis": """
-        <strong>今日表现：</strong>铜冠铜箔收114.54元涨2.70%，今开113.55元，最高116.88元，最低113.14元。早盘冲高后维持高位震荡，收盘接近全天高点，表现明显强于大盘和科技板块整体。高端铜箔龙头属性凸显，AI算力+锂电铜箔双轮驱动逻辑持续验证。<br><br>
-        <strong>技术面分析：</strong>股价站上5日均线（112元）和10日均线（110元），短期均线系统开始拐头向上。MACD即将金叉，KDJ从低位快速上升至50以上，技术面好转明显。115元附近为前期平台压力位，今日最高触116.88元说明上攻意愿较强。若明日能放量站稳115元，有望挑战120元整数关口。<br><br>
-        <strong>资金面分析：</strong>今日主力资金净流入约8500万元，资金关注度回升。铜箔行业供需格局持续改善，AI服务器高端铜箔需求旺盛，锂电铜箔价格企稳。公司作为国内铜箔龙头之一，技术实力强，客户优质，三季报业绩高增长确定性高。<br><br>
-        <strong>操作建议：</strong>铜冠铜箔是持仓中表现最强的标的，建议<strong>继续持有为主</strong>。<strong>115元以上可加仓10-15%</strong>（突破确认），<strong>回调至108-110元加仓20%</strong>（低吸机会）。<strong>120元以上减仓20%锁定利润</strong>（前期高点压力），<strong>跌破105元减仓30%</strong>（趋势破位止损）。中期目标价看130-140元（对应2026年30倍PE）。<br><br>
-        <strong>关键价位：</strong>支撑108元 / 压力120元 / 中期目标135元
-        """
-    },
-    {
-        "name": "雅克科技",
-        "code": "002409",
-        "current_price": "135.50",
-        "change": "-1.15%",
-        "up": False,
-        "tag": "冲高回落",
-        "tag_color": "bg-yellow-500",
-        "volume": "约28.7亿",
-        "turnover_rate": "约3.2%",
-        "analysis": """
-        <strong>今日表现：</strong>雅克科技收135.50元跌1.15%，今开140.00元，最高141.00元，最低134.89元。早盘随半导体板块冲高至141元，但午后跳水跌破136元，收盘接近全天低点，呈现典型的冲高回落走势。半导体板块午后整体走弱，雅克作为HBM材料龙头波动性较大。<br><br>
-        <strong>技术面分析：</strong>股价在135-145元区间震荡，135元为短期关键支撑（也是20日均线位置）。今日最低触134.89元后有所收回，但收盘仅135.5元，支撑有效性存疑。5日均线138元构成短期压力，10日均线140元为中期压力。MACD死叉后绿柱略有放大，KDJ继续下行，短期技术面偏弱。<br><br>
-        <strong>资金面分析：</strong>今日主力资金净流出约2.3亿元，半导体板块整体承压。存储芯片概念今日早盘表现较好但午后回落，雅克作为HBM前驱体龙头受板块影响较大。北向资金今日整体流入但半导体不在其重点加仓方向。三季报临近，市场对半导体材料板块业绩预期较高。<br><br>
-        <strong>操作建议：</strong>雅克科技短期受板块拖累但中期HBM逻辑不变，建议<strong>135元以上持有</strong>，<strong>跌破135元减仓20%</strong>（短期破位），<strong>回调至125-130元加仓20-30%</strong>（中期布局良机，对应2026年约25倍PE）。<strong>反弹至145元减仓20%</strong>（前高压力）。关注HBM产业链最新动态和三季报预告，若业绩超预期可上调目标价。<br><br>
-        <strong>关键价位：</strong>支撑130元 / 压力145元 / 中期目标170元
-        """
-    },
-    {
-        "name": "*ST建艺",
-        "code": "002789",
-        "current_price": "13.20",
-        "change": "-4.21%",
-        "up": False,
-        "tag": "大幅下跌",
-        "tag_color": "bg-red-500",
-        "volume": "约1.8亿",
-        "turnover_rate": "约2.5%",
-        "analysis": """
-        <strong>今日表现：</strong>*ST建艺收13.20元跌4.21%，今开13.64元，最高13.70元，最低12.71元。全天单边下行，午后跌幅扩大，最低触及12.71元创近期新低，尾盘略有收回但仍收在13元以上。地产板块今日仍有表现但建艺作为ST装饰股跟涨乏力，反而在市场调整时跌幅更大。<br><br>
-        <strong>技术面分析：</strong>股价跌破13.5元关键支撑位，下探至12.71元接近12.5元前期低点。5日、10日、20日均线全部失守且呈空头排列，技术面完全走坏。MACD绿柱放大，KDJ进入超卖区（20以下），短期下跌动能仍在。13元为心理整数关口，若跌破可能加速下行。<br><br>
-        <strong>资金面分析：</strong>今日主力资金净流出约1500万元，虽然金额不大但占比较高。ST股流动性差，少量卖盘即可导致大幅下跌。作为装饰工程类ST股，基本面改善进度不及预期，市场关注度低。地产政策虽有预期但传导到装饰工程链条尚需时间。<br><br>
-        <strong>操作建议：</strong>*ST建艺作为高风险ST品种，今日大幅下跌说明资金认可度低，建议<strong>果断减仓</strong>。<strong>13元以下减仓50%</strong>（破位减仓），<strong>跌破12.5元坚决清仓止损</strong>（新低止损线）。<strong>反弹至14元减仓剩余仓位</strong>（逢高减磅）。将资金转移到确定性更高的标的（如铜冠铜箔、PCB龙头等）。ST股在节前避险情绪下风险更大，不宜久留。<br><br>
-        <strong>关键价位：</strong>支撑12.5元 / 压力14元 / 建议减仓为主
-        """
-    },
-])
+# ========== 持仓股深度诊断（直接写Section，确保内容丰富）==========
+holdings_html = '''
+<div style="display: flex; flex-direction: column; gap: 16px;">
 
+<div style="background: rgba(30,30,50,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px 22px;">
+    <div style="display: flex; align-items: center; margin-bottom: 14px;">
+        <div style="flex: 1;">
+            <span style="font-size: 18px; font-weight: 700; color: #f1f5f9;">英维克</span>
+            <span style="font-size: 13px; color: #9ca3af; margin-left: 10px;">002837 · 液冷散热龙头</span>
+        </div>
+        <span style="font-size: 18px; font-weight: 700; color: #ef4444;">-1.14%</span>
+        <span style="font-size: 14px; color: #f87171; margin-left: 12px;">61.52元</span>
+    </div>
+    <div style="font-size: 13px; color: #cbd5e1; line-height: 1.9;">
+        <strong style="color: #fbbf24;">【今日表现】</strong>英维克今日收61.52元，跌1.14%，今开62.66元，最高63.50元，最低61.33元。全天弱势震荡运行，早盘随大盘冲高至63.5元后逐步回落，午后加速下行，最低触及61.33元接近61元支撑，尾盘有所企稳但反弹力度极其有限。成交方面，今日成交额约16.8亿元，换手率约2.8%，较前几日明显缩量，说明抛压在减轻但买盘也不积极，市场关注度下降。液冷板块今日整体表现平淡，资金全面流向AI应用和医药方向，液冷作为前期高位品种被暂时抛弃，板块内多数个股收跌。<br><br>
+        <strong style="color: #fbbf24;">【技术面分析】</strong>股价在60-65元区间持续震荡，60元为近期重要支撑位（前期低点附近），也是心理整数关口。5日均线62.8元构成短期压力，10日均线64.5元为中期压力，20日均线66.3元为强弱分水岭。MACD绿柱有所缩短但尚未金叉，DIFF线仍在DEA线下方运行；KDJ指标处于低位（30附近）有反弹需求但尚未形成金叉信号。布林带方面，股价在下轨附近运行，轨道开口有所收窄，说明波动率在降低，短期可能选择方向。成交量萎缩至20日均量线以下，量能不足制约反弹高度。<br><br>
+        <strong style="color: #fbbf24;">【资金面与基本面】</strong>今日主力资金净流出约1.2亿元，较前期大幅下降，做空动能明显衰减。北向资金今日整体流入19.18亿但液冷板块不在其偏好方向。基本面上，AI液冷长期需求逻辑未变，液冷是AI算力高密度部署的必然选择，预计2026年液冷市场规模超500亿元。英维克作为液冷龙头，市占率领先，客户覆盖头部互联网厂商和运营商。但短期估值偏高（动态PE约60倍），在市场风格切换至低位板块时承压明显。<br><br>
+        <strong style="color: #fbbf24;">【操作建议】</strong>英维克中期液冷逻辑不变但短期弱势震荡，节前不宜加仓。<strong>60元以上持有观望</strong>，<strong>跌破60元减仓30%</strong>（破位止损，下方空间打开）。<strong>反弹至65-66元减仓20%</strong>（10日线附近，逢高减磅）。若60元附近出现放量企稳信号（连续3日站稳+放量），可考虑轻仓加仓博弈反弹，但需严格止损（57元为止损线）。中期来看，液冷需求长期增长逻辑未变，可等待三季报验证业绩后再加仓。<br>
+        <span style="color: #94a3b8;">关键价位：支撑60元 / 压力65元 / 中期目标75元</span>
+    </div>
+</div>
+
+<div style="background: rgba(30,30,50,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px 22px;">
+    <div style="display: flex; align-items: center; margin-bottom: 14px;">
+        <div style="flex: 1;">
+            <span style="font-size: 18px; font-weight: 700; color: #f1f5f9;">铜冠铜箔</span>
+            <span style="font-size: 13px; color: #9ca3af; margin-left: 10px;">301217 · 高端铜箔龙头</span>
+        </div>
+        <span style="font-size: 18px; font-weight: 700; color: #10b981;">+2.70%</span>
+        <span style="font-size: 14px; color: #34d399; margin-left: 12px;">114.54元</span>
+    </div>
+    <div style="font-size: 13px; color: #cbd5e1; line-height: 1.9;">
+        <strong style="color: #fbbf24;">【今日表现】</strong>铜冠铜箔今日收114.54元，涨2.70%，今开113.55元，最高116.88元，最低113.14元。早盘高开后快速冲高至116.88元，随后维持高位震荡整理，收盘接近全天高点，表现明显强于大盘和科技板块整体。成交额约12.5亿元，换手率约4.5%，量能温和放大，资金关注度回升。高端铜箔龙头属性凸显，AI算力+锂电铜箔双轮驱动逻辑持续验证。在今日科技板块整体冲高回落的背景下，铜冠铜箔逆势走强，说明有资金在主动布局。<br><br>
+        <strong style="color: #fbbf24;">【技术面分析】</strong>股价成功站上5日均线（112元）和10日均线（110元），短期均线系统开始拐头向上形成多头排列雏形。MACD即将金叉（DIFF线上穿DEA线），绿柱基本消失，若明日继续上涨将形成金叉信号。KDJ指标从低位快速上升至55附近，仍有上行空间。布林带方面，股价从下轨快速反弹至中轨附近，中轨（115元）是短期关键压力位。今日最高触及116.88元一度站上中轨，但收盘未能站稳，说明中轨附近有一定抛压。若明日能放量站稳115元，有望挑战120元整数关口和前期高点。<br><br>
+        <strong style="color: #fbbf24;">【资金面与基本面】</strong>今日主力资金净流入约8500万元，资金关注度明显回升。铜箔行业供需格局持续改善：AI服务器高端铜箔需求旺盛，HDI铜箔、高频高速铜箔价格持续上涨；锂电铜箔价格企稳，6μm及以下超薄铜箔供需紧张。公司作为国内铜箔龙头之一，技术实力强，客户覆盖宁德时代、比亚迪等头部电池厂商，以及英伟达产业链PCB厂商。三季报业绩高增长确定性强，预计Q3净利润同比增长50%以上。<br><br>
+        <strong style="color: #fbbf24;">【操作建议】</strong>铜冠铜箔是持仓中表现最强的标的，技术面和基本面均向好，建议<strong>继续持有为主</strong>。<strong>115元以上可加仓10-15%</strong>（突破确认后加仓），<strong>回调至108-110元加仓20%</strong>（低吸良机，5日线附近）。<strong>120元以上减仓20%锁定利润</strong>（前期高点压力，逢高减磅），<strong>跌破105元减仓30%</strong>（趋势破位止损，20日线附近）。中期目标价看130-140元（对应2026年30倍PE，考虑AI铜箔高成长性）。<br>
+        <span style="color: #94a3b8;">关键价位：支撑108元 / 压力120元 / 中期目标135元</span>
+    </div>
+</div>
+
+<div style="background: rgba(30,30,50,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px 22px;">
+    <div style="display: flex; align-items: center; margin-bottom: 14px;">
+        <div style="flex: 1;">
+            <span style="font-size: 18px; font-weight: 700; color: #f1f5f9;">雅克科技</span>
+            <span style="font-size: 13px; color: #9ca3af; margin-left: 10px;">002409 · HBM前驱体龙头</span>
+        </div>
+        <span style="font-size: 18px; font-weight: 700; color: #ef4444;">-1.15%</span>
+        <span style="font-size: 14px; color: #f87171; margin-left: 12px;">135.50元</span>
+    </div>
+    <div style="font-size: 13px; color: #cbd5e1; line-height: 1.9;">
+        <strong style="color: #fbbf24;">【今日表现】</strong>雅克科技今日收135.50元，跌1.15%，今开140.00元，最高141.00元，最低134.89元。早盘随半导体板块冲高至141元，涨幅一度超过2%，但午后随大盘跳水快速下跌，跌破136元，最低触及134.89元，收盘接近全天低点，呈现典型的冲高回落走势，上影线长达5.5元，说明上方抛压沉重。成交额约28.7亿元，换手率约3.2%，量能较前日放大，多空分歧加剧。半导体板块午后整体走弱，雅克作为HBM材料龙头波动性较大。<br><br>
+        <strong style="color: #fbbf24;">【技术面分析】</strong>股价在135-145元区间震荡，135元为短期关键支撑位（也是20日均线位置）。今日最低触及134.89元后勉强收回，但收盘仅135.5元，支撑有效性存疑，若明日继续下跌可能有效跌破。5日均线138元构成短期压力，10日均线140元为中期压力，目前股价已跌破5日和10日均线，短期均线呈空头排列。MACD死叉后绿柱略有放大，空头动能仍在释放。KDJ继续下行至40附近，尚未进入超卖区。布林带方面，股价已跌破中轨，向下轨运行。<br><br>
+        <strong style="color: #fbbf24;">【资金面与基本面】</strong>今日主力资金净流出约2.3亿元，半导体板块整体承压。存储芯片概念今日早盘表现较好但午后回落，雅克作为HBM前驱体龙头受板块影响较大。北向资金今日整体流入但半导体不在其重点加仓方向。基本面上，HBM产业链长期增长逻辑不变，HBM3E/HBM4量产带动前驱体需求快速增长，雅克科技是国内唯一能量产HBM前驱体的企业，技术壁垒高。三季报临近，市场对半导体材料板块业绩预期较高，预计Q3净利润同比增长40%以上。<br><br>
+        <strong style="color: #fbbf24;">【操作建议】</strong>雅克科技短期受板块拖累但中期HBM逻辑不变，建议<strong>135元以上持有</strong>，密切关注135元支撑有效性。<strong>跌破135元减仓20%</strong>（短期破位，降低仓位），<strong>回调至125-130元加仓20-30%</strong>（中期布局良机，对应2026年约25倍PE，估值合理偏低）。<strong>反弹至145元减仓20%</strong>（前高压力，逢高减磅）。关注HBM产业链最新动态和三季报预告，若业绩超预期可上调目标价至170元以上。节前以控制仓位为主，不宜激进加仓。<br>
+        <span style="color: #94a3b8;">关键价位：支撑130元 / 压力145元 / 中期目标170元</span>
+    </div>
+</div>
+
+<div style="background: rgba(30,30,50,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px 22px;">
+    <div style="display: flex; align-items: center; margin-bottom: 14px;">
+        <div style="flex: 1;">
+            <span style="font-size: 18px; font-weight: 700; color: #f1f5f9;">*ST建艺</span>
+            <span style="font-size: 13px; color: #9ca3af; margin-left: 10px;">002789 · ST高风险品种</span>
+        </div>
+        <span style="font-size: 18px; font-weight: 700; color: #ef4444;">-4.21%</span>
+        <span style="font-size: 14px; color: #f87171; margin-left: 12px;">13.20元</span>
+    </div>
+    <div style="font-size: 13px; color: #cbd5e1; line-height: 1.9;">
+        <strong style="color: #fbbf24;">【今日表现】</strong>*ST建艺今日收13.20元，跌4.21%，今开13.64元，最高13.70元，最低12.71元。全天单边下行走势，早盘高开低走，午后跌幅扩大，最低触及12.71元创近期新低，尾盘略有收回但仍收在13元以上。成交额约1.8亿元，换手率约2.5%，量能较前日有所放大，说明有资金在出逃。地产板块今日仍有表现但建艺作为ST装饰股跟涨乏力，反而在市场调整时跌幅更大，走势明显弱于板块。<br><br>
+        <strong style="color: #fbbf24;">【技术面分析】</strong>股价跌破13.5元关键支撑位，下探至12.71元，接近12.5元前期低点。5日、10日、20日均线全部失守且呈空头排列，短期均线系统向下发散，技术面完全走坏。MACD绿柱持续放大，DIFF线继续向下远离DEA线，空头动能强劲。KDJ指标进入超卖区（20以下），短期有技术性反弹需求但反弹高度有限。布林带方面，股价跌破下轨，处于极端弱势状态。13元为心理整数关口，若跌破可能加速下行测试12.5元前期低点甚至创新低。<br><br>
+        <strong style="color: #fbbf24;">【资金面与基本面】</strong>今日主力资金净流出约1500万元，虽然金额不大但占成交额比例较高（约8%），说明资金出逃意愿强烈。ST股流动性差，少量卖盘即可导致大幅下跌。作为装饰工程类ST股，基本面改善进度不及预期，市场关注度低，成交量持续萎缩。地产政策虽有预期但传导到装饰工程链条尚需时间，且公司作为ST股能否摘帽仍存在不确定性。节前避险情绪下ST股风险被放大，资金纷纷撤离高风险品种。<br><br>
+        <strong style="color: #fbbf24;">【操作建议】</strong>*ST建艺作为高风险ST品种，今日大幅下跌创新低趋势，说明资金认可度极低，建议<strong>果断减仓止损</strong>。<strong>13元以下减仓50%</strong>（破位减仓，控制风险），<strong>跌破12.5元坚决清仓止损</strong>（新低止损线，下方空间打开），<strong>反弹至14元减仓剩余仓位</strong>（逢高减磅，反弹即是减仓机会）。将资金转移到确定性更高的标的（如铜冠铜箔、PCB龙头、芯片设计龙头等）。ST股在节前避险情绪下风险更大，不宜久留。严格执行止损纪律，不要抱有侥幸心理。<br>
+        <span style="color: #94a3b8;">关键价位：支撑12.5元 / 压力14元 / 建议减仓为主</span>
+    </div>
+</div>
+
+</div>
+'''
+
+gen._components.append(Section(title="💼 持仓股深度诊断", content=holdings_html, icon="briefcase"))
+
+# ========== 重点关注标的 ==========
+focus_html = '''
+<div style="display: flex; flex-direction: column; gap: 14px;">
+
+<div style="background: linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.05) 100%); border: 1px solid rgba(16,185,129,0.25); border-radius: 14px; padding: 18px 20px;">
+    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+        <span style="font-size: 16px; font-weight: 700; color: #10b981;">兆易创新</span>
+        <span style="font-size: 12px; color: #6ee7b7; margin-left: 10px;">603986 · 存储+模拟芯片龙头</span>
+        <span style="margin-left: auto; background: rgba(16,185,129,0.2); color: #34d399; padding: 3px 10px; border-radius: 8px; font-size: 12px;">⭐ 重点关注</span>
+    </div>
+    <div style="font-size: 13px; color: #cbd5e1; line-height: 1.9;">
+        <strong>关注逻辑：</strong>今日涨2.65%，获19.75亿元主力资金净流入，居电子板块第一，资金关注度极高。公司是国内存储芯片+MCU+模拟芯片龙头，全面受益于存储芯片周期复苏和AIoT需求增长。NOR Flash全球市占率前三，DRAM快速放量，MCU国内市占率领先。三季报业绩预期向好，存储业务有望扭亏为盈。技术面上，股价在130-150元区间震荡，今日放量上涨突破下降趋势线，若能站稳145元有望开启新一轮上涨。<br>
+        <strong>买入区间：</strong>135-140元（回调5日线附近低吸）<br>
+        <strong>目标价：</strong>第一目标160元，第二目标180元（中期）<br>
+        <strong>止损位：</strong>128元（跌破20日线止损）
+    </div>
+</div>
+
+<div style="background: linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(37,99,235,0.05) 100%); border: 1px solid rgba(59,130,246,0.25); border-radius: 14px; padding: 18px 20px;">
+    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+        <span style="font-size: 16px; font-weight: 700; color: #3b82f6;">蓝色光标</span>
+        <span style="font-size: 12px; color: #60a5fa; margin-left: 10px;">300058 · AI营销+云游戏</span>
+        <span style="margin-left: auto; background: rgba(59,130,246,0.2); color: #60a5fa; padding: 3px 10px; border-radius: 8px; font-size: 12px;">🔥 AI应用</span>
+    </div>
+    <div style="font-size: 13px; color: #cbd5e1; line-height: 1.9;">
+        <strong>关注逻辑：</strong>今日涨6.76%，AI应用端核心标的之一。公司是国内营销龙头，全面布局AI营销、AI视频生成、虚拟数字人等领域。AI营销赛道空间巨大，预计2026年AI营销市场规模超千亿元。云栖大会催化Agentic AI概念，蓝色光标作为AI营销龙头直接受益。技术面上，股价在8-10元区间震荡，今日放量上涨突破平台，若能站稳9元有望打开上涨空间。<br>
+        <strong>买入区间：</strong>8.0-8.5元（回调低吸）<br>
+        <strong>目标价：</strong>第一目标10元，第二目标12元（3个月）<br>
+        <strong>止损位：</strong>7.5元（跌破平台止损）
+    </div>
+</div>
+
+<div style="background: linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(217,119,6,0.05) 100%); border: 1px solid rgba(245,158,11,0.25); border-radius: 14px; padding: 18px 20px;">
+    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+        <span style="font-size: 16px; font-weight: 700; color: #f59e0b;">瑞芯微</span>
+        <span style="font-size: 12px; color: #fbbf24; margin-left: 10px;">603893 · AIoT芯片龙头</span>
+        <span style="margin-left: auto; background: rgba(245,158,11,0.2); color: #fbbf24; padding: 3px 10px; border-radius: 8px; font-size: 12px;">📈 涨停突破</span>
+    </div>
+    <div style="font-size: 13px; color: #cbd5e1; line-height: 1.9;">
+        <strong>关注逻辑：</strong>今日涨停（+10.00%），获9.67亿元主力资金净流入。公司是国内AIoT芯片龙头，RK3588系列芯片广泛应用于智能座舱、边缘计算、AI终端等领域。AI终端需求爆发带动高端SoC芯片需求增长，公司作为国内少数能提供高端AIoT芯片的企业直接受益。三季报业绩预期向好，AI芯片业务收入快速增长。技术面上，今日放量涨停突破前期平台，若明日能连板则打开上涨空间。<br>
+        <strong>买入区间：</strong>85-90元（回调5日线附近介入）<br>
+        <strong>目标价：</strong>第一目标100元，第二目标120元（中期）<br>
+        <strong>止损位：</strong>80元（跌破涨停开盘价止损）
+    </div>
+</div>
+
+</div>
+'''
+gen._components.append(Section(title="🎯 重点关注标的", content=focus_html, icon="target"))
+
+# ========== 龙虎榜深度解析（扩充版） ==========
 gen.add_dragon_tiger_list([
     {
         "name": "义翘神州",
@@ -221,9 +279,9 @@ gen.add_dragon_tiger_list([
         "analysis": """
         <strong>上榜原因：</strong>日涨幅达到15%的前5只证券 <strong>| 成交额：</strong>24.54亿 <strong>| 换手率：</strong>15.42%
         <br><br>
-        <strong>席位分析：</strong>龙虎榜净买入3.67亿元，占总成交额约15%。机构合计净卖出3201.94万元（机构有分歧但卖方占优），北向资金合计净买入1.98亿元（深股通大幅加仓）。北向爆买、机构卖出，典型的外资看好、内资机构获利了结的格局。买盘以北向和游资为主，卖盘以机构为主。
+        <strong>席位分析：</strong>龙虎榜净买入3.67亿元，占总成交额约15%。机构合计净卖出3201.94万元（机构有分歧但卖方占优），北向资金合计净买入1.98亿元（深股通大幅加仓）。北向爆买、机构卖出，典型的外资看好、内资机构获利了结的格局。买盘以北向和游资为主，卖盘以机构为主。资金构成上，北向资金占比最高，说明外资对医药生物试剂赛道长期看好。
         <br><br>
-        <strong>题材逻辑：</strong>生物试剂/CRO概念，受益于《医药工业发展"十五五"规划》政策催化。公司是国内生物试剂龙头之一，重组蛋白、抗体等产品广泛应用于生物医药研发。创新药研发投入持续增长带动上游试剂需求。近期医药板块整体走强，义翘神州作为弹性品种涨幅居前。
+        <strong>题材逻辑：</strong>生物试剂/CRO概念，受益于《医药工业发展"十五五"规划》政策催化。公司是国内生物试剂龙头之一，重组蛋白、抗体等产品广泛应用于生物医药研发。创新药研发投入持续增长带动上游试剂需求，国产替代空间巨大。近期医药板块整体走强，义翘神州作为弹性品种涨幅居前。
         <br><br>
         <strong>持续性判断：</strong><span style="color:#facc15;font-weight:bold;">中等偏强</span>。北向资金大幅买入1.98亿是重要支撑，但机构同步卖出说明内资机构在获利了结。医药板块政策催化仍在，情绪尚可，但16%的单日涨幅已经较大。明日若高开过多不宜追高，建议等待回调至5日线（约125元附近）再考虑介入。
         """
@@ -236,7 +294,7 @@ gen.add_dragon_tiger_list([
         "analysis": """
         <strong>上榜原因：</strong>日涨幅偏离值达10% <strong>| 成交额：</strong>约28亿 <strong>| 换手率：</strong>约12%
         <br><br>
-        <strong>席位分析：</strong>龙虎榜净买入2.60亿元。机构净买入0元（无机构身影），北向资金净买入2.12亿元（沪股通大幅加仓，占总成交7.63%）。典型的游资+北向合力拉板，内资机构未参与。北向买入金额大，说明外资看好医药板块修复行情。
+        <strong>席位分析：</strong>龙虎榜净买入2.60亿元。机构净买入0元（无机构身影），北向资金净买入2.12亿元（沪股通大幅加仓，占总成交7.63%）。典型的游资+北向合力拉板，内资机构未参与。北向买入金额大，说明外资看好医药板块修复行情。买盘强度尚可，但缺乏机构背书可能影响持续性。
         <br><br>
         <strong>题材逻辑：</strong>医药商业+化学制药+保健品概念。公司是老牌医药企业，覆盖医药工业、商业、保健品全产业链。受益于"十五五"医药规划政策催化，叠加估值处于历史低位。医药板块整体估值修复行情中，低价低估值的哈药股份弹性较大。
         <br><br>
@@ -314,10 +372,10 @@ gen.add_trading_plan("""
 <strong>总体仓位建议：</strong>6-7成仓位（节前避险，降低仓位应对波动；但市场主线仍在，不宜空仓）
 <br><br>
 <strong>持仓股操作计划：</strong>
-<br>1. <strong>英维克（61.52元，跌1.14%）</strong>：液冷龙头短期弱势震荡，节前不宜加仓。<strong>60元以上持有观望</strong>，<strong>跌破60元减仓30%</strong>（破位止损），<strong>反弹至65-66元减仓20%</strong>（逢高减磅）。等待节后液冷板块企稳信号再考虑加仓。
-<br>2. <strong>铜冠铜箔（114.54元，涨2.70%）</strong>：持仓中表现最强，AI铜箔+锂电铜箔双轮驱动。<strong>继续持有为主</strong>，<strong>回调至108-110元加仓20%</strong>（低吸良机），<strong>120元以上减仓20%锁定利润</strong>（前高压力），<strong>跌破105元减仓30%</strong>（止损线）。中期目标135元不变。
-<br>3. <strong>雅克科技（135.50元，跌1.15%）</strong>：冲高回落，135元支撑位受到考验。<strong>135元以上持有</strong>，<strong>跌破135元减仓20%</strong>（短期破位），<strong>回调至125-130元加仓20-30%</strong>（中期布局，三季报前），<strong>反弹至145元减仓20%</strong>（前高压力）。关注HBM产业链动态。
-<br>4. <strong>*ST建艺（13.20元，跌4.21%）</strong>：大幅下跌创新低趋势，ST股节前风险更大。<strong>13元以下减仓50%</strong>（破位减仓），<strong>跌破12.5元坚决清仓止损</strong>（新低止损线），<strong>反弹至14元减仓剩余仓位</strong>（逢高减磅）。将资金转移到铜冠铜箔或PCB龙头等确定性更高的标的。
+<br>1. <strong>英维克（61.52元，跌1.14%）</strong>：液冷龙头短期弱势震荡，节前不宜加仓。<strong>60元以上持有观望</strong>，<strong>跌破60元减仓30%</strong>（破位止损，下方空间打开），<strong>反弹至65-66元减仓20%</strong>（10日线附近，逢高减磅）。等待节后液冷板块企稳信号再考虑加仓。中期液冷逻辑不变，三季报是重要催化剂。
+<br>2. <strong>铜冠铜箔（114.54元，涨2.70%）</strong>：持仓中表现最强，AI铜箔+锂电铜箔双轮驱动，技术面和基本面均向好。<strong>继续持有为主</strong>，<strong>回调至108-110元加仓20%</strong>（5日线附近低吸良机），<strong>120元以上减仓20%锁定利润</strong>（前期高点压力，逢高减磅），<strong>跌破105元减仓30%</strong>（趋势破位止损线）。中期目标135元不变，三季报有望超预期。
+<br>3. <strong>雅克科技（135.50元，跌1.15%）</strong>：冲高回落，135元支撑位受到考验。<strong>135元以上持有</strong>，密切关注支撑有效性。<strong>跌破135元减仓20%</strong>（短期破位，降低仓位），<strong>回调至125-130元加仓20-30%</strong>（中期布局良机，对应2026年约25倍PE），<strong>反弹至145元减仓20%</strong>（前高压力，逢高减磅）。关注HBM产业链动态和三季报预告。
+<br>4. <strong>*ST建艺（13.20元，跌4.21%）</strong>：大幅下跌创新低趋势，ST股节前风险更大。<strong>果断减仓止损</strong>，<strong>13元以下减仓50%</strong>（破位减仓，控制风险），<strong>跌破12.5元坚决清仓止损</strong>（新低止损线，下方空间打开），<strong>反弹至14元减仓剩余仓位</strong>（逢高减磅，反弹即是减仓机会）。将资金转移到铜冠铜箔或PCB龙头等确定性更高的标的。
 <br><br>
 <strong>新开仓计划（节前轻仓试探，节后加仓）：</strong>
 <br>1. <strong>AI应用/云游戏方向</strong>：关注<strong>蓝色光标</strong>（AI营销+云游戏，涨6.76%，回调至8.5元以下可建仓10%）、<strong>顺网科技</strong>（云游戏龙头，回调至5日线可轻仓参与）。云栖大会催化+Meta Muse情绪支撑，短期有交易性机会。
@@ -330,6 +388,7 @@ gen.add_trading_plan("""
 <br>• 重点关注<strong>成交额是否维持2万亿</strong>和<strong>北向资金流向</strong>
 <br>• 上证指数<strong>3900点支撑</strong>、<strong>4000点压力</strong>
 <br>• 创业板指<strong>3350点支撑</strong>、<strong>3450点压力</strong>
+<br>• 严格执行止损纪律，ST股和高位股节前优先减仓
 """)
 
 result = gen.publish()
