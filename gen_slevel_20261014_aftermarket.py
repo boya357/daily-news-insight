@@ -288,6 +288,6 @@ gen.add_risk_warning(
 if __name__ == "__main__":
     result = gen.publish(
         title="ASML Q3财报超预期+订单排到2030年+半导体设备超级景气确认",
-        filename="20261009_盘后_S级催化扫描_OpenAI营收预期+AI硬件调整.html"
+        filename="20261014_盘后_S级催化扫描_ASML半导体设备超级周期.html"
     )
     print(f"发布结果: {result}")
