@@ -232,6 +232,6 @@ gen.add_risk_warning([
     "本文所提及股票仅作事件影响分析，不构成任何投资建议，投资有风险，入市需谨慎"
 ])
 
-# 发布
-result = gen.publish()
+# 发布 - 指定文件名使用明日日期
+result = gen.publish(filename="20261016_明日催化剂.html")
 print("Publish result:", result)
