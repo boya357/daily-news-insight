@@ -458,8 +458,8 @@ class AftermarketGenerator:
         # 四项数据
         content_html += '<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; text-align: center;">'
         content_html += '<div><div style="font-size: 18px; font-weight: 800; color: #e2e8f0;">' + volume + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">成交额</div></div>'
-        content_html += '<div><div style="font-size: 18px; font-weight: 800; color: #ef4444;">' + up_count + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">上涨家数</div></div>'
-        content_html += '<div><div style="font-size: 18px; font-weight: 800; color: #10b981;">' + down_count + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">下跌家数</div></div>'
+        content_html += '<div><div style="font-size: 18px; font-weight: 800; color: #ef4444;">' + str(up_count) + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">上涨家数</div></div>'
+        content_html += '<div><div style="font-size: 18px; font-weight: 800; color: #10b981;">' + str(down_count) + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">下跌家数</div></div>'
         content_html += '<div><div style="font-size: 18px; font-weight: 800; color: #f59e0b;">' + str(limit_up_count) + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">涨停数</div></div>'
         content_html += '</div></div>'
         
