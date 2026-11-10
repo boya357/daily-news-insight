@@ -76,6 +76,14 @@ class DailyReportProGenerator(ReportProGenerator):
             self.predictions = pred_data
         except:
             self.predictions = {}
+        
+        # 全球市场数据（隔夜美股/欧股/商品，用于今日作战计划）
+        try:
+            data_path = os.path.join(self.data_dir, 'global_market.json')
+            with open(data_path, 'r', encoding='utf-8') as f:
+                self.global_data = json.load(f)
+        except:
+            self.global_data = {}
     
     def _parse_change_pct(self, change_str):
         """解析涨跌幅字符串，返回浮点数"""
@@ -753,6 +761,520 @@ class DailyReportProGenerator(ReportProGenerator):
         </div>
         '''
     
+    # ========== 持仓→美股映射表（硬编码，决定外盘传导精准度） ==========
+    HOLDINGS_US_MAP = {
+        '002409': {
+            'name': '雅克科技',
+            'sectors': ['存储'],
+            'positive_stocks': ['美光科技', '闪迪', '希捷科技', '西部数据'],
+            'negative_stocks': [],
+            'logic': '存储前驱体材料，HBM/SK海力士独家供应',
+        },
+        '688535': {
+            'name': '华海诚科',
+            'sectors': ['半导体设备', '存储'],
+            'positive_stocks': ['应用材料', '泛林集团', '科磊', '美光科技'],
+            'negative_stocks': [],
+            'logic': '封装材料，存储+先进封装双逻辑',
+        },
+        '600584': {
+            'name': '长电科技',
+            'sectors': ['代工'],
+            'positive_stocks': ['台积电ADR', '应用材料', '博通'],
+            'negative_stocks': [],
+            'logic': '先进封测龙头，Chiplet/AI芯片封装',
+        },
+        '000636': {
+            'name': '风华高科',
+            'sectors': ['芯片', '消费电子'],
+            'positive_stocks': ['英特尔', '高通', 'AMD', '苹果'],
+            'negative_stocks': [],
+            'logic': 'MLCC国产龙头，AI服务器/新能源车用量暴增',
+        },
+        '002837': {
+            'name': '英维克',
+            'sectors': ['AI算力', '云计算'],
+            'positive_stocks': ['微软', 'Meta', '亚马逊'],
+            'negative_stocks': ['英伟达'],
+            'logic': '液冷散热，数据中心资本开支驱动',
+        },
+        '301217': {
+            'name': '铜冠铜箔',
+            'sectors': ['光通信', '新能源车'],
+            'positive_stocks': ['Coherent', 'Lumentum', '迈威尔科技', '康宁', '特斯拉'],
+            'negative_stocks': [],
+            'logic': 'PCB铜箔，AI服务器+锂电铜箔双逻辑',
+        },
+        '002789': {
+            'name': '*ST建艺',
+            'sectors': [],
+            'positive_stocks': [],
+            'negative_stocks': [],
+            'logic': '投机仓位，独立于外盘，严格执行止损纪律',
+        },
+    }
+
+    CORE_THEMES = [
+        {'name': '存储芯片/HBM', 'us_sectors': ['存储', '存储/HDD'], 'key_stocks': ['美光科技','希捷科技','闪迪'],
+         'a_map': '雅克科技/华海诚科/佰维存储'},
+        {'name': 'AI算力/液冷', 'us_sectors': ['AI算力', '云计算'], 'key_stocks': ['AMD','微软','Meta'],
+         'a_map': '英维克/中际旭创/浪潮信息'},
+        {'name': '半导体设备/先进封装', 'us_sectors': ['半导体设备', '光刻设备', '代工'], 'key_stocks': ['应用材料','泛林集团','阿斯麦'],
+         'a_map': '华海诚科/长电科技/中微公司'},
+        {'name': '光通信/CPO', 'us_sectors': ['光通信', '光纤', '光通信/芯片'], 'key_stocks': ['Coherent','Lumentum','康宁'],
+         'a_map': '铜冠铜箔/新易盛/中际旭创'},
+    ]
+
+    def _pct_color(self, v):
+        if v > 1: return 'text-red-400'
+        if v > 0: return 'text-red-300'
+        if v < -1: return 'text-green-400'
+        if v < 0: return 'text-green-300'
+        return 'text-white/60'
+
+    def _pct_sign(self, v):
+        return '+' if v >= 0 else ''
+
+    def _get_us_stock(self, name):
+        tech = self.global_data.get('tech_stocks', []) if hasattr(self, 'global_data') else []
+        for s in tech:
+            if s.get('name') == name and s.get('price', 0) > 0:
+                return s
+        return None
+
+    def _calc_support_resistance(self, stock):
+        price = stock.get('current_price', 0) or stock.get('price', 0)
+        if price <= 0:
+            return {'support1': 0, 'support2': 0, 'resistance1': 0, 'resistance2': 0}
+        return {
+            'support1': round(price * 0.97, 2),
+            'support2': round(price * 0.94, 2),
+            'resistance1': round(price * 1.03, 2),
+            'resistance2': round(price * 1.07, 2),
+        }
+
+    def _analyze_us_market(self):
+        indices = self.global_data.get('indices', []) if hasattr(self, 'global_data') else []
+        tech = self.global_data.get('tech_stocks', []) if hasattr(self, 'global_data') else []
+        commodities = self.global_data.get('commodities', []) if hasattr(self, 'global_data') else []
+        summary = self.global_data.get('summary', '') if hasattr(self, 'global_data') else ''
+
+        us_idx = {i['name']: i for i in indices if i.get('region') == '美股'}
+        dji = us_idx.get('道琼斯', {})
+        spx = us_idx.get('标普500', {})
+        ixic = us_idx.get('纳斯达克', {})
+        sox = us_idx.get('费城半导体', {})
+
+        valid_tech = [s for s in tech if s.get('price', 0) > 0]
+        from collections import defaultdict
+        sectors = defaultdict(list)
+        for s in valid_tech:
+            sec = s.get('sector', '其他')
+            sectors[sec].append(s)
+        sector_avg = {}
+        for sec, stocks in sectors.items():
+            avg = sum(s['change_pct'] for s in stocks) / len(stocks)
+            sector_avg[sec] = {'avg': round(avg, 2), 'count': len(stocks), 'stocks': stocks}
+
+        sorted_sectors = sorted(sector_avg.items(), key=lambda x: x[1]['avg'], reverse=True)
+        leading = sorted_sectors[:3]
+        lagging = sorted_sectors[-2:]
+
+        divergence = []
+        nvda = self._get_us_stock('英伟达')
+        if sox.get('up', False) and nvda and not nvda.get('up', True) and abs(nvda.get('change_pct', 0)) > 2:
+            divergence.append({
+                'type': 'warning',
+                'text': f"费城半导体涨{sox.get('change_pct',0):+.2f}%但英伟达独跌{nvda.get('change_pct',0):+.2f}%，资金正从GPU龙头切换至存储/设备/光通信",
+                'implication': 'A股纯GPU算力链(寒武纪/海光)可能承压，存储/设备/光模块方向更强'
+            })
+
+        oil = None
+        for c in commodities:
+            if 'WTI' in c.get('name', '') or '原油' in c.get('name', ''):
+                oil = c
+                break
+
+        bias = 'bullish'
+        bias_reasons = []
+        bias_risks = []
+
+        if sox.get('change_pct', 0) > 3:
+            bias_reasons.append(f"费城半导体大涨{sox.get('change_pct',0):+.1f}%，存储/设备/光通信全线爆发，A股科创板半导体链情绪正催化")
+        elif sox.get('change_pct', 0) > 1:
+            bias_reasons.append(f"费城半导体上涨{sox.get('change_pct',0):+.1f}%，半导体链温和修复")
+        if ixic.get('change_pct', 0) > 1.5:
+            bias_reasons.append(f"纳指大涨{ixic.get('change_pct',0):+.1f}%，风险偏好修复")
+        if oil and oil.get('change_pct', 0) < -3:
+            bias_reasons.append(f"油价暴跌{oil.get('change_pct',0):+.1f}%缓解通胀担忧，航空/化工受益，货币空间打开")
+        if nvda and not nvda.get('up', True):
+            bias_risks.append(f"英伟达跌{nvda.get('change_pct',0):+.1f}%，GPU算力链承压(对A股AI芯片情绪有拖累)")
+        if divergence:
+            bias_risks.append('半导体内部分化，追高错方向风险大')
+        if not bias_reasons and not bias_risks:
+            bias = 'neutral'
+
+        return {
+            'indices': {'dji': dji, 'spx': spx, 'ixic': ixic, 'sox': sox},
+            'sector_avg': sector_avg,
+            'leading': leading,
+            'lagging': lagging,
+            'divergence': divergence,
+            'oil': oil,
+            'bias': bias,
+            'bias_reasons': bias_reasons,
+            'bias_risks': bias_risks,
+            'summary': summary,
+        }
+
+    def _generate_scenarios(self, us_analysis):
+        sox_pct = us_analysis['indices'].get('sox', {}).get('change_pct', 0)
+        ixic_pct = us_analysis['indices'].get('ixic', {}).get('change_pct', 0)
+        market = self.market_data
+        md = market.get('market_data', {})
+        fg = market.get('sentiment', {}).get('fear_greed', 50)
+
+        import re
+        turnover = md.get('turnover', '')
+        t_val = 0
+        if isinstance(turnover, str):
+            m = re.search(r'([\d.]+)\s*万亿', turnover)
+            if m: t_val = float(m.group(1)) * 10000
+            else:
+                m = re.search(r'([\d.]+)\s*亿', turnover)
+                if m: t_val = float(m.group(1))
+
+        sh = None
+        for idx in market.get('indices', []):
+            if '上证' in idx.get('name', ''):
+                sh = idx; break
+        sh_price = sh.get('price', 3660) if sh else 3660
+
+        bull_pct, neutral_pct, bear_pct = 40, 45, 15
+        if sox_pct > 5: bull_pct += 10; neutral_pct -= 5; bear_pct -= 5
+        if ixic_pct > 2: bull_pct += 5; neutral_pct -= 3; bear_pct -= 2
+        if fg < 40: bull_pct -= 10; bear_pct += 10
+        if t_val and t_val < 10000: bull_pct -= 10; bear_pct += 5
+        total = bull_pct + neutral_pct + bear_pct
+        bull_pct = round(bull_pct / total * 100)
+        neutral_pct = round(neutral_pct / total * 100)
+        bear_pct = 100 - bull_pct - neutral_pct
+
+        return [
+            {'name': '乐观:放量上攻', 'prob': bull_pct, 'color': 'red',
+             'desc': f'高开后放量站稳，科创50领涨1%+，突破{int(sh_price*1.01)}点压力位',
+             'trigger': '半日成交>5500亿，存储/半导体设备高开2%+不回落',
+             'action': '核心底仓坚定持有，机动仓可在强势龙头回踩时小仓位参与'},
+            {'name': '中性:高开震荡', 'prob': neutral_pct, 'color': 'yellow',
+             'desc': f'高开0.5-1%后冲高回落，在{int(sh_price*0.995)}-{int(sh_price*1.01)}区间震荡收星',
+             'trigger': '半日成交4500-5500亿，板块轮动快，无持续领涨方向',
+             'action': '底仓持有不动，机动仓逢高减弱势品种(英维克)，不追高'},
+            {'name': '悲观:冲高回落', 'prob': bear_pct, 'color': 'green',
+             'desc': f'高开后快速回落翻绿，考验{int(sh_price*0.985)}支撑，缩量至9000亿以下',
+             'trigger': '半日成交<4500亿，10:30前回落过半涨幅，强势板块炸板',
+             'action': '机动仓全部减仓，控制仓位5成以下，等CPI落地再决策'},
+        ]
+
+    def _analyze_themes(self, us_analysis):
+        themes = []
+        for t in self.CORE_THEMES:
+            pcts = []
+            for us_sec in t['us_sectors']:
+                if us_sec in us_analysis['sector_avg']:
+                    pcts.append(us_analysis['sector_avg'][us_sec]['avg'])
+            for ks_name in t['key_stocks']:
+                ks = self._get_us_stock(ks_name)
+                if ks: pcts.append(ks.get('change_pct', 0))
+            avg_pct = sum(pcts)/len(pcts) if pcts else 0
+            if avg_pct >= 5: grade, grade_color = 'S', 'from-red-500 to-orange-500'
+            elif avg_pct >= 2: grade, grade_color = 'A', 'from-orange-500 to-yellow-500'
+            elif avg_pct >= 0: grade, grade_color = 'B', 'from-blue-500 to-cyan-500'
+            else: grade, grade_color = 'C', 'from-gray-500 to-gray-600'
+            bull = f"美股映射板块均涨{avg_pct:+.1f}%"
+            bear = ''
+            if t['name'] == 'AI算力/液冷':
+                nvda = self._get_us_stock('英伟达')
+                if nvda and not nvda.get('up', True):
+                    bear = f"英伟达逆势跌{nvda.get('change_pct',0):+.1f}%，GPU方向承压"
+            themes.append({'name': t['name'], 'a_map': t['a_map'], 'us_avg': round(avg_pct,2),
+                           'grade': grade, 'grade_color': grade_color, 'bull': bull, 'bear': bear})
+        return sorted(themes, key=lambda x: x['us_avg'], reverse=True)
+
+    def _build_holdings_strategy(self, us_analysis):
+        stocks = self.portfolio.get('stocks', [])
+        result = []
+        for s in stocks:
+            code = s.get('code', s.get('id', ''))
+            name = s.get('name', '')
+            current = s.get('current_price', 0) or s.get('price', 0)
+            cost = s.get('cost_price', 0)
+            profit_pct = (current - cost) / cost * 100 if cost > 0 else 0
+            mp = self.HOLDINGS_US_MAP.get(code)
+            us_impact_pct = 0
+            us_detail_parts = []
+            if mp:
+                pcts = []
+                for ps_name in mp['positive_stocks']:
+                    ps = self._get_us_stock(ps_name)
+                    if ps and ps.get('price', 0) > 0:
+                        pcts.append(ps.get('change_pct', 0))
+                        us_detail_parts.append(f"{ps['name']}{ps.get('change_pct',0):+.1f}%")
+                for ns_name in mp['negative_stocks']:
+                    ns = self._get_us_stock(ns_name)
+                    if ns and ns.get('price', 0) > 0:
+                        pcts.append(-ns.get('change_pct', 0) * 0.5)
+                        us_detail_parts.append(f"{ns['name']}{ns.get('change_pct',0):+.1f}%(拖累)")
+                if pcts:
+                    us_impact_pct = round(sum(pcts)/len(pcts)*0.3, 2)
+            us_detail = ' '.join(us_detail_parts) if us_detail_parts else '无直接外盘映射'
+            if us_impact_pct > 1.5: impact = 'strong_bull'
+            elif us_impact_pct > 0.5: impact = 'bull'
+            elif us_impact_pct < -1: impact = 'strong_bear'
+            elif us_impact_pct < -0.3: impact = 'bear'
+            else: impact = 'neutral'
+            sr = self._calc_support_resistance(s)
+            # 深度套牢品种（浮亏>40%）一律借反弹减仓，不恋战
+            if profit_pct < -40:
+                action = '借反弹减仓'
+                action_detail = f'深度套牢({profit_pct:.0f}%)，冲高至{sr["resistance1"]:.0f}元以上减机动仓1/3，{sr["resistance2"]:.0f}元附近继续减；不加仓'
+                priority = '🔴优先'; priority_color = 'red'
+            elif name.startswith('*ST'):
+                action = '严格纪律'
+                action_detail = '跌破8.50元止损，10元以上止盈，投机仓位不追加'
+                priority = '⚪纪律'; priority_color = 'gray'
+            elif impact in ('strong_bull', 'bull'):
+                action = '底仓持有'
+                action_detail = f'底仓坚定持有；高开{max(us_impact_pct*3,1):.1f}%以上不追，回踩{sr["support1"]:.0f}元再考虑机动仓'
+                priority = '🟢持有'; priority_color = 'green'
+            elif impact in ('strong_bear', 'bear'):
+                action = '减仓防守'
+                action_detail = f'受外盘拖累可能承压，反弹至{sr["resistance1"]:.0f}元附近减机动仓'
+                priority = '🟠防守'; priority_color = 'orange'
+            else:
+                action = '持有观察'
+                action_detail = f'底仓持有不动，{sr["support1"]:.0f}元为支撑，{sr["resistance1"]:.0f}元以上可减机动仓做T'
+                priority = '🟡观察'; priority_color = 'yellow'
+            result.append({
+                'code': code, 'name': name, 'current': current, 'cost': cost,
+                'profit_pct': round(profit_pct,1), 'us_impact': us_impact_pct,
+                'us_detail': us_detail, 'impact': impact,
+                'support1': sr['support1'], 'support2': sr['support2'],
+                'resistance1': sr['resistance1'], 'resistance2': sr['resistance2'],
+                'action': action, 'action_detail': action_detail,
+                'priority': priority, 'priority_color': priority_color,
+            })
+        priority_order = {'red':0,'orange':1,'gray':2,'yellow':3,'green':4}
+        result.sort(key=lambda x: priority_order.get(x['priority_color'], 5))
+        return result
+
+    def _generate_risks(self):
+        return [
+            {'level':'高','color':'red','title':'今晚美国CPI(21:30)',
+             'trigger':'CPI环比超0.4%或核心超0.3%',
+             'action':'午后不重仓追高，CPI超预期将引发美债飙升→科技股回调'},
+            {'level':'中','color':'yellow','title':'英伟达黄仁勋事件发酵',
+             'trigger':'英伟达继续跌5%+或更多负面消息',
+             'action':'GPU算力链(寒武纪/海光)承压，不追高纯GPU方向'},
+            {'level':'中','color':'yellow','title':'缩量冲高回落风险',
+             'trigger':'半日成交<4500亿或10:30前回落过半涨幅',
+             'action':'高开不追，等回踩确认再动；仓位维持6成，不满仓'},
+            {'level':'低','color':'blue','title':'原油走势不确定性',
+             'trigger':'美伊谈判反复致油价反弹',
+             'action':'石油石化不追，航空/化工可小仓位博弈油价下行'},
+        ]
+
+    def _generate_key_events(self):
+        return [
+            {'time':'今日 21:30','event':'美国10月CPI公布','impact':'🔴 决定12月加息预期，直接影响科技股估值','direction':'待定'},
+            {'time':'今日 盘中','event':'A股成交量能','impact':'🟡 半日<4500亿=反弹失败，>5500亿=可看高一线','direction':'观察'},
+            {'time':'11/12 凌晨','event':'美联储官员讲话','impact':'🟡 CPI后官员表态可能强化/弱化加息预期','direction':'待定'},
+            {'time':'11/13','event':'SpaceX星舰第15次试飞','impact':'🟢 双级回收若成功→商业航天板块情绪爆发','direction':'利多'},
+        ]
+
+    def _one_line_command(self, themes, holdings):
+        action_items = [h for h in holdings if h['priority_color'] in ('red','orange')]
+        # 从用户实际持仓里找外盘映射最强的持有品种（不拿板块名，拿持仓名）
+        hold_items = [h for h in holdings if h['priority_color'] in ('green',)]
+        strongest_hold = None
+        if hold_items:
+            strongest_hold = max(hold_items, key=lambda x: x['us_impact'])
+        parts = []
+        if action_items:
+            parts.append(f"借反弹减{'、'.join(h['name'] for h in action_items[:2])}")
+        if strongest_hold and strongest_hold['us_impact'] > 0.5:
+            parts.append(f"{strongest_hold['name']}为代表的强势底仓拿稳")
+        else:
+            parts.append("底仓持股待涨")
+        parts.append("不追高等回踩")
+        return '；'.join(parts) + '。'
+
+    def add_battle_plan(self):
+        if not hasattr(self, 'global_data') or not self.global_data:
+            try:
+                with open(os.path.join(self.data_dir, 'global_market.json'), 'r', encoding='utf-8') as f:
+                    self.global_data = json.load(f)
+            except:
+                self.global_data = {}
+
+        us = self._analyze_us_market()
+        scenarios = self._generate_scenarios(us)
+        themes = self._analyze_themes(us)
+        holdings_strategy = self._build_holdings_strategy(us)
+        risks = self._generate_risks()
+        events = self._generate_key_events()
+        command = self._one_line_command(themes, holdings_strategy)
+
+        # 构建HTML
+        h = ['<div class="space-y-5">']
+
+        # ① 核心指令
+        h.append('<div class="bg-gradient-to-r from-red-500/25 via-orange-500/15 to-yellow-500/10 border-2 border-red-500/40 rounded-2xl p-5 relative overflow-hidden">')
+        h.append('<div class="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full blur-3xl"></div>')
+        h.append('<div class="flex items-start gap-3 relative">')
+        h.append('<div class="text-3xl">⚡</div>')
+        h.append('<div class="flex-1">')
+        h.append('<div class="text-xs text-red-300 font-bold tracking-widest mb-1">今日核心指令</div>')
+        h.append(f'<div class="text-xl md:text-2xl font-black text-white leading-tight">{command}</div>')
+        h.append('</div></div></div>')
+
+        # ② 隔夜外盘
+        sox = us['indices'].get('sox', {}); ixic = us['indices'].get('ixic', {})
+        dji = us['indices'].get('dji', {}); spx = us['indices'].get('spx', {})
+        h.append('<div class="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10">')
+        h.append('<div class="text-white font-bold mb-3 flex items-center gap-2"><span>🌍</span><span>隔夜外盘深度解读</span></div>')
+        h.append('<div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">')
+        for label, idx in [('道琼斯',dji),('标普500',spx),('纳斯达克',ixic),('费城半导体',sox)]:
+            if idx:
+                c = self._pct_color(idx.get('change_pct',0))
+                s = self._pct_sign(idx.get('change_pct',0))
+                h.append(f'<div class="bg-white/5 rounded-lg p-3 text-center"><div class="text-xs text-white/50 mb-1">{label}</div><div class="text-lg font-bold {c}">{s}{idx.get("change_pct",0):.2f}%</div></div>')
+        h.append('</div>')
+        h.append('<div class="space-y-2 mb-4">')
+        if us['leading']:
+            h.append('<div class="text-xs text-red-300 font-bold">📈 领涨板块：</div><div class="flex flex-wrap gap-2">')
+            for sec_name, sec_data in us['leading']:
+                h.append(f'<span class="text-xs bg-red-500/15 text-red-300 px-2 py-1 rounded-md border border-red-500/20">{sec_name} {sec_data["avg"]:+.1f}%</span>')
+            h.append('</div>')
+        if us['lagging']:
+            h.append('<div class="text-xs text-green-300 font-bold mt-2">📉 领跌/走弱：</div><div class="flex flex-wrap gap-2">')
+            for sec_name, sec_data in us['lagging']:
+                h.append(f'<span class="text-xs bg-green-500/15 text-green-300 px-2 py-1 rounded-md border border-green-500/20">{sec_name} {sec_data["avg"]:+.1f}%</span>')
+            h.append('</div>')
+        h.append('</div>')
+        for d in us['divergence']:
+            h.append(f'<div class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3 mb-3"><div class="text-xs text-yellow-400 font-bold mb-1">⚠️ 信号分化(易误读)</div><div class="text-sm text-white/90 mb-1">{d["text"]}</div><div class="text-xs text-yellow-200/80">→ A股含义：{d["implication"]}</div></div>')
+        h.append('<div class="text-xs text-white/50 font-bold mb-2">🔗 对A股传导：</div>')
+        h.append('<ul class="text-sm space-y-1 text-white/80">')
+        for r in us['bias_reasons']:
+            h.append(f'<li class="flex items-start gap-2"><span class="text-red-400 mt-0.5">✓</span><span>{r}</span></li>')
+        for r in us['bias_risks']:
+            h.append(f'<li class="flex items-start gap-2"><span class="text-yellow-400 mt-0.5">⚠</span><span>{r}</span></li>')
+        h.append('</ul>')
+        if us.get('oil'):
+            oil = us['oil']
+            oc = self._pct_color(oil.get('change_pct',0))
+            os_ = self._pct_sign(oil.get('change_pct',0))
+            h.append(f'<div class="mt-3 text-xs text-white/60">🛢️ 原油: <span class="{oc}">{oil.get("name","WTI")} ${oil.get("price",0):.1f} ({os_}{oil.get("change_pct",0):.1f}%)</span></div>')
+        h.append('</div>')
+
+        # ③ 三情景
+        h.append('<div class="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10">')
+        h.append('<div class="text-white font-bold mb-3 flex items-center gap-2"><span>📊</span><span>今日大盘三情景预判</span></div>')
+        h.append('<div class="grid md:grid-cols-3 gap-3">')
+        for sc in scenarios:
+            bcs = {'red':'from-red-500 to-orange-500','yellow':'from-yellow-500 to-amber-500','green':'from-green-500 to-emerald-500'}
+            tcs = {'red':'text-red-400','yellow':'text-yellow-400','green':'text-green-400'}
+            h.append(f'<div class="bg-white/5 rounded-xl p-4 border border-white/10"><div class="flex justify-between items-center mb-2"><span class="text-sm font-bold text-white">{sc["name"]}</span><span class="{tcs[sc["color"]]} text-lg font-black">{sc["prob"]}%</span></div>')
+            h.append(f'<div class="w-full h-1.5 bg-white/10 rounded-full mb-3 overflow-hidden"><div class="h-full bg-gradient-to-r {bcs[sc["color"]]} rounded-full" style="width:{sc["prob"]}%"></div></div>')
+            h.append(f'<div class="text-xs text-white/70 mb-2">{sc["desc"]}</div>')
+            h.append(f'<div class="text-xs text-white/50 mb-1"><span class="text-white/70">触发：</span>{sc["trigger"]}</div>')
+            h.append(f'<div class="text-xs mt-2 pt-2 border-t border-white/10"><span class="text-white/70">操作：</span><span class="text-white/90">{sc["action"]}</span></div></div>')
+        h.append('</div></div>')
+
+        # ④ 主线评级
+        h.append('<div class="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10">')
+        h.append('<div class="text-white font-bold mb-3 flex items-center gap-2"><span>🔥</span><span>核心主线评级(按美股映射强弱排序)</span></div>')
+        h.append('<div class="space-y-2">')
+        grade_bg = {'S':'bg-gradient-to-r from-red-500 to-orange-500','A':'bg-gradient-to-r from-orange-500 to-yellow-500','B':'bg-gradient-to-r from-blue-500 to-cyan-500','C':'bg-gray-600'}
+        for t in themes:
+            tc = self._pct_color(t['us_avg']); ts = self._pct_sign(t['us_avg'])
+            h.append(f'<div class="flex items-center gap-3 bg-white/5 rounded-lg p-3">')
+            h.append(f'<div class="{grade_bg[t["grade"]]} text-white font-black text-sm px-2.5 py-1 rounded-md min-w-[32px] text-center">{t["grade"]}</div>')
+            h.append('<div class="flex-1 min-w-0">')
+            h.append(f'<div class="flex items-center gap-2 flex-wrap"><span class="font-bold text-white text-sm">{t["name"]}</span><span class="text-xs {tc} font-bold">美股映射{ts}{t["us_avg"]:.1f}%</span></div>')
+            h.append(f'<div class="text-xs text-white/50 mt-0.5">A股映射：{t["a_map"]}</div>')
+            h.append(f'<div class="text-xs text-green-300/80 mt-0.5">多：{t["bull"]}</div>')
+            if t['bear']:
+                h.append(f'<div class="text-xs text-red-300/80">空：{t["bear"]}</div>')
+            h.append('</div></div>')
+        h.append('</div></div>')
+
+        # ⑤ 持仓策略总表
+        h.append('<div class="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10">')
+        h.append('<div class="text-white font-bold mb-3 flex items-center gap-2"><span>💼</span><span>持仓操作策略总表</span></div>')
+        h.append('<div class="overflow-x-auto"><table class="w-full text-xs">')
+        h.append('<thead><tr class="text-white/50 border-b border-white/10"><th class="text-left py-2 px-1 font-medium">优先级</th><th class="text-left py-2 px-1 font-medium">持仓</th><th class="text-right py-2 px-1 font-medium">昨收</th><th class="text-right py-2 px-1 font-medium">盈亏</th><th class="text-center py-2 px-1 font-medium">外盘</th><th class="text-center py-2 px-1 font-medium">支撑/压力</th><th class="text-left py-2 px-1 font-medium">今日操作</th></tr></thead><tbody>')
+        for h_ in holdings_strategy:
+            pc = 'text-red-400' if h_['profit_pct']>=0 else 'text-green-400'
+            ps = '+' if h_['profit_pct']>=0 else ''
+            uc = self._pct_color(h_['us_impact']*3)
+            us_ = '+' if h_['us_impact']>=0 else ''
+            imp_emoji = {'strong_bull':'🔥','bull':'📈','bear':'📉','strong_bear':'⚠️','neutral':'➖'}.get(h_['impact'],'➖')
+            pri_bg = {'red':'bg-red-500/20 text-red-400','orange':'bg-orange-500/20 text-orange-400','yellow':'bg-yellow-500/20 text-yellow-400','green':'bg-green-500/20 text-green-400','gray':'bg-gray-500/20 text-gray-400'}.get(h_['priority_color'],'bg-white/10 text-white/60')
+            h.append(f'<tr class="border-b border-white/5">')
+            h.append(f'<td class="py-2.5 px-1"><span class="{pri_bg} text-[10px] px-1.5 py-0.5 rounded font-medium whitespace-nowrap">{h_["priority"]}</span></td>')
+            h.append(f'<td class="py-2.5 px-1"><div class="font-bold text-white">{h_["name"]}</div><div class="text-white/40">{h_["code"]}</div></td>')
+            h.append(f'<td class="py-2.5 px-1 text-right text-white/90">¥{h_["current"]:.2f}</td>')
+            h.append(f'<td class="py-2.5 px-1 text-right {pc} font-medium">{ps}{h_["profit_pct"]:.1f}%</td>')
+            h.append(f'<td class="py-2.5 px-1 text-center"><span class="{uc} font-medium">{imp_emoji} {us_}{h_["us_impact"]*3:.1f}%</span></td>')
+            h.append(f'<td class="py-2.5 px-1 text-center text-[10px]"><div class="text-green-400/80">S:{h_["support1"]:.0f}/{h_["support2"]:.0f}</div><div class="text-red-400/80">R:{h_["resistance1"]:.0f}/{h_["resistance2"]:.0f}</div></td>')
+            h.append(f'<td class="py-2.5 px-1"><div class="font-medium text-white">{h_["action"]}</div><div class="text-white/60 text-[11px] mt-0.5">{h_["action_detail"]}</div></td>')
+            h.append('</tr>')
+        h.append('</tbody></table></div>')
+        h.append('<div class="mt-3 pt-3 border-t border-white/10 text-[10px] text-white/40 space-y-0.5">')
+        for h_ in holdings_strategy:
+            if h_['us_detail']:
+                h.append(f'<div><span class="text-white/60">{h_["name"]}：</span>{h_["us_detail"]}</div>')
+        h.append('</div></div>')
+
+        # ⑥ 总策略
+        reduce_count = sum(1 for x in holdings_strategy if x['priority_color'] in ('red','orange'))
+        hold_count = sum(1 for x in holdings_strategy if x['priority_color'] in ('green','yellow'))
+        bias_emoji = {'bullish':'🟢','neutral':'🟡','bearish':'🔴'}.get(us['bias'],'🟡')
+        bias_text = {'bullish':'偏多','neutral':'中性','bearish':'偏空'}.get(us['bias'],'中性')
+        h.append(f'<div class="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10">')
+        h.append('<div class="text-white font-bold mb-3 flex items-center gap-2"><span>📋</span><span>今日操作总策略</span></div>')
+        h.append('<div class="grid md:grid-cols-3 gap-4 mb-4">')
+        h.append('<div class="text-center"><div class="text-white/50 text-xs mb-1">仓位建议</div><div class="text-2xl font-black text-yellow-400">6成</div><div class="text-[10px] text-white/40">不追高，等回踩</div></div>')
+        h.append(f'<div class="text-center"><div class="text-white/50 text-xs mb-1">外盘情绪</div><div class="text-2xl font-black text-red-400">{bias_emoji} {bias_text}</div><div class="text-[10px] text-white/40">费半{sox.get("change_pct",0):+.1f}%/纳指{ixic.get("change_pct",0):+.1f}%</div></div>')
+        h.append(f'<div class="text-center"><div class="text-white/50 text-xs mb-1">持仓动作</div><div class="text-2xl font-black text-orange-400">{reduce_count}减/{hold_count}持</div><div class="text-[10px] text-white/40">{reduce_count}只优先减仓</div></div>')
+        h.append('</div>')
+        h.append('<div class="text-xs text-white/70 space-y-1 bg-white/5 rounded-lg p-3">')
+        h.append('<div><span class="text-white/90 font-medium">关键时间点：</span>9:30-10:00看开盘承接；10:30确认半日量能；14:30防CPI避险；21:30 CPI公布</div>')
+        h.append('<div><span class="text-white/90 font-medium">纪律：</span>高开3%以上不追、破位不硬扛、仓位不超7成</div>')
+        h.append('</div></div>')
+
+        # ⑦ 关键事件
+        h.append('<div class="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10">')
+        h.append('<div class="text-white font-bold mb-3 flex items-center gap-2"><span>📅</span><span>未来48小时关键事件</span></div>')
+        h.append('<div class="space-y-2">')
+        for ev in events:
+            dc = {'利多':'text-red-400','利空':'text-green-400','待定':'text-yellow-400','观察':'text-blue-400'}.get(ev['direction'],'text-white/60')
+            h.append(f'<div class="flex items-start gap-3 text-sm"><div class="text-white/50 text-xs font-mono mt-0.5 min-w-[80px]">{ev["time"]}</div><div class="flex-1"><div class="flex items-center gap-2"><span class="font-medium text-white">{ev["event"]}</span><span class="{dc} text-xs font-bold">[{ev["direction"]}]</span></div><div class="text-xs text-white/60 mt-0.5">{ev["impact"]}</div></div></div>')
+        h.append('</div></div>')
+
+        # ⑧ 三级风险
+        h.append('<div class="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10">')
+        h.append('<div class="text-white font-bold mb-3 flex items-center gap-2"><span>⚠️</span><span>今日风险提示</span></div>')
+        h.append('<div class="space-y-2">')
+        for r in risks:
+            lvl = {'red':'bg-red-500/20 text-red-400 border-red-500/30','yellow':'bg-yellow-500/20 text-yellow-400 border-yellow-500/30','blue':'bg-blue-500/20 text-blue-400 border-blue-500/30'}.get(r['color'],'bg-white/10 text-white/60 border-white/20')
+            h.append(f'<div class="border {lvl.split()[2]} rounded-lg p-3"><div class="flex items-center gap-2 mb-1"><span class="{lvl.split()[0]} {lvl.split()[1]} text-[10px] px-1.5 py-0.5 rounded font-bold">{r["level"]}风险</span><span class="font-bold text-white text-sm">{r["title"]}</span></div><div class="text-xs text-white/70 mb-1">触发条件：{r["trigger"]}</div><div class="text-xs text-white/60">应对：{r["action"]}</div></div>')
+        h.append('</div></div>')
+
+        h.append('</div>')
+        self.add_section("🎯 今日作战计划", ''.join(h), "🎯")
+
     def add_tomorrow_prediction(self):
         """明日关键预判 - Pro版"""
         predictions = []
@@ -1256,20 +1778,19 @@ class DailyReportProGenerator(ReportProGenerator):
         self.add_section("每日总结", content, "📝")
     
     def build_standard_report(self):
-        """构建标准版本的日报"""
-        self.add_global_market()
-        self.add_market_overview()
-        self.add_important_news()
-        self.add_sector_analysis()
-        self.add_today_catalysts()
-        self.add_topic_dynamics()
-        self.add_topic_deep_dive()
-        self.add_skill_enhanced_section()
-        self.add_jiuyan_hot_topics()
-        self.add_holdings_tracking()
-        self.add_tomorrow_prediction()
-        self.add_risk_warning()
-        self.add_daily_summary()
+        """构建标准版本的日报 - V2: 新增今日作战计划作为核心板块"""
+        self.add_global_market()         # 隔夜外盘概览
+        self.add_market_overview()       # 大盘概览
+        self.add_important_news()        # 重要新闻
+        self.add_sector_analysis()       # 板块分析
+        self.add_today_catalysts()       # 今日催化剂
+        self.add_topic_dynamics()        # 题材动态
+        self.add_topic_deep_dive()       # 题材深度
+        self.add_skill_enhanced_section()# Skill增强分析
+        self.add_jiuyan_hot_topics()     # 韭研热门
+        self.add_holdings_tracking()     # 持仓跟踪
+        self.add_battle_plan()           # 🎯 今日作战计划（核心灵魂板块）
+        self.add_risk_warning()          # 风险提示
         return self
 
 
