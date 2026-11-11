@@ -362,19 +362,19 @@ class AftermarketGenerator:
         content_html = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">'
         
         up_html = '<div style="background: rgba(16,185,129,0.1); border-radius: 14px; padding: 16px;">'
-        up_html += '<div style="font-size: 14px; font-weight: 600; color: #059669; margin-bottom: 12px;">📈 领涨板块</div>'
+        up_html += '<div style="font-size: 14px; font-weight: 600; color: #34d399; margin-bottom: 12px;">📈 领涨板块</div>'
         for s in up_sectors:
             up_html += f'''<div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #bbf7d0;">
                 <span style="font-size: 13px; color: #166534;">{s["name"]}</span>
-                <span style="font-size: 13px; font-weight: 600; color: #059669;">{s["change"]}</span></div>'''
+                <span style="font-size: 13px; font-weight: 600; color: #34d399;">{s["change"]}</span></div>'''
         up_html += '</div>'
         
         down_html = '<div style="background: rgba(239,68,68,0.1); border-radius: 14px; padding: 16px;">'
-        down_html += '<div style="font-size: 14px; font-weight: 600; color: #dc2626; margin-bottom: 12px;">📉 领跌板块</div>'
+        down_html += '<div style="font-size: 14px; font-weight: 600; color: #f87171; margin-bottom: 12px;">📉 领跌板块</div>'
         for s in down_sectors:
             down_html += f'''<div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #fecaca;">
                 <span style="font-size: 13px; color: #f87171;">{s["name"]}</span>
-                <span style="font-size: 13px; font-weight: 600; color: #dc2626;">{s["change"]}</span></div>'''
+                <span style="font-size: 13px; font-weight: 600; color: #f87171;">{s["change"]}</span></div>'''
         down_html += '</div>'
         
         content_html += up_html + down_html + '</div>'
@@ -392,24 +392,24 @@ class AftermarketGenerator:
         """
         # 强势板块
         strong_html = '<div style="background: linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(234,88,12,0.08) 100%); border-radius: 16px; padding: 20px; border: 1px solid rgba(239,68,68,0.3);">'
-        strong_html += '<div style="font-size: 14px; font-weight: 700; color: #dc2626; margin-bottom: 10px;">📈 强势板块</div>'
-        strong_html += '<div style="font-size: 13px; color: #4b5563; line-height: 1.7;">'
+        strong_html += '<div style="font-size: 14px; font-weight: 700; color: #f87171; margin-bottom: 10px;">📈 强势板块</div>'
+        strong_html += '<div style="font-size: 13px; color: #cbd5e1; line-height: 1.7;">'
         for s in strong_sectors:
             strong_html += '<p><strong>' + s.get('name', '') + '</strong>：' + s.get('reason', '') + '</p>'
         strong_html += '</div></div>'
         
         # 弱势板块
         weak_html = '<div style="background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.08) 100%); border-radius: 16px; padding: 20px; border: 1px solid rgba(16,185,129,0.3);">'
-        weak_html += '<div style="font-size: 14px; font-weight: 700; color: #059669; margin-bottom: 10px;">📉 弱势板块</div>'
-        weak_html += '<div style="font-size: 13px; color: #4b5563; line-height: 1.7;">'
+        weak_html += '<div style="font-size: 14px; font-weight: 700; color: #34d399; margin-bottom: 10px;">📉 弱势板块</div>'
+        weak_html += '<div style="font-size: 13px; color: #cbd5e1; line-height: 1.7;">'
         for w in weak_sectors:
             weak_html += '<p><strong>' + w.get('name', '') + '</strong>：' + w.get('reason', '') + '</p>'
         weak_html += '</div></div>'
         
         # 核心观点
-        view_html = '<div style="background: linear-gradient(135deg, #eff6ff 0%, #eef2ff 100%); border-radius: 16px; padding: 20px; border: 1px solid rgba(59, 130, 246, 0.15);">'
-        view_html += '<div style="font-size: 14px; font-weight: 700; color: #2563eb; margin-bottom: 10px;">🎯 核心观点</div>'
-        view_html += '<p style="font-size: 13px; color: #4b5563; line-height: 1.8; margin: 0;">' + core_view + '</p>'
+        view_html = '<div style="background: linear-gradient(135deg, rgba(59,130,246,0.12) 0%, rgba(99,102,241,0.08) 100%); border-radius: 16px; padding: 20px; border: 1px solid rgba(96,165,250,0.25);">'
+        view_html += '<div style="font-size: 14px; font-weight: 700; color: #60a5fa; margin-bottom: 10px;">🎯 核心观点</div>'
+        view_html += '<p style="font-size: 13px; color: #cbd5e1; line-height: 1.8; margin: 0;">' + core_view + '</p>'
         view_html += '</div>'
         
         content_html = '<div style="background: rgba(30,30,50,0.5); padding: 28px; border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.05) inset;">'
@@ -487,7 +487,7 @@ class AftermarketGenerator:
             pred_html += '<span style="font-weight: 700; color: #f1f5f9;">' + p.get('name', '') + '</span></div>'
             pred_html += '<span style="background: ' + style['gradient'] + '; color: white; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 20px;">'
             pred_html += direction + ' · ' + str(p.get('confidence', 60)) + '%</span></div>'
-            pred_html += '<p style="font-size: 13px; color: #4b5563; line-height: 1.7; margin: 0;">' + p.get('reason', '') + '</p>'
+            pred_html += '<p style="font-size: 13px; color: #cbd5e1; line-height: 1.7; margin: 0;">' + p.get('reason', '') + '</p>'
             pred_html += '</div>'
         
         pred_html += '</div>'
