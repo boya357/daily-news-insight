@@ -944,11 +944,26 @@ class DailyReportProGenerator(ReportProGenerator):
                 m = re.search(r'([\d.]+)\s*亿', turnover)
                 if m: t_val = float(m.group(1))
 
+        sh_price_default = 3680
         sh = None
         for idx in market.get('indices', []):
             if '上证' in idx.get('name', ''):
                 sh = idx; break
-        sh_price = sh.get('price', 3660) if sh else 3660
+        sh_price = sh.get('price', 0) if sh else 0
+        if not sh_price or sh_price <= 0:
+            try:
+                import glob as _glob
+                hist_files = sorted(_glob.glob('/root/daily-news-insight/data/history/*.json'))
+                if hist_files:
+                    with open(hist_files[-1], 'r', encoding='utf-8') as hf:
+                        hist = json.load(hf)
+                    for hidx in hist.get('indices', []):
+                        if '上证' in hidx.get('name', '') and hidx.get('price', 0) > 0:
+                            sh_price = hidx['price']; break
+            except Exception:
+                pass
+        if not sh_price or sh_price <= 0:
+            sh_price = sh_price_default
 
         bull_pct, neutral_pct, bear_pct = 40, 45, 15
         if sox_pct > 5: bull_pct += 10; neutral_pct -= 5; bear_pct -= 5
