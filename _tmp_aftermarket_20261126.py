@@ -35,6 +35,62 @@ gen.add_sentiment_thermometer(
     limit_up_count=62
 )
 
+# ====== 晚间重要新闻 ======
+evening_news = [
+    {
+        "title": "国际金价突破2800美元创历史新高 黄金股集体走强",
+        "content": "受美元走弱和地缘政治风险加剧影响，国际金价今日突破2800美元/盎司，创历史新高。国内黄金股集体走强，招金黄金涨超8%，山东黄金、紫金矿业等跟涨。分析人士认为，美联储降息预期+央行持续购金+地缘风险三重因素支撑金价中期上涨，黄金股业绩弹性将持续释放。",
+        "time": "20:15",
+        "source": "财联社",
+        "tag": "贵金属",
+        "tag_variant": "warning"
+    },
+    {
+        "title": "工信部：加快推进5G-A商用进程 推动AI算力基础设施建设",
+        "content": "工信部今日召开新闻发布会，表示将加快推进5G-A商用进程，推动AI算力基础设施建设，促进数字经济与实体经济深度融合。会议强调要加大核心技术攻关力度，提升产业链供应链韧性和安全水平。通信设备和AI算力板块今日资金大幅流入，楚天龙涨停，中际旭创涨超5%。",
+        "time": "19:30",
+        "source": "证券时报",
+        "tag": "政策利好",
+        "tag_variant": "primary"
+    },
+    {
+        "title": "MLCC行业迎来历史最长缺货周期 国产替代加速",
+        "content": "据行业调研，受AI服务器需求爆发拉动，MLCC（多层陶瓷电容器）行业正在经历历史上最长的缺货周期。三星电机、太阳诱电等国际巨头8-9月已大幅提价，国内厂商有望跟进。风华高科Q3单季净利同比增长470%，验证行业高景气度。国产替代在美国'精准脱钩'背景下进一步加速。",
+        "time": "18:45",
+        "source": "科创板日报",
+        "tag": "行业景气",
+        "tag_variant": "success"
+    },
+    {
+        "title": "北向资金净流入32.6亿元 结束连续3日净流出",
+        "content": "今日北向资金全天净流入32.6亿元，结束连续3日净流出态势。其中沪股通净流入18.3亿元，深股通净流入14.3亿元。行业方面，电子、通信、计算机等科技板块获北向资金加仓，银行、保险等金融板块遭减持。分析认为，外资回流显示对A股科技成长板块的长期信心。",
+        "time": "16:30",
+        "source": "东方财富",
+        "tag": "资金动向",
+        "tag_variant": "info"
+    },
+    {
+        "title": "三季报业绩验证科技股景气度 半导体产业链持续高增长",
+        "content": "随着三季报披露完毕，科技股业绩分化明显。半导体材料、先进封装、MLCC等高景气赛道公司业绩持续高增长，而消费电子、面板等赛道业绩承压。雅克科技、长电科技、风华高科等龙头公司业绩均超市场预期，验证了产业链高景气度。",
+        "time": "17:20",
+        "source": "中国证券报",
+        "tag": "业绩验证",
+        "tag_variant": "success"
+    },
+    {
+        "title": "ST板块超跌反弹 *ST建艺等多股涨停",
+        "content": "今日ST板块出现超跌反弹行情，*ST建艺、*ST围海等多股涨停。市场人士指出，ST板块经过持续下跌后，部分个股存在超跌反弹需求，但整体基本面并未改善，退市风险仍然高悬，投资者需谨慎参与，严格控制仓位。",
+        "time": "17:50",
+        "source": "e公司",
+        "tag": "风险提示",
+        "tag_variant": "danger"
+    },
+]
+
+gen.add_evening_news(evening_news)
+
+
+
 # ====== 板块表现 ======
 up_sectors = [
     {"name": "渔业", "change": "+6.58%", "leader": "中水渔业 +10.05%", "fund": "主力净流入+1.2亿", "logic": "岁末消费旺季到来，水产价格上行预期强烈，低位板块补涨动能较强，但板块容量小持续性存疑，建议观望为主。"},
@@ -67,6 +123,53 @@ gen.add_market_deep_analysis(
     ],
     core_view="今日市场呈现明显的V型反转走势，早盘受外盘拖累三大指数集体低开低走，创业板指一度跌逾2%，沪指下探至3455点创近期新低。午后在科技股带动下市场情绪快速修复，半导体、元件、通信设备等成长板块轮番拉升，科创50尾盘翻红涨超1%领跑主要指数。从资金面看，北向资金净流入32.6亿结束连续3日净流出，显示外资对A股长期信心仍在。主力资金在科技板块大幅回流，元件板块单日净流入44.7亿居首，通信设备净流入37.2亿紧随其后。板块轮动特征明显，高位消费/金融调整，低位科技/贵金属反弹，市场风格正从防御转向进攻。成交量方面，两市合计成交1.32万亿，较昨日略有缩量，显示增量资金仍较谨慎。涨跌家数方面，上涨2876家、下跌2345家，涨停62家、跌停12家，市场赚钱效应回升。技术面看，沪指3450点附近构成短期底部区域，创业板指2150点支撑有效，MACD底背离迹象明显，短期反弹动能正在积聚。操作上建议逢低布局业绩确定性强的科技成长股，重点关注半导体、元件、先进封装等超跌反弹赛道，控制仓位在5-6成，不追高、回调买。"
 )
+
+# ====== 连板梯队与市场情绪 ======
+limit_up_html = """
+<div style="line-height: 1.9; font-size: 13px; color: #cbd5e1;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+        <div style="background: linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(220,38,38,0.08) 100%); border-radius: 12px; padding: 14px; border: 1px solid rgba(239,68,68,0.3);">
+            <div style="font-size: 12px; color: #f87171; font-weight: 600; margin-bottom: 8px;">🔥 连板梯队</div>
+            <div style="color: #f1f5f9; font-size: 13px; line-height: 1.8;">
+                <div><strong>3连板</strong>：杭州解百(商业百货)</div>
+                <div><strong>2连板</strong>：金健米业(农业)、好当家(渔业)、常山北明(华为)</div>
+                <div><strong>首板</strong>：62家（涨停总数）</div>
+            </div>
+        </div>
+        <div style="background: linear-gradient(135deg, rgba(245,158,11,0.15) 0%, rgba(217,119,6,0.08) 100%); border-radius: 12px; padding: 14px; border: 1px solid rgba(245,158,11,0.3);">
+            <div style="font-size: 12px; color: #fbbf24; font-weight: 600; margin-bottom: 8px;">📊 涨跌数据</div>
+            <div style="color: #f1f5f9; font-size: 13px; line-height: 1.8;">
+                <div>上涨：<strong style="color: #10b981;">2876家</strong></div>
+                <div>下跌：<strong style="color: #ef4444;">2345家</strong></div>
+                <div>涨停62 / 跌停12</div>
+                <div>赚钱效应：<strong style="color: #10b981;">偏强</strong></div>
+            </div>
+        </div>
+        <div style="background: linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(99,102,241,0.08) 100%); border-radius: 12px; padding: 14px; border: 1px solid rgba(59,130,246,0.3);">
+            <div style="font-size: 12px; color: #60a5fa; font-weight: 600; margin-bottom: 8px;">💹 资金流向</div>
+            <div style="color: #f1f5f9; font-size: 13px; line-height: 1.8;">
+                <div>北向资金：<strong style="color: #10b981;">+32.6亿</strong></div>
+                <div>主力净流入：<strong style="color: #10b981;">+128亿</strong></div>
+                <div>两融余额：1.62万亿</div>
+                <div>成交额：<strong>1.32万亿</strong></div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="background: rgba(255,255,255,0.03); border-radius: 12px; padding: 16px; border: 1px solid rgba(255,255,255,0.06);">
+        <div style="font-size: 13px; font-weight: 600; color: #f1f5f9; margin-bottom: 10px;">🎯 市场情绪深度分析</div>
+        <p style="margin: 0; line-height: 2; color: #cbd5e1;">今日市场情绪从冰点快速修复，早盘恐慌情绪蔓延至极点，创业板指一度跌超2%，午后在科技股带动下V型反转。从情绪指标来看，涨停家数回升至62家，较昨日明显增加；跌停家数降至12家，显示恐慌情绪缓解。连板高度维持在3板（杭州解百），连板梯队尚不完整，说明市场情绪仍处于修复初期。资金面上，北向资金结束连续3日净流出，主力资金大幅回流科技板块，显示机构资金开始逢低布局。板块轮动方面，低位科技股和贵金属成为资金主攻方向，高位消费和金融板块资金流出，风格切换明显。整体来看，市场情绪处于修复阶段，但尚未进入亢奋期，后市仍有反弹空间。需要关注的是成交量能否持续放大，若无量反弹则需警惕回落风险。</p>
+    </div>
+</div>
+"""
+
+gen.report.add_section(
+    title="🔥 连板梯队与市场情绪",
+    content=limit_up_html,
+    icon="trending_up"
+)
+
+
 
 # ====== 持仓股深度诊断（自定义详细版）======
 holdings_detailed = [
