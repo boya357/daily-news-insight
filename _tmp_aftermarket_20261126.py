@@ -486,6 +486,157 @@ risks = [
 gen.add_risk_warning(risks)
 
 # ====== 发布 ======
+
+# ====== 板块资金流向深度分析 ======
+fund_flow_html = """
+<div style="line-height: 2; font-size: 13px; color: #cbd5e1;">
+    <div style="background: rgba(16,185,129,0.06); border-radius: 12px; padding: 16px 18px; border: 1px solid rgba(16,185,129,0.25); margin-bottom: 14px;">
+        <div style="font-size: 13px; font-weight: 600; color: #34d399; margin-bottom: 10px;">📈 主力资金净流入TOP5板块</div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: center;">
+                <div style="width: 90px; font-size: 12px; color: #f1f5f9;">元件板块</div>
+                <div style="flex: 1; background: rgba(255,255,255,0.06); border-radius: 6px; height: 20px; overflow: hidden;">
+                    <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 6px;"></div>
+                </div>
+                <div style="width: 80px; text-align: right; font-size: 12px; color: #10b981; font-weight: 600;">+44.7亿</div>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div style="width: 90px; font-size: 12px; color: #f1f5f9;">通信设备</div>
+                <div style="flex: 1; background: rgba(255,255,255,0.06); border-radius: 6px; height: 20px; overflow: hidden;">
+                    <div style="width: 83%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 6px;"></div>
+                </div>
+                <div style="width: 80px; text-align: right; font-size: 12px; color: #10b981; font-weight: 600;">+37.2亿</div>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div style="width: 90px; font-size: 12px; color: #f1f5f9;">贵金属</div>
+                <div style="flex: 1; background: rgba(255,255,255,0.06); border-radius: 6px; height: 20px; overflow: hidden;">
+                    <div style="width: 19%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 6px;"></div>
+                </div>
+                <div style="width: 80px; text-align: right; font-size: 12px; color: #10b981; font-weight: 600;">+8.6亿</div>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div style="width: 90px; font-size: 12px; color: #f1f5f9;">半导体</div>
+                <div style="flex: 1; background: rgba(255,255,255,0.06); border-radius: 6px; height: 20px; overflow: hidden;">
+                    <div style="width: 14%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 6px;"></div>
+                </div>
+                <div style="width: 80px; text-align: right; font-size: 12px; color: #10b981; font-weight: 600;">+6.3亿</div>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div style="width: 90px; font-size: 12px; color: #f1f5f9;">装修装饰</div>
+                <div style="flex: 1; background: rgba(255,255,255,0.06); border-radius: 6px; height: 20px; overflow: hidden;">
+                    <div style="width: 7%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 6px;"></div>
+                </div>
+                <div style="width: 80px; text-align: right; font-size: 12px; color: #10b981; font-weight: 600;">+3.2亿</div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="background: rgba(239,68,68,0.06); border-radius: 12px; padding: 16px 18px; border: 1px solid rgba(239,68,68,0.25); margin-bottom: 14px;">
+        <div style="font-size: 13px; font-weight: 600; color: #f87171; margin-bottom: 10px;">📉 主力资金净流出TOP5板块</div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: center;">
+                <div style="width: 90px; font-size: 12px; color: #f1f5f9;">银行</div>
+                <div style="flex: 1; background: rgba(255,255,255,0.06); border-radius: 6px; height: 20px; overflow: hidden;">
+                    <div style="width: 64%; height: 100%; background: linear-gradient(90deg, #ef4444, #f87171); border-radius: 6px; margin-left: auto;"></div>
+                </div>
+                <div style="width: 80px; text-align: right; font-size: 12px; color: #ef4444; font-weight: 600;">-28.7亿</div>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div style="width: 90px; font-size: 12px; color: #f1f5f9;">保险</div>
+                <div style="flex: 1; background: rgba(255,255,255,0.06); border-radius: 6px; height: 20px; overflow: hidden;">
+                    <div style="width: 27%; height: 100%; background: linear-gradient(90deg, #ef4444, #f87171); border-radius: 6px; margin-left: auto;"></div>
+                </div>
+                <div style="width: 80px; text-align: right; font-size: 12px; color: #ef4444; font-weight: 600;">-12.3亿</div>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div style="width: 90px; font-size: 12px; color: #f1f5f9;">煤炭</div>
+                <div style="flex: 1; background: rgba(255,255,255,0.06); border-radius: 6px; height: 20px; overflow: hidden;">
+                    <div style="width: 20%; height: 100%; background: linear-gradient(90deg, #ef4444, #f87171); border-radius: 6px; margin-left: auto;"></div>
+                </div>
+                <div style="width: 80px; text-align: right; font-size: 12px; color: #ef4444; font-weight: 600;">-8.9亿</div>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div style="width: 90px; font-size: 12px; color: #f1f5f9;">房地产</div>
+                <div style="flex: 1; background: rgba(255,255,255,0.06); border-radius: 6px; height: 20px; overflow: hidden;">
+                    <div style="width: 15%; height: 100%; background: linear-gradient(90deg, #ef4444, #f87171); border-radius: 6px; margin-left: auto;"></div>
+                </div>
+                <div style="width: 80px; text-align: right; font-size: 12px; color: #ef4444; font-weight: 600;">-6.8亿</div>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div style="width: 90px; font-size: 12px; color: #f1f5f9;">食品饮料</div>
+                <div style="flex: 1; background: rgba(255,255,255,0.06); border-radius: 6px; height: 20px; overflow: hidden;">
+                    <div style="width: 11%; height: 100%; background: linear-gradient(90deg, #ef4444, #f87171); border-radius: 6px; margin-left: auto;"></div>
+                </div>
+                <div style="width: 80px; text-align: right; font-size: 12px; color: #ef4444; font-weight: 600;">-4.9亿</div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="background: rgba(59,130,246,0.06); border-radius: 12px; padding: 16px 18px; border: 1px solid rgba(59,130,246,0.25);">
+        <div style="font-size: 13px; font-weight: 600; color: #60a5fa; margin-bottom: 10px;">💡 资金流向深度解读</div>
+        <p style="margin: 0; line-height: 2; color: #cbd5e1;">今日主力资金明显从传统防御板块（银行、保险、煤炭）流向科技成长板块（元件、通信设备、半导体），这种风格切换往往是市场从熊市思维转向牛市思维的重要信号。北向资金净流入32.6亿元，结束连续3日净流出，显示外资对A股科技成长板块的长期信心仍然充足。元件板块单日净流入44.7亿高居榜首，这与MLCC行业缺货周期和PCB需求放量的基本面高度吻合，具有较强的持续性。需要注意的是，银行板块单日净流出28.7亿，幅度较大，可能预示着机构资金正在进行大规模的风格调仓。投资者应顺应资金流向，逐步将仓位从防御性板块调整至科技成长板块，但要注意控制节奏，避免追高被套。从历史经验来看，科技股的反弹往往具有持续性，因为产业趋势一旦形成不会轻易改变，但短期波动也会比较大，需要做好仓位管理和风险控制。</p>
+    </div>
+</div>
+"""
+
+gen.report.add_section(
+    title="💰 板块资金流向深度分析",
+    content=fund_flow_html,
+    icon="payments"
+)
+
+# ====== 明日重点关注事件 ======
+tomorrow_events_html = """
+<div style="line-height: 2; font-size: 13px; color: #cbd5e1;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="background: rgba(168,85,247,0.08); border-radius: 12px; padding: 14px 16px; border: 1px solid rgba(168,85,247,0.25);">
+            <div style="font-size: 12px; font-weight: 600; color: #a855f7; margin-bottom: 8px;">📅 宏观事件</div>
+            <ul style="margin: 0; padding-left: 16px; line-height: 2;">
+                <li>美国10月PCE物价指数公布，关注通胀数据对美联储政策路径影响</li>
+                <li>国内11月制造业PMI数据公布，关注经济复苏力度和预期变化</li>
+                <li>央行公开市场操作，关注资金面和流动性变化情况</li>
+                <li>人民币汇率走势，关注对外资流向的影响</li>
+            </ul>
+        </div>
+        <div style="background: rgba(245,158,11,0.08); border-radius: 12px; padding: 14px 16px; border: 1px solid rgba(245,158,11,0.25);">
+            <div style="font-size: 12px; font-weight: 600; color: #f59e0b; margin-bottom: 8px;">🏭 行业事件</div>
+            <ul style="margin: 0; padding-left: 16px; line-height: 2;">
+                <li>半导体行业峰会召开，关注国产替代技术进展</li>
+                <li>AI算力产业论坛举办，关注AI需求变化趋势</li>
+                <li>新能源汽车销量数据公布，关注产业链景气度</li>
+                <li>5G-A商用进程推进会，关注通信设备板块催化</li>
+            </ul>
+        </div>
+        <div style="background: rgba(16,185,129,0.08); border-radius: 12px; padding: 14px 16px; border: 1px solid rgba(16,185,129,0.25);">
+            <div style="font-size: 12px; font-weight: 600; color: #34d399; margin-bottom: 8px;">📊 财报与数据</div>
+            <ul style="margin: 0; padding-left: 16px; line-height: 2;">
+                <li>三季报已披露完毕，关注业绩超预期个股后续</li>
+                <li>关注全年业绩预告披露情况和指引变化</li>
+                <li>重点跟踪半导体、AI产业链公司业绩指引</li>
+                <li>工业企业利润数据公布，关注盈利改善情况</li>
+            </ul>
+        </div>
+        <div style="background: rgba(239,68,68,0.08); border-radius: 12px; padding: 14px 16px; border: 1px solid rgba(239,68,68,0.25);">
+            <div style="font-size: 12px; font-weight: 600; color: #f87171; margin-bottom: 8px;">⚠️ 风险事件</div>
+            <ul style="margin: 0; padding-left: 16px; line-height: 2;">
+                <li>美股科技股波动对A股科技板块传导风险</li>
+                <li>北向资金流向变化，连续流入还是昙花一现</li>
+                <li>成交量能否持续放大，无量反弹需警惕回落</li>
+                <li>美国半导体出口管制政策变化风险</li>
+                <li>地缘政治风险加剧对市场情绪的冲击</li>
+            </ul>
+        </div>
+    </div>
+</div>
+"""
+
+gen.report.add_section(
+    title="📅 明日重点关注事件",
+    content=tomorrow_events_html,
+    icon="event"
+)
+
+
 result = gen.publish(
     title="盘后速递",
     excerpt="三大指数探底回升V型反转，科技板块超跌反弹，7只持仓6涨1跌，*ST建艺涨停，华海诚科大涨7%。龙虎榜游资主导行情，拓维信息/旋极信息/盛合晶微净买入居前三。北向资金净流入32.6亿，市场情绪修复。"
