@@ -6,6 +6,13 @@ sys.path.insert(0, '/root/daily-news-insight/v3')
 os.chdir('/root/daily-news-insight')
 
 from v3.generators.aftermarket import AftermarketGenerator
+from v3.components.layout import Section
+
+
+def _add_custom_section(gen, title, content_html, icon="info"):
+    """向生成器添加自定义section"""
+    section = Section(title=title, content=content_html, icon=icon)
+    gen._components.append(section)
 
 gen = AftermarketGenerator(
     date_str="20261126",
@@ -163,11 +170,7 @@ limit_up_html = """
 </div>
 """
 
-gen.report.add_section(
-    title="🔥 连板梯队与市场情绪",
-    content=limit_up_html,
-    icon="trending_up"
-)
+_add_custom_section(gen, "🔥 连板梯队与市场情绪", limit_up_html, "trending_up")
 
 
 
@@ -345,11 +348,7 @@ for h in holdings_detailed:
     '''
 holdings_html += '</div>'
 
-gen.report.add_section(
-    title="💼 持仓股深度诊断",
-    content=holdings_html,
-    icon="briefcase"
-)
+_add_custom_section(gen, "💼 持仓股深度诊断", holdings_html, "briefcase")
 
 # ====== 龙虎榜深度解读 ======
 lhb_stocks = [
@@ -579,11 +578,7 @@ fund_flow_html = """
 </div>
 """
 
-gen.report.add_section(
-    title="💰 板块资金流向深度分析",
-    content=fund_flow_html,
-    icon="payments"
-)
+_add_custom_section(gen, "💰 板块资金流向深度分析", fund_flow_html, "payments")
 
 # ====== 明日重点关注事件 ======
 tomorrow_events_html = """
@@ -630,11 +625,7 @@ tomorrow_events_html = """
 </div>
 """
 
-gen.report.add_section(
-    title="📅 明日重点关注事件",
-    content=tomorrow_events_html,
-    icon="event"
-)
+_add_custom_section(gen, "📅 明日重点关注事件", tomorrow_events_html, "event")
 
 
 result = gen.publish(
